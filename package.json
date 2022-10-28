@@ -1,0 +1,16 @@
+{
+  "name": "query-builder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "vitest": "^0.24.3"
+  },
+  "dependencies": {
+    "zod": "^3.19.1"
+  }
+}
