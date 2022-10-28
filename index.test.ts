@@ -1,57 +1,124 @@
 import { describe, expect, it } from "vitest";
-import { oldAll, q } from ".";
+import { q } from ".";
 import { z } from "zod";
 
-// describe("filter", () => {
-// 	it("applies a simple filter", () => {
-// 		expect(oldAll().filter("_type == 'animal'").query).toBe(
-// 			`*[_type == 'animal']`
-// 		);
-// 	});
-
-// 	it("applies stacked filters", () => {
-// 		expect(
-// 			oldAll().filter("_type == 'animal'").filter("breed == 'dog'").query
-// 		).toBe(`*[_type == 'animal'][breed == 'dog']`);
-// 	});
-// });
-
-// describe("sort", () => {
-// 	it("applies a simple order", () => {
-// 		expect(oldAll().order("name asc").query).toBe("*|order(name asc)");
-// 	});
-
-// 	it("stacks a sort on top of filter", () => {
-// 		expect(oldAll().filter("_type == 'animal'").order("name asc").query).toBe(
-// 			`*[_type == 'animal']|order(name asc)`
-// 		);
-// 	});
-// });
-
-// describe("slice", () => {
-// 	it("applies a simple slice", () => {
-// 		expect(oldAll().slice(0).query).toBe(`*[0]`);
-// 		expect(oldAll().slice(0, 3).query).toBe(`*[0..3]`);
-// 	});
-// });
-
 describe("q", () => {
-	it("can pipe some stuff", () => {
-		expect(
-			q(q.all(), q.filter("_type == 'animal'"), q.select({ name: true })).query
-		).toBe(`*[_type == 'animal']`);
-	});
+  it("handles `empty` as an empty query with unknown result", () => {
+    const { query, schema } = q(q.empty());
 
-	it("can filter then sort", () => {
-		console.log("Yeah?", z.number() instanceof z.ZodArray);
+    expect(query).toBe("");
+    expect(schema instanceof z.ZodUnknown).toBeTruthy();
+  });
 
-		expect(
-			q(
-				q.all(),
-				q.filter("_type == 'animal'"),
-				q.select({ name: q.string("name") }),
-				q.order("name asc")
-			).query
-		).toBe(`*[_type == 'animal']|order(name asc)`);
-	});
+  it("handles `all` as array of unknown", () => {
+    const { query, schema } = q(q.all());
+
+    expect(query).toBe("*");
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+    expect(schema.parse([])).toEqual([]);
+  });
+
+  it("handles empty filter, unknown array schema", () => {
+    const { query, schema } = q(q.all(), q.filter("_type == 'animal'"));
+
+    expect(query).toBe("*[_type == 'animal']");
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+  });
+
+  // TODO: Ordering
+
+  it("can select values (one level)", () => {
+    const { query, schema } = q(
+      q.all(),
+      q.filter("_type == 'animal'"),
+      q.select({ name: q.string("name"), age: q.number("age") })
+    );
+
+    expect(query).toEqual(`*[_type == 'animal']{name, age}`);
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.parse([{ name: "Rudy", age: 32 }])).toEqual([
+      { name: "Rudy", age: 32 },
+    ]);
+
+    expect(() => {
+      schema.parse([{ foo: "bar" }]);
+    }).toThrow();
+  });
+
+  it("can select values (two levels)", () => {
+    const { query, schema } = q(
+      q.all(),
+      q.select({ name: q.string("name"), age: q.number("age") }),
+      q.select({ name: q.string("name") })
+    );
+
+    expect(query).toEqual(`*{name, age}{name}`);
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.parse([{ name: "Rudy" }])).toEqual([{ name: "Rudy" }]);
+
+    expect(() => {
+      schema.parse([{ foo: "bar" }]);
+    }).toThrow();
+  });
+
+  it("can select values from empty object", () => {
+    const { query, schema } = q(
+      q.empty(),
+      q.select({
+        name: q.string("name"),
+      })
+    );
+
+    expect(query).toBe("{name}");
+    expect(schema instanceof z.ZodObject).toBeTruthy();
+    expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
+  });
+
+  it("can select with sub-queries/joins", () => {
+    const { query, schema } = q(
+      q.all(),
+      q.select({
+        name: q.string("name"),
+        owners: q(
+          q.all(),
+          q.filter("_type == 'owner' && references(^._id)"),
+          q.select({ age: q.number("age") }),
+          q.slice(0, 3)
+        ),
+      }),
+      q.slice(0)
+    );
+
+    const res = schema.parse({});
+
+    expect(query).toBe(
+      `*{name,"owners":*[_type == 'owner' && references(^._id)]{name}}`
+    );
+  });
+
+  it("can slice values", () => {
+    const { query, schema } = q(
+      q.all(),
+      q.select({ name: q.string("name") }),
+      q.slice(0, 1)
+    );
+
+    expect(query).toBe("*{name}[0..1]");
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodObject).toBeTruthy();
+  });
+
+  it("can slice a single value out", () => {
+    const { query, schema } = q(
+      q.all(),
+      q.select({ name: q.string("name") }),
+      q.slice(0)
+    );
+
+    expect(query).toBe("*{name}[0]");
+    expect(schema instanceof z.ZodObject);
+    expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
+  });
 });
