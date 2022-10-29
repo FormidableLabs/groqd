@@ -91,10 +91,10 @@ describe("q", () => {
       q.slice(0)
     );
 
-    const res = schema.parse({});
-
-    expect(query).toBe(
-      `*{name,"owners":*[_type == 'owner' && references(^._id)]{name}}`
+    expect(trimmed(query)).toBe(
+      trimmed(
+        `*{name,"owners":*[_type == 'owner' && references(^._id)]{age}[0..3]}[0]`
+      )
     );
   });
 
@@ -121,4 +121,12 @@ describe("q", () => {
     expect(schema instanceof z.ZodObject);
     expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
   });
+
+  it("testing thing", () => {
+    const s = z.string().default("hello");
+
+    expect(s.parse(undefined)).toBe("hello");
+  });
 });
+
+const trimmed = (str: string) => str.replace(/ /g, "");
