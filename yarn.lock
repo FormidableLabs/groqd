@@ -214,6 +214,11 @@ get-func-name@^2.0.0:
   resolved "https://registry.yarnpkg.com/get-func-name/-/get-func-name-2.0.0.tgz#ead774abee72e20409433a066366023dd6887a41"
   integrity sha512-Hm0ixYtaSZ/V7C8FJrtZIuBBI+iSgL+1Aq82zSu8VQNB4S3Gk8e7Qs3VwBDJAhmRZcFqkl3tQu36g/Foh5I5ig==
 
+groq-js@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/groq-js/-/groq-js-1.1.1.tgz#2ab132bc8015b0dccfe21adc28490d79e22c6f0d"
+  integrity sha512-qzUfJepffRUcSwjU3x2m30SUrhbssAR1Qs1DUq9+xmT2yeyO/3Il8+AkML8Tc6twWv20bL/KQgE8ig2Sbixu0w==
+
 has@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/has/-/has-1.0.3.tgz#722d7cbfc1f6aa8241f16dd814e011e1f41e8796"

@@ -1,6 +1,27 @@
 import { describe, expect, it } from "vitest";
 import { q } from ".";
 import { z } from "zod";
+import { evaluate, parse } from "groq-js";
+
+const dataset = [
+  {
+    _type: "animal",
+    name: "Remy",
+    _id: "614b6d9b-75ca-4769-b9ca-06048fb47a3f",
+  },
+  { _type: "animal", name: "Rogue", _id: "asbasdf" },
+  {
+    _type: "owner",
+    name: "Grant",
+    pets: [
+      {
+        _key: "e6e54f0e0770",
+        _ref: "614b6d9b-75ca-4769-b9ca-06048fb47a3f",
+        _type: "reference",
+      },
+    ],
+  },
+];
 
 describe("q", () => {
   it("handles `empty` as an empty query with unknown result", () => {
@@ -124,16 +145,26 @@ describe("q", () => {
     expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
   });
 
-  it("testing thing", () => {
-    const s = z.string().default("hello");
-    const { schema } = q(
-      q.empty(),
+  it.only("testing thing", async () => {
+    const { query, schema } = q(
+      q.all(),
+      q.filter("_type == 'animal'"),
       q.select({
-        date: q.date("date"),
+        Name: q.string("name"),
+        owner: q(
+          q.all(),
+          q.filter("_type=='owner' && references(^._id)"),
+          q.select({ name: q.string("name") }),
+          q.slice(0)
+        ),
       })
     );
 
-    expect(s.parse(undefined)).toBe("hello");
+    // const r = schema.parse({});
+
+    const tree = parse(query);
+    const res = await evaluate(tree, { dataset });
+    console.log("data!", JSON.stringify(await res.get(), null, 2));
   });
 });
 

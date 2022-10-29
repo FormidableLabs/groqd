@@ -6,9 +6,12 @@ export const makeField = <I, O extends z.ZodType>(fn: (...args: I[]) => O) => {
     return {
       name,
       schema: fn(...args),
-      mod(f) {
+
+      mod<N extends z.ZodType>(f: (x: O) => N) {
+        // TODO: Fix this...
+        // @ts-ignore
         this.schema = f(this.schema);
-        return this;
+        return this as unknown as Field<N>;
       },
     };
   };

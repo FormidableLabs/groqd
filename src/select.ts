@@ -31,7 +31,13 @@ export const select =
 
     const projections = Object.entries(selection).reduce<string[]>(
       (acc, [key, val]) => {
-        acc.push("query" in val ? `"${key}": ${val.query}` : val.name);
+        acc.push(
+          "query" in val
+            ? `"${key}": ${val.query}`
+            : key === val.name
+            ? key
+            : `"${key}": ${val.name}`
+        );
         return acc;
       },
       []
