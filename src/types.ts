@@ -5,7 +5,9 @@ export type BaseResult<T> = {
   schema: T;
 };
 
-export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
-
-export type Field<T extends z.ZodType> = { name: string; schema: T };
+export type Field<T extends z.ZodType> = {
+  name: string;
+  schema: T;
+  mod: <N extends z.ZodType>(arg: (x: T) => N) => Field<N>;
+};
 export type FromField<T> = T extends Field<infer R> ? R : never;

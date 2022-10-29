@@ -113,7 +113,9 @@ describe("q", () => {
   it("can slice a single value out", () => {
     const { query, schema } = q(
       q.all(),
-      q.select({ name: q.string("name") }),
+      q.select({
+        name: q.string("name").mod((s) => s.optional().default("hey")),
+      }),
       q.slice(0)
     );
 
@@ -124,6 +126,12 @@ describe("q", () => {
 
   it("testing thing", () => {
     const s = z.string().default("hello");
+    const { schema } = q(
+      q.empty(),
+      q.select({
+        date: q.date("date"),
+      })
+    );
 
     expect(s.parse(undefined)).toBe("hello");
   });

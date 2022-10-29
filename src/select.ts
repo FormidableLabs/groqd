@@ -24,7 +24,7 @@ export const select =
         : z.ZodNever
       : // Input was not an array, do a similar take/pick approach
       T extends z.ZodUnknown
-      ? z.ZodArray<FromSelection<S>>
+      ? FromSelection<S>
       : T extends z.ZodObject<infer R2>
       ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>>
       : z.ZodNever;
@@ -98,7 +98,4 @@ export const select =
     } as BaseResult<NewType>;
   };
 
-type Selection = Record<
-  string,
-  Field<z.ZodString | z.ZodNumber> | BaseResult<any>
->;
+type Selection = Record<string, Field<any> | BaseResult<any>>;
