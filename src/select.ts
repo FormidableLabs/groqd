@@ -2,16 +2,17 @@ import { z } from "zod";
 import { BaseResult, Field, FromField } from "./types";
 
 // TODO: prev argument should probably be dynamic so you can't do something like { name }{ name, age } (since age will null out)
-// TODO: selection should be able to accept a sub-query for joins
+// TODO: be able to pass key:rename as key to Selection and have it respect it!!!
 export const select =
   <S extends Selection>(selection: S) =>
   <T>(prev: BaseResult<T>) => {
     type FromSelection<T extends Selection> = z.ZodObject<{
-      [K in keyof T]: T[K] extends BaseResult<any>
-        ? T[K]["schema"]
-        : FromField<T[K]>;
+      [K in keyof T as K extends `${infer Key}:${string}`
+        ? Key
+        : K]: T[K] extends BaseResult<any> ? T[K]["schema"] : FromField<T[K]>;
     }>;
-    type KeysFromSelection<T extends Selection> = keyof T & string;
+    type KeysFromSelection<T extends Selection> =
+      (keyof T extends `${infer Key}:${string}` ? Key : T) & string;
 
     // Start with array type
     type NewType = T extends z.ZodArray<infer R>
@@ -31,13 +32,15 @@ export const select =
 
     const projections = Object.entries(selection).reduce<string[]>(
       (acc, [key, val]) => {
-        acc.push(
-          "query" in val
-            ? `"${key}": ${val.query}`
-            : key === val.name
-            ? key
-            : `"${key}": ${val.name}`
-        );
+        let toPush = "";
+        if ("query" in val) {
+          toPush = `"${key}": ${val.query}`;
+        } else {
+          const match = key.match(/^(.*):(.*)$/);
+          toPush = match ? `"${match?.[1]}":${match?.[2]}` : key;
+        }
+
+        toPush && acc.push(toPush);
         return acc;
       },
       []
@@ -51,7 +54,13 @@ export const select =
         if (prev.schema.element instanceof z.ZodUnknown) {
           const s = Object.entries(selection).reduce<z.ZodRawShape>(
             (acc, [key, value]) => {
-              acc[key] = value.schema;
+              if ("schema" in value) {
+                acc[key] = value.schema;
+              } else {
+                const match = key.match(RenameKeyRegexp);
+                acc[match?.[1] || key] = value;
+              }
+
               return acc;
             },
             {}
@@ -76,9 +85,16 @@ export const select =
       // Not an array...
       else {
         if (prev.schema instanceof z.ZodUnknown) {
+          // TODO: dedup this from above.
           const s = Object.entries(selection).reduce<z.ZodRawShape>(
             (acc, [key, value]) => {
-              acc[key] = value.schema;
+              if ("schema" in value) {
+                acc[key] = value.schema;
+              } else {
+                const match = key.match(RenameKeyRegexp);
+                acc[match?.[1] || key] = value;
+              }
+
               return acc;
             },
             {}
@@ -104,4 +120,8 @@ export const select =
     } as BaseResult<NewType>;
   };
 
-type Selection = Record<string, Field<any> | BaseResult<any>>;
+type Selection = { [key: string]: BaseResult<any> | z.ZodType } & {
+  [key: `${string}:${string}`]: z.ZodType;
+};
+
+const RenameKeyRegexp = /^(.*):(.*)$/;

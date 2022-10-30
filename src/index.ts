@@ -90,8 +90,8 @@ pipe.order = order;
 pipe.select = select;
 pipe.slice = slice;
 // Field types
-pipe.string = makeField(z.string);
-pipe.number = makeField(z.number);
+pipe.string = z.string;
+pipe.number = z.number;
 pipe.boolean = makeField(z.boolean);
 pipe.date = makeField(() => dateSchema);
 // TODO: pipe.union...?

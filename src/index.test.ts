@@ -54,7 +54,7 @@ describe("q", () => {
     const { query, schema } = q(
       q.all(),
       q.filter("_type == 'animal'"),
-      q.select({ name: q.string("name"), age: q.number("age") })
+      q.select({ name: q.string(), age: q.number() })
     );
 
     expect(query).toEqual(`*[_type == 'animal']{name, age}`);
@@ -71,8 +71,8 @@ describe("q", () => {
   it("can select values (two levels)", () => {
     const { query, schema } = q(
       q.all(),
-      q.select({ name: q.string("name"), age: q.number("age") }),
-      q.select({ name: q.string("name") })
+      q.select({ name: q.string(), age: q.number() }),
+      q.select({ name: q.string() })
     );
 
     expect(query).toEqual(`*{name, age}{name}`);
@@ -88,7 +88,7 @@ describe("q", () => {
     const { query, schema } = q(
       q.empty(),
       q.select({
-        name: q.string("name"),
+        name: q.string(),
       })
     );
 
@@ -101,11 +101,11 @@ describe("q", () => {
     const { query, schema } = q(
       q.all(),
       q.select({
-        name: q.string("name"),
+        name: q.string(),
         owners: q(
           q.all(),
           q.filter("_type == 'owner' && references(^._id)"),
-          q.select({ age: q.number("age") }),
+          q.select({ age: q.number() }),
           q.slice(0, 3)
         ),
       }),
@@ -119,10 +119,23 @@ describe("q", () => {
     );
   });
 
+  it.only("can select with a rename", () => {
+    const { query, schema } = q(
+      q.all(),
+      q.select({
+        "name:firstname": q.string(),
+      }),
+      q.slice(0)
+    );
+
+    expect(query).toBe(`*{"name":firstname}[0]`);
+    expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
+  });
+
   it("can slice values", () => {
     const { query, schema } = q(
       q.all(),
-      q.select({ name: q.string("name") }),
+      q.select({ name: q.string() }),
       q.slice(0, 1)
     );
 
@@ -135,7 +148,7 @@ describe("q", () => {
     const { query, schema } = q(
       q.all(),
       q.select({
-        name: q.string("name").mod((s) => s.optional().default("hey")),
+        name: q.string().optional(),
       }),
       q.slice(0)
     );
@@ -145,16 +158,16 @@ describe("q", () => {
     expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
   });
 
-  it.only("testing thing", async () => {
+  it("testing thing", async () => {
     const { query, schema } = q(
       q.all(),
       q.filter("_type == 'animal'"),
       q.select({
-        Name: q.string("name"),
+        Name: q.string(),
         owner: q(
           q.all(),
           q.filter("_type=='owner' && references(^._id)"),
-          q.select({ name: q.string("name") }),
+          q.select({ name: q.string() }),
           q.slice(0)
         ),
       })
