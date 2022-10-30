@@ -1,31 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { q } from ".";
+import { q, QueryResult } from ".";
 import { z } from "zod";
 import { evaluate, parse } from "groq-js";
 
-const dataset = [
-  {
-    _type: "animal",
-    name: "Remy",
-    _id: "614b6d9b-75ca-4769-b9ca-06048fb47a3f",
-  },
-  { _type: "animal", name: "Rogue", _id: "asbasdf" },
-  {
-    _type: "owner",
-    name: "Grant",
-    pets: [
-      {
-        _key: "e6e54f0e0770",
-        _ref: "614b6d9b-75ca-4769-b9ca-06048fb47a3f",
-        _type: "reference",
-      },
-    ],
-  },
-];
-
 describe("q", () => {
-  it("handles `empty` as an empty query with unknown result", () => {
-    const { query, schema } = q(q.empty());
+  it("handles `query('')` as an empty query with unknown result", () => {
+    const { query, schema } = q(q.query());
 
     expect(query).toBe("");
     expect(schema instanceof z.ZodUnknown).toBeTruthy();
@@ -86,7 +66,7 @@ describe("q", () => {
 
   it("can select values from empty object", () => {
     const { query, schema } = q(
-      q.empty(),
+      q.query(),
       q.select({
         name: q.string(),
       })
@@ -158,12 +138,12 @@ describe("q", () => {
     expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
   });
 
-  it("testing thing", async () => {
+  it.skip("testing thing", async () => {
     const { query, schema } = q(
       q.all(),
       q.filter("_type == 'animal'"),
       q.select({
-        Name: q.string(),
+        name: q.string(),
         owner: q(
           q.all(),
           q.filter("_type=='owner' && references(^._id)"),
@@ -173,12 +153,60 @@ describe("q", () => {
       })
     );
 
-    // const r = schema.parse({});
-
     const tree = parse(query);
     const res = await evaluate(tree, { dataset });
     console.log("data!", JSON.stringify(await res.get(), null, 2));
   });
+
+  it.only("runs query, can deref", async () => {
+    const res = await runQuery(
+      q(
+        q.all(),
+        q.filter("_type == 'owner'"),
+        q.select({
+          name: q.string(),
+          pets: q(
+            q.query("pets"),
+            q.filter(),
+            q.deref(),
+            q.select({ name: q.string() })
+          ),
+        })
+      )
+    );
+
+    console.log(res[0]);
+  });
 });
 
 const trimmed = (str: string) => str.replace(/ /g, "");
+
+const runQuery = async <T extends z.ZodType>(
+  q: QueryResult<T>
+): Promise<z.infer<T>> => {
+  const tree = parse(q.query);
+  const _ = await evaluate(tree, { dataset });
+  const rawRes = await _.get();
+
+  return q.schema.parse(rawRes);
+};
+
+const dataset = [
+  {
+    _type: "animal",
+    name: "Remy",
+    _id: "614b6d9b-75ca-4769-b9ca-06048fb47a3f",
+  },
+  { _type: "animal", name: "Rogue", _id: "asbasdf" },
+  {
+    _type: "owner",
+    name: "Grant",
+    pets: [
+      {
+        _key: "e6e54f0e0770",
+        _ref: "614b6d9b-75ca-4769-b9ca-06048fb47a3f",
+        _type: "reference",
+      },
+    ],
+  },
+];

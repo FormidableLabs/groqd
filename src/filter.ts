@@ -2,10 +2,11 @@ import { z } from "zod";
 import { BaseResult } from "./types";
 
 export const filter =
-  (filterValue: string) =>
+  (filterValue = "") =>
   <T>(prev: BaseResult<T>) => {
-    type NewType = T extends z.ZodArray<any> ? T : z.ZodNull;
-    const schema = prev.schema instanceof z.ZodArray ? prev.schema : z.null();
+    type NewType = T extends z.ZodArray<any> ? T : z.ZodArray<z.ZodUnknown>;
+    const schema =
+      prev.schema instanceof z.ZodArray ? prev.schema : z.array(z.unknown());
 
     return {
       __type: "filter",

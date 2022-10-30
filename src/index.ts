@@ -5,13 +5,10 @@ import { order } from "./order";
 import { select } from "./select";
 import { slice } from "./slice";
 import { makeField } from "./fields";
+import { deref } from "./deref";
 
-/**
- * Fns
- */
-
-const empty = (): BaseResult<z.ZodUnknown> => ({
-  query: "",
+const query = (q?: string): BaseResult<z.ZodUnknown> => ({
+  query: q || "",
   schema: z.unknown(),
 });
 
@@ -73,9 +70,18 @@ function pipe(source: any, ...args: any[]) {
 }
 
 // TODO: Naked projection
-// TODO: dereferencing
 // TODO: conditional fields
 // TODO: Root and Parent references? that might just be in filters etc
+
+/**
+ * How do I do something like this:
+ *
+ * 	*[_type == "owner"] {
+ *   	"pets": pets[]->{name}
+ * 	}
+ *
+ *	In this case, we have "pets"
+ */
 
 // Date helper to parse date strings
 const dateSchema = z.preprocess((arg) => {
@@ -83,12 +89,13 @@ const dateSchema = z.preprocess((arg) => {
 }, z.date());
 
 // Bind to pipe fn.
-pipe.empty = empty;
+pipe.query = query;
 pipe.all = all;
 pipe.filter = filter;
 pipe.order = order;
 pipe.select = select;
 pipe.slice = slice;
+pipe.deref = deref;
 // Field types
 pipe.string = z.string;
 pipe.number = z.number;
@@ -97,3 +104,5 @@ pipe.date = makeField(() => dateSchema);
 // TODO: pipe.union...?
 
 export const q = pipe;
+
+export type QueryResult<T> = BaseResult<T>;
