@@ -35,9 +35,10 @@ export const select =
         let toPush = "";
         if ("query" in val) {
           toPush = `"${key}": ${val.query}`;
+        } else if (Array.isArray(val)) {
+          toPush = `"${key}": ${val[0]}`;
         } else {
-          const match = key.match(/^(.*):(.*)$/);
-          toPush = match ? `"${match?.[1]}":${match?.[2]}` : key;
+          toPush = key;
         }
 
         toPush && acc.push(toPush);
@@ -56,9 +57,10 @@ export const select =
             (acc, [key, value]) => {
               if ("schema" in value) {
                 acc[key] = value.schema;
+              } else if (Array.isArray(value)) {
+                acc[key] = value[1];
               } else {
-                const match = key.match(RenameKeyRegexp);
-                acc[match?.[1] || key] = value;
+                acc[key] = value;
               }
 
               return acc;
@@ -90,9 +92,10 @@ export const select =
             (acc, [key, value]) => {
               if ("schema" in value) {
                 acc[key] = value.schema;
+              } else if (Array.isArray(value)) {
+                acc[key] = value[1];
               } else {
-                const match = key.match(RenameKeyRegexp);
-                acc[match?.[1] || key] = value;
+                acc[key] = value;
               }
 
               return acc;
@@ -120,8 +123,8 @@ export const select =
     } as BaseResult<NewType>;
   };
 
-type Selection = { [key: string]: BaseResult<any> | z.ZodType } & {
-  [key: `${string}:${string}`]: z.ZodType;
+type Selection = {
+  [key: string]: BaseResult<any> | z.ZodType | [string, z.ZodType];
 };
 
 const RenameKeyRegexp = /^(.*):(.*)$/;

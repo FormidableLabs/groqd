@@ -99,17 +99,30 @@ describe("q", () => {
     );
   });
 
-  it.only("can select with a rename", () => {
+  it("can select with a rename", () => {
     const { query, schema } = q(
       q.all(),
       q.select({
-        "name:firstname": q.string(),
+        name: ["firstname", q.string()],
       }),
       q.slice(0)
     );
 
-    expect(query).toBe(`*{"name":firstname}[0]`);
+    expect(query).toBe(`*{"name": firstname}[0]`);
     expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
+  });
+
+  it("can select with an expression", () => {
+    const { query, schema } = q(
+      q.all(),
+      q.select({
+        name: ["firstname + lastname", q.string()],
+      }),
+      q.slice(0)
+    );
+
+    expect(query).toBe(`*{"name": firstname + lastname}[0]`);
+    expect(schema.parse({ name: "Rudy Judy" })).toEqual({ name: "Rudy Judy" });
   });
 
   it("can slice values", () => {
@@ -158,7 +171,7 @@ describe("q", () => {
     console.log("data!", JSON.stringify(await res.get(), null, 2));
   });
 
-  it.only("runs query, can deref", async () => {
+  it.skip("runs query, can deref", async () => {
     const res = await runQuery(
       q(
         q.all(),
