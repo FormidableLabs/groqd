@@ -151,6 +151,18 @@ describe("q", () => {
     expect(schema.parse({ name: "Rudy" })).toEqual({ name: "Rudy" });
   });
 
+  it("handles naked projection", () => {
+    const { query, schema } = q(
+      "*",
+      q.filter("_type == 'owner'"),
+      q.grab({
+        pets: q("pets", q.filter(), q.deref(), q.grabOne("name", q.string())),
+      })
+    );
+
+    expect(query).toBe(`*[_type == 'owner']{"pets": pets[]->.name}`);
+  });
+
   it.skip("testing thing", async () => {
     const { query, schema } = q(
       "*",
@@ -171,7 +183,7 @@ describe("q", () => {
     console.log("data!", JSON.stringify(await res.get(), null, 2));
   });
 
-  it("runs query, can deref", async () => {
+  it.skip("runs query, can deref", async () => {
     const res = await runQuery(
       q(
         "*",
@@ -183,9 +195,19 @@ describe("q", () => {
       )
     );
 
-    const owner1 = res[0];
+    // TODO: Test for this
+  });
 
-    console.log(res[0]);
+  it.only("test...", async () => {
+    const res = await runQuery(
+      q(
+        "",
+        q.grab({ count: ["count(*[_type == 'animal'])", q.number()] }),
+        q.grabOne("count", q.number())
+      )
+    );
+
+    console.log("RES!!!", res);
   });
 });
 

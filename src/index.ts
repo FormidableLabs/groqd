@@ -6,6 +6,7 @@ import { grab } from "./grab";
 import { slice } from "./slice";
 import { makeField } from "./fields";
 import { deref } from "./deref";
+import { grabOne } from "./grabOne";
 
 type Fn<L, R> = {
   (arg: L): R;
@@ -69,7 +70,6 @@ function pipe<BaseQuery extends "*" | string>(
   return x;
 }
 
-// TODO: Naked projection
 // TODO: conditional fields
 // TODO: Root and Parent references? that might just be in filters etc
 
@@ -82,12 +82,14 @@ const dateSchema = z.preprocess((arg) => {
 pipe.filter = filter;
 pipe.order = order;
 pipe.grab = grab;
+pipe.grabOne = grabOne;
 pipe.slice = slice;
 pipe.deref = deref;
 // Field types
 pipe.string = z.string;
 pipe.number = z.number;
-pipe.boolean = makeField(z.boolean);
+pipe.boolean = z.boolean;
+pipe.unknown = z.unknown;
 pipe.date = makeField(() => dateSchema);
 // TODO: pipe.union...?
 

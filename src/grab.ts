@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { BaseResult, Field, FromField } from "./types";
+import { BaseResult } from "./types";
 
 // TODO: prev argument should probably be dynamic so you can't do something like { name }{ name, age } (since age will null out)
-// TODO: be able to pass key:rename as key to Selection and have it respect it!!!
 export const grab =
   <S extends Selection>(selection: S) =>
   <T>(prev: BaseResult<T>) => {
@@ -123,8 +122,12 @@ export const grab =
     } as BaseResult<NewType>;
   };
 
+type Field<T extends z.ZodType> = T;
+type FromField<T> = T extends Field<infer R>
+  ? R
+  : T extends [string, infer R]
+  ? R
+  : z.ZodNever;
 type Selection = {
   [key: string]: BaseResult<any> | z.ZodType | [string, z.ZodType];
 };
-
-const RenameKeyRegexp = /^(.*):(.*)$/;
