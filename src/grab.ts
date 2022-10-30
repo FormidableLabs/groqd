@@ -3,7 +3,7 @@ import { BaseResult, Field, FromField } from "./types";
 
 // TODO: prev argument should probably be dynamic so you can't do something like { name }{ name, age } (since age will null out)
 // TODO: be able to pass key:rename as key to Selection and have it respect it!!!
-export const select =
+export const grab =
   <S extends Selection>(selection: S) =>
   <T>(prev: BaseResult<T>) => {
     type FromSelection<T extends Selection> = z.ZodObject<{

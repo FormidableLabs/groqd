@@ -5,36 +5,36 @@ import { evaluate, parse } from "groq-js";
 
 describe("q", () => {
   it("handles `query('')` as an empty query with unknown result", () => {
-    const { query, schema } = q(q.query());
+    const { query, schema } = q("");
 
     expect(query).toBe("");
     expect(schema instanceof z.ZodUnknown).toBeTruthy();
   });
 
-  it("handles `all` as array of unknown", () => {
-    const { query, schema } = q(q.all());
-
-    expect(query).toBe("*");
-    expect(schema instanceof z.ZodArray).toBeTruthy();
-    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
-    expect(schema.parse([])).toEqual([]);
-  });
-
+  // it("handles `*` as array of unknown", () => {
+  //   const { query, schema } = q(q.all());
+  //
+  //   expect(query).toBe("*");
+  //   expect(schema instanceof z.ZodArray).toBeTruthy();
+  //   expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+  //   expect(schema.parse([])).toEqual([]);
+  // });
+  //
   it("handles empty filter, unknown array schema", () => {
-    const { query, schema } = q(q.all(), q.filter("_type == 'animal'"));
+    const { query, schema } = q("*", q.filter("_type == 'animal'"));
 
     expect(query).toBe("*[_type == 'animal']");
     expect(schema instanceof z.ZodArray).toBeTruthy();
     expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
   });
-
-  // TODO: Ordering
-
+  //
+  // // TODO: Ordering
+  //
   it("can select values (one level)", () => {
     const { query, schema } = q(
-      q.all(),
+      "*",
       q.filter("_type == 'animal'"),
-      q.select({ name: q.string(), age: q.number() })
+      q.grab({ name: q.string(), age: q.number() })
     );
 
     expect(query).toEqual(`*[_type == 'animal']{name, age}`);
@@ -50,9 +50,9 @@ describe("q", () => {
 
   it("can select values (two levels)", () => {
     const { query, schema } = q(
-      q.all(),
-      q.select({ name: q.string(), age: q.number() }),
-      q.select({ name: q.string() })
+      "*",
+      q.grab({ name: q.string(), age: q.number() }),
+      q.grab({ name: q.string() })
     );
 
     expect(query).toEqual(`*{name, age}{name}`);
@@ -66,8 +66,8 @@ describe("q", () => {
 
   it("can select values from empty object", () => {
     const { query, schema } = q(
-      q.query(),
-      q.select({
+      "",
+      q.grab({
         name: q.string(),
       })
     );
@@ -79,13 +79,13 @@ describe("q", () => {
 
   it("can select with sub-queries/joins", () => {
     const { query, schema } = q(
-      q.all(),
-      q.select({
+      "*",
+      q.grab({
         name: q.string(),
         owners: q(
-          q.all(),
+          "*",
           q.filter("_type == 'owner' && references(^._id)"),
-          q.select({ age: q.number() }),
+          q.grab({ age: q.number() }),
           q.slice(0, 3)
         ),
       }),
@@ -101,8 +101,8 @@ describe("q", () => {
 
   it("can select with a rename", () => {
     const { query, schema } = q(
-      q.all(),
-      q.select({
+      "*",
+      q.grab({
         name: ["firstname", q.string()],
       }),
       q.slice(0)
@@ -114,8 +114,8 @@ describe("q", () => {
 
   it("can select with an expression", () => {
     const { query, schema } = q(
-      q.all(),
-      q.select({
+      "*",
+      q.grab({
         name: ["firstname + lastname", q.string()],
       }),
       q.slice(0)
@@ -127,8 +127,8 @@ describe("q", () => {
 
   it("can slice values", () => {
     const { query, schema } = q(
-      q.all(),
-      q.select({ name: q.string() }),
+      "*",
+      q.grab({ name: q.string() }),
       q.slice(0, 1)
     );
 
@@ -139,8 +139,8 @@ describe("q", () => {
 
   it("can slice a single value out", () => {
     const { query, schema } = q(
-      q.all(),
-      q.select({
+      "*",
+      q.grab({
         name: q.string().optional(),
       }),
       q.slice(0)
@@ -153,14 +153,14 @@ describe("q", () => {
 
   it.skip("testing thing", async () => {
     const { query, schema } = q(
-      q.all(),
+      "*",
       q.filter("_type == 'animal'"),
-      q.select({
+      q.grab({
         name: q.string(),
         owner: q(
-          q.all(),
+          "*",
           q.filter("_type=='owner' && references(^._id)"),
-          q.select({ name: q.string() }),
+          q.grab({ name: q.string() }),
           q.slice(0)
         ),
       })
@@ -171,22 +171,19 @@ describe("q", () => {
     console.log("data!", JSON.stringify(await res.get(), null, 2));
   });
 
-  it.skip("runs query, can deref", async () => {
+  it("runs query, can deref", async () => {
     const res = await runQuery(
       q(
-        q.all(),
+        "*",
         q.filter("_type == 'owner'"),
-        q.select({
+        q.grab({
           name: q.string(),
-          pets: q(
-            q.query("pets"),
-            q.filter(),
-            q.deref(),
-            q.select({ name: q.string() })
-          ),
+          pets: q("pets", q.filter(), q.deref(), q.grab({ name: q.string() })),
         })
       )
     );
+
+    const owner1 = res[0];
 
     console.log(res[0]);
   });
