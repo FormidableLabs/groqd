@@ -5,7 +5,6 @@ import { BaseResult } from "./types";
 export const slice =
   <Max extends number | undefined>(min: number, max?: Max) =>
   <T>(prev: BaseResult<T>) => {
-    // TODO: This is wrong...
     type NewType = undefined extends Max
       ? T extends z.ZodArray<infer R>
         ? R

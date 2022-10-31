@@ -4,7 +4,6 @@ import { BaseResult } from "./types";
 import { order } from "./order";
 import { grab } from "./grab";
 import { slice } from "./slice";
-import { makeField } from "./fields";
 import { deref } from "./deref";
 import { grabOne } from "./grabOne";
 
@@ -92,7 +91,7 @@ pipe.boolean = z.boolean;
 pipe.unknown = z.unknown;
 pipe.null = z.null;
 pipe.undefined = z.undefined;
-pipe.date = makeField(() => dateSchema);
+pipe.date = () => dateSchema;
 // TODO: pipe.union...?
 
 export const q = pipe;
