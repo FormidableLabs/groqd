@@ -7,7 +7,6 @@ import { z } from "zod";
 export const grabOne =
   <GrabOneType extends z.ZodType>(name: string, fieldSchema: GrabOneType) =>
   <T>(prev: BaseResult<T>) => {
-    // TODO: Might need more cases here???
     type NewType = T extends z.ZodArray<any>
       ? z.ZodArray<GrabOneType>
       : GrabOneType;

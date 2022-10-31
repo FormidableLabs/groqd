@@ -1,4 +1,3 @@
-// Slicing a set
 import { z } from "zod";
 import { BaseResult } from "./types";
 

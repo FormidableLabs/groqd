@@ -69,9 +69,6 @@ function pipe<BaseQuery extends "*" | string>(
   return x;
 }
 
-// TODO: conditional fields
-// TODO: Root and Parent references? that might just be in filters etc
-
 // Date helper to parse date strings
 const dateSchema = z.preprocess((arg) => {
   if (typeof arg == "string" || arg instanceof Date) return new Date(arg);
