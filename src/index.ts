@@ -90,6 +90,8 @@ pipe.string = z.string;
 pipe.number = z.number;
 pipe.boolean = z.boolean;
 pipe.unknown = z.unknown;
+pipe.null = z.null;
+pipe.undefined = z.undefined;
 pipe.date = makeField(() => dateSchema);
 // TODO: pipe.union...?
 

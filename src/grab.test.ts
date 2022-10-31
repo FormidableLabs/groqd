@@ -1,0 +1,80 @@
+import { describe, it, expect } from "vitest";
+import { runPokemonQuery } from "../test-utils/runQuery";
+import { q } from "./index";
+import { z } from "zod";
+import invariant from "tiny-invariant";
+
+describe("grab", () => {
+  it("creates schema from unknown array schema", async () => {
+    const { query, schema, data } = await runPokemonQuery(
+      q("*", q.filter("_type == 'pokemon'"), q.grab({ name: q.string() }))
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']{name}`);
+    expect(
+      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
+    );
+    invariant(data);
+    expect(data[0].name).toBe("Bulbasaur");
+  });
+
+  it("creates schema from unknown singleton schema", async () => {
+    const { schema, data } = await runPokemonQuery(
+      q("", q.grab({ name: q.null() }))
+    );
+
+    expect(schema instanceof z.ZodObject);
+    expect(data).toEqual({ name: null });
+  });
+
+  it("can grab with {key: [name, schema]} syntax", async () => {
+    const { query, schema, data } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.grab({ hp: ["base.HP", q.number()] })
+      )
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']{"hp": base.HP}`);
+    expect(
+      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
+    );
+    invariant(data);
+    expect(data[0].hp).toBe(45);
+  });
+
+  it("can grab with {key: schema} shorthand", async () => {
+    const { query, schema, data } = await runPokemonQuery(
+      q("*", q.filter("_type == 'pokemon'"), q.grab({ name: q.string() }))
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']{name}`);
+    expect(data?.[0]?.name).toBe("Bulbasaur");
+  });
+
+  it("can grab with {key: q()} composition", async () => {
+    const { query, schema, data, error } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'poketype'"),
+        q.slice(0),
+        q.grab({
+          name: q.string(),
+          pokemons: q(
+            "*",
+            q.filter("_type == 'pokemon' && references(^._id)"),
+            q.grab({ name: q.string() })
+          ),
+        })
+      )
+    );
+
+    expect(query).toBe(
+      `*[_type == 'poketype'][0]{name, "pokemons": *[_type == 'pokemon' && references(^._id)]{name}}`
+    );
+    invariant(data);
+    expect(data.name).toBe("Grass");
+    expect(data.pokemons[0].name).toBe("Bulbasaur");
+  });
+});
