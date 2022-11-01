@@ -25,7 +25,7 @@
     ],
     "./package.json": "./package.json"
   },
-  "files": ["src"],
+  "files": ["dist"],
   "scripts": {
     "test:watch": "vitest",
     "test": "vitest run",
