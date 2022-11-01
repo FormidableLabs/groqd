@@ -9,6 +9,8 @@
 An illustrative example:
 
 ```ts
+import { q } from "safe-groq";
+
 // Get all of the Pokemon types, and the Pokemon associated to each type.
 const { query, schema } = q(
   "*",
@@ -35,6 +37,7 @@ Since the primary use-case for `safe-groq` is actually executing GROQ queries an
 
 ```ts
 import sanityClient from "@sanity/client";
+import { q } from "safe-groq";
 
 const client = sanityClient({ /* ... */});
 // 👇 Safe query runner
@@ -56,7 +59,158 @@ const data = await runQuery(
 
 ## API:
 
-TODO:
+### `q`
+
+A "pipe" function that takes a base query as its first argument (such as `"*"`), and a number of other valid GROQ operations from generated from `safe-groq` (such as `q.filter`, `q.grab`, `q.order`, and more). Returns a GROQ query as `.query` and a Zod schema as `.schema`.
+
+```ts
+const { query, schema } = q("*", q.filter("_type == 'pokemon'"), /* ... */);
+```
+
+### `q.grab`
+
+Handles [projections](https://www.sanity.io/docs/how-queries-work#727ecb6f5e15), or selecting fields from an existing set of documents. This is one of the primary mechanisms for providing a schema for the data you expect to get. 
+
+`q.grab` accepts a "selection" object as its sole argument, with three different forms:
+
+```ts
+q(
+  "*",
+  q.grab({
+    // projection is `{ "name": name }`, and validates that `name` is a string.
+    name: ['name', q.string()],
+    
+    // shorthand for `description: ['description', q.string()]`,
+    //  projection is just `{ description }`
+    description: q.string(),
+    
+    // can also pass a sub-query for the field,
+    //  projection is `{ "types": types[]->{ name } }`
+    types: q("types", q.filter(), q.deref(), q.grab({ name: q.string() }))
+  }),
+);
+```
+
+See [Schema Types](#schema-types) for available schema options, such as `q.string()`. These generally correspond to Zod primitives, so you can do something like:
+
+```ts
+q(
+  "*",
+  q.grab({
+    name: q.string().optional().default("no name")
+  }),
+);
+```
+
+### `q.grabOne`
+
+Similar to `q.grab`, but for ["naked" projections](https://www.sanity.io/docs/how-queries-work#dd66cae5ed8f) where you just need a single property (instead of an object of properties). Pass a property to be "grabbed", and a schema for the expected type.
+
+```ts
+q(
+  "*",
+  q.filter("_type == 'pokemon'"),
+  q.grabOne("name", q.string())
+);
+// -> string[]
+```
+
+### `q.filter`
+
+Receives a single string argument for the GROQ filter to be applied (without the surrounding `[` and `]`). Applies the GROQ filter to the query and adjusts schema accordingly.
+
+```ts
+q("*", q.filter("_type == 'pokemon'"), /* ... */);
+// translates to: *[_type == 'pokemon']
+```
+
+### `q.order`
+
+Receives a list of ordering expression, such as `"name asc"`, and adds an order statement to the GROQ query.
+
+```ts
+q(
+  "*",
+  q.filter("_type == 'pokemon'"),
+  q.order("name asc"),
+);
+// translates to *[_type == 'pokemon']|order(name asc)
+```
+
+### `q.slice`
+
+Creates a slice operation by taking a minimum index and an optional maximum index.
+
+```ts
+q(
+  "*",
+  q.filter("_type == 'pokemon'"),
+  q.grab({ name: q.string() }),
+  q.slice(0, 8)
+);
+// translates to *[_type == 'pokemon']{name}[0..8]
+// -> { name: string }[]
+```
+
+The second argument can be omitted to grab a single document, and the schema/types are updated accordingly.
+
+```ts
+q(
+  "*",
+  q.filter("_type == 'pokemon'"),
+  q.grab({ name: q.string() }),
+  q.slice(0)
+);
+// -> { name: string }
+```
+
+### `q.deref`
+
+Used to apply the de-referencing operator `->`.
+
+```ts
+q(
+  "*",
+  q.filter("_type == 'pokemon'"),
+  q.grab({
+    name: q.string(),
+    // example of grabbing types for a pokemon, and de-referencing to get name value.
+    types: q("types", q.filter(), q.deref(), q.grabOne("name", q.string())),
+  }),
+);
+```
+
+### Schema Types
+
+The `q.grab` and `q.grabOne` methods are used to "project" and select certain values from documents, and these are the methods that dictate the shape of the resulting schema/data. To indicate what type specific fields should be, we use schemas provided by the `safe-groq` library, such as `q.string`, `q.number`, `q.boolean`, and so on.
+
+For example:
+
+```ts
+q(
+  "*",
+  q.filter("_type == 'pokemon'"),
+  q.grab({
+    // string field
+    name: q.string(),
+    
+    // number field
+    hp: ["base.HP", q.number()],
+    
+    // boolean field
+    isStrong: ["base.Attack > 50", q.boolean()]
+  }),
+);
+```
+
+The available schema types are shown below.
+
+- `q.string`, corresponds to [Zod's string type](https://github.com/colinhacks/zod#strings).
+- `q.number`, corresponds to [Zod's number type](https://github.com/colinhacks/zod#numbers).
+- `q.boolean`, corresponds to [Zod's boolean type](https://github.com/colinhacks/zod#booleans).
+- `q.date`, which is a custom Zod schema that can accept `Date` instances _or_ a date string (and it will transform that date string to a `Date` instance).
+- `q.null`, corresponds to Zod's null type.
+- `q.undefined`, corresponds to Zod's undefined type.
 
 ## FAQ
 
