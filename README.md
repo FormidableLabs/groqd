@@ -39,7 +39,7 @@ import { q, makeSafeQueryRunner } from "groqd";
 
 const client = sanityClient({ /* ... */});
 // 👇 Safe query runner
-export const runQuery = makeSafeQueryRunner(client.fetch);
+export const runQuery = makeSafeQueryRunner(query => client.fetch(query));
 
 // ...
 
@@ -81,7 +81,7 @@ import { q, makeSafeQueryRunner } from "groqd";
 
 // Wrap sanityClient.fetch
 const client = sanityClient({ /* ... */});
-export const runQuery = makeSafeQueryRunner(client.fetch);
+export const runQuery = makeSafeQueryRunner(query => client.fetch(query));
 
 // Now you can fetch your query's result, and validate the response, all in one.
 const data = await runQuery(q("*", q.filter("_type == 'pokemon'"), /* ... */));
@@ -244,7 +244,7 @@ import { q } from "groqd";
 
 // Wrap sanityClient.fetch
 const client = sanityClient({ /* ... */});
-export const runQuery = makeSafeQueryRunner(client.fetch);
+export const runQuery = makeSafeQueryRunner(query => client.fetch(query));
 
 // 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
 const data = await runQuery(
