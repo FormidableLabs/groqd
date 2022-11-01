@@ -11,9 +11,12 @@ type Fn<L, R> = {
   (arg: L): R;
 };
 
-// Nasty overloads
 type BaseUnknown = BaseResult<z.ZodUnknown>;
 type BaseUnknownArray = BaseResult<z.ZodArray<z.ZodUnknown>>;
+
+/**
+ * Pipeline for generating queries.
+ */
 function pipe<BaseQuery extends "*" | string>(
   baseQuery: BaseQuery
 ): "*" extends BaseQuery ? BaseUnknownArray : BaseUnknown;
@@ -74,14 +77,13 @@ const dateSchema = z.preprocess((arg) => {
   if (typeof arg == "string" || arg instanceof Date) return new Date(arg);
 }, z.date());
 
-// Bind to pipe fn.
 pipe.filter = filter;
 pipe.order = order;
 pipe.grab = grab;
 pipe.grabOne = grabOne;
 pipe.slice = slice;
 pipe.deref = deref;
-// Field types
+
 pipe.string = z.string;
 pipe.number = z.number;
 pipe.boolean = z.boolean;
@@ -102,7 +104,7 @@ export type BaseType<T = any> = z.ZodType<T>;
 type QueryExecutor = (query: string) => Promise<any>;
 
 /**
- * Export a utility to make a safe query runner.
+ * Utility to create a "query runner" that consumes the result of the `q` function.
  */
 export const makeSafeQueryRunner =
   (fn: QueryExecutor) =>

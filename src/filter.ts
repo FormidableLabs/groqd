@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { BaseResult } from "./types";
 
+/**
+ * Apply a GROQ filter
+ * @param {string} filterValue - filter to be applied, such as `_type == 'pokemon'`
+ */
 export const filter =
   (filterValue = "") =>
   <T>(prev: BaseResult<T>) => {

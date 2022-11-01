@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { BaseResult } from "./types";
 
+/**
+ * Used for "slicing" a list of documents, corresponds to [0..2]-like syntax in GROQ.
+ * @param {number} min - starting index for the slice.
+ * @param {number?} max - optional max value for the slice. If omitted, will grab a single document.
+ */
 export const slice =
   <Max extends number | undefined>(min: number, max?: Max) =>
   <T>(prev: BaseResult<T>) => {

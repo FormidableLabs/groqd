@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { BaseResult } from "./types";
 
+/**
+ * Used for ordering documents, corresponds to the order GROQ operator.
+ * @param {array} args - list of order arguments, such as "name asc" or "stats.weight desc"
+ */
 export const order =
   (...args: `${string} ${"asc" | "desc"}`[]) =>
   <T>(prev: BaseResult<T>) => {

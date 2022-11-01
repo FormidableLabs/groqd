@@ -2,7 +2,9 @@ import { BaseResult } from "./types";
 import { z } from "zod";
 
 /**
- * Naked projection. Could probably use a better name...
+ * Used for "naked projections", or selecting a single field from document/list of documents.
+ * @param {string} name - name of the field to "grab"
+ * @param {object} fieldSchema - schema to validate the selected field against
  */
 export const grabOne =
   <GrabOneType extends z.ZodType>(name: string, fieldSchema: GrabOneType) =>

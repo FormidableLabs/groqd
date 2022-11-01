@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { BaseResult } from "./types";
 
-// TODO: prev argument should probably be dynamic so you can't do something like { name }{ name, age } (since age will null out)
+/**
+ * Create a "projection" to grab fields from a document/list of documents.
+ * @param {object} selection - Fields to grab
+ */
 export const grab =
   <S extends Selection>(selection: S) =>
   <T>(prev: BaseResult<T>) => {
