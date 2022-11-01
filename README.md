@@ -55,6 +55,8 @@ const data = await runQuery(
 // data: { name: string }[]
 ```
 
+Using `makeSafeQueryRunner` is totally optional; you might find using `q().schema` and `q().query` in your own abstractions works better for you.
+
 ## Why? 🤷‍
 
 GROQ's primary use is with [Sanity](https://www.sanity.io/). Sanity's Content Lake is fundamentally unstructured, and GROQ (and Sanity's GROQ API) do not have any sort of GraqhQL-like type contracts.
