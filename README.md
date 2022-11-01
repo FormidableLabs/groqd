@@ -44,12 +44,12 @@ export const runQuery = makeSafeQueryRunner(client.fetch);
 
 // 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
 const data = await runQuery(
-	q(
-		"*",
-		q.filter("_type == 'pokemon'"),
-		q.grab({ name: q.string() }),
-		q.slice(0, 150),
-	)
+  q(
+    "*",
+    q.filter("_type == 'pokemon'"),
+    q.grab({ name: q.string() }),
+    q.slice(0, 150),
+  )
 );
 // data: { name: string }[]
 ```
