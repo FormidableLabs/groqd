@@ -1,12 +1,17 @@
 {
-  "name": "query-builder",
-  "version": "1.0.0",
+  "name": "safe-groq",
+  "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "author": {
+    "name": "Formidable",
+    "url": "https://formidable.com"
+  },
   "scripts": {
     "test:watch": "vitest"
   },
   "devDependencies": {
+    "@sanity/client": "^3.4.1",
     "groq-js": "^1.1.1",
     "prettier": "^2.7.1",
     "tiny-invariant": "^1.3.1",

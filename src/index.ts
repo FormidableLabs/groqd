@@ -91,6 +91,22 @@ pipe.undefined = z.undefined;
 pipe.date = () => dateSchema;
 // TODO: pipe.union...?
 
+// Our main export is the pipe, renamed as q
 export const q = pipe;
 
+// Export some types that are useful
 export type QueryResult<T> = BaseResult<T>;
+export type BaseType<T = any> = z.ZodType<T>;
+
+type QueryExecutor = (query: string) => Promise<any>;
+
+/**
+ * Export a utility to make a safe query runner.
+ */
+export const makeSafeQueryRunner =
+  (fn: QueryExecutor) =>
+  <T extends BaseType>({
+    query,
+    schema,
+  }: QueryResult<T>): Promise<z.infer<T>> =>
+    fn(query).then((res) => schema.parse(res));
