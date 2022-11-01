@@ -1,15 +1,15 @@
-# `safe-groq` 🧪
+# `groqd` 🛠
 
 ## Introduction
 
-`safe-groq` is a schema-unaware, runtime-safe query builder for [GROQ](https://www.sanity.io/docs/groq). **The goal of `safe-groq` is to give you (most of) the flexibility of GROQ, with the runtime/type safety of [Zod](https://github.com/colinhacks/zod) and TypeScript.**
+`groqd` is a schema-unaware, runtime-safe query builder for [GROQ](https://www.sanity.io/docs/groq). **The goal of `groqd` is to give you (most of) the flexibility of GROQ, with the runtime/type safety of [Zod](https://github.com/colinhacks/zod) and TypeScript.**
 
-`safe-groq` works by accepting a series of GROQ operations, and generating a query to be used by GROQ and a Zod schema to be used for parsing the associated GROQ response.
+`groqd` works by accepting a series of GROQ operations, and generating a query to be used by GROQ and a Zod schema to be used for parsing the associated GROQ response.
 
 An illustrative example:
 
 ```ts
-import { q } from "safe-groq";
+import { q } from "groqd";
 
 // Get all of the Pokemon types, and the Pokemon associated to each type.
 const { query, schema } = q(
@@ -33,11 +33,11 @@ const response = schema.parse(await sanityClient.fetch(query));
 // 👆👆
 ```
 
-Since the primary use-case for `safe-groq` is actually executing GROQ queries and validating the response, we ship a utility to help you make your own fetching function. Here's an example of wrapping `@sanity/client`'s fetch function:
+Since the primary use-case for `groqd` is actually executing GROQ queries and validating the response, we ship a utility to help you make your own fetching function. Here's an example of wrapping `@sanity/client`'s fetch function:
 
 ```ts
 import sanityClient from "@sanity/client";
-import { q } from "safe-groq";
+import { q, makeSafeQueryRunner } from "groqd";
 
 const client = sanityClient({ /* ... */});
 // 👇 Safe query runner
@@ -57,14 +57,36 @@ const data = await runQuery(
 // data: { name: string }[]
 ```
 
+## Why? 🤷‍
+
+GROQ's primary use is with [Sanity](https://www.sanity.io/). Sanity's Content Lake is fundamentally unstructured, and GROQ (and Sanity's GROQ API) do not have any sort of GraqhQL-like type contracts.
+
+We'd love to see advanced codegen for Sanity and GROQ. However, the end-result would likely not be as runtime type-safe as some might desire due to the flexibility of Sanity's Content Lake and the GROQ language in general.
+
+The goal of `groqd` is to work around these constraints by allowing _you_ to specify the runtime data schema for your query so that your data's type is _runtime safe_ – not just theoretically, but emperically.
+
 ## API:
 
 ### `q`
 
-A "pipe" function that takes a base query as its first argument (such as `"*"`), and a number of other valid GROQ operations from generated from `safe-groq` (such as `q.filter`, `q.grab`, `q.order`, and more). Returns a GROQ query as `.query` and a Zod schema as `.schema`.
+A "pipe" function that takes a base query as its first argument (such as `"*"`), and a number of other valid GROQ operations from generated from `groqd` (such as `q.filter`, `q.grab`, `q.order`, and more). Returns a GROQ query as `.query` and a Zod schema as `.schema`.
 
 ```ts
 const { query, schema } = q("*", q.filter("_type == 'pokemon'"), /* ... */);
+```
+
+This function is best used in conjunction with a "query runner" from [`makeSafeQueryRunner`](#makesafequeryrunner), such as:
+
+```ts
+import sanityClient from "@sanity/client";
+import { q, makeSafeQueryRunner } from "groqd";
+
+// Wrap sanityClient.fetch
+const client = sanityClient({ /* ... */});
+export const runQuery = makeSafeQueryRunner(client.fetch);
+
+// Now you can fetch your query's result, and validate the response, all in one.
+const data = await runQuery(q("*", q.filter("_type == 'pokemon'"), /* ... */));
 ```
 
 ### `q.grab`
@@ -182,7 +204,7 @@ q(
 
 ### Schema Types
 
-The `q.grab` and `q.grabOne` methods are used to "project" and select certain values from documents, and these are the methods that dictate the shape of the resulting schema/data. To indicate what type specific fields should be, we use schemas provided by the `safe-groq` library, such as `q.string`, `q.number`, `q.boolean`, and so on.
+The `q.grab` and `q.grabOne` methods are used to "project" and select certain values from documents, and these are the methods that dictate the shape of the resulting schema/data. To indicate what type specific fields should be, we use schemas provided by the `groqd` library, such as `q.string`, `q.number`, `q.boolean`, and so on.
 
 For example:
 
@@ -212,6 +234,27 @@ The available schema types are shown below.
 - `q.null`, corresponds to Zod's null type.
 - `q.undefined`, corresponds to Zod's undefined type.
 
-## FAQ
+### `makeSafeQueryRunner`
 
-- Why schema-unaware? (TODO:)
+A wrapper around `q` so you can easily use `groqd` with an actual fetch implementation. 
+
+Pass `makeSafeQueryRunner` a "query executor" of the shape `type QueryExecutor = (query: string) => Promise<any>`, and it will return a "query runner" function. This is best illustrated with an example:
+
+```ts
+import sanityClient from "@sanity/client";
+import { q } from "groqd";
+
+// Wrap sanityClient.fetch
+const client = sanityClient({ /* ... */});
+export const runQuery = makeSafeQueryRunner(client.fetch);
+
+// 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
+const data = await runQuery(
+  q(
+    "*",
+    q.filter("_type == 'pokemon'"),
+    q.grab({ name: q.string() }),
+    q.slice(0, 150),
+  )
+);
+```
