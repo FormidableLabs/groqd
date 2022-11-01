@@ -1,4 +1,4 @@
-# `safe-groq` (🧪experimental🧪)
+# `safe-groq` 🧪
 
 ## Introduction
 
@@ -214,5 +214,4 @@ The available schema types are shown below.
 
 ## FAQ
 
-- Why schema-unaware?
-- 
+- Why schema-unaware? (TODO:)
