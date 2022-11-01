@@ -32,7 +32,7 @@ describe("grabOne", () => {
 
   it("doesnt like trying to dereference a non-reference value", async () => {
     const { error } = await runPokemonQuery(
-      // @ts-expect-error
+      // @ts-expect-error expecting error here
       q(
         "*",
         q.filter("_type == 'pokemon'"),

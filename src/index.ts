@@ -14,7 +14,7 @@ type Fn<L, R> = {
 // Nasty overloads
 type BaseUnknown = BaseResult<z.ZodUnknown>;
 type BaseUnknownArray = BaseResult<z.ZodArray<z.ZodUnknown>>;
-function pipe<BaseQuery extends "*" | string, T>(
+function pipe<BaseQuery extends "*" | string>(
   baseQuery: BaseQuery
 ): "*" extends BaseQuery ? BaseUnknownArray : BaseUnknown;
 function pipe<BaseQuery extends "*" | string, A>(

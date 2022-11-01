@@ -45,7 +45,7 @@ describe("grab", () => {
   });
 
   it("can grab with {key: schema} shorthand", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*", q.filter("_type == 'pokemon'"), q.grab({ name: q.string() }))
     );
 
@@ -54,7 +54,7 @@ describe("grab", () => {
   });
 
   it("can grab with {key: q()} composition", async () => {
-    const { query, schema, data, error } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q(
         "*",
         q.filter("_type == 'poketype'"),
