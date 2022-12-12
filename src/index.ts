@@ -113,3 +113,8 @@ export const makeSafeQueryRunner =
     schema,
   }: QueryResult<T>): Promise<z.infer<T>> =>
     fn(query).then((res) => schema.parse(res));
+
+/**
+ * Export zod for convenience
+ */
+export { z };
