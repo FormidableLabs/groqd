@@ -264,7 +264,7 @@ const data = await runQuery(
 A type utility to extract the TypeScript type for the data expected to be returned from the query. 
 
 ```ts
-import { makeSafeQueryRunner, q } from "groqd";
+import { q } from "groqd";
 import type { InferType } from "groqd";
 
 const query = q("*", q.grab({ name: q.string(), age: q.number() }));
