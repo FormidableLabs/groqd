@@ -7,6 +7,8 @@ import { slice } from "./slice";
 import { deref } from "./deref";
 import { grabOne } from "./grabOne";
 
+export type { InferType } from "./types";
+
 type Fn<L, R> = {
   (arg: L): R;
 };
