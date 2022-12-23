@@ -44,3 +44,46 @@ describe("literal", () => {
     expect(hp === 50).toBeFalsy();
   });
 });
+
+describe("union", () => {
+  it("will generate a union type (with literals)", async () => {
+    const { data, query } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.slice(0, 1),
+        q.grab({
+          name: q.union([q.literal("Bulbasaur"), q.literal("Ivysaur")]),
+        })
+      )
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0..1]{name}`);
+    invariant(data);
+    expect(data[0].name === "Bulbasaur").toBeTruthy();
+    expect(data[1].name === "Ivysaur").toBeTruthy();
+    // @ts-expect-error Anything but Bulbasaur or Ivysaur should throw type error
+    expect(data[0].name === "Charmander").toBeFalsy();
+  });
+
+  it("will generate a union type with strings/numbers", async () => {
+    const { data, query } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.slice(0),
+        q.grab({
+          _id: q.union([q.number(), q.string()]),
+        })
+      )
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0]{_id}`);
+    invariant(data);
+    const id = data._id;
+    expect(id === "pokemon.1").toBeTruthy();
+    expect(id === 1).toBeFalsy();
+    // @ts-expect-error Anything but number or string should throw type error
+    expect(id === false).toBeFalsy();
+  });
+});
