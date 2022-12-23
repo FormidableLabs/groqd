@@ -93,8 +93,9 @@ pipe.unknown = z.unknown;
 pipe.null = z.null;
 pipe.undefined = z.undefined;
 pipe.date = () => dateSchema;
+pipe.literal = z.literal;
 // TODO: pipe.union...?
-// TODO: pipe.literal? pipe.enum?
+// TODO: pipe.enum?
 
 // Our main export is the pipe, renamed as q
 export const q = pipe;
