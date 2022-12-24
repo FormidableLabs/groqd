@@ -230,10 +230,11 @@ The available schema types are shown below.
 - `q.string`, corresponds to [Zod's string type](https://github.com/colinhacks/zod#strings).
 - `q.number`, corresponds to [Zod's number type](https://github.com/colinhacks/zod#numbers).
 - `q.boolean`, corresponds to [Zod's boolean type](https://github.com/colinhacks/zod#booleans).
+- `q.literal`, corresponds to [Zod's literal type](https://github.com/colinhacks/zod#literals).
+- `q.union`, corresponds to [Zod's union type](https://github.com/colinhacks/zod#unions).
 - `q.date`, which is a custom Zod schema that can accept `Date` instances _or_ a date string (and it will transform that date string to a `Date` instance).
 - `q.null`, corresponds to Zod's null type.
 - `q.undefined`, corresponds to Zod's undefined type.
-
 ### `makeSafeQueryRunner`
 
 A wrapper around `q` so you can easily use `groqd` with an actual fetch implementation. 
@@ -269,4 +270,22 @@ import type { InferType } from "groqd";
 
 const query = q("*", q.grab({ name: q.string(), age: q.number() }));
 type Persons = InferType<typeof query>; // -> { name: string; age: number; }[]
+```
+
+## FAQs
+
+### Can `groqd` handle groq's `coalesce` operator?
+
+**Yes!** You can write a colesce expression just as if it were a field expression. Here's an example with `groqd`:
+
+```ts
+q(
+  "*",
+  q.filter("_type == 'pokemon'"),
+  q.grab({
+    name: q.string(),
+    // using `coalesce` in a `grab` call
+    strength: ["coalesce(strength, base.Attack, 0)", q.number()]
+  }),
+);
 ```
