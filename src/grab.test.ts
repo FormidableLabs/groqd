@@ -96,4 +96,36 @@ describe("grab", () => {
     invariant(data);
     expect(data[0].strength).toBe(49);
   });
+
+  it("can handle conditional selections", async () => {
+    const { data } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.slice(0, 3),
+        q.grab({
+          _id: q.string(),
+          "name == 'Bulbasaur' =>": {
+            name: q.literal("Bulbasaur"),
+          },
+          "name == 'Charmander' =>": {
+            name: q.literal("Charmander"),
+            poo: q.string(),
+          },
+        })
+      )
+    );
+
+    invariant(data);
+
+    const one = data[0];
+    if (one.name === "Charmander") {
+      console.log(one);
+    } else {
+      console.log(one);
+    }
+    expect(data[0].name).toBe("Bulbasaur");
+  });
 });
+
+// TODO: test for stacked grabs, make sure picking works correctly.

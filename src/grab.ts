@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseResult } from "./types";
+import { BaseResult, ValueOf } from "./types";
 
 /**
  * Create a "projection" to grab fields from a document/list of documents.
@@ -16,20 +16,40 @@ export const grab =
     type KeysFromSelection<T extends Selection> =
       (keyof T extends `${infer Key}:${string}` ? Key : T) & string;
 
+    type BaseSelection = {
+      [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
+    };
+    // TODO: if no `${string}=>` keys, need to just use S
+    type AllSelection = {
+      [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
+    } extends S
+      ? FromSelection<S>
+      : z.ZodUnion<
+          [
+            ValueOf<{
+              [K in keyof S as K extends `${string}=>`
+                ? K
+                : never]: S[K] extends Selection<any>
+                ? FromSelection<BaseSelection & S[K]>
+                : never;
+            }>
+          ]
+        >;
+
     // Start with array type
     type NewType = T extends z.ZodArray<infer R>
       ? // No types yet? Use the types from selection
         R extends z.ZodUnknown
-        ? z.ZodArray<FromSelection<S>>
+        ? z.ZodArray<AllSelection>
         : // Otherwise, if we're an object – pick keys from the original.
         R extends z.ZodObject<infer R2>
-        ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>>
+        ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>> // TODO: Might need to tweak this... not sure if just pulling from S is correct
         : z.ZodNever
       : // Input was not an array, do a similar take/pick approach
       T extends z.ZodUnknown
-      ? FromSelection<S>
+      ? AllSelection
       : T extends z.ZodObject<infer R2>
-      ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>>
+      ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>> // TODO: Tweak this???
       : z.ZodNever;
 
     const projections = Object.entries(selection).reduce<string[]>(
@@ -131,6 +151,9 @@ type FromField<T> = T extends Field<infer R>
   : T extends [string, infer R]
   ? R
   : z.ZodNever;
-type Selection = {
-  [key: string]: BaseResult<any> | z.ZodType | [string, z.ZodType];
+
+type Selection<Keys extends PropertyKey = any> = {
+  [K in Keys]: K extends `${string}=>`
+    ? Selection
+    : BaseResult<any> | z.ZodType | [string, z.ZodType];
 };

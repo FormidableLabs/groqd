@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { runPokemonQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
+import { z } from "zod";
 
 describe("literal", () => {
   it("will generate a literal string type", async () => {
@@ -85,5 +86,17 @@ describe("union", () => {
     expect(id === 1).toBeFalsy();
     // @ts-expect-error Anything but number or string should throw type error
     expect(id === false).toBeFalsy();
+  });
+});
+
+describe("playing around", () => {
+  it("play", async () => {
+    const base = z.object({ _id: z.string() });
+
+    const one = z.object({ name: z.literal("Bulbasaur") });
+    const two = z.object({ name: z.literal("Ivysaur") });
+
+    const joined = z.union([base.merge(one), base.merge(two)]);
+    type Joined = z.infer<typeof joined>;
   });
 });
