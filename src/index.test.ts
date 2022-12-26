@@ -88,15 +88,3 @@ describe("union", () => {
     expect(id === false).toBeFalsy();
   });
 });
-
-describe("playing around", () => {
-  it("play", async () => {
-    const base = z.object({ _id: z.string() });
-
-    const one = z.object({ name: z.literal("Bulbasaur") });
-    const two = z.object({ name: z.literal("Ivysaur") });
-
-    const joined = z.union([base.merge(one), base.merge(two)]);
-    type Joined = z.infer<typeof joined>;
-  });
-});

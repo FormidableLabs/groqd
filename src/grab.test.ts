@@ -98,7 +98,7 @@ describe("grab", () => {
   });
 
   it("can handle conditional selections", async () => {
-    const { data } = await runPokemonQuery(
+    const { data, query } = await runPokemonQuery(
       q(
         "*",
         q.filter("_type == 'pokemon'"),
@@ -110,21 +110,26 @@ describe("grab", () => {
           },
           "name == 'Charmander' =>": {
             name: q.literal("Charmander"),
-            poo: q.string(),
+            hp: ["base.HP", q.number()],
           },
         })
       )
     );
 
-    invariant(data);
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..3]{_id, name == 'Bulbasaur' => {name}, name == 'Charmander' => {name,"hp": base.HP}}`
+    );
 
-    const one = data[0];
-    if (one.name === "Charmander") {
-      console.log(one);
-    } else {
-      console.log(one);
-    }
-    expect(data[0].name).toBe("Bulbasaur");
+    invariant(data);
+    //
+    // for (const dat of data) {
+    //   if (dat.name === "Charmander") {
+    //     expect(dat.name === "Charmander").toBeTruthy();
+    //     // @ts-expect-error Expect error here, TS should infer type
+    //     expect(dat.name === "Bulbasaur").toBeFalsy();
+    //     expect(dat.hp).toBe(39);
+    //   }
+    // }
   });
 });
 

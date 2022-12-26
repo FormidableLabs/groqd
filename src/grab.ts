@@ -19,7 +19,6 @@ export const grab =
     type BaseSelection = {
       [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
     };
-    // TODO: if no `${string}=>` keys, need to just use S
     type AllSelection = {
       [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
     } extends S
@@ -52,22 +51,24 @@ export const grab =
       ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>> // TODO: Tweak this???
       : z.ZodNever;
 
-    const projections = Object.entries(selection).reduce<string[]>(
-      (acc, [key, val]) => {
+    // Recursively define projections to pick up nested conditionals
+    const getProjections = (sel: Selection) =>
+      Object.entries(sel).reduce<string[]>((acc, [key, val]) => {
         let toPush = "";
         if ("query" in val) {
           toPush = `"${key}": ${val.query}`;
         } else if (Array.isArray(val)) {
           toPush = `"${key}": ${val[0]}`;
+        } else if (typeof val === "object" && !(val instanceof z.ZodType)) {
+          toPush = `${key} {${getProjections(val)}}`;
         } else {
           toPush = key;
         }
 
         toPush && acc.push(toPush);
         return acc;
-      },
-      []
-    );
+      }, []);
+    const projections = getProjections(selection);
 
     // Schema gets a bit trickier, since we sort of have to mock GROQ behavior.
     const schema = (() => {
@@ -157,3 +158,6 @@ type Selection<Keys extends PropertyKey = any> = {
     ? Selection
     : BaseResult<any> | z.ZodType | [string, z.ZodType];
 };
+
+const isSelection = (val: any): val is Selection =>
+  typeof val === "object" && !Array.isArray(val);
