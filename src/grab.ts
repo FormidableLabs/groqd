@@ -19,6 +19,7 @@ export const grab =
     type BaseSelection = {
       [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
     };
+    // TODO: Need to allow type when no conditional fields are met
     type AllSelection = {
       [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
     } extends S
@@ -72,30 +73,39 @@ export const grab =
 
     // Schema gets a bit trickier, since we sort of have to mock GROQ behavior.
     const schema = (() => {
+      const toSchemaInput = (sel: Selection) =>
+        Object.entries(sel).reduce<z.ZodRawShape>((acc, [key, value]) => {
+          if ("schema" in value) {
+            acc[key] = value.schema;
+          } else if (Array.isArray(value)) {
+            acc[key] = value[1];
+          } else if (value instanceof z.ZodType) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {});
+
       // Unknown schema means we just use the selection passed
       if (
         (prev.schema instanceof z.ZodArray
           ? prev.schema.element
           : prev.schema) instanceof z.ZodUnknown
       ) {
-        const s = Object.entries(selection).reduce<z.ZodRawShape>(
-          (acc, [key, value]) => {
-            if ("schema" in value) {
-              acc[key] = value.schema;
-            } else if (Array.isArray(value)) {
-              acc[key] = value[1];
-            } else {
-              acc[key] = value;
-            }
+        // Split base and conditional fields
+        const baseFields = {} as Selection;
+        const conditionalFields = [] as Selection[];
+        Object.entries(selection).forEach(([key, value]) => {
+          if (key.endsWith("=>")) conditionalFields.push(value as Selection);
+          else baseFields[key] = value;
+        });
 
-            return acc;
-          },
-          {}
+        const baseSchema = z.object(toSchemaInput(baseFields));
+        const foo = conditionalFields.map((field) =>
+          baseSchema.merge(z.object(toSchemaInput(field)))
         );
+        const s = foo.length === 0 ? baseSchema : z.union([...foo, baseSchema]);
 
-        return prev.schema instanceof z.ZodArray
-          ? z.array(z.object(s))
-          : z.object(s);
+        return prev.schema instanceof z.ZodArray ? z.array(s) : s;
       }
       // If we're already dealing with an object schema inside our array, we need to do a Pick
       else if (
