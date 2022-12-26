@@ -72,70 +72,50 @@ export const grab =
 
     // Schema gets a bit trickier, since we sort of have to mock GROQ behavior.
     const schema = (() => {
-      // Array
-      if (prev.schema instanceof z.ZodArray) {
-        // Unknown schema means we just use the selection passed
-        if (prev.schema.element instanceof z.ZodUnknown) {
-          const s = Object.entries(selection).reduce<z.ZodRawShape>(
-            (acc, [key, value]) => {
-              if ("schema" in value) {
-                acc[key] = value.schema;
-              } else if (Array.isArray(value)) {
-                acc[key] = value[1];
-              } else {
-                acc[key] = value;
-              }
+      // Unknown schema means we just use the selection passed
+      if (
+        (prev.schema instanceof z.ZodArray
+          ? prev.schema.element
+          : prev.schema) instanceof z.ZodUnknown
+      ) {
+        const s = Object.entries(selection).reduce<z.ZodRawShape>(
+          (acc, [key, value]) => {
+            if ("schema" in value) {
+              acc[key] = value.schema;
+            } else if (Array.isArray(value)) {
+              acc[key] = value[1];
+            } else {
+              acc[key] = value;
+            }
 
-              return acc;
-            },
-            {}
-          );
-          return z.array(z.object(s));
-        }
-        // If we're already dealing with an object schema inside our array, we need to do a Pick
-        else if (prev.schema.element instanceof z.ZodObject) {
-          const toPick = Object.keys(selection).reduce<{
-            [key: string]: true;
-          }>((acc, key) => {
-            acc[key] = true;
             return acc;
-          }, {});
-          return z.array(prev.schema.element.pick(toPick));
-        }
-        // If not unknown/object, I don't know what happened 👀
-        else {
-          return z.never();
-        }
+          },
+          {}
+        );
+
+        return prev.schema instanceof z.ZodArray
+          ? z.array(z.object(s))
+          : z.object(s);
       }
-      // Not an array...
+      // If we're already dealing with an object schema inside our array, we need to do a Pick
+      else if (
+        (prev.schema instanceof z.ZodArray
+          ? prev.schema.element
+          : prev.schema) instanceof z.ZodObject
+      ) {
+        const toPick = Object.keys(selection).reduce<{
+          [key: string]: true;
+        }>((acc, key) => {
+          acc[key] = true;
+          return acc;
+        }, {});
+
+        return prev.schema instanceof z.ZodArray
+          ? z.array(prev.schema.element.pick(toPick))
+          : (prev.schema as z.ZodObject<any>).pick(toPick);
+      }
+      // If not unknown/object, I don't know what happened 👀
       else {
-        if (prev.schema instanceof z.ZodUnknown) {
-          // TODO: dedup this from above.
-          const s = Object.entries(selection).reduce<z.ZodRawShape>(
-            (acc, [key, value]) => {
-              if ("schema" in value) {
-                acc[key] = value.schema;
-              } else if (Array.isArray(value)) {
-                acc[key] = value[1];
-              } else {
-                acc[key] = value;
-              }
-
-              return acc;
-            },
-            {}
-          );
-          return z.object(s);
-        } else if (prev.schema instanceof z.ZodObject) {
-          const toPick = Object.keys(selection).reduce<{
-            [key: string]: true;
-          }>((acc, key) => {
-            acc[key] = true;
-            return acc;
-          }, {});
-          return prev.schema.pick(toPick);
-        }
-
         return z.never();
       }
     })();

@@ -97,40 +97,40 @@ describe("grab", () => {
     expect(data[0].strength).toBe(49);
   });
 
-  it("can handle conditional selections", async () => {
-    const { data, query } = await runPokemonQuery(
-      q(
-        "*",
-        q.filter("_type == 'pokemon'"),
-        q.slice(0, 3),
-        q.grab({
-          _id: q.string(),
-          "name == 'Bulbasaur' =>": {
-            name: q.literal("Bulbasaur"),
-          },
-          "name == 'Charmander' =>": {
-            name: q.literal("Charmander"),
-            hp: ["base.HP", q.number()],
-          },
-        })
-      )
-    );
-
-    expect(query).toBe(
-      `*[_type == 'pokemon'][0..3]{_id, name == 'Bulbasaur' => {name}, name == 'Charmander' => {name,"hp": base.HP}}`
-    );
-
-    invariant(data);
-    //
-    // for (const dat of data) {
-    //   if (dat.name === "Charmander") {
-    //     expect(dat.name === "Charmander").toBeTruthy();
-    //     // @ts-expect-error Expect error here, TS should infer type
-    //     expect(dat.name === "Bulbasaur").toBeFalsy();
-    //     expect(dat.hp).toBe(39);
-    //   }
-    // }
-  });
+  // it.only("can handle conditional selections", async () => {
+  //   const { data, query } = await runPokemonQuery(
+  //     q(
+  //       "*",
+  //       q.filter("_type == 'pokemon'"),
+  //       q.slice(0, 3),
+  //       q.grab({
+  //         _id: q.string(),
+  //         "name == 'Bulbasaur' =>": {
+  //           name: q.literal("Bulbasaur"),
+  //         },
+  //         "name == 'Charmander' =>": {
+  //           name: q.literal("Charmander"),
+  //           hp: ["base.HP", q.number()],
+  //         },
+  //       })
+  //     )
+  //   );
+  //
+  //   expect(query).toBe(
+  //     `*[_type == 'pokemon'][0..3]{_id, name == 'Bulbasaur' => {name}, name == 'Charmander' => {name,"hp": base.HP}}`
+  //   );
+  //
+  //   invariant(data);
+  //   //
+  //   // for (const dat of data) {
+  //   //   if (dat.name === "Charmander") {
+  //   //     expect(dat.name === "Charmander").toBeTruthy();
+  //   //     // @ts-expect-error Expect error here, TS should infer type
+  //   //     expect(dat.name === "Bulbasaur").toBeFalsy();
+  //   //     expect(dat.hp).toBe(39);
+  //   //   }
+  //   // }
+  // });
 });
 
 // TODO: test for stacked grabs, make sure picking works correctly.
