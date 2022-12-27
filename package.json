@@ -53,6 +53,7 @@
     "vitest": "^0.24.3"
   },
   "dependencies": {
+    "ts-toolbelt": "^9.6.0",
     "zod": "^3.20.2"
   },
   "engines": {
