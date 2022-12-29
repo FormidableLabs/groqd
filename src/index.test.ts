@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { runPokemonQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
-import { z } from "zod";
 
 describe("literal", () => {
   it("will generate a literal string type", async () => {

@@ -97,6 +97,25 @@ describe("grab", () => {
     expect(data[0].strength).toBe(49);
   });
 
+  it("can handle coalesce statements", async () => {
+    const { query, data } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.slice(0, 3),
+        q.grab({
+          strength: ["coalesce(attack, base.Attack)", q.number()],
+        })
+      )
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..3]{"strength": coalesce(attack, base.Attack)}`
+    );
+    invariant(data);
+    expect(data[0].strength).toBe(49);
+  });
+
   it("can handle conditional selections", async () => {
     const { data, query } = await runPokemonQuery(
       q(
