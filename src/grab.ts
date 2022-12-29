@@ -64,7 +64,7 @@ export const grab =
         toPush && acc.push(toPush);
         return acc;
       }, []);
-    const projections = [...getProjections(selection)];
+    const projections = getProjections(selection);
     if (conditionalSelections) {
       const condProjections = Object.entries(conditionalSelections).reduce<
         string[]
