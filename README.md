@@ -124,6 +124,54 @@ q(
 );
 ```
 
+#### Conditional selections with `q.grab`
+
+Groq offers a `select` operator that you can use at the field-level to conditionally select values, such as the following.
+
+```ts
+q(
+  "*",
+  q.grab({
+    strength: [
+      "select(base.Attack > 60 => 'strong', base.Attack <= 60 => 'weak')",
+      q.union([q.literal("weak"), q.literal("strong")])
+    ],
+  })
+)
+```
+
+However, in real-world practice it's common to have an array of values of varying types and you want to select different values for each type. `q.grab` allows you to do conditional selections by providing a second argument of the shape `{[condition: string]: Selection}`.
+
+This second argument is not as flexible as the `=>` operator or `select` function in GROQ, and instead provides a way to "fork" a portion of your selection (e.g., only the base selection and _one_ of the conditional selections will be made at any give time). Here's an example.
+
+```ts
+q(
+  "*",
+  // Grab _id on all pokemon
+  q.grab({
+    _id: q.string(),
+  }, {
+    // And for Bulbasaur, grab the HP
+    "name == 'Bulbasaur'": {
+      name: q.literal("Bulbasaur"),
+      hp: ["base.HP", q.number()]
+    },
+    // And for Charmander, grab the Attack
+    "name == 'Charmander'": {
+      name: q.literal("Charmander"),
+      attack: ["base.Attack", q.number()]
+    },
+  })
+)
+
+// The query result type looks something like this:
+type QueryResult = ({_id: string; name: "Bulbasaur"; hp: number;} | {_id: string; name: "Charmander"; attack: number;} | {_id: string;})[]
+```
+
+In real-world Sanity use-cases, it's likely you'll want to "fork" based on a `_type` field (or something similar). 
+
+**Important!** In the example above, if you were to add `name: q.string()` to the base selection, it would break TypeScript's ability to do discriminated union type narrowing. This is because if you have a type like `{name: "Charmander"} | {name: string}` there is no way to narrow types based on the `name` field (since for discriminated unions to work, the field must have a _literal_ type).
+
 ### `q.grabOne`
 
 Similar to `q.grab`, but for ["naked" projections](https://www.sanity.io/docs/how-queries-work#dd66cae5ed8f) where you just need a single property (instead of an object of properties). Pass a property to be "grabbed", and a schema for the expected type.

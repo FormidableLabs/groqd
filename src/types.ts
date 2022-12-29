@@ -10,3 +10,6 @@ export type InferType<Result> = Result extends BaseResult<infer T>
     ? z.infer<T>
     : never
   : never;
+
+export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+export type ValueOf<T> = T[keyof T];
