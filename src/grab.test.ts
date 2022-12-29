@@ -125,6 +125,7 @@ describe("grab", () => {
         q.grab(
           {
             _id: q.string(),
+            name: q.string(),
           },
           {
             "name == 'Charmander'": {
