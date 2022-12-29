@@ -29,7 +29,8 @@ export const grab =
           [
             ValueOf<{
               [K in keyof CondSelections]: FromSelection<S & CondSelections[K]>;
-            }>
+            }>,
+            FromSelection<S>
           ]
         >;
 

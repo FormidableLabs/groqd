@@ -125,7 +125,6 @@ describe("grab", () => {
         q.grab(
           {
             _id: q.string(),
-            name: q.string(),
           },
           {
             "name == 'Charmander'": {
@@ -150,7 +149,7 @@ describe("grab", () => {
     expect(data[3]).toEqual({ _id: "pokemon.4", name: "Charmander", hp: 39 });
 
     for (const dat of data) {
-      if (dat.name === "Charmander") {
+      if ("name" in dat && dat.name === "Charmander") {
         expect(dat.name === "Charmander").toBeTruthy();
         // @ts-expect-error Expect error here, TS should infer type
         expect(dat.name === "Bulbasaur").toBeFalsy();
