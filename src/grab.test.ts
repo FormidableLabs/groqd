@@ -97,30 +97,37 @@ describe("grab", () => {
     expect(data[0].strength).toBe(49);
   });
 
-  it.only("can handle conditional selections", async () => {
-    const { data, query, error } = await runPokemonQuery(
+  it("can handle conditional selections", async () => {
+    const { data, query } = await runPokemonQuery(
       q(
         "*",
         q.filter("_type == 'pokemon'"),
         q.slice(0, 3),
-        q.grab({
-          _id: q.string(),
-          "name == 'Bulbasaur' =>": {
-            name: q.literal("Bulbasaur"),
+        q.grab(
+          {
+            _id: q.string(),
           },
-          "name == 'Charmander' =>": {
-            name: q.literal("Charmander"),
-            hp: ["base.HP", q.number()],
-          },
-        })
+          {
+            "name == 'Charmander'": {
+              name: q.literal("Charmander"),
+              hp: ["base.HP", q.number()],
+            },
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+            },
+          }
+        )
       )
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..3]{_id, name == 'Bulbasaur' => {name}, name == 'Charmander' => {name,"hp": base.HP}}`
+      `*[_type == 'pokemon'][0..3]{_id, ...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name })}`
     );
 
     invariant(data);
+    expect(data[0]).toEqual({ _id: "pokemon.1", name: "Bulbasaur" });
+    expect(data[1]).toEqual({ _id: "pokemon.2" });
+    expect(data[3]).toEqual({ _id: "pokemon.4", name: "Charmander", hp: 39 });
 
     for (const dat of data) {
       if (dat.name === "Charmander") {

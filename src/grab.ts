@@ -4,9 +4,13 @@ import { BaseResult, ValueOf } from "./types";
 /**
  * Create a "projection" to grab fields from a document/list of documents.
  * @param {object} selection - Fields to grab
+ * @param {object} conditionalSelections – Conditional fields to grab
  */
 export const grab =
-  <S extends Selection>(selection: S) =>
+  <S extends Selection, CondSelections extends Record<string, Selection>>(
+    selection: S,
+    conditionalSelections?: CondSelections
+  ) =>
   <T>(prev: BaseResult<T>) => {
     type FromSelection<T extends Selection> = z.ZodObject<{
       [K in keyof T as K extends `${infer Key}:${string}`
@@ -16,22 +20,12 @@ export const grab =
     type KeysFromSelection<T extends Selection> =
       (keyof T extends `${infer Key}:${string}` ? Key : T) & string;
 
-    type BaseSelection = {
-      [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
-    };
-    // TODO: Need to allow type when no conditional fields are met
-    type AllSelection = {
-      [K in keyof S as K extends `${string}=>` ? never : K]: S[K];
-    } extends S
+    type AllSelection = typeof conditionalSelections extends undefined
       ? FromSelection<S>
       : z.ZodUnion<
           [
             ValueOf<{
-              [K in keyof S as K extends `${string}=>`
-                ? K
-                : never]: S[K] extends Selection<any>
-                ? FromSelection<BaseSelection & S[K]>
-                : never;
+              [K in keyof CondSelections]: FromSelection<S & CondSelections[K]>;
             }>
           ]
         >;
@@ -60,8 +54,6 @@ export const grab =
           toPush = `"${key}": ${val.query}`;
         } else if (Array.isArray(val)) {
           toPush = `"${key}": ${val[0]}`;
-        } else if (typeof val === "object" && !(val instanceof z.ZodType)) {
-          toPush = `${key} {${getProjections(val)}}`;
         } else {
           toPush = key;
         }
@@ -69,7 +61,17 @@ export const grab =
         toPush && acc.push(toPush);
         return acc;
       }, []);
-    const projections = getProjections(selection);
+    const projections = [...getProjections(selection)];
+    if (conditionalSelections) {
+      const condProjections = Object.entries(conditionalSelections).reduce<
+        string[]
+      >((acc, [key, val]) => {
+        acc.push(`${key} => { ${getProjections(val).join(", ")} }`);
+        return acc;
+      }, []);
+
+      projections.push(`...select(${condProjections.join(", ")})`);
+    }
 
     // Schema gets a bit trickier, since we sort of have to mock GROQ behavior.
     const schema = (() => {
@@ -79,7 +81,7 @@ export const grab =
             acc[key] = value.schema;
           } else if (Array.isArray(value)) {
             acc[key] = value[1];
-          } else if (value instanceof z.ZodType) {
+          } else {
             acc[key] = value;
           }
           return acc;
@@ -92,18 +94,18 @@ export const grab =
           : prev.schema) instanceof z.ZodUnknown
       ) {
         // Split base and conditional fields
-        const baseFields = {} as Selection;
-        const conditionalFields = [] as Selection[];
-        Object.entries(selection).forEach(([key, value]) => {
-          if (key.endsWith("=>")) conditionalFields.push(value as Selection);
-          else baseFields[key] = value;
-        });
+        const conditionalFields = Object.values(conditionalSelections || {});
 
-        const baseSchema = z.object(toSchemaInput(baseFields));
-        const foo = conditionalFields.map((field) =>
+        const baseSchema = z.object(toSchemaInput(selection));
+        const conditionalFieldSchemas = conditionalFields.map((field) =>
           baseSchema.merge(z.object(toSchemaInput(field)))
         );
-        const s = foo.length === 0 ? baseSchema : z.union([...foo, baseSchema]);
+        const s =
+          conditionalFieldSchemas.length === 0
+            ? baseSchema
+            : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore Need to figure out how to make tsc happy
+              z.union([...conditionalFieldSchemas, baseSchema]);
 
         return prev.schema instanceof z.ZodArray ? z.array(s) : s;
       }
@@ -143,11 +145,7 @@ type FromField<T> = T extends Field<infer R>
   ? R
   : z.ZodNever;
 
-type Selection<Keys extends PropertyKey = any> = {
-  [K in Keys]: K extends `${string}=>`
-    ? Selection
-    : BaseResult<any> | z.ZodType | [string, z.ZodType];
-};
-
-const isSelection = (val: any): val is Selection =>
-  typeof val === "object" && !Array.isArray(val);
+type Selection = Record<
+  string,
+  BaseResult<any> | z.ZodType | [string, z.ZodType]
+>;
