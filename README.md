@@ -147,10 +147,9 @@ This second argument is not as flexible as the `=>` operator or `select` functio
 ```ts
 q(
   "*",
-  // Grab _id and name on all pokemon
+  // Grab _id on all pokemon
   q.grab({
     _id: q.string(),
-    name: q.string(),
   }, {
     // And for Bulbasaur, grab the HP
     "name == 'Bulbasaur'": {
@@ -164,7 +163,14 @@ q(
     },
   })
 )
+
+// The query result type looks something like this:
+type QueryResult = ({_id: string; name: "Bulbasaur"; hp: number;} | {_id: string; name: "Charmander"; attack: number;} | {_id: string;})[]
 ```
+
+In real-world Sanity use-cases, it's likely you'll want to "fork" based on a `_type` field (or something similar). 
+
+**Important!** In the example above, if you were to add `name: q.string()` to the base selection, it would break TypeScript's ability to do discriminated union type narrowing. This is because if you have a type like `{name: "Charmander"} | {name: string}` there is no way to narrow types based on the `name` field (since for discriminated unions to work, the field must have a _literal_ type).
 
 ### `q.grabOne`
 
