@@ -40,13 +40,13 @@ export const grab =
         ? z.ZodArray<AllSelection>
         : // Otherwise, if we're an object – pick keys from the original.
         R extends z.ZodObject<infer R2>
-        ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>> // TODO: Might need to tweak this... not sure if just pulling from S is correct
+        ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>>
         : z.ZodNever
       : // Input was not an array, do a similar take/pick approach
       T extends z.ZodUnknown
       ? AllSelection
       : T extends z.ZodObject<infer R2>
-      ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>> // TODO: Tweak this???
+      ? z.ZodArray<z.ZodObject<Pick<R2, KeysFromSelection<S>>>>
       : z.ZodNever;
 
     // Recursively define projections to pick up nested conditionals
