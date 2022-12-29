@@ -7,7 +7,10 @@ import { BaseResult, ValueOf } from "./types";
  * @param {object} conditionalSelections – Conditional fields to grab
  */
 export const grab =
-  <S extends Selection, CondSelections extends Record<string, Selection>>(
+  <
+    S extends Selection,
+    CondSelections extends Record<string, Selection> | undefined
+  >(
     selection: S,
     conditionalSelections?: CondSelections
   ) =>
@@ -20,7 +23,7 @@ export const grab =
     type KeysFromSelection<T extends Selection> =
       (keyof T extends `${infer Key}:${string}` ? Key : T) & string;
 
-    type AllSelection = typeof conditionalSelections extends undefined
+    type AllSelection = undefined extends CondSelections
       ? FromSelection<S>
       : z.ZodUnion<
           [
@@ -94,7 +97,9 @@ export const grab =
           : prev.schema) instanceof z.ZodUnknown
       ) {
         // Split base and conditional fields
-        const conditionalFields = Object.values(conditionalSelections || {});
+        const conditionalFields = Object.values(
+          conditionalSelections || {}
+        ) as Selection[];
 
         const baseSchema = z.object(toSchemaInput(selection));
         const conditionalFieldSchemas = conditionalFields.map((field) =>
