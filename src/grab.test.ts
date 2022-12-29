@@ -96,4 +96,67 @@ describe("grab", () => {
     invariant(data);
     expect(data[0].strength).toBe(49);
   });
+
+  it("can handle coalesce statements", async () => {
+    const { query, data } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.slice(0, 3),
+        q.grab({
+          strength: ["coalesce(attack, base.Attack)", q.number()],
+        })
+      )
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..3]{"strength": coalesce(attack, base.Attack)}`
+    );
+    invariant(data);
+    expect(data[0].strength).toBe(49);
+  });
+
+  it("can handle conditional selections", async () => {
+    const { data, query } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.slice(0, 3),
+        q.grab(
+          {
+            _id: q.string(),
+          },
+          {
+            "name == 'Charmander'": {
+              name: q.literal("Charmander"),
+              hp: ["base.HP", q.number()],
+            },
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+            },
+          }
+        )
+      )
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..3]{_id, ...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name })}`
+    );
+
+    invariant(data);
+    expect(data[0]).toEqual({ _id: "pokemon.1", name: "Bulbasaur" });
+    expect(data[1]).toEqual({ _id: "pokemon.2" });
+    expect(data[3]).toEqual({ _id: "pokemon.4", name: "Charmander", hp: 39 });
+
+    for (const dat of data) {
+      if ("name" in dat && dat.name === "Charmander") {
+        expect(dat.name === "Charmander").toBeTruthy();
+        // @ts-expect-error Expect error here, TS should infer type
+        expect(dat.name === "Bulbasaur").toBeFalsy();
+        expect(dat.hp).toBe(39);
+      }
+    }
+  });
 });
+
+// TODO: test for stacked grabs, make sure picking works correctly.
