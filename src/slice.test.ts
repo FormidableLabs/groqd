@@ -67,6 +67,32 @@ describe("slice", () => {
     ]);
   });
 
+  it("turns T[] to T if no max provided, even during conditional selection", async () => {
+    const { query, schema, data } = await runPokemonQuery(
+      q(
+        "*",
+        q.filter("_type == 'pokemon'"),
+        q.grab(
+          {},
+          {
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+              hp: ["base.HP", q.number()],
+            },
+          }
+        ),
+        q.slice(0)
+      )
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon']{...select(name == 'Bulbasaur' => { name, "hp": base.HP })}[0]`
+    );
+    expect(schema instanceof z.ZodObject);
+    invariant(data);
+    expect(data).toEqual({ name: "Bulbasaur", hp: 45 });
+  });
+
   it("keeps T[] as T[] if max is provided, even during conditional selection", async () => {
     const { query, schema, data } = await runPokemonQuery(
       q(
