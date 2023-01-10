@@ -1,8 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { pipe } from "./builder";
 import { z } from "zod";
-import { runPokemonBuilderQuery } from "../test-utils/runQuery";
+import {
+  runPokemonBuilderQuery,
+  runPokemonQuery,
+} from "../test-utils/runQuery";
 import invariant from "tiny-invariant";
+import { q } from "./index";
 
 describe("PipeArray.grab", () => {
   it("creates schema from unknown array schema", async () => {
@@ -71,5 +75,49 @@ describe("PipeArray.grab", () => {
     );
     invariant(data);
     expect(data[0].strength).toBe(49);
+  });
+});
+
+describe("PipeArray.order", () => {
+  it("applies order, preserves unknown schema", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*").filter("_type == 'pokemon'").order("name asc")
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']|order(name asc)`);
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+    // @ts-expect-error data is unknown type since no grab present
+    expect(data?.[0]?.name).toBe("Abra");
+  });
+
+  it("applies order, preserves schema", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .grab({ name: z.string() })
+        .order("name desc")
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']{name}|order(name desc)`);
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodObject).toBeTruthy();
+    invariant(data);
+    expect(data[0].name).toBe("Zubat");
+  });
+
+  it("can apply multiple order statements", async () => {
+    const { query, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .grab({ name: z.string(), hp: ["base.HP", z.number()] })
+        .order("hp desc", "name asc")
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon']{name, "hp": base.HP}|order(hp desc, name asc)`
+    );
+    invariant(data);
+    expect(data[0].name).toBe("Chansey");
   });
 });
