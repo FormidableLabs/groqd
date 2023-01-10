@@ -28,7 +28,7 @@ class PipeUnknown extends PipeBase<z.ZodUnknown> {
   }
 
   // filter to an unknown array
-  filter(filterValue: string): PipeArray<z.ZodUnknown> {
+  filter(filterValue = ""): PipeArray<z.ZodUnknown> {
     this.query += `[${filterValue}]`;
     return new PipeArray({ ...this.value(), schema: z.array(z.unknown()) });
   }
@@ -59,7 +59,7 @@ export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
     super(payload);
   }
 
-  filter(filterValue: string) {
+  filter(filterValue = "") {
     this.query += `[${filterValue}]`;
     return this;
   }
@@ -115,12 +115,6 @@ export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
 export class PipeSingleEntity<T extends z.ZodTypeAny> extends PipeBase<T> {
   constructor(payload: Payload<T>) {
     super(payload);
-  }
-
-  // TODO: Only allow this on unknown arrays?
-  deref() {
-    this.query += "->";
-    return this;
   }
 
   grab<

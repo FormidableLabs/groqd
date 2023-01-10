@@ -361,3 +361,33 @@ describe("PipeArray.grabOne/PipeSingleEntity.grabOne", () => {
     expect(data).toBe("Bulbasaur");
   });
 });
+
+describe("PipeArray.deref/PipeUnknown.deref", () => {
+  it("will deref a referenced value", async () => {
+    const { data, query } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grab({
+          name: z.string(),
+          types: pipe("types").filter().deref().grabOne("name", z.string()),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0]{name, "types": types[]->.name}`
+    );
+    invariant(data);
+    expect(data.name).toBe("Bulbasaur");
+    expect(data.types).toEqual(["Grass", "Poison"]);
+  });
+
+  it("doesnt like trying to dereference a non-reference value", async () => {
+    const { error } = await runPokemonBuilderQuery(
+      // @ts-expect-error you shouldn't be able to deref a standard object
+      pipe("*").filter("_type == 'pokemon'").grab({ name: z.string() }).deref()
+    );
+
+    expect(error).toBeTruthy();
+  });
+});
