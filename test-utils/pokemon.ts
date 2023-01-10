@@ -1987,6 +1987,19 @@ const gen1 = [
       Speed: 100,
     },
   },
+  {
+    id: 248,
+    name: "Tyranitar",
+    type: ["Rock", "Dark"],
+    base: {
+      HP: 100,
+      Attack: 134,
+      Defense: 110,
+      "Sp. Attack": 95,
+      "Sp. Defense": 100,
+      Speed: 61,
+    },
+  },
 ].map(
   (mon) =>
     <Pokemon>{
@@ -2020,6 +2033,7 @@ const types: Type[] = [
   "Ice",
   "Ghost",
   "Dragon",
+  "Dark",
 ].map((t) => ({
   _id: `type.${t}`,
   _type: "poketype",
