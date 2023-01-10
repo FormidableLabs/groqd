@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { filter } from "./filter";
 import { BaseResult } from "./types";
-import { order } from "./order";
 import { grab } from "./grab";
 import { slice } from "./slice";
 import { deref } from "./deref";
@@ -80,7 +79,6 @@ const dateSchema = z.preprocess((arg) => {
 }, z.date());
 
 pipe.filter = filter;
-pipe.order = order;
 pipe.grab = grab;
 pipe.grabOne = grabOne;
 pipe.slice = slice;
