@@ -279,3 +279,34 @@ describe("PipeArray.slice", () => {
     expect(data).toEqual([{ name: "Bulbasaur", hp: 45 }, {}, {}]);
   });
 });
+
+describe("PipeArray.grabOne/PipeSingleEntity.grabOne", () => {
+  it("if input is array, converts to array of given type", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 2)
+        .grabOne("name", z.string())
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0..2].name`);
+    expect(
+      schema instanceof z.ZodArray && schema.element instanceof z.ZodString
+    );
+    invariant(data);
+    expect(data).toEqual(["Bulbasaur", "Ivysaur", "Venusaur"]);
+  });
+
+  it("if input is not array, convert to schema type", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grabOne("name", z.string())
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0].name`);
+    expect(schema instanceof z.ZodString);
+    expect(data).toBe("Bulbasaur");
+  });
+});

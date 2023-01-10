@@ -19,7 +19,7 @@ export class PipeBase<T> {
 }
 
 /**
- * Unknown
+ * Unknown, comes out of pipe and is starting point for queries.
  */
 class PipeUnknown extends PipeBase<z.ZodUnknown> {
   constructor(payload: Payload<z.ZodUnknown>) {
@@ -32,12 +32,22 @@ class PipeUnknown extends PipeBase<z.ZodUnknown> {
     return new PipeArray({ ...this.value(), schema: z.array(z.unknown()) });
   }
 
-  // TODO:
+  // TODO: Need to make this abstraction 😬
+  // Shouldn't be terrible, just need to do it.
   grab(): PipeSingleEntity<unknown> {
     return this;
   }
 
-  // TODO:
+  grabOne<GrabOneType extends z.ZodType>(
+    name: string,
+    fieldSchema: GrabOneType
+  ) {
+    return new PipeSingleEntity<GrabOneType>({
+      query: this.query + `.${name}`,
+      schema: fieldSchema,
+    });
+  }
+
   deref() {
     this.query += "->";
     return this;
@@ -57,7 +67,6 @@ class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
     return this;
   }
 
-  // TODO:
   grab<
     S extends Selection<T>,
     CondSelections extends Record<string, Selection<T>> | undefined
@@ -161,9 +170,14 @@ class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
     }) as unknown as PipeArray<AllSelection>;
   }
 
-  // TODO:
-  grabOne() {
-    return this;
+  grabOne<GrabOneType extends z.ZodType>(
+    name: string,
+    fieldSchema: GrabOneType
+  ) {
+    return new PipeArray<GrabOneType>({
+      query: this.query + `.${name}`,
+      schema: z.array(fieldSchema),
+    });
   }
 
   order(...orderings: `${string} ${"asc" | "desc"}`[]): PipeArray<T> {
@@ -197,7 +211,21 @@ class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
 /**
  * Single Entity
  */
-class PipeSingleEntity<T> extends PipeBase<T> {}
+class PipeSingleEntity<T> extends PipeBase<T> {
+  constructor(payload: Payload<T>) {
+    super(payload);
+  }
+
+  grabOne<GrabOneType extends z.ZodType>(
+    name: string,
+    fieldSchema: GrabOneType
+  ) {
+    return new PipeSingleEntity<GrabOneType>({
+      query: this.query + `.${name}`,
+      schema: fieldSchema,
+    });
+  }
+}
 
 export const pipe = (filter: string): PipeUnknown => {
   return new PipeUnknown({ query: filter, schema: z.unknown() });
