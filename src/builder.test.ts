@@ -172,3 +172,110 @@ describe("PipeArray.order", () => {
     expect(data[0].name).toBe("Chansey");
   });
 });
+
+describe("PipeArray.slice", () => {
+  it("turns unknown[] to unknown if no max provided", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*").filter("_type == 'pokemon'").slice(0)
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0]`);
+    expect(schema instanceof z.ZodUnknown);
+    invariant(data);
+    expect("name" in data).toBeTruthy();
+  });
+
+  it("keeps unknown[] as unknown[] if max provided", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*").filter("_type == 'pokemon'").slice(0, 2)
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0..2]`);
+    expect(
+      schema instanceof z.ZodArray && schema.element instanceof z.ZodUnknown
+    );
+    invariant(data);
+    expect(data.length).toBe(3);
+  });
+
+  it("turns T[] to T if no max provided", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*").filter("_type == 'pokemon'").grab({ name: z.string() }).slice(0)
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']{name}[0]`);
+    expect(schema instanceof z.ZodObject);
+    invariant(data);
+    expect(data.name).toBe("Bulbasaur");
+  });
+
+  it("keeps T[] as T[] if max provided", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .grab({ name: z.string() })
+        .slice(0, 2)
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']{name}[0..2]`);
+    expect(
+      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
+    );
+    invariant(data);
+    expect(data).toEqual([
+      { name: "Bulbasaur" },
+      { name: "Ivysaur" },
+      { name: "Venusaur" },
+    ]);
+  });
+
+  it("turns T[] to T if no max provided, even during conditional selection", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .grab(
+          {},
+          {
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+              hp: ["base.HP", q.number()],
+            },
+          }
+        )
+        .slice(0)
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon']{...select(name == 'Bulbasaur' => { name, "hp": base.HP })}[0]`
+    );
+    expect(schema instanceof z.ZodObject);
+    invariant(data);
+    expect(data).toEqual({ name: "Bulbasaur", hp: 45 });
+  });
+
+  it("keeps T[] as T[] if max is provided, even during conditional selection", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .grab(
+          {},
+          {
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+              hp: ["base.HP", q.number()],
+            },
+          }
+        )
+        .slice(0, 2)
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon']{...select(name == 'Bulbasaur' => { name, "hp": base.HP })}[0..2]`
+    );
+    expect(
+      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
+    );
+    invariant(data);
+    expect(data).toEqual([{ name: "Bulbasaur", hp: 45 }, {}, {}]);
+  });
+});
