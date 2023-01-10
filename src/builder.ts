@@ -47,11 +47,6 @@ class PipeUnknown extends PipeBase<z.ZodUnknown> {
       schema: fieldSchema,
     });
   }
-
-  deref() {
-    this.query += "->";
-    return this;
-  }
 }
 
 /**
@@ -214,6 +209,12 @@ class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
 class PipeSingleEntity<T> extends PipeBase<T> {
   constructor(payload: Payload<T>) {
     super(payload);
+  }
+
+  // TODO: Only allow this on unknown arrays?
+  deref() {
+    this.query += "->";
+    return this;
   }
 
   grabOne<GrabOneType extends z.ZodType>(
