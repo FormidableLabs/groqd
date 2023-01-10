@@ -78,6 +78,57 @@ describe("PipeArray.grab", () => {
   });
 });
 
+describe("PipeUnknown.filter/PipeArray.filter", () => {
+  it("applies simple filter appropriately to PipeUnknown, returning unknown array", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*").filter("_type == 'pokemon'")
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']`);
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+    expect(Array.isArray(data) && "name" in data[0]).toBeTruthy();
+  });
+
+  it("can stack filters, with no projection, schema is still unknown", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*").filter("_type == 'pokemon'").filter("name match 'char*'")
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][name match 'char*']`);
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+    expect(data?.length).toBe(3);
+  });
+
+  it("can filter, project, and filter, and schema of projection is preserved", async () => {
+    const { query, schema, data } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .grab({ name: z.string() })
+        .filter("name match 'char*'")
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']{name}[name match 'char*']`);
+    expect(schema instanceof z.ZodArray).toBeTruthy();
+    expect(schema.element instanceof z.ZodObject).toBeTruthy();
+    invariant(data);
+    expect(data[0].name).toEqual("Charmander");
+  });
+
+  it("turns unknown schema into unknown array schema", async () => {
+    const { schema: schema1 } = await runPokemonBuilderQuery(pipe(""));
+    expect(schema1 instanceof z.ZodUnknown);
+
+    const { schema: schema2 } = await runPokemonBuilderQuery(
+      pipe("").filter("_type == 'animal'")
+    );
+    expect(
+      schema2 instanceof z.ZodArray && schema2.element instanceof z.ZodUnknown
+    );
+  });
+});
+
 describe("PipeArray.order", () => {
   it("applies order, preserves unknown schema", async () => {
     const { query, schema, data } = await runPokemonBuilderQuery(

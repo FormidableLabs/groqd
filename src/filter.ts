@@ -2,6 +2,7 @@ import { z } from "zod";
 import { BaseResult } from "./types";
 
 /**
+ * TODO: DELETE THIS
  * Apply a GROQ filter
  * @param {string} filterValue - filter to be applied, such as `_type == 'pokemon'`
  */
