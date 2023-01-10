@@ -8,7 +8,7 @@ import {
 import invariant from "tiny-invariant";
 import { q } from "./index";
 
-describe("PipeArray.grab", () => {
+describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   it("creates schema from unknown array schema", async () => {
     const { query, schema, data } = await runPokemonBuilderQuery(
       pipe("*").filter("_type == 'pokemon'").grab({ name: z.string() })
@@ -76,6 +76,57 @@ describe("PipeArray.grab", () => {
     invariant(data);
     expect(data[0].strength).toBe(49);
   });
+
+  it("creates schema from unknown singleton schema", async () => {
+    const { schema, data } = await runPokemonBuilderQuery(
+      pipe("").grab({ name: z.null() })
+    );
+
+    expect(schema instanceof z.ZodObject);
+    expect(data).toEqual({ name: null });
+  });
+
+  it("can handle conditional selections", async () => {
+    const { data, query } = await runPokemonBuilderQuery(
+      pipe("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 3)
+        .grab(
+          {
+            _id: z.string(),
+          },
+          {
+            "name == 'Charmander'": {
+              name: q.literal("Charmander"),
+              hp: ["base.HP", q.number()],
+            },
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+            },
+          }
+        )
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..3]{_id, ...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name })}`
+    );
+
+    invariant(data);
+    expect(data[0]).toEqual({ _id: "pokemon.1", name: "Bulbasaur" });
+    expect(data[1]).toEqual({ _id: "pokemon.2" });
+    expect(data[3]).toEqual({ _id: "pokemon.4", name: "Charmander", hp: 39 });
+
+    for (const dat of data) {
+      if ("name" in dat && dat.name === "Charmander") {
+        expect(dat.name === "Charmander").toBeTruthy();
+        // @ts-expect-error Expect error here, TS should infer type
+        expect(dat.name === "Bulbasaur").toBeFalsy();
+        expect(dat.hp).toBe(39);
+      }
+    }
+  });
+
+  // TODO: stacked grabs, make sure the keys are limited as expected.
 });
 
 describe("PipeUnknown.filter/PipeArray.filter", () => {
