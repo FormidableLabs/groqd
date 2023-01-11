@@ -122,17 +122,23 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
     }
   });
 
-  // TODO: stacked grabs, make sure the keys are limited as expected.
-  it("can stack grabs, and last grab wins", async () => {
+  it.only("can stack grabs, and last grab wins", async () => {
     const { data, query } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 3)
         .grab({ name: q.string() })
-        .grab({ foo: ["name", q.string()] })
+        .grab({
+          foo: ["name", q.string()],
+          // let's also query something that doesn't exist – groq will null it out
+          bar: q.string().nullable(),
+        })
     );
 
-    expect(query).toBe(`*[_type == 'pokemon'][0..3]{name}{"foo": name}`);
+    expect(query).toBe(`*[_type == 'pokemon'][0..3]{name}{"foo": name, bar}`);
+    invariant(data);
+    expect(data[0].foo).toBe("Bulbasaur");
+    expect(data[0].bar).toBeNull();
   });
 });
 

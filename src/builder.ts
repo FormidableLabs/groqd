@@ -37,8 +37,8 @@ export class PipeUnknown extends PipeBase<z.ZodUnknown> {
   }
 
   grab<
-    S extends Selection<z.ZodUnknown>,
-    CondSelections extends Record<string, Selection<z.ZodUnknown>> | undefined
+    S extends Selection,
+    CondSelections extends Record<string, Selection> | undefined
   >(selection: S, conditionalSelections?: CondSelections) {
     return grab(this.query, this.schema, selection, conditionalSelections);
   }
@@ -68,8 +68,8 @@ export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
   }
 
   grab<
-    S extends Selection<T>,
-    CondSelections extends Record<string, Selection<T>> | undefined
+    S extends Selection,
+    CondSelections extends Record<string, Selection> | undefined
   >(selection: S, conditionalSelections?: CondSelections) {
     return grab(this.query, this.schema, selection, conditionalSelections);
   }
@@ -126,8 +126,8 @@ export class PipeSingleEntity<T extends z.ZodTypeAny> extends PipeBase<T> {
   }
 
   grab<
-    S extends Selection<T>,
-    CondSelections extends Record<string, Selection<T>> | undefined
+    S extends Selection,
+    CondSelections extends Record<string, Selection> | undefined
   >(selection: S, conditionalSelections?: CondSelections) {
     return grab(this.query, this.schema, selection, conditionalSelections);
   }
