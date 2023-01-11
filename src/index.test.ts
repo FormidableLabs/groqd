@@ -6,14 +6,10 @@ import invariant from "tiny-invariant";
 describe("literal", () => {
   it("will generate a literal string type", async () => {
     const { data, query } = await runPokemonQuery(
-      q(
-        "*",
-        q.filter("_type == 'pokemon'"),
-        q.slice(0),
-        q.grab({
-          name: q.literal("Bulbasaur"),
-        })
-      )
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grab({ name: q.literal("Bulbasaur") })
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0]{name}`);
@@ -26,14 +22,10 @@ describe("literal", () => {
 
   it("will generate a literal number type", async () => {
     const { data, query } = await runPokemonQuery(
-      q(
-        "*",
-        q.filter("_type == 'pokemon'"),
-        q.slice(0),
-        q.grab({
-          hp: ["base.HP", q.literal(45)],
-        })
-      )
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grab({ hp: ["base.HP", q.literal(45)] })
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0]{"hp": base.HP}`);
@@ -48,14 +40,10 @@ describe("literal", () => {
 describe("union", () => {
   it("will generate a union type (with literals)", async () => {
     const { data, query } = await runPokemonQuery(
-      q(
-        "*",
-        q.filter("_type == 'pokemon'"),
-        q.slice(0, 1),
-        q.grab({
-          name: q.union([q.literal("Bulbasaur"), q.literal("Ivysaur")]),
-        })
-      )
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({ name: q.union([q.literal("Bulbasaur"), q.literal("Ivysaur")]) })
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0..1]{name}`);
@@ -68,14 +56,10 @@ describe("union", () => {
 
   it("will generate a union type with strings/numbers", async () => {
     const { data, query } = await runPokemonQuery(
-      q(
-        "*",
-        q.filter("_type == 'pokemon'"),
-        q.slice(0),
-        q.grab({
-          _id: q.union([q.number(), q.string()]),
-        })
-      )
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grab({ _id: q.union([q.number(), q.string()]) })
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0]{_id}`);

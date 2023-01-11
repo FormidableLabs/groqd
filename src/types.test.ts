@@ -4,11 +4,9 @@ import type { InferType } from "./types";
 
 describe("InferType", () => {
   it("can infer type from query", () => {
-    const query = q(
-      "*",
-      q.filter("_type == 'pokemon'"),
-      q.grab({ name: q.string() })
-    );
+    const query = q("*")
+      .filter("_type == 'pokemon'")
+      .grab({ name: q.string() });
 
     type Res = InferType<typeof query>;
 

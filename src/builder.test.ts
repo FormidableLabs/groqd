@@ -1,17 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { pipe } from "./builder";
-import { z } from "zod";
-import {
-  runPokemonBuilderQuery,
-  runPokemonQuery,
-} from "../test-utils/runQuery";
-import invariant from "tiny-invariant";
 import { q } from "./index";
+import { z } from "zod";
+import { runPokemonQuery } from "../test-utils/runQuery";
+import invariant from "tiny-invariant";
 
 describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   it("creates schema from unknown array schema", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*").filter("_type == 'pokemon'").grab({ name: z.string() })
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").grab({ name: z.string() })
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}`);
@@ -23,8 +19,8 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   });
 
   it("can grab with {key: [name, schema]} syntax", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .grab({
           hp: ["base.HP", z.number()],
@@ -39,14 +35,14 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
     expect(data[0].hp).toBe(45);
   });
 
-  it("can grab with {key: pipe()} composition", async () => {
-    const { query, data } = await runPokemonBuilderQuery(
-      pipe("*")
+  it("can grab with {key: q()} composition", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'poketype'")
         .slice(0, 1)
         .grab({
           name: z.string(),
-          pokemons: pipe("*")
+          pokemons: q("*")
             .filter("_type == 'pokemon' && references(^._id)")
             .grab({ name: z.string() }),
         })
@@ -61,8 +57,8 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   });
 
   it("can handle coalesce statements", async () => {
-    const { query, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 3)
         .grab({
@@ -78,8 +74,8 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   });
 
   it("creates schema from unknown singleton schema", async () => {
-    const { schema, data } = await runPokemonBuilderQuery(
-      pipe("").grab({ name: z.null() })
+    const { schema, data } = await runPokemonQuery(
+      q("").grab({ name: z.null() })
     );
 
     expect(schema instanceof z.ZodObject);
@@ -87,8 +83,8 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   });
 
   it("can handle conditional selections", async () => {
-    const { data, query } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { data, query } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 3)
         .grab(
@@ -131,8 +127,8 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
 
 describe("PipeUnknown.filter/PipeArray.filter", () => {
   it("applies simple filter appropriately to PipeUnknown, returning unknown array", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*").filter("_type == 'pokemon'")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'")
     );
 
     expect(query).toBe(`*[_type == 'pokemon']`);
@@ -142,8 +138,8 @@ describe("PipeUnknown.filter/PipeArray.filter", () => {
   });
 
   it("can stack filters, with no projection, schema is still unknown", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*").filter("_type == 'pokemon'").filter("name match 'char*'")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").filter("name match 'char*'")
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][name match 'char*']`);
@@ -153,8 +149,8 @@ describe("PipeUnknown.filter/PipeArray.filter", () => {
   });
 
   it("can filter, project, and filter, and schema of projection is preserved", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .grab({ name: z.string() })
         .filter("name match 'char*'")
@@ -168,11 +164,11 @@ describe("PipeUnknown.filter/PipeArray.filter", () => {
   });
 
   it("turns unknown schema into unknown array schema", async () => {
-    const { schema: schema1 } = await runPokemonBuilderQuery(pipe(""));
+    const { schema: schema1 } = await runPokemonQuery(q(""));
     expect(schema1 instanceof z.ZodUnknown);
 
-    const { schema: schema2 } = await runPokemonBuilderQuery(
-      pipe("").filter("_type == 'animal'")
+    const { schema: schema2 } = await runPokemonQuery(
+      q("").filter("_type == 'animal'")
     );
     expect(
       schema2 instanceof z.ZodArray && schema2.element instanceof z.ZodUnknown
@@ -182,8 +178,8 @@ describe("PipeUnknown.filter/PipeArray.filter", () => {
 
 describe("PipeArray.order", () => {
   it("applies order, preserves unknown schema", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*").filter("_type == 'pokemon'").order("name asc")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").order("name asc")
     );
 
     expect(query).toBe(`*[_type == 'pokemon']|order(name asc)`);
@@ -194,8 +190,8 @@ describe("PipeArray.order", () => {
   });
 
   it("applies order, preserves schema", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .grab({ name: z.string() })
         .order("name desc")
@@ -209,8 +205,8 @@ describe("PipeArray.order", () => {
   });
 
   it("can apply multiple order statements", async () => {
-    const { query, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .grab({ name: z.string(), hp: ["base.HP", z.number()] })
         .order("hp desc", "name asc")
@@ -226,8 +222,8 @@ describe("PipeArray.order", () => {
 
 describe("PipeArray.slice", () => {
   it("turns unknown[] to unknown if no max provided", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*").filter("_type == 'pokemon'").slice(0)
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0)
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0]`);
@@ -237,8 +233,8 @@ describe("PipeArray.slice", () => {
   });
 
   it("keeps unknown[] as unknown[] if max provided", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*").filter("_type == 'pokemon'").slice(0, 2)
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0, 2)
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0..2]`);
@@ -250,8 +246,8 @@ describe("PipeArray.slice", () => {
   });
 
   it("turns T[] to T if no max provided", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*").filter("_type == 'pokemon'").grab({ name: z.string() }).slice(0)
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).slice(0)
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}[0]`);
@@ -261,11 +257,8 @@ describe("PipeArray.slice", () => {
   });
 
   it("keeps T[] as T[] if max provided", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
-        .filter("_type == 'pokemon'")
-        .grab({ name: z.string() })
-        .slice(0, 2)
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).slice(0, 2)
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}[0..2]`);
@@ -281,8 +274,8 @@ describe("PipeArray.slice", () => {
   });
 
   it("turns T[] to T if no max provided, even during conditional selection", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .grab(
           {},
@@ -305,8 +298,8 @@ describe("PipeArray.slice", () => {
   });
 
   it("keeps T[] as T[] if max is provided, even during conditional selection", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .grab(
           {},
@@ -333,8 +326,8 @@ describe("PipeArray.slice", () => {
 
 describe("PipeArray.grabOne/PipeSingleEntity.grabOne", () => {
   it("if input is array, converts to array of given type", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { query, schema, data } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 2)
         .grabOne("name", z.string())
@@ -349,11 +342,8 @@ describe("PipeArray.grabOne/PipeSingleEntity.grabOne", () => {
   });
 
   it("if input is not array, convert to schema type", async () => {
-    const { query, schema, data } = await runPokemonBuilderQuery(
-      pipe("*")
-        .filter("_type == 'pokemon'")
-        .slice(0)
-        .grabOne("name", z.string())
+    const { query, schema, data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0).grabOne("name", z.string())
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0].name`);
@@ -364,13 +354,13 @@ describe("PipeArray.grabOne/PipeSingleEntity.grabOne", () => {
 
 describe("PipeArray.deref/PipeUnknown.deref", () => {
   it("will deref a referenced value", async () => {
-    const { data, query } = await runPokemonBuilderQuery(
-      pipe("*")
+    const { data, query } = await runPokemonQuery(
+      q("*")
         .filter("_type == 'pokemon'")
         .slice(0)
         .grab({
           name: z.string(),
-          types: pipe("types").filter().deref().grabOne("name", z.string()),
+          types: q("types").filter().deref().grabOne("name", z.string()),
         })
     );
 
@@ -383,9 +373,9 @@ describe("PipeArray.deref/PipeUnknown.deref", () => {
   });
 
   it("doesnt like trying to dereference a non-reference value", async () => {
-    const { error } = await runPokemonBuilderQuery(
+    const { error } = await runPokemonQuery(
       // @ts-expect-error you shouldn't be able to deref a standard object
-      pipe("*").filter("_type == 'pokemon'").grab({ name: z.string() }).deref()
+      q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).deref()
     );
 
     expect(error).toBeTruthy();

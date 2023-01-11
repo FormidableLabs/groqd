@@ -22,7 +22,7 @@ export class PipeBase<T> {
 /**
  * Unknown, comes out of pipe and is starting point for queries.
  */
-class PipeUnknown extends PipeBase<z.ZodUnknown> {
+export class PipeUnknown extends PipeBase<z.ZodUnknown> {
   constructor(payload: Payload<z.ZodUnknown>) {
     super(payload);
   }
@@ -134,7 +134,3 @@ export class PipeSingleEntity<T extends z.ZodTypeAny> extends PipeBase<T> {
     });
   }
 }
-
-export const pipe = (filter: string): PipeUnknown => {
-  return new PipeUnknown({ query: filter, schema: z.unknown() });
-};
