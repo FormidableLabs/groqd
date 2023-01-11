@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { doGrab } from "./grabUtil";
-import type { Selection } from "./grabUtil";
+import { grab } from "./grab";
+import type { Selection } from "./grab";
 
 type Query = string;
 type Payload<T> = { schema: T; query: Query };
@@ -28,16 +28,19 @@ export class PipeUnknown extends PipeBase<z.ZodUnknown> {
   }
 
   // filter to an unknown array
-  filter(filterValue = ""): PipeArray<z.ZodUnknown> {
+  filter(filterValue = ""): PipeArrayUnknown {
     this.query += `[${filterValue}]`;
-    return new PipeArray({ ...this.value(), schema: z.array(z.unknown()) });
+    return new PipeArrayUnknown({
+      ...this.value(),
+      schema: z.array(z.unknown()),
+    });
   }
 
   grab<
     S extends Selection<z.ZodUnknown>,
     CondSelections extends Record<string, Selection<z.ZodUnknown>> | undefined
   >(selection: S, conditionalSelections?: CondSelections) {
-    return doGrab(this.query, this.schema, selection, conditionalSelections);
+    return grab(this.query, this.schema, selection, conditionalSelections);
   }
 
   grabOne<GrabOneType extends z.ZodType>(
@@ -68,7 +71,7 @@ export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
     S extends Selection<T>,
     CondSelections extends Record<string, Selection<T>> | undefined
   >(selection: S, conditionalSelections?: CondSelections) {
-    return doGrab(this.query, this.schema, selection, conditionalSelections);
+    return grab(this.query, this.schema, selection, conditionalSelections);
   }
 
   grabOne<GrabOneType extends z.ZodType>(
@@ -101,8 +104,13 @@ export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
 
     return this;
   }
+}
 
-  // TODO: Only allow this on unknown arrays?
+export class PipeArrayUnknown extends PipeArray<z.ZodUnknown> {
+  constructor(payload: Payload<z.ZodArray<z.ZodUnknown>>) {
+    super(payload);
+  }
+
   deref() {
     this.query += "->";
     return this;
@@ -121,7 +129,7 @@ export class PipeSingleEntity<T extends z.ZodTypeAny> extends PipeBase<T> {
     S extends Selection<T>,
     CondSelections extends Record<string, Selection<T>> | undefined
   >(selection: S, conditionalSelections?: CondSelections) {
-    return doGrab(this.query, this.schema, selection, conditionalSelections);
+    return grab(this.query, this.schema, selection, conditionalSelections);
   }
 
   grabOne<GrabOneType extends z.ZodType>(

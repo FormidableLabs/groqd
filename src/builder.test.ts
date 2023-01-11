@@ -373,11 +373,9 @@ describe("PipeArray.deref/PipeUnknown.deref", () => {
   });
 
   it("doesnt like trying to dereference a non-reference value", async () => {
-    const { error } = await runPokemonQuery(
-      // @ts-expect-error you shouldn't be able to deref a standard object
-      q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).deref()
-    );
-
-    expect(error).toBeTruthy();
+    expect(() => {
+      // @ts-expect-error expecting deref to error, since its not on PipeArrayUnknown
+      q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).deref();
+    }).toThrow();
   });
 });
