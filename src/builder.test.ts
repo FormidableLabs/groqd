@@ -123,6 +123,17 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   });
 
   // TODO: stacked grabs, make sure the keys are limited as expected.
+  it("can stack grabs, and last grab wins", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 3)
+        .grab({ name: q.string() })
+        .grab({ foo: ["name", q.string()] })
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0..3]{name}{"foo": name}`);
+  });
 });
 
 describe("PipeUnknown.filter/PipeArray.filter", () => {
