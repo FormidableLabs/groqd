@@ -122,7 +122,7 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
     }
   });
 
-  it.only("can stack grabs, and last grab wins", async () => {
+  it("can stack grabs, and last grab wins", async () => {
     const { data, query } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
