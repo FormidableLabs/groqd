@@ -51,9 +51,9 @@ const data = await runQuery(
 
 Using `makeSafeQueryRunner` is totally optional; you might find using `q().schema` and `q().query` in your own abstractions works better for you.
 
-## **NOTE**: Significant API changes with 1.0.0
+## **NOTE**: Significant API changes with 0.3.0
 
-Prior to version 1.0.0, `groqd` provided a pipeline API. However, there were some major drawbacks to that API. We've migrated to a builder pattern API that looks _similar_ to the previous API, but using a builder pattern (instead of piping). 
+Prior to version 0.3.0, `groqd` provided a pipeline API. However, there were some major drawbacks to that API. We've migrated to a builder pattern API that looks _similar_ to the previous API, but using a builder pattern (instead of piping). 
 
 The core difference is instead of feeding all arguments to `q()`, `q()` accepts a single argument and then you chain method calls on that. For example:
 
