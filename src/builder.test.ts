@@ -98,17 +98,22 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
             },
             "name == 'Bulbasaur'": {
               name: q.literal("Bulbasaur"),
+              attack: ["base.Attack", q.number()],
             },
           }
         )
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..3]{_id, ...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name })}`
+      `*[_type == 'pokemon'][0..3]{_id, ...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name, "attack": base.Attack })}`
     );
 
     invariant(data);
-    expect(data[0]).toEqual({ _id: "pokemon.1", name: "Bulbasaur" });
+    expect(data[0]).toEqual({
+      _id: "pokemon.1",
+      name: "Bulbasaur",
+      attack: 49,
+    });
     expect(data[1]).toEqual({ _id: "pokemon.2" });
     expect(data[3]).toEqual({ _id: "pokemon.4", name: "Charmander", hp: 39 });
 
@@ -117,6 +122,8 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
         expect(dat.name === "Charmander").toBeTruthy();
         // @ts-expect-error Expect error here, TS should infer type
         expect(dat.name === "Bulbasaur").toBeFalsy();
+        // @ts-expect-error Attack field isn't present on Charmander document
+        expect(dat.attack).toBeUndefined();
         expect(dat.hp).toBe(39);
       }
     }
