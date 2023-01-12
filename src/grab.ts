@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ValueOf } from "./types";
-import { PipeArray, PipeBase, PipeSingleEntity } from "./builder";
+import { ArrayResult, BaseResult, EntityResult } from "./builder";
 
 export const grab = <
   T extends z.ZodTypeAny | z.ZodArray<any>,
@@ -13,7 +13,7 @@ export const grab = <
   conditionalSelections?: CondSelections
 ) => {
   type FromSelection<Sel extends Selection> = z.ZodObject<{
-    [K in keyof Sel]: Sel[K] extends PipeBase<any>
+    [K in keyof Sel]: Sel[K] extends BaseResult<any>
       ? Sel[K]["schema"]
       : FromField<Sel[K]>;
   }>;
@@ -30,14 +30,14 @@ export const grab = <
       >;
 
   type NewType = T extends z.ZodArray<any>
-    ? PipeArray<AllSelection>
-    : PipeSingleEntity<AllSelection>;
+    ? ArrayResult<AllSelection>
+    : EntityResult<AllSelection>;
 
   // Recursively define projections to pick up nested conditionals
   const getProjections = (sel: Selection) =>
     Object.entries(sel).reduce<string[]>((acc, [key, val]) => {
       let toPush = "";
-      if (val instanceof PipeBase) {
+      if (val instanceof BaseResult) {
         toPush = `"${key}": ${val.query}`;
       } else if (Array.isArray(val)) {
         toPush = `"${key}": ${val[0]}`;
@@ -63,7 +63,7 @@ export const grab = <
   const newSchema = (() => {
     const toSchemaInput = (sel: Selection) =>
       Object.entries(sel).reduce<z.ZodRawShape>((acc, [key, value]) => {
-        if (value instanceof PipeBase) {
+        if (value instanceof BaseResult) {
           acc[key] = value.schema;
         } else if (Array.isArray(value)) {
           acc[key] = value[1];
@@ -93,16 +93,16 @@ export const grab = <
   })();
 
   const res = (schema instanceof z.ZodArray
-    ? new PipeArray({
+    ? new ArrayResult({
         query: query + `{${projections.join(", ")}}`,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore TODO: probably should figure out what's making tsc upset here
         schema: newSchema,
       })
-    : new PipeSingleEntity({
+    : new EntityResult({
         query: query + `{${projections.join(", ")}}`,
         schema: newSchema,
-      })) as unknown as PipeArray<AllSelection>;
+      })) as unknown as ArrayResult<AllSelection>;
 
   return res as unknown as NewType;
 };
@@ -119,5 +119,5 @@ type FromField<T> = T extends Field<infer R>
 
 export type Selection = Record<
   string,
-  PipeBase<any> | z.ZodType | [string, z.ZodType]
+  BaseResult<any> | z.ZodType | [string, z.ZodType]
 >;

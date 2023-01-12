@@ -5,7 +5,7 @@ import type { Selection } from "./grab";
 type Query = string;
 type Payload<T> = { schema: T; query: Query };
 
-export class PipeBase<T> {
+export class BaseResult<T> {
   query: string;
   schema: T;
 
@@ -22,15 +22,15 @@ export class PipeBase<T> {
 /**
  * Unknown, comes out of pipe and is starting point for queries.
  */
-export class PipeUnknown extends PipeBase<z.ZodUnknown> {
+export class UnknownResult extends BaseResult<z.ZodUnknown> {
   constructor(payload: Payload<z.ZodUnknown>) {
     super(payload);
   }
 
   // filter to an unknown array
-  filter(filterValue = ""): PipeArrayUnknown {
+  filter(filterValue = ""): UnknownArrayResult {
     this.query += `[${filterValue}]`;
-    return new PipeArrayUnknown({
+    return new UnknownArrayResult({
       ...this.value(),
       schema: z.array(z.unknown()),
     });
@@ -47,7 +47,7 @@ export class PipeUnknown extends PipeBase<z.ZodUnknown> {
     name: string,
     fieldSchema: GrabOneType
   ) {
-    return new PipeSingleEntity<GrabOneType>({
+    return new EntityResult<GrabOneType>({
       query: this.query + `.${name}`,
       schema: fieldSchema,
     });
@@ -57,7 +57,9 @@ export class PipeUnknown extends PipeBase<z.ZodUnknown> {
 /**
  * Array
  */
-export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
+export class ArrayResult<T extends z.ZodTypeAny> extends BaseResult<
+  z.ZodArray<T>
+> {
   constructor(payload: Payload<z.ZodArray<T>>) {
     super(payload);
   }
@@ -78,25 +80,25 @@ export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
     name: string,
     fieldSchema: GrabOneType
   ) {
-    return new PipeArray<GrabOneType>({
+    return new ArrayResult<GrabOneType>({
       query: this.query + `.${name}`,
       schema: z.array(fieldSchema),
     });
   }
 
-  order(...orderings: `${string} ${"asc" | "desc"}`[]): PipeArray<T> {
+  order(...orderings: `${string} ${"asc" | "desc"}`[]): ArrayResult<T> {
     this.query += `|order(${orderings.join(", ")})`;
     return this;
   }
 
   // Slicing
-  slice(index: number): PipeSingleEntity<T>;
-  slice(min: number, max: number): PipeArray<T>;
-  slice(min: number, max?: number): PipeSingleEntity<T> | PipeArray<T> {
+  slice(index: number): EntityResult<T>;
+  slice(min: number, max: number): ArrayResult<T>;
+  slice(min: number, max?: number): EntityResult<T> | ArrayResult<T> {
     this.query += `[${min}${typeof max === "number" ? `..${max}` : ""}]`;
 
     if (typeof max === "undefined") {
-      return new PipeSingleEntity({
+      return new EntityResult({
         ...this.value(),
         schema: this.schema.element,
       });
@@ -106,7 +108,7 @@ export class PipeArray<T extends z.ZodTypeAny> extends PipeBase<z.ZodArray<T>> {
   }
 }
 
-export class PipeArrayUnknown extends PipeArray<z.ZodUnknown> {
+export class UnknownArrayResult extends ArrayResult<z.ZodUnknown> {
   constructor(payload: Payload<z.ZodArray<z.ZodUnknown>>) {
     super(payload);
   }
@@ -120,7 +122,7 @@ export class PipeArrayUnknown extends PipeArray<z.ZodUnknown> {
 /**
  * Single Entity
  */
-export class PipeSingleEntity<T extends z.ZodTypeAny> extends PipeBase<T> {
+export class EntityResult<T extends z.ZodTypeAny> extends BaseResult<T> {
   constructor(payload: Payload<T>) {
     super(payload);
   }
@@ -136,7 +138,7 @@ export class PipeSingleEntity<T extends z.ZodTypeAny> extends PipeBase<T> {
     name: string,
     fieldSchema: GrabOneType
   ) {
-    return new PipeSingleEntity<GrabOneType>({
+    return new EntityResult<GrabOneType>({
       query: this.query + `.${name}`,
       schema: fieldSchema,
     });

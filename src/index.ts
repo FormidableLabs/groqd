@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { PipeBase, PipeUnknown } from "./builder";
+import { BaseResult, UnknownResult } from "./builder";
 
 export type { InferType } from "./types";
 
-export const pipe = (filter: string): PipeUnknown => {
-  return new PipeUnknown({ query: filter, schema: z.unknown() });
+export const pipe = (filter: string): UnknownResult => {
+  return new UnknownResult({ query: filter, schema: z.unknown() });
 };
 
 // Date helper to parse date strings
@@ -34,7 +34,7 @@ type QueryExecutor = (query: string) => Promise<any>;
 type BaseType<T = any> = z.ZodType<T>;
 export const makeSafeQueryRunner =
   (fn: QueryExecutor) =>
-  <T extends BaseType>({ query, schema }: PipeBase<T>): Promise<z.infer<T>> =>
+  <T extends BaseType>({ query, schema }: BaseResult<T>): Promise<z.infer<T>> =>
     fn(query).then((res) => schema.parse(res));
 
 /**
