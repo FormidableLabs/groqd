@@ -77,7 +77,7 @@ The goal of `groqd` is to work around these constraints by allowing _you_ to spe
 
 ## API:
 
-`groqd` uses a builder pattern for building queries. Builder instances are created with a function `q`, and are chainable. There are four internal classes that are used as part of the query builder process: `UnknownResult`, `ArrayResult`, `UnknownArrayResult`, and `EntityResult`. These four classes half _some_ overlap, but generally only contain methods that "make sense" for the type of result they represent (e.g. `ArrayResult` will contain methods that e.g. an `EntityResult` will not, such as filtering and ordering).
+`groqd` uses a builder pattern for building queries. Builder instances are created with a function `q`, and are chainable. There are four internal classes that are used as part of the query builder process: `UnknownResult`, `ArrayResult`, `UnknownArrayResult`, and `EntityResult`. These four classes have _some_ overlap, but generally only contain methods that "make sense" for the type of result they represent (e.g. `ArrayResult` will contain methods that an `EntityResult` will not, such as filtering and ordering).
 
 ### `q`
 
