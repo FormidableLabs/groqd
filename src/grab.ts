@@ -113,7 +113,7 @@ type FromField<T> = T extends Field<infer R>
   ? R
   : T extends [string, infer R]
   ? R
-  : z.ZodNever;
+  : never;
 
 export type Selection = Record<
   string,
