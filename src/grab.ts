@@ -92,11 +92,9 @@ export const grab = <
     return schema instanceof z.ZodArray ? z.array(s) : s;
   })();
 
-  const res = (schema instanceof z.ZodArray
+  const res = (newSchema instanceof z.ZodArray
     ? new ArrayResult({
         query: query + `{${projections.join(", ")}}`,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore TODO: probably should figure out what's making tsc upset here
         schema: newSchema,
       })
     : new EntityResult({
