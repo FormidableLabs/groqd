@@ -4,7 +4,7 @@ import { z } from "zod";
 import { runPokemonQuery } from "../test-utils/runQuery";
 import invariant from "tiny-invariant";
 
-describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
+describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
   it("creates schema from unknown array schema", async () => {
     const { query, schema, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").grab({ name: z.string() })
@@ -142,8 +142,8 @@ describe("PipeArray.grab/PipeUnknown.grab/PipeSingleEntity.grab", () => {
   });
 });
 
-describe("PipeUnknown.filter/PipeArray.filter", () => {
-  it("applies simple filter appropriately to PipeUnknown, returning unknown array", async () => {
+describe("UnknownResult.filter/ArrayResult.filter", () => {
+  it("applies simple filter appropriately to UnknownResult, returning unknown array", async () => {
     const { query, schema, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'")
     );
@@ -193,7 +193,7 @@ describe("PipeUnknown.filter/PipeArray.filter", () => {
   });
 });
 
-describe("PipeArray.order", () => {
+describe("ArrayResult.order", () => {
   it("applies order, preserves unknown schema", async () => {
     const { query, schema, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").order("name asc")
@@ -237,7 +237,7 @@ describe("PipeArray.order", () => {
   });
 });
 
-describe("PipeArray.slice", () => {
+describe("ArrayResult.slice", () => {
   it("turns unknown[] to unknown if no max provided", async () => {
     const { query, schema, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").slice(0)
@@ -341,7 +341,7 @@ describe("PipeArray.slice", () => {
   });
 });
 
-describe("PipeArray.grabOne/PipeSingleEntity.grabOne", () => {
+describe("ArrayResult.grabOne/EntityResult.grabOne", () => {
   it("if input is array, converts to array of given type", async () => {
     const { query, schema, data } = await runPokemonQuery(
       q("*")
@@ -369,7 +369,7 @@ describe("PipeArray.grabOne/PipeSingleEntity.grabOne", () => {
   });
 });
 
-describe("PipeArray.deref/PipeUnknown.deref", () => {
+describe("ArrayResult.deref/UnknownResult.deref", () => {
   it("will deref a referenced value", async () => {
     const { data, query } = await runPokemonQuery(
       q("*")
@@ -391,7 +391,7 @@ describe("PipeArray.deref/PipeUnknown.deref", () => {
 
   it("doesnt like trying to dereference a non-reference value", async () => {
     expect(() => {
-      // @ts-expect-error expecting deref to error, since its not on PipeArrayUnknown
+      // @ts-expect-error expecting deref to error, since its not on ArrayResultUnknown
       q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).deref();
     }).toThrow();
   });
