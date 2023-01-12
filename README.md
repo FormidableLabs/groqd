@@ -10,18 +10,14 @@ An illustrative example:
 import { q } from "groqd";
 
 // Get all of the Pokemon types, and the Pokemon associated to each type.
-const { query, schema } = q(
-  "*",
-  q.filter("_type == 'poketype'"),
-  q.grab({
+const { query, schema } = q("*")
+  .filter("_type == 'poketype")
+  .grab({
     name: q.string(),
-    pokemons: q(
-      "*",
-      q.filter("_type == 'pokemon' && references(^._id)"),
-      q.grab({ name: q.string() })
-    ),
-  })
-);
+    pokemons: q("*")
+      .filter("_type == 'pokemon' && references(^._id)")
+      .grab({ name: q.string() })
+  });
 
 // Use the schema and the query as you see fit, for example:
 const response = schema.parse(await sanityClient.fetch(query));
@@ -45,12 +41,10 @@ export const runQuery = makeSafeQueryRunner(query => client.fetch(query));
 
 // 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
 const data = await runQuery(
-  q(
-    "*",
-    q.filter("_type == 'pokemon'"),
-    q.grab({ name: q.string() }),
-    q.slice(0, 150),
-  )
+  q("*")
+    .filter("_type == 'pokemon'")
+    .grab({ name: q.string() })
+    .slice(0, 150)
 );
 // data: { name: string }[]
 ```
@@ -63,7 +57,10 @@ GROQ's primary use is with [Sanity](https://www.sanity.io/). Sanity's Content La
 
 We'd love to see advanced codegen for Sanity and GROQ. However, the end-result would likely not be as runtime type-safe as some might desire due to the flexibility of Sanity's Content Lake and the GROQ language in general.
 
-The goal of `groqd` is to work around these constraints by allowing _you_ to specify the runtime data schema for your query so that your data's type is _runtime safe_ – not just theoretically, but emperically.
+The goal of `groqd` is to work around these constraints by allowing _you_ to specify the runtime data schema for your query so that your data's type is _runtime safe_ – not just theoretically, but empirically.
+
+---
+## TODO: update below
 
 ## API:
 
