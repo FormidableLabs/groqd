@@ -42,18 +42,18 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
         .slice(0, 1)
         .grab({
           name: z.string(),
-          pokemons: q("*")
+          pokemon: q("*")
             .filter("_type == 'pokemon' && references(^._id)")
             .grab({ name: z.string() }),
         })
     );
 
     expect(query).toBe(
-      `*[_type == 'poketype'][0..1]{name, "pokemons": *[_type == 'pokemon' && references(^._id)]{name}}`
+      `*[_type == 'poketype'][0..1]{name, "pokemon": *[_type == 'pokemon' && references(^._id)]{name}}`
     );
     invariant(data);
     expect(data[0].name).toBe("Grass");
-    expect(data[0].pokemons[0].name).toBe("Bulbasaur");
+    expect(data[0].pokemon[0].name).toBe("Bulbasaur");
   });
 
   it("can handle coalesce statements", async () => {
