@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { evaluate, parse } from "groq-js";
 import { pokemonDataset } from "./pokemon";
-import { BaseResult } from "../src/builder";
+import { BaseQuery } from "../src/builder";
 
 const makeQueryRunner =
   (dataset: any[]) =>
   async <T extends z.ZodType>(
-    pipeVal: BaseResult<T>
+    pipeVal: BaseQuery<T>
   ): Promise<{
     schema: T;
     query: string;

@@ -77,7 +77,7 @@ The goal of `groqd` is to work around these constraints by allowing _you_ to spe
 
 ## API:
 
-`groqd` uses a builder pattern for building queries. Builder instances are created with a function `q`, and are chainable. There are four internal classes that are used as part of the query builder process: `UnknownResult`, `ArrayResult`, `UnknownArrayResult`, and `EntityResult`. These four classes have _some_ overlap, but generally only contain methods that "make sense" for the type of result they represent (e.g. `ArrayResult` will contain methods that an `EntityResult` will not, such as filtering and ordering).
+`groqd` uses a builder pattern for building queries. Builder instances are created with a function `q`, and are chainable. There are four internal classes that are used as part of the query builder process: `UnknownQuery`, `ArrayQuery`, `UnknownArrayQuery`, and `EntityQuery`. These four classes have _some_ overlap, but generally only contain methods that "make sense" for the type of result they represent (e.g. `ArrayQuery` will contain methods that an `EntityQuery` will not, such as filtering and ordering).
 
 ### `q`
 
@@ -103,7 +103,7 @@ const data = await runQuery(q("*").filter("_type == 'pokemon'"));
 
 ### `.grab`
 
-Available on `UnknownResult`, `ArrayResult`, and `EntityResult`, handles [projections](https://www.sanity.io/docs/how-queries-work#727ecb6f5e15), or selecting fields from an existing set of documents. This is the primary mechanism for providing a schema for the data you expect to get. 
+Available on `UnknownQuery`, `ArrayQuery`, and `EntityQuery`, handles [projections](https://www.sanity.io/docs/how-queries-work#727ecb6f5e15), or selecting fields from an existing set of documents. This is the primary mechanism for providing a schema for the data you expect to get. 
 
 `q.grab` accepts a "selection" object as its sole argument, with three different forms:
 

@@ -5,7 +5,7 @@ import type { Selection } from "./grab";
 type Query = string;
 type Payload<T> = { schema: T; query: Query };
 
-export class BaseResult<T> {
+export class BaseQuery<T> {
   query: string;
   schema: T;
 
@@ -22,15 +22,15 @@ export class BaseResult<T> {
 /**
  * Unknown, comes out of pipe and is starting point for queries.
  */
-export class UnknownResult extends BaseResult<z.ZodUnknown> {
+export class UnknownQuery extends BaseQuery<z.ZodUnknown> {
   constructor(payload: Payload<z.ZodUnknown>) {
     super(payload);
   }
 
   // filter to an unknown array
-  filter(filterValue = ""): UnknownArrayResult {
+  filter(filterValue = ""): UnknownArrayQuery {
     this.query += `[${filterValue}]`;
-    return new UnknownArrayResult({
+    return new UnknownArrayQuery({
       ...this.value(),
       schema: z.array(z.unknown()),
     });
@@ -47,7 +47,7 @@ export class UnknownResult extends BaseResult<z.ZodUnknown> {
     name: string,
     fieldSchema: GrabOneType
   ) {
-    return new EntityResult<GrabOneType>({
+    return new EntityQuery<GrabOneType>({
       query: this.query + `.${name}`,
       schema: fieldSchema,
     });
@@ -57,7 +57,7 @@ export class UnknownResult extends BaseResult<z.ZodUnknown> {
 /**
  * Array
  */
-export class ArrayResult<T extends z.ZodTypeAny> extends BaseResult<
+export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
   z.ZodArray<T>
 > {
   constructor(payload: Payload<z.ZodArray<T>>) {
@@ -80,25 +80,25 @@ export class ArrayResult<T extends z.ZodTypeAny> extends BaseResult<
     name: string,
     fieldSchema: GrabOneType
   ) {
-    return new ArrayResult<GrabOneType>({
+    return new ArrayQuery<GrabOneType>({
       query: this.query + `.${name}`,
       schema: z.array(fieldSchema),
     });
   }
 
-  order(...orderings: `${string} ${"asc" | "desc"}`[]): ArrayResult<T> {
+  order(...orderings: `${string} ${"asc" | "desc"}`[]): ArrayQuery<T> {
     this.query += `|order(${orderings.join(", ")})`;
     return this;
   }
 
   // Slicing
-  slice(index: number): EntityResult<T>;
-  slice(min: number, max: number): ArrayResult<T>;
-  slice(min: number, max?: number): EntityResult<T> | ArrayResult<T> {
+  slice(index: number): EntityQuery<T>;
+  slice(min: number, max: number): ArrayQuery<T>;
+  slice(min: number, max?: number): EntityQuery<T> | ArrayQuery<T> {
     this.query += `[${min}${typeof max === "number" ? `..${max}` : ""}]`;
 
     if (typeof max === "undefined") {
-      return new EntityResult({
+      return new EntityQuery({
         ...this.value(),
         schema: this.schema.element,
       });
@@ -108,7 +108,7 @@ export class ArrayResult<T extends z.ZodTypeAny> extends BaseResult<
   }
 }
 
-export class UnknownArrayResult extends ArrayResult<z.ZodUnknown> {
+export class UnknownArrayQuery extends ArrayQuery<z.ZodUnknown> {
   constructor(payload: Payload<z.ZodArray<z.ZodUnknown>>) {
     super(payload);
   }
@@ -122,7 +122,7 @@ export class UnknownArrayResult extends ArrayResult<z.ZodUnknown> {
 /**
  * Single Entity
  */
-export class EntityResult<T extends z.ZodTypeAny> extends BaseResult<T> {
+export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
   constructor(payload: Payload<T>) {
     super(payload);
   }
@@ -138,7 +138,7 @@ export class EntityResult<T extends z.ZodTypeAny> extends BaseResult<T> {
     name: string,
     fieldSchema: GrabOneType
   ) {
-    return new EntityResult<GrabOneType>({
+    return new EntityQuery<GrabOneType>({
       query: this.query + `.${name}`,
       schema: fieldSchema,
     });

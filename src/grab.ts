@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ValueOf } from "./types";
-import { ArrayResult, BaseResult, EntityResult } from "./builder";
+import { ArrayQuery, BaseQuery, EntityQuery } from "./builder";
 
 export const grab = <
   T extends z.ZodTypeAny | z.ZodArray<any>,
@@ -13,7 +13,7 @@ export const grab = <
   conditionalSelections?: CondSelections
 ) => {
   type FromSelection<Sel extends Selection> = z.ZodObject<{
-    [K in keyof Sel]: Sel[K] extends BaseResult<any>
+    [K in keyof Sel]: Sel[K] extends BaseQuery<any>
       ? Sel[K]["schema"]
       : FromField<Sel[K]>;
   }>;
@@ -30,14 +30,14 @@ export const grab = <
       >;
 
   type NewType = T extends z.ZodArray<any>
-    ? ArrayResult<AllSelection>
-    : EntityResult<AllSelection>;
+    ? ArrayQuery<AllSelection>
+    : EntityQuery<AllSelection>;
 
   // Recursively define projections to pick up nested conditionals
   const getProjections = (sel: Selection) =>
     Object.entries(sel).reduce<string[]>((acc, [key, val]) => {
       let toPush = "";
-      if (val instanceof BaseResult) {
+      if (val instanceof BaseQuery) {
         toPush = `"${key}": ${val.query}`;
       } else if (Array.isArray(val)) {
         toPush = `"${key}": ${val[0]}`;
@@ -63,7 +63,7 @@ export const grab = <
   const newSchema = (() => {
     const toSchemaInput = (sel: Selection) =>
       Object.entries(sel).reduce<z.ZodRawShape>((acc, [key, value]) => {
-        if (value instanceof BaseResult) {
+        if (value instanceof BaseQuery) {
           acc[key] = value.schema;
         } else if (Array.isArray(value)) {
           acc[key] = value[1];
@@ -93,14 +93,14 @@ export const grab = <
   })();
 
   const res = (newSchema instanceof z.ZodArray
-    ? new ArrayResult({
+    ? new ArrayQuery({
         query: query + `{${projections.join(", ")}}`,
         schema: newSchema,
       })
-    : new EntityResult({
+    : new EntityQuery({
         query: query + `{${projections.join(", ")}}`,
         schema: newSchema,
-      })) as unknown as ArrayResult<AllSelection>;
+      })) as unknown as ArrayQuery<AllSelection>;
 
   return res as unknown as NewType;
 };
@@ -117,5 +117,5 @@ type FromField<T> = T extends Field<infer R>
 
 export type Selection = Record<
   string,
-  BaseResult<any> | z.ZodType | [string, z.ZodType]
+  BaseQuery<any> | z.ZodType | [string, z.ZodType]
 >;
