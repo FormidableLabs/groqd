@@ -51,7 +51,23 @@ const data = await runQuery(
 
 Using `makeSafeQueryRunner` is totally optional; you might find using `q().schema` and `q().query` in your own abstractions works better for you.
 
-## Why? 🤷‍
+## **NOTE**: Significant API changes with 0.3.0
+
+Prior to version 0.3.0, `groqd` provided a pipeline API. However, there were some major drawbacks to that API. We've migrated to a builder pattern API that looks _similar_ to the previous API, but using a builder pattern (instead of piping). 
+
+The core difference is instead of feeding all arguments to `q()`, `q()` accepts a single argument and then you chain method calls on that. For example:
+
+```ts
+// previously...
+q("*", q.filter("_type == 'pokemon'"), q.grab({ name: q.string() }));
+
+// NOW!
+q("*").filter("_type == 'pokemon'").grab({ name: q.string() });
+```
+
+These API changes allow us to provide a substantially better TS experience for the end user, and makes the library much easier to maintain and contribute to.
+
+## Why `groqd`? 🤷‍
 
 GROQ's primary use is with [Sanity](https://www.sanity.io/). Sanity's Content Lake is fundamentally unstructured, and GROQ (and Sanity's GROQ API) do not have any sort of GraqhQL-like type contracts.
 
