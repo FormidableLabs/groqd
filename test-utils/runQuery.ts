@@ -3,7 +3,7 @@ import { evaluate, parse } from "groq-js";
 import { pokemonDataset } from "./pokemon";
 import { BaseResult } from "../src/builder";
 
-export const makeQueryRunner =
+const makeQueryRunner =
   (dataset: any[]) =>
   async <T extends z.ZodType>(
     pipeVal: BaseResult<T>
