@@ -20,20 +20,11 @@ export class BaseQuery<T> {
 }
 
 /**
- * Unknown, comes out of pipe and is starting point for queries.
+ * Single Entity
  */
-export class UnknownQuery extends BaseQuery<z.ZodUnknown> {
-  constructor(payload: Payload<z.ZodUnknown>) {
+export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
+  constructor(payload: Payload<T>) {
     super(payload);
-  }
-
-  // filter to an unknown array
-  filter(filterValue = ""): UnknownArrayQuery {
-    this.query += `[${filterValue}]`;
-    return new UnknownArrayQuery({
-      ...this.value(),
-      schema: z.array(z.unknown()),
-    });
   }
 
   grab<
@@ -50,6 +41,24 @@ export class UnknownQuery extends BaseQuery<z.ZodUnknown> {
     return new EntityQuery<GrabOneType>({
       query: this.query + `.${name}`,
       schema: fieldSchema,
+    });
+  }
+}
+
+/**
+ * Unknown, comes out of pipe and is starting point for queries.
+ */
+export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
+  constructor(payload: Payload<z.ZodUnknown>) {
+    super(payload);
+  }
+
+  // filter to an unknown array
+  filter(filterValue = ""): UnknownArrayQuery {
+    this.query += `[${filterValue}]`;
+    return new UnknownArrayQuery({
+      ...this.value(),
+      schema: z.array(z.unknown()),
     });
   }
 }
@@ -116,31 +125,5 @@ export class UnknownArrayQuery extends ArrayQuery<z.ZodUnknown> {
   deref() {
     this.query += "->";
     return this;
-  }
-}
-
-/**
- * Single Entity
- */
-export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
-  constructor(payload: Payload<T>) {
-    super(payload);
-  }
-
-  grab<
-    S extends Selection,
-    CondSelections extends Record<string, Selection> | undefined
-  >(selection: S, conditionalSelections?: CondSelections) {
-    return grab(this.query, this.schema, selection, conditionalSelections);
-  }
-
-  grabOne<GrabOneType extends z.ZodType>(
-    name: string,
-    fieldSchema: GrabOneType
-  ) {
-    return new EntityQuery<GrabOneType>({
-      query: this.query + `.${name}`,
-      schema: fieldSchema,
-    });
   }
 }
