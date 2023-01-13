@@ -12,12 +12,6 @@ export const grab = <
   selection: S,
   conditionalSelections?: CondSelections
 ) => {
-  type FromSelection<Sel extends Selection> = z.ZodObject<{
-    [K in keyof Sel]: Sel[K] extends BaseQuery<any>
-      ? Sel[K]["schema"]
-      : FromField<Sel[K]>;
-  }>;
-
   type AllSelection = undefined extends CondSelections
     ? FromSelection<S>
     : z.ZodUnion<
@@ -108,12 +102,18 @@ export const grab = <
 /**
  * Misc util
  */
+
 type Field<T extends z.ZodType> = T;
 type FromField<T> = T extends Field<infer R>
   ? R
   : T extends [string, infer R]
   ? R
   : never;
+type FromSelection<Sel extends Selection> = z.ZodObject<{
+  [K in keyof Sel]: Sel[K] extends BaseQuery<any>
+    ? Sel[K]["schema"]
+    : FromField<Sel[K]>;
+}>;
 
 export type Selection = Record<
   string,
