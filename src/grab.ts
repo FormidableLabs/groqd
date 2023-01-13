@@ -94,9 +94,9 @@ export const grab = <
     : new EntityQuery({
         query: query + `{${projections.join(", ")}}`,
         schema: newSchema,
-      })) as unknown as ArrayQuery<AllSelection>;
+      })) as unknown as NewType;
 
-  return res as unknown as NewType;
+  return res;
 };
 
 /**
