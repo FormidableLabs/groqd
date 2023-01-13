@@ -1,12 +1,12 @@
-import { QueryResult } from "../src";
 import { z } from "zod";
 import { evaluate, parse } from "groq-js";
 import { pokemonDataset } from "./pokemon";
+import { BaseQuery } from "../src/builder";
 
 const makeQueryRunner =
   (dataset: any[]) =>
   async <T extends z.ZodType>(
-    q: QueryResult<T>
+    pipeVal: BaseQuery<T>
   ): Promise<{
     schema: T;
     query: string;
@@ -14,15 +14,18 @@ const makeQueryRunner =
     error?: Error;
   }> => {
     try {
-      const tree = parse(q.query);
+      const tree = parse(pipeVal.query);
       const _ = await evaluate(tree, { dataset });
       const rawRes = await _.get();
 
-      const data = q.schema.parse(rawRes);
-      return { data, query: q.query, schema: q.schema };
+      const data = pipeVal.schema.parse(rawRes);
+      return { data, query: pipeVal.query, schema: pipeVal.schema };
     } catch (err) {
-      return { query: q.query, schema: q.schema, error: err as Error };
+      return {
+        query: pipeVal.query,
+        schema: pipeVal.schema,
+        error: err as Error,
+      };
     }
   };
-
 export const runPokemonQuery = makeQueryRunner(pokemonDataset);

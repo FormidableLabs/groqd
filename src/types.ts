@@ -1,15 +1,10 @@
 import { z } from "zod";
+import { BaseQuery } from "./builder";
 
-export type BaseResult<T> = {
-  query: string;
-  schema: T;
-};
+export type ValueOf<T> = T[keyof T];
 
-export type InferType<Result> = Result extends BaseResult<infer T>
+export type InferType<P> = P extends BaseQuery<infer T>
   ? T extends z.ZodType
     ? z.infer<T>
     : never
   : never;
-
-export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
-export type ValueOf<T> = T[keyof T];
