@@ -76,12 +76,12 @@ export const grab = <
     const conditionalFieldSchemas = conditionalFields.map((field) =>
       baseSchema.merge(z.object(toSchemaInput(field)))
     );
+
+    const unionEls = [...conditionalFieldSchemas, baseSchema];
     const s =
-      conditionalFieldSchemas.length === 0
-        ? baseSchema
-        : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore Need to figure out how to make tsc happy
-          z.union([...conditionalFieldSchemas, baseSchema]);
+      unionEls.length > 1
+        ? z.union([unionEls[0], unionEls[1], ...unionEls.slice(2)])
+        : unionEls[0];
 
     return schema instanceof z.ZodArray ? z.array(s) : s;
   })();
