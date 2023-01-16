@@ -61,6 +61,11 @@ export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
       schema: z.array(z.unknown()),
     });
   }
+
+  deref() {
+    this.query += "->";
+    return this;
+  }
 }
 
 /**

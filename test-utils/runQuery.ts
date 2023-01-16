@@ -2,6 +2,7 @@ import { z } from "zod";
 import { evaluate, parse } from "groq-js";
 import { pokemonDataset } from "./pokemon";
 import { BaseQuery } from "../src/builder";
+import { userDataset } from "./users";
 
 const makeQueryRunner =
   (dataset: any[]) =>
@@ -28,4 +29,7 @@ const makeQueryRunner =
       };
     }
   };
+
 export const runPokemonQuery = makeQueryRunner(pokemonDataset);
+
+export const runUserQuery = makeQueryRunner(userDataset);

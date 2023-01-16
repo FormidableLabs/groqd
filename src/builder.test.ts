@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { q } from "./index";
 import { z } from "zod";
-import { runPokemonQuery } from "../test-utils/runQuery";
+import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import invariant from "tiny-invariant";
 
 describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
@@ -396,9 +396,24 @@ describe("ArrayResult.deref/UnknownResult.deref", () => {
     expect(data.types).toEqual(["Grass", "Poison"]);
   });
 
+  it("can deref on a single unknown result", async () => {
+    const { query, data } = await runUserQuery(
+      q("*")
+        .filter("_type == 'user'")
+        .grab({
+          name: z.string(),
+          role: q("role").deref().grab({ title: q.string() }),
+        })
+    );
+
+    expect(query).toBe(`*[_type == 'user']{name, "role": role->{title}}`);
+    invariant(data);
+    expect(data[0]).toEqual({ name: "John", role: { title: "guest" } });
+  });
+
   it("doesnt like trying to dereference a non-reference value", async () => {
     expect(() => {
-      // @ts-expect-error expecting deref to error, since its not on ArrayResultUnknown
+      // @ts-expect-error expecting deref to error, since it's not on ArrayResultUnknown
       q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).deref();
     }).toThrow();
   });
