@@ -21,7 +21,7 @@ pipe.undefined = z.undefined;
 pipe.date = () => dateSchema;
 pipe.literal = z.literal;
 pipe.union = z.union;
-// TODO: pipe.enum?
+pipe.array = z.array;
 
 // Our main export is the pipe, renamed as q
 export const q = pipe;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { runPokemonQuery } from "../test-utils/runQuery";
+import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
 
@@ -69,5 +69,23 @@ describe("union", () => {
     expect(id === 1).toBeFalsy();
     // @ts-expect-error Anything but number or string should throw type error
     expect(id === false).toBeFalsy();
+  });
+});
+
+describe("array", () => {
+  it("allows array type with nested sub-type", async () => {
+    const { data } = await runUserQuery(
+      q("*")
+        .filter("_type == 'user'")
+        .grab({
+          name: q.string(),
+          nicknames: q.array(q.string()).optional(),
+        })
+    );
+
+    invariant(data);
+    expect(data[0].name).toBe("John");
+    expect(data[0].nicknames).toEqual(["Johnny", "J Boi", "Dat Boi Doe"]);
+    expect(data[1].nicknames).toBeUndefined();
   });
 });
