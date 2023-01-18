@@ -79,13 +79,13 @@ describe("array", () => {
         .filter("_type == 'user'")
         .grab({
           name: q.string(),
-          nicknames: q.array(q.string()).optional(),
+          nicknames: q.array(q.string()).nullable(),
         })
     );
 
     invariant(data);
     expect(data[0].name).toBe("John");
     expect(data[0].nicknames).toEqual(["Johnny", "J Boi", "Dat Boi Doe"]);
-    expect(data[1].nicknames).toBeUndefined();
+    expect(data[1].nicknames).toBeNull();
   });
 });
