@@ -26,15 +26,7 @@ const imageRefBase = z.object({
     .optional()
     .nullable(),
 });
-
-/**
- * TypeScript voodoo to be able to use ReturnType on a generic function so that we
- *   don't have to shadow Zod's z.ZodObject.merge return type.
- */
-class MergeWrapper<Incoming extends z.ZodRawShape> {
-  merge = (incoming: z.ZodObject<Incoming>) =>
-    imageRefBase.merge<z.ZodObject<Incoming>>(incoming);
-}
+const imageRefBaseMerge = imageRefBase.merge;
 
 /**
  * Overload the imageRef so user can optionally pass a selection that gets merged into the base selection.
@@ -42,10 +34,10 @@ class MergeWrapper<Incoming extends z.ZodRawShape> {
 export function imageRef(): typeof imageRefBase;
 export function imageRef<Incoming extends z.ZodRawShape>(
   additionalSchema: Incoming
-): ReturnType<MergeWrapper<Incoming>["merge"]>;
+): ReturnType<typeof imageRefBaseMerge<z.ZodObject<Incoming>>>;
 
 export function imageRef(...args: any[]) {
   return args.length === 0
     ? imageRefBase
-    : imageRefBase.merge(z.object(args[0]));
+    : imageRefBaseMerge(z.object(args[0]));
 }
