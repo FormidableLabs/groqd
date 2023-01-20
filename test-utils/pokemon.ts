@@ -2000,7 +2000,9 @@ const gen1 = [
       Speed: 61,
     },
   },
-].map(
+];
+
+const gen1Transformed = gen1.map(
   (mon) =>
     <Pokemon>{
       _id: `pokemon.${mon.id}`,
@@ -2011,9 +2013,107 @@ const gen1 = [
         _type: "reference",
         _ref: `type.${t}`,
       })),
+      images: [
+        {
+          _key: `imagekey-${mon.id}`,
+          _type: "image",
+          asset: {
+            _type: "reference",
+            _ref: `image-${mon.id}-jpg`,
+          },
+          // A couple custom fields for shiggles
+          caption: `Artwork of ${mon.name}`,
+          description: `${mon.name} has types ${mon.type.join(", ")}.`,
+        },
+      ],
       base: mon.base,
     }
 );
+
+/**
+ * Copied out of a real-life groq query, just updated _id to match above
+ */
+const gen1ImageAssets = gen1.map((mon) => ({
+  _createdAt: "2022-12-12T19:45:48Z",
+  _id: `image-${mon.id}-jpg`,
+  _rev: "X6HgJNl2Cktkcl6TQwg3gv",
+  _type: "sanity.imageAsset",
+  _updatedAt: "2022-12-12T19:45:48Z",
+  assetId: "ed158069c3b44124a310d7a107998e06bf12e90e",
+  extension: "jpg",
+  metadata: {
+    _type: "sanity.imageMetadata",
+    blurHash: "MLCi~.M|00Dj?v~VtR4.IV%Mo~t6M{aeSO",
+    dimensions: {
+      _type: "sanity.imageDimensions",
+      aspectRatio: 2,
+      height: 500,
+      width: 1000,
+    },
+    hasAlpha: false,
+    isOpaque: true,
+    lqip: "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABwAE/8QAJBAAAQMDBAEFAAAAAAAAAAAAAQACAwQFEQYHEiEUIjEzQUL/xAAXAQADAQAAAAAAAAAAAAAAAAABAgME/8QAHREAAQMFAQAAAAAAAAAAAAAAAQACAwQREhNRMf/aAAwDAQACEQMRAD8AHNur+NN6ip7jH0xrsFmeiEo7raxivt7pKaJxc2aBuOP5J90H6eaHV9CCARn7STdGN82I8W5DRjpUEWTSbrMagxuxt6sstqt0LuHjMlIHqfI45JUtNR8pUk0DqBqXcX//2Q==",
+    palette: {
+      _type: "sanity.imagePalette",
+      darkMuted: {
+        _type: "sanity.imagePaletteSwatch",
+        background: "#2e5663",
+        foreground: "#fff",
+        population: 3.02,
+        title: "#fff",
+      },
+      darkVibrant: {
+        _type: "sanity.imagePaletteSwatch",
+        background: "#04251f",
+        foreground: "#fff",
+        population: 0.07,
+        title: "#fff",
+      },
+      dominant: {
+        _type: "sanity.imagePaletteSwatch",
+        background: "#2e5663",
+        foreground: "#fff",
+        population: 3.02,
+        title: "#fff",
+      },
+      lightMuted: {
+        _type: "sanity.imagePaletteSwatch",
+        background: "#b8c4c9",
+        foreground: "#000",
+        population: 0.06,
+        title: "#fff",
+      },
+      lightVibrant: {
+        _type: "sanity.imagePaletteSwatch",
+        background: "#dcc4af",
+        foreground: "#000",
+        population: 2.37,
+        title: "#000",
+      },
+      muted: {
+        _type: "sanity.imagePaletteSwatch",
+        background: "#588d9f",
+        foreground: "#fff",
+        population: 0.64,
+        title: "#fff",
+      },
+      vibrant: {
+        _type: "sanity.imagePaletteSwatch",
+        background: "#18e6c0",
+        foreground: "#000",
+        population: 0,
+        title: "#fff",
+      },
+    },
+  },
+  mimeType: "image/jpeg",
+  originalFilename: "search-bg.jpeg",
+  path: "images/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.jpg",
+  sha1hash: "ed158069c3b44124a310d7a107998e06bf12e90e",
+  size: 37594,
+  uploadId: "p9TZMfLbKWO8NPmQnqCES72QVWYlKAWp",
+  url: "https://cdn.sanity.io/images/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.jpg",
+}));
 
 const types: Type[] = [
   "Grass",
@@ -2040,4 +2140,8 @@ const types: Type[] = [
   name: t,
 }));
 
-export const pokemonDataset = [...gen1, ...types];
+export const pokemonDataset = [
+  ...gen1Transformed,
+  ...gen1ImageAssets,
+  ...types,
+];

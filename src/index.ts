@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BaseQuery, UnknownQuery } from "./builder";
+import { imageRef } from "./images";
 
 export type { InferType } from "./types";
 
@@ -22,6 +23,7 @@ pipe.date = () => dateSchema;
 pipe.literal = z.literal;
 pipe.union = z.union;
 pipe.array = z.array;
+pipe.imageRef = imageRef;
 
 // Our main export is the pipe, renamed as q
 export const q = pipe;
