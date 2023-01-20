@@ -43,6 +43,21 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
       schema: fieldSchema,
     });
   }
+
+  // TODO: Should write tests for this...
+  nullable(): EntityQuery<z.ZodNullable<T>> {
+    return new EntityQuery({
+      query: this.query,
+      schema: this.schema.nullable(),
+    });
+  }
+
+  optional(): EntityQuery<z.ZodOptional<T>> {
+    return new EntityQuery({
+      query: this.query,
+      schema: this.schema.optional(),
+    });
+  }
 }
 
 /**

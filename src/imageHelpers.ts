@@ -2,26 +2,27 @@ import { z } from "zod";
 import { q } from "./index";
 import { EntityQuery, UnknownQuery } from "./builder";
 import type { FromSelection, Selection } from "./grab";
+import { schemas } from "./schemas";
 
 const assetFields = new UnknownQuery({ query: "asset" }).grab({
   _ref: z.string(),
   _type: z.literal("reference"),
 });
 const cropFields = {
-  crop: z
-    .object({
-      top: z.number(),
-      bottom: z.number(),
-      left: z.number(),
-      right: z.number(),
+  crop: new UnknownQuery({ query: "crop" })
+    .grab({
+      top: schemas.number(),
+      bottom: schemas.number(),
+      left: schemas.number(),
+      right: schemas.number(),
     })
     .optional()
     .nullable(),
 };
 
 const hotspotFields = {
-  hotspot: z
-    .object({
+  hotspot: new UnknownQuery({ query: "hotspot" })
+    .grab({
       x: z.number(),
       y: z.number(),
       height: z.number(),
@@ -44,8 +45,8 @@ export function imageRef(
   fieldName: string
 ): EntityQuery<FromSelection<typeof refBase>>;
 export function imageRef<
-  WithCrop extends boolean | undefined,
-  WithHotspot extends boolean | undefined
+  WithCrop extends boolean | undefined = undefined,
+  WithHotspot extends true | undefined = undefined
 >(
   fieldName: string,
   options: {
@@ -55,8 +56,8 @@ export function imageRef<
 ): EntityQuery<
   FromSelection<
     typeof refBase &
-      (true extends WithCrop ? typeof cropFields : never) &
-      (true extends WithHotspot ? typeof hotspotFields : never)
+      (WithCrop extends true ? typeof cropFields : Empty) &
+      (WithHotspot extends true ? typeof hotspotFields : Empty)
   >
 >;
 export function imageRef(fieldName: string, options?: any) {
@@ -69,6 +70,8 @@ export function imageRef(fieldName: string, options?: any) {
 
   return new UnknownQuery({ query: fieldName }).grab(toGrab);
 }
+
+type Empty = Record<never, never>;
 
 // export function imageRef<Incoming extends z.ZodRawShape>(
 //   additionalSchema: Incoming

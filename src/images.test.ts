@@ -4,9 +4,6 @@ import { q } from "./index";
 import invariant from "tiny-invariant";
 
 describe("imageRef", () => {
-  it("does thing", () => {
-    expect(true).toBeTruthy();
-  });
   it("should be able to query image ref with no additional options", async () => {
     const { query, data } = await runPokemonQuery(
       q("*")
@@ -41,7 +38,7 @@ describe("imageRef", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, crop}}`
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, "crop": crop{top, bottom, left, right}}}`
     );
     const crop = data?.[0].cover.crop;
     invariant(data && crop);
@@ -66,14 +63,15 @@ describe("imageRef", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, hotspot}}`
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, "hotspot": hotspot{x, y, height, width}}}`
     );
     const hotspot = data?.[0].cover.hotspot;
     invariant(data && hotspot);
-    expect(hotspot.x === 0.5).toBeTruthy();
-    expect(hotspot.y === 0.5).toBeTruthy();
-    expect(hotspot.height === 1).toBeTruthy();
-    expect(hotspot.width === 1).toBeTruthy();
+
+    expect(hotspot.x === 0.812500000000001).toBeTruthy();
+    expect(hotspot.y === 0.27963369963369955).toBeTruthy();
+    expect(hotspot.height === 0.3248351648351647).toBeTruthy();
+    expect(hotspot.width === 0.28124999999999994).toBeTruthy();
 
     // @ts-expect-error we didn't specify withCrop so we shouldn't expect it in result
     expect(data[0].cover.crop).toBeUndefined();
