@@ -49,8 +49,8 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
  * Unknown, comes out of pipe and is starting point for queries.
  */
 export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
-  constructor(payload: Payload<z.ZodUnknown>) {
-    super(payload);
+  constructor(payload: Pick<Payload<z.ZodUnknown>, "query">) {
+    super({ ...payload, schema: z.unknown() });
   }
 
   // filter to an unknown array

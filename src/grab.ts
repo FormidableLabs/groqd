@@ -109,7 +109,7 @@ type FromField<T> = T extends Field<infer R>
   : T extends [string, infer R]
   ? R
   : never;
-type FromSelection<Sel extends Selection> = z.ZodObject<{
+export type FromSelection<Sel extends Selection> = z.ZodObject<{
   [K in keyof Sel]: Sel[K] extends BaseQuery<any>
     ? Sel[K]["schema"]
     : FromField<Sel[K]>;

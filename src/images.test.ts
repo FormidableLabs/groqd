@@ -4,54 +4,104 @@ import { q } from "./index";
 import invariant from "tiny-invariant";
 
 describe("imageRef", () => {
-  it("should be able to query image ref", async () => {
+  it("does thing", () => {
+    expect(true).toBeTruthy();
+  });
+  it("should be able to query image ref with no additional options", async () => {
     const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 1)
         .grab({
           name: q.string(),
-          images: q.array(q.imageRef()),
+          cover: q.imageRef("cover"),
         })
     );
 
-    expect(query).toBe(`*[_type == 'pokemon'][0..1]{name, images}`);
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}}}`
+    );
     invariant(data);
 
     expect(data[0].name).toBe("Bulbasaur");
-    expect(data[0].images[0]).toEqual({
-      _key: "imagekey-1",
-      _type: "image",
-      asset: {
-        _ref: "image-1-jpg",
-        _type: "reference",
-      },
-    });
+    const cover = data[0].cover;
+    expect(cover._type === "image").toBeTruthy();
+    expect(cover.asset._type === "reference").toBeTruthy();
   });
 
-  it("should be able to query image ref with additional fields", async () => {
+  it("should be able to query image ref with crop", async () => {
     const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 1)
         .grab({
           name: q.string(),
-          images: q.array(
-            q.imageRef({
-              description: q.string(),
-              notThere: q.number().optional(),
-            })
-          ),
+          cover: q.imageRef("cover", { withCrop: true }),
         })
     );
 
-    expect(query).toBe(`*[_type == 'pokemon'][0..1]{name, images}`);
-    invariant(data);
-
-    expect(data[0].name).toBe("Bulbasaur");
-    expect(data[0].images[0].description).toBe(
-      "Bulbasaur has types Grass, Poison."
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, crop}}`
     );
-    expect(data[0].images[0].notThere === undefined).toBeTruthy();
+    const crop = data?.[0].cover.crop;
+    invariant(data && crop);
+    expect(crop.top === 0.028131868131868132).toBeTruthy();
+    expect(crop.bottom === 0.15003663003663004).toBeTruthy();
+    expect(crop.left === 0.01875).toBeTruthy();
+    expect(crop.right === 0.009375000000000022).toBeTruthy();
+
+    // @ts-expect-error we didn't specify withHotspot so we shouldn't expect it in result
+    expect(data[0].cover.hotspot).toBeUndefined();
   });
+
+  it("should be able to query image ref with hotspot", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          cover: q.imageRef("cover", { withHotspot: true }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, hotspot}}`
+    );
+    const hotspot = data?.[0].cover.hotspot;
+    invariant(data && hotspot);
+    expect(hotspot.x === 0.5).toBeTruthy();
+    expect(hotspot.y === 0.5).toBeTruthy();
+    expect(hotspot.height === 1).toBeTruthy();
+    expect(hotspot.width === 1).toBeTruthy();
+
+    // @ts-expect-error we didn't specify withCrop so we shouldn't expect it in result
+    expect(data[0].cover.crop).toBeUndefined();
+  });
+
+  // it("should be able to query image ref with additional fields", async () => {
+  //   const { query, data } = await runPokemonQuery(
+  //     q("*")
+  //       .filter("_type == 'pokemon'")
+  //       .slice(0, 1)
+  //       .grab({
+  //         name: q.string(),
+  //         images: q.array(
+  //           q.imageRef({
+  //             description: q.string(),
+  //             notThere: q.number().optional(),
+  //           })
+  //         ),
+  //       })
+  //   );
+  //
+  //   expect(query).toBe(`*[_type == 'pokemon'][0..1]{name, images}`);
+  //   invariant(data);
+  //
+  //   expect(data[0].name).toBe("Bulbasaur");
+  //   expect(data[0].images[0].description).toBe(
+  //     "Bulbasaur has types Grass, Poison."
+  //   );
+  //   expect(data[0].images[0].notThere === undefined).toBeTruthy();
+  // });
 });

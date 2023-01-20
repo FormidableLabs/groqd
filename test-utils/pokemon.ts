@@ -2002,33 +2002,45 @@ const gen1 = [
   },
 ];
 
-const gen1Transformed = gen1.map(
-  (mon) =>
-    <Pokemon>{
-      _id: `pokemon.${mon.id}`,
-      _type: "pokemon",
-      createdAt: "Mon Oct 31 2022 10:53:53 GMT-0500 (Central Daylight Time)",
-      name: mon.name,
-      types: mon.type.map((t) => ({
-        _type: "reference",
-        _ref: `type.${t}`,
-      })),
-      images: [
-        {
-          _key: `imagekey-${mon.id}`,
-          _type: "image",
-          asset: {
-            _type: "reference",
-            _ref: `image-${mon.id}-jpg`,
-          },
-          // A couple custom fields for shiggles
-          caption: `Artwork of ${mon.name}`,
-          description: `${mon.name} has types ${mon.type.join(", ")}.`,
-        },
-      ],
-      base: mon.base,
-    }
-);
+const gen1Transformed = gen1.map((mon) => {
+  const image = {
+    _key: `imagekey-${mon.id}`,
+    _type: "image",
+    asset: {
+      _type: "reference",
+      _ref: `image-${mon.id}-jpg`,
+    },
+    crop: {
+      top: 0.028131868131868132,
+      bottom: 0.15003663003663004,
+      left: 0.01875,
+      right: 0.009375000000000022,
+    },
+    hotspot: {
+      x: 0.812500000000001,
+      y: 0.27963369963369955,
+      height: 0.3248351648351647,
+      width: 0.28124999999999994,
+    },
+    // A couple custom fields for shiggles
+    caption: `Artwork of ${mon.name}`,
+    description: `${mon.name} has types ${mon.type.join(", ")}.`,
+  };
+
+  return <Pokemon>{
+    _id: `pokemon.${mon.id}`,
+    _type: "pokemon",
+    createdAt: "Mon Oct 31 2022 10:53:53 GMT-0500 (Central Daylight Time)",
+    name: mon.name,
+    types: mon.type.map((t) => ({
+      _type: "reference",
+      _ref: `type.${t}`,
+    })),
+    images: [image],
+    cover: image,
+    base: mon.base,
+  };
+});
 
 /**
  * Copied out of a real-life groq query, just updated _id to match above

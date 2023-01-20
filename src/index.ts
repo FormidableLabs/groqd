@@ -1,32 +1,22 @@
 import { z } from "zod";
 import { BaseQuery, UnknownQuery } from "./builder";
-import { imageRef } from "./images";
+import { imageRef } from "./imageHelpers";
+import { schemas } from "./schemas";
 
 export type { InferType } from "./types";
 
 export const pipe = (filter: string): UnknownQuery => {
-  return new UnknownQuery({ query: filter, schema: z.unknown() });
+  return new UnknownQuery({ query: filter });
 };
 
-// Date helper to parse date strings
-const dateSchema = z.preprocess((arg) => {
-  if (typeof arg == "string" || arg instanceof Date) return new Date(arg);
-}, z.date());
-
-pipe.string = z.string;
-pipe.number = z.number;
-pipe.boolean = z.boolean;
-pipe.unknown = z.unknown;
-pipe.null = z.null;
-pipe.undefined = z.undefined;
-pipe.date = () => dateSchema;
-pipe.literal = z.literal;
-pipe.union = z.union;
-pipe.array = z.array;
 pipe.imageRef = imageRef;
 
+// Add schemas
+Object.assign(pipe, schemas);
+type Pipe = typeof pipe & typeof schemas;
+
 // Our main export is the pipe, renamed as q
-export const q = pipe;
+export const q = pipe as Pipe;
 
 type QueryExecutor = (query: string) => Promise<any>;
 
