@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- Refactor to builder pattern.
+
 ## 0.0.1 – 0.0.5
 
  - Initial setup of `groqd`, including the `q` pipeline and initial helpers.
