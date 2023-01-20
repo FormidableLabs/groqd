@@ -274,6 +274,7 @@ The available schema types are shown below.
 - `q.date`, which is a custom Zod schema that can accept `Date` instances _or_ a date string (and it will transform that date string to a `Date` instance).
 - `q.null`, corresponds to Zod's null type.
 - `q.undefined`, corresponds to Zod's undefined type.
+- `q.array`, corresponds to [Zod's array type](https://github.com/colinhacks/zod#arrays).
 
 ### `makeSafeQueryRunner`
 

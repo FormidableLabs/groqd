@@ -1,5 +1,15 @@
-const userData: { name: string; age: number; role: RoleType }[] = [
-  { name: "John", age: 20, role: "guest" },
+const userData: {
+  name: string;
+  age: number;
+  role: RoleType;
+  nicknames?: string[];
+}[] = [
+  {
+    name: "John",
+    age: 20,
+    role: "guest",
+    nicknames: ["Johnny", "J Boi", "Dat Boi Doe"],
+  },
   { name: "Jane", age: 30, role: "admin" },
 ];
 
