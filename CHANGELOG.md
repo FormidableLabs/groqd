@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Introduce `q.array` for Zod array support.
+
 ## 0.3.0
 
 - Refactor to builder pattern.
