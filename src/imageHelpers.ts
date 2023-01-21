@@ -1,10 +1,5 @@
 import { z } from "zod";
-import {
-  ArrayQuery,
-  EntityQuery,
-  UnknownArrayQuery,
-  UnknownQuery,
-} from "./builder";
+import { ArrayQuery, EntityQuery, UnknownQuery } from "./builder";
 import type { FromSelection, Selection } from "./grab";
 import { schemas } from "./schemas";
 
@@ -76,7 +71,7 @@ export function imageRef(fieldName: string, options?: any) {
   );
 
   return isList === true
-    ? new UnknownArrayQuery({ query: `${fieldName}[]` }).grab(toGrab)
+    ? new UnknownQuery({ query: fieldName }).filter().grab(toGrab)
     : new UnknownQuery({ query: fieldName }).grab(toGrab);
 }
 
