@@ -73,7 +73,6 @@ export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
     this.query += `[${filterValue}]`;
     return new UnknownArrayQuery({
       ...this.value(),
-      schema: z.array(z.unknown()),
     });
   }
 
@@ -138,8 +137,8 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
 }
 
 export class UnknownArrayQuery extends ArrayQuery<z.ZodUnknown> {
-  constructor(payload: Payload<z.ZodArray<z.ZodUnknown>>) {
-    super(payload);
+  constructor(payload: Pick<Payload<z.ZodArray<z.ZodUnknown>>, "query">) {
+    super({ ...payload, schema: z.array(z.unknown()) });
   }
 
   deref() {

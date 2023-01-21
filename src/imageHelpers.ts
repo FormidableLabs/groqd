@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { EntityQuery, UnknownQuery } from "./builder";
+import {
+  ArrayQuery,
+  EntityQuery,
+  UnknownArrayQuery,
+  UnknownQuery,
+} from "./builder";
 import type { FromSelection, Selection } from "./grab";
 import { schemas } from "./schemas";
 
@@ -45,25 +50,22 @@ export function imageRef(
 ): EntityQuery<FromSelection<typeof refBase>>;
 export function imageRef<
   WithCrop extends boolean | undefined = undefined,
-  WithHotspot extends true | undefined = undefined,
-  AdditionalSelection extends Selection | undefined = undefined
+  WithHotspot extends boolean | undefined = undefined,
+  AdditionalSelection extends Selection | undefined = undefined,
+  Multiple extends boolean | undefined = undefined
 >(
   fieldName: string,
   options: {
     withCrop?: WithCrop;
     withHotspot?: WithHotspot;
+    isList?: Multiple;
     additionalFields?: AdditionalSelection;
   }
-): EntityQuery<
-  FromSelection<
-    typeof refBase &
-      (WithCrop extends true ? typeof cropFields : Empty) &
-      (WithHotspot extends true ? typeof hotspotFields : Empty) &
-      (undefined extends AdditionalSelection ? Empty : AdditionalSelection)
-  >
->;
+): Multiple extends true
+  ? ArrayQuery<ImageRefSchemaType<WithCrop, WithHotspot, AdditionalSelection>>
+  : EntityQuery<ImageRefSchemaType<WithCrop, WithHotspot, AdditionalSelection>>;
 export function imageRef(fieldName: string, options?: any) {
-  const { withCrop, withHotspot, additionalFields } = options || {};
+  const { withCrop, withHotspot, additionalFields, isList } = options || {};
 
   const toGrab = Object.assign(
     {},
@@ -73,7 +75,20 @@ export function imageRef(fieldName: string, options?: any) {
     additionalFields || {}
   );
 
-  return new UnknownQuery({ query: fieldName }).grab(toGrab);
+  return isList === true
+    ? new UnknownArrayQuery({ query: `${fieldName}[]` }).grab(toGrab)
+    : new UnknownQuery({ query: fieldName }).grab(toGrab);
 }
 
 type Empty = Record<never, never>;
+
+type ImageRefSchemaType<
+  WithCrop extends boolean | undefined = undefined,
+  WithHotspot extends boolean | undefined = undefined,
+  AdditionalSelection extends Selection | undefined = undefined
+> = FromSelection<
+  typeof refBase &
+    (WithCrop extends true ? typeof cropFields : Empty) &
+    (WithHotspot extends true ? typeof hotspotFields : Empty) &
+    (undefined extends AdditionalSelection ? Empty : AdditionalSelection)
+>;

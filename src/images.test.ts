@@ -100,4 +100,37 @@ describe("imageRef", () => {
       data[0].cover.description === "Bulbasaur has types Grass, Poison."
     ).toBeTruthy();
   });
+
+  it("should be able to query list of imageRefs", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          images: q.imageRef("images", {
+            withCrop: true,
+            isList: true,
+            additionalFields: {
+              description: q.string(),
+            },
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "images": images[]{_key, _type, "asset": asset{_ref, _type}, "crop": crop{top, bottom, left, right}, description}}`
+    );
+    const im0 = data?.[0]?.images[0];
+    const crop = im0?.crop;
+    invariant(data && im0 && crop);
+    expect(im0._type === "image").toBeTruthy();
+    expect(
+      im0.description === "Bulbasaur has types Grass, Poison."
+    ).toBeTruthy();
+    expect(crop.top === 0.028131868131868132).toBeTruthy();
+    expect(crop.bottom === 0.15003663003663004).toBeTruthy();
+    expect(crop.left === 0.01875).toBeTruthy();
+    expect(crop.right === 0.009375000000000022).toBeTruthy();
+  });
 });
