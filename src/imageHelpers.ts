@@ -87,3 +87,7 @@ type ImageRefSchemaType<
     (WithHotspot extends true ? typeof hotspotFields : Empty) &
     (undefined extends AdditionalSelection ? Empty : AdditionalSelection)
 >;
+
+/**
+ * TODO: imageWithAsset!
+ */
