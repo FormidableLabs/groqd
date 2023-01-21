@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { q } from "./index";
 import { EntityQuery, UnknownQuery } from "./builder";
 import type { FromSelection, Selection } from "./grab";
 import { schemas } from "./schemas";
@@ -46,38 +45,35 @@ export function imageRef(
 ): EntityQuery<FromSelection<typeof refBase>>;
 export function imageRef<
   WithCrop extends boolean | undefined = undefined,
-  WithHotspot extends true | undefined = undefined
+  WithHotspot extends true | undefined = undefined,
+  AdditionalSelection extends Selection | undefined = undefined
 >(
   fieldName: string,
   options: {
     withCrop?: WithCrop;
     withHotspot?: WithHotspot;
+    additionalFields?: AdditionalSelection;
   }
 ): EntityQuery<
   FromSelection<
     typeof refBase &
       (WithCrop extends true ? typeof cropFields : Empty) &
-      (WithHotspot extends true ? typeof hotspotFields : Empty)
+      (WithHotspot extends true ? typeof hotspotFields : Empty) &
+      (undefined extends AdditionalSelection ? Empty : AdditionalSelection)
   >
 >;
 export function imageRef(fieldName: string, options?: any) {
+  const { withCrop, withHotspot, additionalFields } = options || {};
+
   const toGrab = Object.assign(
     {},
     refBase,
-    options?.withCrop === true ? cropFields : {},
-    options?.withHotspot === true ? hotspotFields : {}
+    withCrop === true ? cropFields : {},
+    withHotspot === true ? hotspotFields : {},
+    additionalFields || {}
   );
 
   return new UnknownQuery({ query: fieldName }).grab(toGrab);
 }
 
 type Empty = Record<never, never>;
-
-// export function imageRef<Incoming extends z.ZodRawShape>(
-//   additionalSchema: Incoming
-// ): ReturnType<typeof imageRefBaseMerge<z.ZodObject<Incoming>>>;
-// export function imageRef(...args: any[]) {
-//   return args.length === 0
-//     ? imageRefBase
-//     : imageRefBaseMerge(z.object(args[0]));
-// }
