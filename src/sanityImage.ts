@@ -60,10 +60,25 @@ const paletteFieldSchema = {
 };
 
 const dimensionFields = {
-  dimensions: schemas.number(),
+  dimensions: new UnknownQuery({ query: "dimensions" })
+    .grab({
+      _type: schemas.literal("sanity.imageDimensions"),
+      aspectRatio: schemas.number(),
+      height: schemas.number(),
+      width: schemas.number(),
+    })
+    .nullable()
+    .optional(),
 };
 const locationFields = {
-  location: schemas.string(),
+  location: new UnknownQuery({ query: "location" })
+    .grab({
+      _type: schemas.literal("geopoint"),
+      lat: schemas.number(),
+      lng: schemas.number(),
+    })
+    .nullable()
+    .optional(),
 };
 const lqipFields = {
   lqip: schemas.string(),
@@ -126,10 +141,20 @@ export function sanityImage(fieldName: string, options?: any) {
     typeof withAsset?.includes === "function"
       ? withAsset.includes(field)
       : false;
+  const metadataFields = Object.assign(
+    {},
+    assetIncludes("dimensions") && dimensionFields,
+    assetIncludes("location") && locationFields,
+    assetIncludes("lqip") && lqipFields,
+    assetIncludes("palette") && paletteFields
+  );
   const assetFields = Object.assign(
     {},
     !withAsset && reffedAssetFields,
-    assetIncludes("base") && dereffedAssetBaseFields
+    assetIncludes("base") && dereffedAssetBaseFields,
+    Object.keys(metadataFields).length > 0 && {
+      metadata: new UnknownQuery({ query: "metadata" }).grab(metadataFields),
+    }
   );
 
   // Implementation of our grab

@@ -153,8 +153,8 @@ describe("sanityImage", () => {
   //   console.log(im);
   // });
 
-  it.only("can query fetch base image asset data", async () => {
-    const { query, data, error } = await runPokemonQuery(
+  it("can query fetch base image asset data", async () => {
+    const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 1)
@@ -192,8 +192,53 @@ describe("sanityImage", () => {
     expect(im.asset._updatedAt === "2022-12-12T19:45:48Z").toBeTruthy(); // TODO: should be casting to date?
   });
 
-  // TODO: withAsset.dimensions
-  // TODO: withAsset.location
+  it("can query fetch image asset data with dimensions metadata", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          cover: q.sanityImage("cover", {
+            withAsset: ["dimensions"],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{"dimensions": dimensions{_type, aspectRatio, height, width}}}}}`
+    );
+    const dimensions = data?.[0]?.cover?.asset?.metadata?.dimensions;
+    invariant(dimensions);
+    expect(dimensions._type === "sanity.imageDimensions").toBeTruthy();
+    expect(dimensions.aspectRatio === 2).toBeTruthy();
+    expect(dimensions.height === 500).toBeTruthy();
+    expect(dimensions.width === 1000).toBeTruthy();
+  });
+
+  it("can query fetch image asset data with location metadata", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          cover: q.sanityImage("cover", {
+            withAsset: ["location"],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{"location": location{_type, lat, lng}}}}}`
+    );
+    const location = data?.[0]?.cover?.asset?.metadata?.location;
+    invariant(location);
+    expect(location._type === "geopoint").toBeTruthy();
+    expect(location.lat === 59.92399340000001).toBeTruthy();
+    expect(location.lng === 10.758972200000017).toBeTruthy();
+  });
+
   // TODO: withAsset.lqip
   // TODO: withAsset.palette
 });
