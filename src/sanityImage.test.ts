@@ -239,6 +239,75 @@ describe("sanityImage", () => {
     expect(location.lng === 10.758972200000017).toBeTruthy();
   });
 
-  // TODO: withAsset.lqip
-  // TODO: withAsset.palette
+  it("can query fetch image asset data with lqip metadata", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          cover: q.sanityImage("cover", {
+            withAsset: ["lqip"],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{lqip}}}}`
+    );
+    const lqip = data?.[0]?.cover?.asset?.metadata?.lqip;
+    invariant(lqip);
+    expect(
+      lqip ===
+        "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABwAE/8QAJBAAAQMDBAEFAAAAAAAAAAAAAQACAwQFEQYHEiEUIjEzQUL/xAAXAQADAQAAAAAAAAAAAAAAAAABAgME/8QAHREAAQMFAQAAAAAAAAAAAAAAAQACAwQREhNRMf/aAAwDAQACEQMRAD8AHNur+NN6ip7jH0xrsFmeiEo7raxivt7pKaJxc2aBuOP5J90H6eaHV9CCARn7STdGN82I8W5DRjpUEWTSbrMagxuxt6sstqt0LuHjMlIHqfI45JUtNR8pUk0DqBqXcX//2Q=="
+    ).toBeTruthy();
+  });
+
+  it("can query fetch image asset data with palette metadata", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          cover: q.sanityImage("cover", {
+            withAsset: ["palette"],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{"palette": palette{${[
+        "darkMuted",
+        "darkVibrant",
+        "dominant",
+        "lightMuted",
+        "lightVibrant",
+        "muted",
+        "vibrant",
+      ]
+        .map(
+          (n) =>
+            `"${n}": ${n}{_type, background, foreground, population, title}`
+        )
+        .join(", ")}}}}}}`
+    );
+    const palette = data?.[0]?.cover?.asset?.metadata?.palette;
+    invariant(palette);
+    const darkMuted = palette.darkMuted;
+
+    invariant(darkMuted);
+    expect(darkMuted._type === "sanity.imagePaletteSwatch").toBeTruthy();
+    expect(darkMuted.background === "#2e5663").toBeTruthy();
+    expect(darkMuted.foreground === "#fff").toBeTruthy();
+    expect(darkMuted.population === 3.02).toBeTruthy();
+    expect(darkMuted.title === "#fff").toBeTruthy();
+
+    expect(palette.darkVibrant).toBeTruthy();
+    expect(palette.dominant).toBeTruthy();
+    expect(palette.lightMuted).toBeTruthy();
+    expect(palette.lightVibrant).toBeTruthy();
+    expect(palette.muted).toBeTruthy();
+    expect(palette.vibrant).toBeTruthy();
+  });
 });

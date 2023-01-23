@@ -19,8 +19,6 @@ const makeQueryRunner =
       const _ = await evaluate(tree, { dataset });
       const rawRes = await _.get();
 
-      // console.log(JSON.stringify(rawRes, null, 2));
-
       const data = pipeVal.schema.parse(rawRes);
       return { data, query: pipeVal.query, schema: pipeVal.schema };
     } catch (err) {

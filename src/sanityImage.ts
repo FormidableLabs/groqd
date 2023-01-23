@@ -52,11 +52,11 @@ const dereffedAssetBaseFields = {
 };
 
 const paletteFieldSchema = {
-  // TODO: Should these be optional? I imagine palette extraction can fail (e.g. all-black image might not have a foreground color)
-  background: schemas.string(),
-  foreground: schemas.string(),
-  population: schemas.number(),
-  title: schemas.string(),
+  _type: schemas.literal("sanity.imagePaletteSwatch"),
+  background: schemas.string().optional().nullable(),
+  foreground: schemas.string().optional().nullable(),
+  population: schemas.number().optional().nullable(),
+  title: schemas.string().optional().nullable(),
 };
 
 const dimensionFields = {
@@ -84,7 +84,7 @@ const lqipFields = {
   lqip: schemas.string(),
 };
 const getPaletteField = (query: string) =>
-  new UnknownQuery({ query }).grab(paletteFieldSchema);
+  new UnknownQuery({ query }).grab(paletteFieldSchema).optional().nullable();
 const paletteFields = {
   palette: new UnknownQuery({ query: "palette" }).grab({
     darkMuted: getPaletteField("darkMuted"),
