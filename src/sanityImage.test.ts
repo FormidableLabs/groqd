@@ -3,7 +3,7 @@ import { runPokemonQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
 
-describe("imageRef", () => {
+describe("sanityImage", () => {
   it("should be able to query image ref with no additional options", async () => {
     const { query, data } = await runPokemonQuery(
       q("*")
@@ -11,7 +11,7 @@ describe("imageRef", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.imageRef("cover"),
+          cover: q.sanityImage("cover"),
         })
     );
 
@@ -33,7 +33,7 @@ describe("imageRef", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.imageRef("cover", { withCrop: true }),
+          cover: q.sanityImage("cover", { withCrop: true }),
         })
     );
 
@@ -58,7 +58,7 @@ describe("imageRef", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.imageRef("cover", { withHotspot: true }),
+          cover: q.sanityImage("cover", { withHotspot: true }),
         })
     );
 
@@ -84,7 +84,7 @@ describe("imageRef", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.imageRef("cover", {
+          cover: q.sanityImage("cover", {
             additionalFields: {
               description: q.string(),
             },
@@ -101,14 +101,14 @@ describe("imageRef", () => {
     ).toBeTruthy();
   });
 
-  it("should be able to query list of imageRefs", async () => {
+  it("should be able to query list of sanityImages", async () => {
     const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 1)
         .grab({
           name: q.string(),
-          images: q.imageRef("images", {
+          images: q.sanityImage("images", {
             withCrop: true,
             isList: true,
             additionalFields: {

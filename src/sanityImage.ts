@@ -40,10 +40,10 @@ const refBase = {
 /**
  * Overload the imageRef so user can optionally pass a selection that gets merged into the base selection.
  */
-export function imageRef(
+export function sanityImage(
   fieldName: string
 ): EntityQuery<FromSelection<typeof refBase>>;
-export function imageRef<
+export function sanityImage<
   WithCrop extends boolean | undefined = undefined,
   WithHotspot extends boolean | undefined = undefined,
   AdditionalSelection extends Selection | undefined = undefined,
@@ -59,7 +59,7 @@ export function imageRef<
 ): Multiple extends true
   ? ArrayQuery<ImageRefSchemaType<WithCrop, WithHotspot, AdditionalSelection>>
   : EntityQuery<ImageRefSchemaType<WithCrop, WithHotspot, AdditionalSelection>>;
-export function imageRef(fieldName: string, options?: any) {
+export function sanityImage(fieldName: string, options?: any) {
   const { withCrop, withHotspot, additionalFields, isList } = options || {};
 
   const toGrab = Object.assign(
