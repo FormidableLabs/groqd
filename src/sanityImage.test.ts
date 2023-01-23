@@ -134,25 +134,6 @@ describe("sanityImage", () => {
     expect(crop.right === 0.009375000000000022).toBeTruthy();
   });
 
-  // it("test", async () => {
-  //   const { query, data } = await runPokemonQuery(
-  //     q("*")
-  //       .filter("_type == 'pokemon'")
-  //       .slice(0, 1)
-  //       .grab({
-  //         name: q.string(),
-  //         images: q.sanityImage("images", {
-  //           isList: true,
-  //           withAsset: ["dimensions", "location", "lqip", "palette"],
-  //         }),
-  //       })
-  //   );
-  //
-  //   invariant(data);
-  //   const im = data[0].images[0];
-  //   console.log(im);
-  // });
-
   it("can query fetch base image asset data", async () => {
     const { query, data } = await runPokemonQuery(
       q("*")

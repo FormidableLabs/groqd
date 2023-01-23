@@ -184,40 +184,43 @@ type ImageRefSchemaType<
     (WithCrop extends true ? typeof cropFields : Empty) &
     (WithHotspot extends true ? typeof hotspotFields : Empty) &
     (undefined extends AdditionalSelection ? Empty : AdditionalSelection) & {
-      asset: EntityQuery<
-        FromSelection<
-          (undefined extends WithAsset ? typeof reffedAssetFields : Empty) &
-            // Conditionally add in the base fields
-            (ListIncludes<WithAsset, "base"> extends true
-              ? typeof dereffedAssetBaseFields
-              : Empty) &
-            // We'll add in metadata only if non-base is included
-            (ListIncludes<
-              WithAsset,
-              Exclude<WithAssetOption, "base">
-            > extends true
-              ? {
-                  metadata: EntityQuery<
-                    FromSelection<
-                      (ListIncludes<WithAsset, "dimensions"> extends true
-                        ? typeof dimensionFields
-                        : Empty) &
-                        (ListIncludes<WithAsset, "location"> extends true
-                          ? typeof locationFields
-                          : Empty) &
-                        (ListIncludes<WithAsset, "lqip"> extends true
-                          ? typeof lqipFields
-                          : Empty) &
-                        (ListIncludes<WithAsset, "palette"> extends true
-                          ? typeof paletteFields
-                          : Empty)
-                    >
-                  >;
-                }
-              : Empty)
-        >
-      >;
+      asset: Asset<WithAsset>;
     }
 >;
 
 type WithAssetOption = "base" | "dimensions" | "location" | "lqip" | "palette";
+
+type Asset<
+  WithAsset extends readonly WithAssetOption[] | undefined = undefined
+> = EntityQuery<
+  FromSelection<
+    (undefined extends WithAsset ? typeof reffedAssetFields : Empty) &
+      // Conditionally add in the base fields
+      (ListIncludes<WithAsset, "base"> extends true
+        ? typeof dereffedAssetBaseFields
+        : Empty) &
+      // We'll add in metadata only if non-base is included
+      (ListIncludes<WithAsset, Exclude<WithAssetOption, "base">> extends true
+        ? { metadata: AssetMetadata<WithAsset> }
+        : Empty)
+  >
+>;
+
+type AssetMetadata<
+  WithAsset extends readonly WithAssetOption[] | undefined = undefined
+> = EntityQuery<
+  FromSelection<
+    (ListIncludes<WithAsset, "dimensions"> extends true
+      ? typeof dimensionFields
+      : Empty) &
+      (ListIncludes<WithAsset, "location"> extends true
+        ? typeof locationFields
+        : Empty) &
+      (ListIncludes<WithAsset, "lqip"> extends true
+        ? typeof lqipFields
+        : Empty) &
+      (ListIncludes<WithAsset, "palette"> extends true
+        ? typeof paletteFields
+        : Empty)
+  >
+>;
