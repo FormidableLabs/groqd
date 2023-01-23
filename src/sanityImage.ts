@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ArrayQuery, EntityQuery, UnknownQuery } from "./builder";
 import type { FromSelection, Selection } from "./grab";
 import { schemas } from "./schemas";
-import { List } from "ts-toolbelt";
+import { List } from "ts-toolbelt"; // TODO: Can we remove this dependency?
 
 const reffedAssetFields = {
   _ref: z.string(),
@@ -48,7 +48,7 @@ const dereffedAssetBaseFields = {
   sha1hash: schemas.string(),
   size: schemas.number(),
   url: schemas.string(),
-  _updatedAt: schemas.string(), // TODO: make a date?
+  _updatedAt: schemas.date(),
 };
 
 const paletteFieldSchema = {

@@ -189,7 +189,7 @@ describe("sanityImage", () => {
       im.asset.url ===
         "https://cdn.sanity.io/images/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.jpg"
     ).toBeTruthy();
-    expect(im.asset._updatedAt === "2022-12-12T19:45:48Z").toBeTruthy(); // TODO: should be casting to date?
+    expect(im.asset._updatedAt instanceof Date).toBeTruthy();
   });
 
   it("can query fetch image asset data with dimensions metadata", async () => {

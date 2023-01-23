@@ -89,3 +89,16 @@ describe("array", () => {
     expect(data[1].nicknames).toBeNull();
   });
 });
+
+describe("date", () => {
+  it("parses date strings to date objects", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0).grab({
+        createdAt: q.date(),
+      })
+    );
+
+    invariant(data);
+    expect(data.createdAt).toBeInstanceOf(Date);
+  });
+});
