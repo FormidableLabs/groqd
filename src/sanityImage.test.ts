@@ -134,22 +134,66 @@ describe("sanityImage", () => {
     expect(crop.right === 0.009375000000000022).toBeTruthy();
   });
 
-  it("test", async () => {
-    const { query, data } = await runPokemonQuery(
+  // it("test", async () => {
+  //   const { query, data } = await runPokemonQuery(
+  //     q("*")
+  //       .filter("_type == 'pokemon'")
+  //       .slice(0, 1)
+  //       .grab({
+  //         name: q.string(),
+  //         images: q.sanityImage("images", {
+  //           isList: true,
+  //           withAsset: ["dimensions", "location", "lqip", "palette"],
+  //         }),
+  //       })
+  //   );
+  //
+  //   invariant(data);
+  //   const im = data[0].images[0];
+  //   console.log(im);
+  // });
+
+  it.only("can query fetch base image asset data", async () => {
+    const { query, data, error } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 1)
         .grab({
           name: q.string(),
-          images: q.sanityImage("images", {
-            isList: true,
-            withAsset: ["dimensions", "location", "lqip", "palette"],
+          cover: q.sanityImage("cover", {
+            withAsset: ["base"],
           }),
         })
     );
 
-    invariant(data);
-    const im = data[0].images[0];
-    console.log(im);
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{_id, _type, _rev, extension, mimeType, originalFilename, path, sha1hash, size, url, _updatedAt}}}`
+    );
+    const im = data?.[0]?.cover;
+    invariant(im);
+    expect(im.asset._id === "image-1-jpg").toBeTruthy();
+    expect(im.asset._type === "sanity.imageAsset").toBeTruthy();
+    expect(im.asset._rev === "X6HgJNl2Cktkcl6TQwg3gv").toBeTruthy();
+    expect(im.asset.extension === "jpg").toBeTruthy();
+    expect(im.asset.mimeType === "image/jpeg").toBeTruthy();
+    expect(im.asset.originalFilename === "pokemon-1.jpg").toBeTruthy();
+    expect(
+      im.asset.path ===
+        "images/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.jpg"
+    ).toBeTruthy();
+    expect(
+      im.asset.sha1hash === "ed158069c3b44124a310d7a107998e06bf12e90e"
+    ).toBeTruthy();
+    expect(im.asset.size === 37594).toBeTruthy();
+    expect(
+      im.asset.url ===
+        "https://cdn.sanity.io/images/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.jpg"
+    ).toBeTruthy();
+    expect(im.asset._updatedAt === "2022-12-12T19:45:48Z").toBeTruthy(); // TODO: should be casting to date?
   });
+
+  // TODO: withAsset.dimensions
+  // TODO: withAsset.location
+  // TODO: withAsset.lqip
+  // TODO: withAsset.palette
 });

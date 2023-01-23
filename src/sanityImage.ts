@@ -38,6 +38,8 @@ const refBase = {
 } as const;
 
 const dereffedAssetBaseFields = {
+  _id: schemas.string(),
+  _type: schemas.literal("sanity.imageAsset"),
   _rev: schemas.string(),
   extension: schemas.string(),
   mimeType: schemas.string(),
@@ -113,13 +115,28 @@ export function sanityImage<
       ImageRefSchemaType<WithCrop, WithHotspot, AdditionalSelection, WithAsset>
     >;
 export function sanityImage(fieldName: string, options?: any) {
-  const { withCrop, withHotspot, additionalFields, isList } = options || {};
+  const { withCrop, withHotspot, additionalFields, isList, withAsset } =
+    options || {};
+
+  let asset = new UnknownQuery({ query: "asset" });
+  if (withAsset) {
+    asset = asset.deref();
+  }
+  const assetIncludes = (field: WithAssetOption) =>
+    typeof withAsset?.includes === "function"
+      ? withAsset.includes(field)
+      : false;
+  const assetFields = Object.assign(
+    {},
+    !withAsset && reffedAssetFields,
+    assetIncludes("base") && dereffedAssetBaseFields
+  );
 
   // Implementation of our grab
   const toGrab = Object.assign(
     {},
     refBase,
-    { asset: new UnknownQuery({ query: "asset" }).grab(reffedAssetFields) }, // TODO: fork here?
+    { asset: asset.grab(assetFields) },
     withCrop === true ? cropFields : {},
     withHotspot === true ? hotspotFields : {},
     additionalFields || {}
@@ -144,7 +161,7 @@ type ImageRefSchemaType<
     (undefined extends AdditionalSelection ? Empty : AdditionalSelection) & {
       asset: EntityQuery<
         FromSelection<
-          typeof reffedAssetFields &
+          (undefined extends WithAsset ? typeof reffedAssetFields : Empty) &
             // Conditionally add in the base fields
             (List.Includes<WithAsset & WithAssetOption[], "base"> extends 1
               ? typeof dereffedAssetBaseFields

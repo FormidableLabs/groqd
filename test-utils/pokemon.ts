@@ -2119,7 +2119,7 @@ const gen1ImageAssets = gen1.map((mon) => ({
     },
   },
   mimeType: "image/jpeg",
-  originalFilename: "search-bg.jpeg",
+  originalFilename: `pokemon-${mon.id}.jpg`,
   path: "images/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.jpg",
   sha1hash: "ed158069c3b44124a310d7a107998e06bf12e90e",
   size: 37594,
