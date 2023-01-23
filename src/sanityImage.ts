@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ArrayQuery, EntityQuery, UnknownQuery } from "./builder";
 import type { FromSelection, Selection } from "./grab";
 import { schemas } from "./schemas";
-import { List } from "ts-toolbelt"; // TODO: Can we remove this dependency?
+import { ListIncludes } from "./types";
 
 const reffedAssetFields = {
   _ref: z.string(),
@@ -188,39 +188,27 @@ type ImageRefSchemaType<
         FromSelection<
           (undefined extends WithAsset ? typeof reffedAssetFields : Empty) &
             // Conditionally add in the base fields
-            (List.Includes<WithAsset & WithAssetOption[], "base"> extends 1
+            (ListIncludes<WithAsset, "base"> extends true
               ? typeof dereffedAssetBaseFields
               : Empty) &
             // We'll add in metadata only if non-base is included
-            (List.Includes<
-              WithAsset & WithAssetOption[],
+            (ListIncludes<
+              WithAsset,
               Exclude<WithAssetOption, "base">
-            > extends 1
+            > extends true
               ? {
                   metadata: EntityQuery<
                     FromSelection<
-                      (List.Includes<
-                        WithAsset & WithAssetOption[],
-                        "dimensions"
-                      > extends 1
+                      (ListIncludes<WithAsset, "dimensions"> extends true
                         ? typeof dimensionFields
                         : Empty) &
-                        (List.Includes<
-                          WithAsset & WithAssetOption[],
-                          "location"
-                        > extends 1
+                        (ListIncludes<WithAsset, "location"> extends true
                           ? typeof locationFields
                           : Empty) &
-                        (List.Includes<
-                          WithAsset & WithAssetOption[],
-                          "lqip"
-                        > extends 1
+                        (ListIncludes<WithAsset, "lqip"> extends true
                           ? typeof lqipFields
                           : Empty) &
-                        (List.Includes<
-                          WithAsset & WithAssetOption[],
-                          "palette"
-                        > extends 1
+                        (ListIncludes<WithAsset, "palette"> extends true
                           ? typeof paletteFields
                           : Empty)
                     >

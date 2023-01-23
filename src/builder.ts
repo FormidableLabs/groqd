@@ -44,7 +44,7 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     });
   }
 
-  // TODO: Should write tests for this before merging
+  // TODO: Should write tests for this, as well as some docs
   nullable(): EntityQuery<z.ZodNullable<T>> {
     return new EntityQuery({
       query: this.query,

@@ -8,3 +8,20 @@ export type InferType<P> = P extends BaseQuery<infer T>
     ? z.infer<T>
     : never
   : never;
+
+/**
+ * Helper to determine if list of values includes a value,
+ *   used in sanityImage
+ */
+export type ListIncludes<T, M> = T extends any[]
+  ? ArrayToObj<T> extends FieldToObj<M>
+    ? true
+    : false
+  : false;
+
+type ArrayToObj<T extends any[]> = {
+  [K in T[number]]: true;
+};
+type FieldToObj<T> = {
+  [K in T & string]: { [Key in K]: true };
+}[T & string];
