@@ -288,6 +288,113 @@ The available schema types are shown below.
 - `q.undefined`, corresponds to Zod's undefined type.
 - `q.array`, corresponds to [Zod's array type](https://github.com/colinhacks/zod#arrays).
 
+### `q.sanityImage`
+
+A convenience method to make it easier to generate image queries for Sanity's image type. Supports fetching various info from both `image` documents and `asset` documents.
+
+In its simplest form, it looks something like this:
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab({
+    cover: q.sanityImage("cover"), // 👈 just pass the field name
+  });
+
+// -> { cover: { _key: string; _type: string; asset: { _type: "reference"; _ref: string; } } }[]
+```
+
+which will allow you to fetch the minimal/basic image document information.
+
+#### `q.sanityImage`'s `asList` option
+
+If you have an array of image documents, you can pass `asList: true` to an options object as the second argument to `q.sanityImage` method.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab({
+    images: q.sanityImage("images", { asList: true }), // 👈 fetch as a list
+  });
+
+// -> { images: { ... }[] }[]
+```
+
+#### `q.sanityImage`'s `withCrop` option
+
+Sanity's image document has nullable fields for crop information, which you can query for with the `withCrop` option.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab({
+    cover: q.sanityImage("cover", { withCrop: true }), // 👈 fetch crop info
+  });
+
+// -> { cover: { ..., crop: { top: number; bottom: number; left: number; right: number; } } }[]
+```
+
+#### `q.sanityImage`'s `withHotspot` option
+
+Sanity's image document has nullable fields for hotspot information, which you can query for with the `withHotspot` option.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab({
+    cover: q.sanityImage("cover", { withHotpot: true }), // 👈 fetch hotspot info
+  });
+
+// -> { cover: { ..., hotspot: { x: number; y: number; height: number; width: number; } } }[]
+```
+
+#### `q.sanityImage`'s `additionalFields` option
+
+Sanity allows you to add additional fields to their image documents, such as alt text or descriptions. The `additionalFields` option allows you to specify such fields to query with your image query.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab({
+    cover: q.sanityImage("cover", {
+      // 👇 fetch additional fields
+      additionalFields: {
+        alt: q.string(),
+        description: q.string(),
+      }
+    })
+  });
+
+// -> { cover: { ..., alt: string, description: string } }[]
+```
+
+#### `q.sanityImage`'s `withAsset` option
+
+Sanity's image documents have a reference to an asset document that contains a whole host of information relative to the uploaded image asset itself. The `q.sanityImage` will allow you to dereference this asset document and query various fields from it.
+
+You can pass an array to the `withAsset` option to specify which fields you want to query from the asset document:
+
+- pass `"base"` to query the base asset document fields, including `extension`, `mimeType`, `originalFilename`, `size`, `url`, and `path`.
+- pass `"dimensions"` to query the asset document's `metadata.dimensions` field, useful if you need the image's original dimensions or aspect ratio.
+- pass `"location"` to query the asset document's `metadata.location` field.
+- pass `"lqip"` to query the asset's `metadata.lqip` (Low Quality Image Placeholder) field, useful if you need to display LQIPs.
+- pass `"palette"` to query the asset document's `metadata.palette` field, useful if you want to use the image's color palette in your UI.
+
+An example:
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab({
+    cover: q.sanityImage("cover", {
+      withAsset: ["base", "dimensions"]
+    })
+  });
+
+// -> { cover: { ..., asset: { extension: string; mimeType: string; ...; metadata: { dimensions: { aspectRatio: number; height: number; width: number; }; }; }; } }[]
+```
+
+
 ### `makeSafeQueryRunner`
 
 A wrapper around `q` so you can easily use `groqd` with an actual fetch implementation. 
