@@ -418,3 +418,18 @@ describe("ArrayResult.deref/UnknownResult.deref", () => {
     }).toThrow();
   });
 });
+
+describe("BaseQuery.nullable", () => {
+  it("will allow a null return value", async () => {
+    const { data, error } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'digimon'")
+        .slice(0)
+        .grab({ name: q.string() })
+        .nullable()
+    );
+
+    expect(data === null).toBeTruthy();
+    expect(error).toBeUndefined();
+  });
+});

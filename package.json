@@ -11,6 +11,7 @@
     "url": "https://github.com/formidablelabs/groqd.git"
   },
   "homepage": "https://github.com/formidablelabs/groqd",
+  "keywords": ["sanity", "groq", "query", "typescript"],
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

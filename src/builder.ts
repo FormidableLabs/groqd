@@ -3,9 +3,9 @@ import { grab } from "./grab";
 import type { Selection } from "./grab";
 
 type Query = string;
-type Payload<T> = { schema: T; query: Query };
+type Payload<T extends z.ZodTypeAny> = { schema: T; query: Query };
 
-export class BaseQuery<T> {
+export class BaseQuery<T extends z.ZodTypeAny> {
   query: string;
   schema: T;
 
@@ -16,6 +16,21 @@ export class BaseQuery<T> {
 
   public value(): Payload<T> {
     return { schema: this.schema, query: this.query };
+  }
+
+  nullable() {
+    return new NullableBaseQuery({
+      query: this.query,
+      schema: this.schema.nullable(),
+    });
+  }
+}
+
+export class NullableBaseQuery<T extends z.ZodTypeAny> extends BaseQuery<
+  z.ZodNullable<T>
+> {
+  constructor({ schema, query }: Payload<T>) {
+    super({ schema: schema.nullable(), query });
   }
 }
 
@@ -49,8 +64,8 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
  * Unknown, comes out of pipe and is starting point for queries.
  */
 export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
-  constructor(payload: Payload<z.ZodUnknown>) {
-    super(payload);
+  constructor(payload: Pick<Payload<z.ZodUnknown>, "query">) {
+    super({ ...payload, schema: z.unknown() });
   }
 
   // filter to an unknown array
@@ -58,7 +73,6 @@ export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
     this.query += `[${filterValue}]`;
     return new UnknownArrayQuery({
       ...this.value(),
-      schema: z.array(z.unknown()),
     });
   }
 
@@ -123,8 +137,8 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
 }
 
 export class UnknownArrayQuery extends ArrayQuery<z.ZodUnknown> {
-  constructor(payload: Payload<z.ZodArray<z.ZodUnknown>>) {
-    super(payload);
+  constructor(payload: Pick<Payload<z.ZodArray<z.ZodUnknown>>, "query">) {
+    super({ ...payload, schema: z.array(z.unknown()) });
   }
 
   deref() {
