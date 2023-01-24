@@ -3,9 +3,9 @@ import { grab } from "./grab";
 import type { Selection } from "./grab";
 
 type Query = string;
-type Payload<T> = { schema: T; query: Query };
+type Payload<T extends z.ZodTypeAny> = { schema: T; query: Query };
 
-export class BaseQuery<T> {
+export class BaseQuery<T extends z.ZodTypeAny> {
   query: string;
   schema: T;
 
@@ -16,6 +16,21 @@ export class BaseQuery<T> {
 
   public value(): Payload<T> {
     return { schema: this.schema, query: this.query };
+  }
+
+  nullable() {
+    return new NullableBaseQuery({
+      query: this.query,
+      schema: this.schema.nullable(),
+    });
+  }
+}
+
+export class NullableBaseQuery<T extends z.ZodTypeAny> extends BaseQuery<
+  z.ZodNullable<T>
+> {
+  constructor({ schema, query }: Payload<T>) {
+    super({ schema: schema.nullable(), query });
   }
 }
 
@@ -41,21 +56,6 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     return new EntityQuery<GrabOneType>({
       query: this.query + `.${name}`,
       schema: fieldSchema,
-    });
-  }
-
-  // TODO: Should write tests for this, as well as some docs
-  nullable(): EntityQuery<z.ZodNullable<T>> {
-    return new EntityQuery({
-      query: this.query,
-      schema: this.schema.nullable(),
-    });
-  }
-
-  optional(): EntityQuery<z.ZodOptional<T>> {
-    return new EntityQuery({
-      query: this.query,
-      schema: this.schema.optional(),
     });
   }
 }

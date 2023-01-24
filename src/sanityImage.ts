@@ -16,7 +16,6 @@ const cropFields = {
       left: schemas.number(),
       right: schemas.number(),
     })
-    .optional()
     .nullable(),
 };
 
@@ -28,7 +27,6 @@ const hotspotFields = {
       height: z.number(),
       width: z.number(),
     })
-    .optional()
     .nullable(),
 };
 
@@ -67,8 +65,7 @@ const dimensionFields = {
       height: schemas.number(),
       width: schemas.number(),
     })
-    .nullable()
-    .optional(),
+    .nullable(),
 };
 const locationFields = {
   location: new UnknownQuery({ query: "location" })
@@ -77,14 +74,13 @@ const locationFields = {
       lat: schemas.number(),
       lng: schemas.number(),
     })
-    .nullable()
-    .optional(),
+    .nullable(),
 };
 const lqipFields = {
   lqip: schemas.string(),
 };
 const getPaletteField = (query: string) =>
-  new UnknownQuery({ query }).grab(paletteFieldSchema).optional().nullable();
+  new UnknownQuery({ query }).grab(paletteFieldSchema).nullable();
 const paletteFields = {
   palette: new UnknownQuery({ query: "palette" }).grab({
     darkMuted: getPaletteField("darkMuted"),
