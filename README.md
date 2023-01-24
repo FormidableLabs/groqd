@@ -243,6 +243,18 @@ q("*")
   });
 ```
 
+### `.nullable`
+
+A method on the base query class that allows you to make a query's schema as nullable – in case you are expecting a potential null value.
+
+```ts
+q("*")
+  .filter("_type == 'digimon'")
+  .slice(0)
+  .grab({ name: q.string() })
+  .nullable(); // 👈 we're okay with a null value here
+```
+
 ### Schema Types
 
 The `.grab` and `.grabOne` methods are used to "project" and select certain values from documents, and these are the methods that dictate the shape of the resulting schema/data. To indicate what type specific fields should be, we use schemas provided by the `groqd` library, such as `q.string`, `q.number`, `q.boolean`, and so on.
