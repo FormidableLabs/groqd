@@ -245,7 +245,7 @@ q("*")
 
 ### `.nullable`
 
-A method on the base query class that allows you to make a query's schema as nullable – in case you are expecting a potential null value.
+A method on the base query class that allows you to mark a query's schema as nullable – in case you are expecting a potential null value.
 
 ```ts
 q("*")
@@ -322,7 +322,7 @@ q("*")
 
 #### `q.sanityImage`'s `withCrop` option
 
-Sanity's image document has nullable fields for crop information, which you can query for with the `withCrop` option.
+Sanity's image document has fields for crop information, which you can query for with the `withCrop` option.
 
 ```ts
 q("*")
@@ -331,12 +331,12 @@ q("*")
     cover: q.sanityImage("cover", { withCrop: true }), // 👈 fetch crop info
   });
 
-// -> { cover: { ..., crop: { top: number; bottom: number; left: number; right: number; } } }[]
+// -> { cover: { ..., crop: { top: number; bottom: number; left: number; right: number; } | null } }[]
 ```
 
 #### `q.sanityImage`'s `withHotspot` option
 
-Sanity's image document has nullable fields for hotspot information, which you can query for with the `withHotspot` option.
+Sanity's image document has fields for hotspot information, which you can query for with the `withHotspot` option.
 
 ```ts
 q("*")
@@ -345,7 +345,7 @@ q("*")
     cover: q.sanityImage("cover", { withHotpot: true }), // 👈 fetch hotspot info
   });
 
-// -> { cover: { ..., hotspot: { x: number; y: number; height: number; width: number; } } }[]
+// -> { cover: { ..., hotspot: { x: number; y: number; height: number; width: number; } | null } }[]
 ```
 
 #### `q.sanityImage`'s `additionalFields` option
