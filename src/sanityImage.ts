@@ -153,7 +153,6 @@ export function sanityImage(fieldName: string, options?: any) {
     }
   );
 
-  // Implementation of our grab
   const toGrab = Object.assign(
     {},
     refBase,
