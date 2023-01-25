@@ -1,16 +1,15 @@
-import { z } from "zod";
 import { ArrayQuery, EntityQuery, UnknownQuery } from "./builder";
 import type { FromSelection, Selection } from "./grab";
 import { schemas } from "./schemas";
 import { ListIncludes } from "./types";
 
 const reffedAssetFields = {
-  _ref: z.string(),
-  _type: z.literal("reference"),
+  _ref: schemas.string(),
+  _type: schemas.literal("reference"),
 };
 const cropFields = {
-  crop: new UnknownQuery({ query: "crop" })
-    .grab({
+  crop: schemas
+    .object({
       top: schemas.number(),
       bottom: schemas.number(),
       left: schemas.number(),
@@ -20,19 +19,19 @@ const cropFields = {
 };
 
 const hotspotFields = {
-  hotspot: new UnknownQuery({ query: "hotspot" })
-    .grab({
-      x: z.number(),
-      y: z.number(),
-      height: z.number(),
-      width: z.number(),
+  hotspot: schemas
+    .object({
+      x: schemas.number(),
+      y: schemas.number(),
+      height: schemas.number(),
+      width: schemas.number(),
     })
     .nullable(),
 };
 
 const refBase = {
-  _key: z.string().nullable(),
-  _type: z.string(),
+  _key: schemas.string().nullable(),
+  _type: schemas.string(),
 } as const;
 
 const dereffedAssetBaseFields = {
@@ -58,8 +57,8 @@ const paletteFieldSchema = {
 };
 
 const dimensionFields = {
-  dimensions: new UnknownQuery({ query: "dimensions" })
-    .grab({
+  dimensions: schemas
+    .object({
       _type: schemas.literal("sanity.imageDimensions"),
       aspectRatio: schemas.number(),
       height: schemas.number(),
@@ -68,8 +67,8 @@ const dimensionFields = {
     .nullable(),
 };
 const locationFields = {
-  location: new UnknownQuery({ query: "location" })
-    .grab({
+  location: schemas
+    .object({
       _type: schemas.literal("geopoint"),
       lat: schemas.number(),
       lng: schemas.number(),
@@ -79,17 +78,16 @@ const locationFields = {
 const lqipFields = {
   lqip: schemas.string(),
 };
-const getPaletteField = (query: string) =>
-  new UnknownQuery({ query }).grab(paletteFieldSchema).nullable();
+const getPaletteField = () => schemas.object(paletteFieldSchema).nullable();
 const paletteFields = {
-  palette: new UnknownQuery({ query: "palette" }).grab({
-    darkMuted: getPaletteField("darkMuted"),
-    darkVibrant: getPaletteField("darkVibrant"),
-    dominant: getPaletteField("dominant"),
-    lightMuted: getPaletteField("lightMuted"),
-    lightVibrant: getPaletteField("lightVibrant"),
-    muted: getPaletteField("muted"),
-    vibrant: getPaletteField("vibrant"),
+  palette: schemas.object({
+    darkMuted: getPaletteField(),
+    darkVibrant: getPaletteField(),
+    dominant: getPaletteField(),
+    lightMuted: getPaletteField(),
+    lightVibrant: getPaletteField(),
+    muted: getPaletteField(),
+    vibrant: getPaletteField(),
   }),
 };
 
