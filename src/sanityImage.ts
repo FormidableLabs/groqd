@@ -31,7 +31,7 @@ const hotspotFields = {
 };
 
 const refBase = {
-  _key: z.string(),
+  _key: z.string().nullable(),
   _type: z.string(),
 } as const;
 
