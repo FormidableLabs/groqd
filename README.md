@@ -287,6 +287,7 @@ The available schema types are shown below.
 - `q.null`, corresponds to Zod's null type.
 - `q.undefined`, corresponds to Zod's undefined type.
 - `q.array`, corresponds to [Zod's array type](https://github.com/colinhacks/zod#arrays).
+- `q.object`, corresponds to [Zod's object type](https://github.com/colinhacks/zod#objects).
 
 ### `q.sanityImage`
 
