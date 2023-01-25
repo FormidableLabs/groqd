@@ -16,4 +16,5 @@ export const schemas = {
   literal: z.literal,
   union: z.union,
   array: z.array,
+  object: z.object,
 };

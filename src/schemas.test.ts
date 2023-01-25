@@ -102,3 +102,23 @@ describe("date", () => {
     expect(data.createdAt).toBeInstanceOf(Date);
   });
 });
+
+describe("object", () => {
+  it("can handle objects without deeply specifying fields", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grab({
+          types: q.array(
+            q.object({ _type: q.literal("reference"), _ref: q.string() })
+          ),
+        })
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0]{types}`);
+    invariant(data);
+    expect(data.types[0]._type === "reference").toBeTruthy();
+    expect(data.types[0]._ref === "type.Grass").toBeTruthy();
+  });
+});
