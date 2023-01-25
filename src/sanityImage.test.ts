@@ -38,7 +38,7 @@ describe("sanityImage", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, "crop": crop{top, bottom, left, right}}}`
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, crop}}`
     );
     const crop = data?.[0].cover.crop;
     invariant(data && crop);
@@ -63,7 +63,7 @@ describe("sanityImage", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, "hotspot": hotspot{x, y, height, width}}}`
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, hotspot}}`
     );
     const hotspot = data?.[0].cover.hotspot;
     invariant(data && hotspot);
@@ -119,7 +119,7 @@ describe("sanityImage", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "images": images[]{_key, _type, "asset": asset{_ref, _type}, "crop": crop{top, bottom, left, right}, description}}`
+      `*[_type == 'pokemon'][0..1]{name, "images": images[]{_key, _type, "asset": asset{_ref, _type}, crop, description}}`
     );
     const im0 = data?.[0]?.images[0];
     const crop = im0?.crop;
@@ -187,7 +187,7 @@ describe("sanityImage", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{"dimensions": dimensions{_type, aspectRatio, height, width}}}}}`
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{dimensions}}}}`
     );
     const dimensions = data?.[0]?.cover?.asset?.metadata?.dimensions;
     invariant(dimensions);
@@ -211,7 +211,7 @@ describe("sanityImage", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{"location": location{_type, lat, lng}}}}}`
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{location}}}}`
     );
     const location = data?.[0]?.cover?.asset?.metadata?.location;
     invariant(location);
@@ -258,20 +258,7 @@ describe("sanityImage", () => {
     );
 
     expect(query).toBe(
-      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{"palette": palette{${[
-        "darkMuted",
-        "darkVibrant",
-        "dominant",
-        "lightMuted",
-        "lightVibrant",
-        "muted",
-        "vibrant",
-      ]
-        .map(
-          (n) =>
-            `"${n}": ${n}{_type, background, foreground, population, title}`
-        )
-        .join(", ")}}}}}}`
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{palette}}}}`
     );
     const palette = data?.[0]?.cover?.asset?.metadata?.palette;
     invariant(palette);
