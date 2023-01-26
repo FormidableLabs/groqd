@@ -45,7 +45,7 @@ const dereffedAssetBaseFields = {
   sha1hash: schemas.string(),
   size: schemas.number(),
   url: schemas.string(),
-  _updatedAt: schemas.date(),
+  _updatedAt: schemas.string().nullable(),
 };
 
 const paletteFieldSchema = {
