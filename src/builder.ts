@@ -119,6 +119,11 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     return this;
   }
 
+  score(...scores: string[]): ArrayQuery<T> {
+    this.query += `|score(${scores.join(", ")})`;
+    return this;
+  }
+
   // Slicing
   slice(index: number): EntityQuery<T>;
   slice(min: number, max: number): ArrayQuery<T>;

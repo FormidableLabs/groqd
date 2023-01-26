@@ -239,6 +239,20 @@ q("*")
   });
 ```
 
+### `.score`
+
+Used to pipe a list of results through the `score` GROQ function.
+
+```ts
+// Fetch first 9 Pokemon's names, bubble Char* (Charmander, etc) to the top.
+q("*")
+  .filter("_type == 'pokemon'")
+  .slice(0, 8)
+  .score(`name match "char*"`)
+  .order("_score desc")
+  .grabOne("name", z.string());
+```
+
 ### `.nullable`
 
 A method on the base query class that allows you to mark a query's schema as nullable – in case you are expecting a potential null value.

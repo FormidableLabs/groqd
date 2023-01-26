@@ -433,3 +433,32 @@ describe("BaseQuery.nullable", () => {
     expect(error).toBeUndefined();
   });
 });
+
+describe("ArrayQuery.score", () => {
+  it("will pipe through score function", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 8)
+        .score(`name match "char*"`)
+        .order("_score desc")
+        .grabOne("name", z.string())
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..8]|score(name match "char*")|order(_score desc).name`
+    );
+    invariant(data);
+    expect(data).toEqual([
+      "Charmander",
+      "Charmeleon",
+      "Charizard",
+      "Bulbasaur",
+      "Ivysaur",
+      "Venusaur",
+      "Squirtle",
+      "Wartortle",
+      "Blastoise",
+    ]);
+  });
+});
