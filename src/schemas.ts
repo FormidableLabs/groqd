@@ -8,7 +8,7 @@ const dateSchema = () =>
 export const schemas = {
   string: z.string,
   number: z.number,
-  boolean: z.number,
+  boolean: z.boolean,
   unknown: z.unknown,
   null: z.null,
   undefined: z.undefined,
