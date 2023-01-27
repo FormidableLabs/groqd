@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@sanity/client": "^3.4.1",
+    "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "eslint": "^8.16.0",
