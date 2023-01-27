@@ -42,10 +42,13 @@
     "check:ci": "yarn typecheck && yarn lint && yarn test",
     "build": "tsup",
     "preversion": "yarn check:ci",
-    "prepare": "yarn build"
+    "prepare": "yarn build",
+    "changeset": "changeset",
+    "version": "yarn changeset version && yarn install --frozen-lockfile"
   },
   "devDependencies": {
     "@sanity/client": "^3.4.1",
+    "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "eslint": "^8.16.0",
@@ -59,6 +62,7 @@
     "vitest": "^0.24.3"
   },
   "dependencies": {
+    "@changesets/cli": "^2.26.0",
     "zod": "^3.20.2"
   },
   "engines": {
