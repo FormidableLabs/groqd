@@ -1,8 +1,11 @@
+import { sampleContentBlocks } from "./sampleContentBlocks";
+
 const userData: {
   name: string;
   age: number;
   role: RoleType;
   nicknames?: string[];
+  bio?: unknown;
 }[] = [
   {
     name: "John",
@@ -21,6 +24,7 @@ const users = userData.map((user) => ({
     _type: "reference",
     _ref: `role.${user.role}`,
   },
+  bio: sampleContentBlocks,
 }));
 
 type RoleType = "guest" | "admin";
