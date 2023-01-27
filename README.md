@@ -284,6 +284,12 @@ The available schema types are shown below.
 - `q.undefined`, corresponds to Zod's undefined type.
 - `q.array`, corresponds to [Zod's array type](https://github.com/colinhacks/zod#arrays).
 - `q.object`, corresponds to [Zod's object type](https://github.com/colinhacks/zod#objects).
+- `q.contentBlock`, a custom Zod schema to match Sanity's `block` type, helpful for fetching data from a field that uses Sanity's block editor. For example:
+  ```ts
+  q("*")
+    .filter("_type == 'user'")
+    .grab({ body: q.array(q.contentBlock()) });
+  ```
 
 ### `q.sanityImage`
 
