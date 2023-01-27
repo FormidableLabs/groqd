@@ -3,6 +3,63 @@ import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
 
+describe("string", () => {
+  it("will generate a string type", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0).grabOne("name", q.string())
+    );
+
+    expect(data === "Bulbasaur").toBeTruthy();
+  });
+});
+
+describe("number", () => {
+  it("will generate a number type", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grabOne("base.HP", q.number())
+    );
+
+    expect(data === 45).toBeTruthy();
+  });
+});
+
+describe("boolean", () => {
+  it("will generate a boolean type", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grabOne("base.HP > 30", q.boolean())
+    );
+
+    expect(data === true).toBeTruthy();
+  });
+});
+
+describe("unknown", () => {
+  it("will generate an unknown type", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0).grabOne("base", q.unknown())
+    );
+
+    // @ts-expect-error Unknown type, shouldn't "know" properties
+    expect(data.HP === 45).toBeTruthy();
+  });
+});
+
+describe("null", () => {
+  it("will generate an null type", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0).grabOne("notThere", q.null())
+    );
+
+    expect(data === null).toBeTruthy();
+  });
+});
+
 describe("literal", () => {
   it("will generate a literal string type", async () => {
     const { data, query } = await runPokemonQuery(
