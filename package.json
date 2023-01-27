@@ -44,7 +44,7 @@
     "preversion": "yarn check:ci",
     "prepare": "yarn build",
     "changeset": "changeset",
-    "version": "yarn changeset version && yarn install"
+    "version": "yarn changeset version && yarn install --frozen-lockfile"
   },
   "devDependencies": {
     "@sanity/client": "^3.4.1",
