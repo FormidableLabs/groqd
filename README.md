@@ -401,7 +401,7 @@ q("*")
 
 A wrapper around `q` so you can easily use `groqd` with an actual fetch implementation.
 
-Pass `makeSafeQueryRunner` a "query executor" of the shape `type QueryExecutor = (query: string) => Promise<any>`, and it will return a "query runner" function. This is best illustrated with an example:
+Pass `makeSafeQueryRunner` a "query executor" of the shape `type QueryExecutor = (query: string, ...rest: any[]) => Promise<any>`, and it will return a "query runner" function. This is best illustrated with an example:
 
 ```ts
 import sanityClient from "@sanity/client";
@@ -416,6 +416,21 @@ export const runQuery = makeSafeQueryRunner((query) => client.fetch(query));
 // 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
 const data = await runQuery(
   q("*").filter("_type == 'pokemon'").grab({ name: q.string() }).slice(0, 150)
+);
+```
+
+In Sanity workflows, you might also want to pass e.g. params to your `client.fetch` call. To support this, add additional arguments to your `makeSafeQueryRunner` argument's arguments as below.
+
+```ts
+// ...
+export const runQuery = makeSafeQueryRunner(
+  //      👇 add a second arg
+  (query, params: Record<string, unknown> = {}) => client.fetch(query, params)
+);
+
+const data = await runQuery(
+  q("*").filter("_type == 'pokemon' && _id == $id").grab({ name: q.string() }),
+  { id: "pokemon.1" } // 👈 and optionally pass them here.
 );
 ```
 
