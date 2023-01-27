@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 – 0.6.0
+
+- `q.sanityImage` helper.
+- `q.object` schema for Zod objects.
+- `q.contentBlock` schema helper for block content.
+- `q.score` function.
+- Make `makeQueryRunner` more flexible.
+
 ## 0.3.2
 
 - Introduce `q.array` for Zod array support.
@@ -10,7 +18,7 @@
 
 ## 0.0.1 – 0.0.5
 
- - Initial setup of `groqd`, including the `q` pipeline and initial helpers.
+- Initial setup of `groqd`, including the `q` pipeline and initial helpers.
 
 ## 0.1.0
 
