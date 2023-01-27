@@ -42,7 +42,9 @@
     "check:ci": "yarn typecheck && yarn lint && yarn test",
     "build": "tsup",
     "preversion": "yarn check:ci",
-    "prepare": "yarn build"
+    "prepare": "yarn build",
+    "changeset": "changeset",
+    "version": "yarn changeset version && yarn install"
   },
   "devDependencies": {
     "@sanity/client": "^3.4.1",
@@ -59,6 +61,7 @@
     "vitest": "^0.24.3"
   },
   "dependencies": {
+    "@changesets/cli": "^2.26.0",
     "zod": "^3.20.2"
   },
   "engines": {
