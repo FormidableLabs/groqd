@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.1
+
+### Patch Changes
+
+- Fix q.sanityImage asList -> isList in docs ([#48](https://github.com/FormidableLabs/groqd/pull/48))
+
 ## 0.4.0 – 0.6.0
 
 - `q.sanityImage` helper.
