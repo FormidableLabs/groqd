@@ -323,15 +323,15 @@ q("*")
 
 which will allow you to fetch the minimal/basic image document information.
 
-#### `q.sanityImage`'s `asList` option
+#### `q.sanityImage`'s `isList` option
 
-If you have an array of image documents, you can pass `asList: true` to an options object as the second argument to `q.sanityImage` method.
+If you have an array of image documents, you can pass `isList: true` to an options object as the second argument to `q.sanityImage` method.
 
 ```ts
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    images: q.sanityImage("images", { asList: true }), // 👈 fetch as a list
+    images: q.sanityImage("images", { isList: true }), // 👈 fetch as a list
   });
 
 // -> { images: { ... }[] }[]
