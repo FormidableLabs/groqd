@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.3
+
+### Patch Changes
+
+- Allow InferType to accept zod schema type ([#54](https://github.com/FormidableLabs/groqd/pull/54))
+
 ## 0.6.2
 
 ### Patch Changes
