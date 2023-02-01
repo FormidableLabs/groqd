@@ -7,6 +7,8 @@ export type InferType<P> = P extends BaseQuery<infer T>
   ? T extends z.ZodType
     ? z.infer<T>
     : never
+  : P extends z.ZodType
+  ? z.infer<P>
   : never;
 
 /**
