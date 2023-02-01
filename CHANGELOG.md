@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.2
+
+### Patch Changes
+
+- Remove changesets from prod dependencies ([#51](https://github.com/FormidableLabs/groqd/pull/51))
+
 ## 0.6.1
 
 ### Patch Changes
