@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BaseQuery } from "./builder";
+import { FromSelection, Selection } from "./grab";
 
 export type ValueOf<T> = T[keyof T];
 
@@ -10,6 +11,14 @@ export type InferType<P> = P extends BaseQuery<infer T>
   : P extends z.ZodType
   ? z.infer<P>
   : never;
+
+/**
+ * Type from selection, useful if defining conditional selections in a separate file
+ *   and you want the type that you'll get from that.
+ */
+export type TypeFromSelection<Sel extends Selection> = z.infer<
+  FromSelection<Sel>
+>;
 
 /**
  * Helper to determine if list of values includes a value,

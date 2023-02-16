@@ -3,7 +3,8 @@ import { UnknownQuery } from "./builder";
 import { sanityImage } from "./sanityImage";
 import { schemas } from "./schemas";
 
-export type { InferType } from "./types";
+export type { InferType, TypeFromSelection } from "./types";
+export type { Selection } from "./grab";
 export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 
 export const pipe = (filter: string): UnknownQuery => {
