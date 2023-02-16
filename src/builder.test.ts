@@ -253,6 +253,7 @@ describe("ArrayResult.slice", () => {
     expect(query).toBe(`*[_type == 'pokemon'][0]`);
     expect(schema instanceof z.ZodUnknown);
     invariant(data);
+    // @ts-expect-error data is unknown type since no grab present
     expect("name" in data).toBeTruthy();
   });
 
