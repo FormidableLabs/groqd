@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.0
+
+### Minor Changes
+
+- Add TypeFromSelection utility type to extract TS type from a selection object ([#63](https://github.com/FormidableLabs/groqd/pull/63))
+
 ## 0.6.3
 
 ### Patch Changes
