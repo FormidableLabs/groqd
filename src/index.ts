@@ -6,6 +6,7 @@ import { schemas } from "./schemas";
 export type { InferType, TypeFromSelection } from "./types";
 export type { Selection } from "./grab";
 export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
+export { nullToUndefined } from "./nullToUndefined";
 
 export const pipe = (filter: string): UnknownQuery => {
   return new UnknownQuery({ query: filter });
