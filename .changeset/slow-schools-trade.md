@@ -1,5 +1,5 @@
 ---
-"groqd": patch
+"groqd": minor
 ---
 
 added `slug` utility for easier slug access
