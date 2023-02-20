@@ -11,7 +11,7 @@ import { q } from "groqd";
 
 // Get all of the Pokemon types, and the Pokemon associated to each type.
 const { query, schema } = q("*")
-  .filter("_type == 'poketype")
+  .filter("_type == 'poketype'")
   .grab({
     name: q.string(),
     pokemons: q("*")
