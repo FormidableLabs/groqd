@@ -304,6 +304,12 @@ The available schema types are shown below.
     .filter("_type == 'user'")
     .grab({ body: q.array(q.contentBlock()) });
   ```
+- `q.contentBlocks`, a custom Zod schema, to match a list of `q.contentBlock`'s. 
+  ```ts
+  q("*")
+    .filter("_type == 'user'")
+    .grab({ body: q.contentBlocks() });
+  ```
 
 ### `q.sanityImage`
 
