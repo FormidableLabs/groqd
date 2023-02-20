@@ -1,6 +1,7 @@
 import { sampleContentBlocks } from "./sampleContentBlocks";
 
 const userData: {
+  slug: { current: string };
   name: string;
   age: number;
   role: RoleType;
@@ -8,12 +9,13 @@ const userData: {
   bio?: unknown;
 }[] = [
   {
+    slug: { current: "john" },
     name: "John",
     age: 20,
     role: "guest",
     nicknames: ["Johnny", "J Boi", "Dat Boi Doe"],
   },
-  { name: "Jane", age: 30, role: "admin" },
+  { slug: { current: "jane" }, name: "Jane", age: 30, role: "admin" },
 ];
 
 const users = userData.map((user) => ({
