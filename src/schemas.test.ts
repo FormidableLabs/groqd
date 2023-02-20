@@ -198,3 +198,19 @@ describe("contentBlock", () => {
     expect(data.bio[0]._type === "block").toBeTruthy();
   });
 });
+
+describe("contentBlock", () => {
+  it("can handle content blocks", async () => {
+    const { data, query } = await runUserQuery(
+      q("*").filter("_type == 'user'").slice(0).grab({
+        name: q.string(),
+        bio: q.contentBlocks(),
+      })
+    );
+
+    expect(query).toBe(`*[_type == 'user'][0]{name, bio}`);
+    invariant(data);
+    expect(Array.isArray(data.bio)).toBeTruthy();
+    expect(data.bio[0]._type === "block").toBeTruthy();
+  });
+});
