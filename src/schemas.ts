@@ -38,6 +38,8 @@ const contentBlock = () =>
     level: z.number().optional(),
   });
 
+const contentBlocks = () => z.array(contentBlock());
+
 const slug = (fieldName: string) =>
   [`${fieldName}.current`, z.string()] as [string, z.ZodString];
 
@@ -55,4 +57,5 @@ export const schemas = {
   object: z.object,
   slug,
   contentBlock,
+  contentBlocks,
 };
