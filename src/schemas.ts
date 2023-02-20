@@ -38,7 +38,8 @@ const contentBlock = () =>
     level: z.number().optional(),
   });
 
-const slug = (fieldName: string) => [`${fieldName}.current`, z.string()];
+const slug = (fieldName: string) =>
+  [`${fieldName}.current`, z.string()] as [string, z.ZodType];
 
 export const schemas = {
   string: z.string,

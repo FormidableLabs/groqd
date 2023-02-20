@@ -214,5 +214,5 @@ describe("slug", () => {
     invariant(data);
     expect(typeof data.slug).toBe("string");
     expect(data.slug === "john").toBeTruthy();
-  })
-})
+  });
+});
