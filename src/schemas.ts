@@ -38,7 +38,7 @@ const contentBlock = () =>
     level: z.number().optional(),
   });
 
-const contentBlocks = () => z.array(contentBlock);
+const contentBlocks = () => z.array(contentBlock());
 
 export const schemas = {
   string: z.string,
