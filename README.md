@@ -343,6 +343,19 @@ q("*")
   })
 ```
 
+The `nullToUndefined` helper can also accept a `Selection` object to apply to an entire selection.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab(nullToUndefined({
+    name: q.string(),
+    foo: q.string().optional().default("bar"),
+  }))
+```
+
+Although we recommend just using `.grab$` in this case.
+
 ### `q.sanityImage`
 
 A convenience method to make it easier to generate image queries for Sanity's image type. Supports fetching various info from both `image` documents and `asset` documents.

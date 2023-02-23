@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { grab } from "./grab";
 import type { Selection } from "./grab";
-import { nullToUndefined } from "./nullToUndefined";
+import {
+  nullToUndefined,
+  nullToUndefinedOnConditionalSelection,
+} from "./nullToUndefined";
 
 type Query = string;
 type Payload<T extends z.ZodTypeAny> = { schema: T; query: Query };
@@ -59,6 +62,8 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
       this.schema,
       nullToUndefined(selection),
       conditionalSelections
+        ? nullToUndefinedOnConditionalSelection(conditionalSelections)
+        : conditionalSelections
     );
   }
 
@@ -136,6 +141,8 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
       this.schema,
       nullToUndefined(selection),
       conditionalSelections
+        ? nullToUndefinedOnConditionalSelection(conditionalSelections)
+        : conditionalSelections
     );
   }
 

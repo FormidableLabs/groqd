@@ -193,6 +193,33 @@ describe("grab$", () => {
     expect(data[0].name).toBe("Bulbasaur");
     expect(data[0].foo).toBe("bar");
   });
+
+  it("handles conditional selections", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grab$(
+          { _id: q.string(), nahBrah: q.number().optional().default(69) },
+          {
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+              foo: q.string().optional().default("bar"),
+            },
+          }
+        )
+    );
+
+    invariant(data);
+    expect("name" in data).toBeTruthy();
+    expect("foo" in data).toBeTruthy();
+
+    expect(data.nahBrah).toBe(69);
+    if ("name" in data) {
+      expect(data.name).toBe("Bulbasaur");
+      expect(data.foo).toBe("bar");
+    }
+  });
 });
 
 describe("grabOne$", () => {
