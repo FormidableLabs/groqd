@@ -11,7 +11,7 @@ import { q } from "groqd";
 
 // Get all of the Pokemon types, and the Pokemon associated to each type.
 const { query, schema } = q("*")
-  .filter("_type == 'poketype")
+  .filter("_type == 'poketype'")
   .grab({
     name: q.string(),
     pokemons: q("*")
@@ -328,7 +328,13 @@ The available schema types are shown below.
     .filter("_type == 'user'")
     .grab({ body: q.array(q.contentBlock()) });
   ```
-  
+- `q.contentBlocks`, a custom Zod schema, to match a list of `q.contentBlock`'s. 
+  ```ts
+  q("*")
+    .filter("_type == 'user'")
+    .grab({ body: q.contentBlocks() });
+  ```
+
 ### `nullToUndefined`
 
 GROQ will return `null` if you query for a value that does not exist. This can lead to confusion when writing queries, because Zod's `.optional().default("default value")` doesn't work with null values. `groqd` ships with a `nullToUndefined` method that will preprocess `null` values into `undefined` to smooth over this rough edge.

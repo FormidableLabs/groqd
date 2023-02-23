@@ -38,6 +38,11 @@ const contentBlock = () =>
     level: z.number().optional(),
   });
 
+const contentBlocks = () => z.array(contentBlock());
+
+const slug = (fieldName: string) =>
+  [`${fieldName}.current`, z.string()] as [string, z.ZodString];
+
 export const schemas = {
   string: z.string,
   number: z.number,
@@ -50,5 +55,7 @@ export const schemas = {
   union: z.union,
   array: z.array,
   object: z.object,
+  slug,
   contentBlock,
+  contentBlocks,
 };

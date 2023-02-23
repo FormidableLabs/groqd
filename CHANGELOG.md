@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.0
+
+### Minor Changes
+
+- added `slug` utility for easier slug access ([#67](https://github.com/FormidableLabs/groqd/pull/67))
+
+### Patch Changes
+
+- added new `contentBlocks` helper for `contentBlock` as list ([#66](https://github.com/FormidableLabs/groqd/pull/66))
+
+- fixed illustrative example in readme docs ([#65](https://github.com/FormidableLabs/groqd/pull/65))
+
 ## 0.7.0
 
 ### Minor Changes
