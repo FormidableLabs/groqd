@@ -149,6 +149,107 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
   });
 });
 
+describe("grab$", () => {
+  it("coerces null to undefined on entity query", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0).grab$({
+        name: q.string(),
+        foo: q.string().optional(),
+      })
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0]{name, foo}`);
+    invariant(data);
+    expect(data.name).toBe("Bulbasaur");
+    expect(data.foo).toBeUndefined();
+  });
+
+  it("coerces null to undefined on array query", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*").filter("_type == 'pokemon'").slice(0, 1).grab$({
+        name: q.string(),
+        foo: q.string().optional(),
+      })
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0..1]{name, foo}`);
+    invariant(data);
+    expect(data[0].name).toBe("Bulbasaur");
+    expect(data[0].foo).toBeUndefined();
+  });
+
+  it("works nice with default values", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab$({
+          name: q.string(),
+          foo: q.string().optional().default("bar"),
+        })
+    );
+
+    invariant(data);
+    expect(data[0].name).toBe("Bulbasaur");
+    expect(data[0].foo).toBe("bar");
+  });
+
+  it("handles conditional selections", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grab$(
+          { _id: q.string(), nahBrah: q.number().optional().default(69) },
+          {
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+              foo: q.string().optional().default("bar"),
+            },
+          }
+        )
+    );
+
+    invariant(data);
+    expect("name" in data).toBeTruthy();
+    expect("foo" in data).toBeTruthy();
+
+    expect(data.nahBrah).toBe(69);
+    if ("name" in data) {
+      expect(data.name).toBe("Bulbasaur");
+      expect(data.foo).toBe("bar");
+    }
+  });
+});
+
+describe("grabOne$", () => {
+  it("coerces null to undefined on entity query", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0)
+        .grabOne$("foo", q.string().optional())
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0].foo`);
+    expect(data).toBeUndefined();
+  });
+
+  it("coerces null to undefined on array query", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grabOne$("foo", q.string().optional())
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][0..1].foo`);
+    invariant(data);
+    expect(data[0]).toBeUndefined();
+    expect(data[1]).toBeUndefined();
+  });
+});
+
 describe("UnknownResult.filter/ArrayResult.filter", () => {
   it("applies simple filter appropriately to UnknownResult, returning unknown array", async () => {
     const { query, schema, data } = await runPokemonQuery(

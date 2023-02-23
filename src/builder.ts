@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { grab } from "./grab";
 import type { Selection } from "./grab";
+import {
+  nullToUndefined,
+  nullToUndefinedOnConditionalSelection,
+} from "./nullToUndefined";
 
 type Query = string;
 type Payload<T extends z.ZodTypeAny> = { schema: T; query: Query };
@@ -49,6 +53,20 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     return grab(this.query, this.schema, selection, conditionalSelections);
   }
 
+  grab$<
+    S extends Selection,
+    CondSelections extends Record<string, Selection> | undefined
+  >(selection: S, conditionalSelections?: CondSelections) {
+    return grab(
+      this.query,
+      this.schema,
+      nullToUndefined(selection),
+      conditionalSelections
+        ? nullToUndefinedOnConditionalSelection(conditionalSelections)
+        : conditionalSelections
+    );
+  }
+
   grabOne<GrabOneType extends z.ZodType>(
     name: string,
     fieldSchema: GrabOneType
@@ -56,6 +74,16 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     return new EntityQuery<GrabOneType>({
       query: this.query + `.${name}`,
       schema: fieldSchema,
+    });
+  }
+
+  grabOne$<GrabOneType extends z.ZodType>(
+    name: string,
+    fieldSchema: GrabOneType
+  ) {
+    return new EntityQuery<z.ZodEffects<GrabOneType>>({
+      query: this.query + `.${name}`,
+      schema: nullToUndefined(fieldSchema),
     });
   }
 }
@@ -104,6 +132,20 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     return grab(this.query, this.schema, selection, conditionalSelections);
   }
 
+  grab$<
+    S extends Selection,
+    CondSelections extends Record<string, Selection> | undefined
+  >(selection: S, conditionalSelections?: CondSelections) {
+    return grab(
+      this.query,
+      this.schema,
+      nullToUndefined(selection),
+      conditionalSelections
+        ? nullToUndefinedOnConditionalSelection(conditionalSelections)
+        : conditionalSelections
+    );
+  }
+
   grabOne<GrabOneType extends z.ZodType>(
     name: string,
     fieldSchema: GrabOneType
@@ -111,6 +153,16 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     return new ArrayQuery<GrabOneType>({
       query: this.query + `.${name}`,
       schema: z.array(fieldSchema),
+    });
+  }
+
+  grabOne$<GrabOneType extends z.ZodType>(
+    name: string,
+    fieldSchema: GrabOneType
+  ) {
+    return new ArrayQuery<z.ZodEffects<GrabOneType>>({
+      query: this.query + `.${name}`,
+      schema: z.array(nullToUndefined(fieldSchema)),
     });
   }
 

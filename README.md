@@ -181,6 +181,20 @@ In real-world Sanity use-cases, it's likely you'll want to "fork" based on a `_t
 
 **Important!** In the example above, if you were to add `name: q.string()` to the base selection, it would break TypeScript's ability to do discriminated union type narrowing. This is because if you have a type like `{name: "Charmander"} | {name: string}` there is no way to narrow types based on the `name` field (since for discriminated unions to work, the field must have a _literal_ type).
 
+### `.grab$`
+
+Just like `.grab`, but uses the `nullToUndefined` helper [outlined below](#nulltoundefined) to convert `null` values to `undefined` which makes writing queries with "optional" values a bit easier.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab$({
+    name: q.string(),
+    // 👇 `foo` comes in as `null`, but gets preprocessed to `undefined` so we can use `.optional()`.
+    foo: q.string().optional().default("bar"),
+  })
+```
+
 ### `.grabOne`
 
 Similar to `q.grab`, but for ["naked" projections](https://www.sanity.io/docs/how-queries-work#dd66cae5ed8f) where you just need a single property (instead of an object of properties). Pass a property to be "grabbed", and a schema for the expected type.
@@ -188,6 +202,16 @@ Similar to `q.grab`, but for ["naked" projections](https://www.sanity.io/docs/ho
 ```ts
 q("*").filter("_type == 'pokemon'").grabOne("name", q.string());
 // -> string[]
+```
+
+### `.grabOne$`
+
+Just like `.grabOne`, but uses the `nullToUndefined` helper [outlined below](#nulltoundefined) to convert `null` values to `undefined` which makes writing queries with "optional" values a bit easier.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grabOne$("name", q.string().optional());
 ```
 
 ### `.filter`
@@ -310,6 +334,33 @@ The available schema types are shown below.
     .filter("_type == 'user'")
     .grab({ body: q.contentBlocks() });
   ```
+
+### `nullToUndefined`
+
+GROQ will return `null` if you query for a value that does not exist. This can lead to confusion when writing queries, because Zod's `.optional().default("default value")` doesn't work with null values. `groqd` ships with a `nullToUndefined` method that will preprocess `null` values into `undefined` to smooth over this rough edge.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab({
+    name: q.string(),
+    // 👇 Missing field, allow us to set a default value when it doesn't exist
+    foo: nullToUndefined(q.string().optional().default("bar")),
+  })
+```
+
+The `nullToUndefined` helper can also accept a `Selection` object to apply to an entire selection.
+
+```ts
+q("*")
+  .filter("_type == 'pokemon'")
+  .grab(nullToUndefined({
+    name: q.string(),
+    foo: q.string().optional().default("bar"),
+  }))
+```
+
+Although we recommend just using `.grab$` in this case.
 
 ### `q.sanityImage`
 
