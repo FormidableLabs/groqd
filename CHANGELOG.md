@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0
+
+### Minor Changes
+
+- nullToUndefined, grab$, and grabOne$ helpers to make dealing with null return values much more friendly. ([#72](https://github.com/FormidableLabs/groqd/pull/72))
+
 ## 0.8.0
 
 ### Minor Changes
