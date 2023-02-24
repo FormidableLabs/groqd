@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { q } from "./index";
 import { z } from "zod";
 import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
@@ -82,6 +82,47 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
     expect(data).toEqual({ name: null });
   });
 
+  it("can handle conditional selections without base query", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 3)
+        .grab(
+          {},
+          {
+            "name == 'Charmander'": {
+              name: q.literal("Charmander"),
+              hp: ["base.HP", q.number()],
+            },
+            "name == 'Bulbasaur'": {
+              name: q.literal("Bulbasaur"),
+              attack: ["base.Attack", q.number()],
+            },
+          }
+        )
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..3]{...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name, "attack": base.Attack })}`
+    );
+
+    invariant(data);
+    expect(data[0]).toEqual({ name: "Bulbasaur", attack: 49 });
+    expect(data[1]).toEqual({});
+    expect(data[3]).toEqual({ name: "Charmander", hp: 39 });
+
+    for (const dat of data) {
+      if ("name" in dat && dat.name === "Charmander") {
+        expect(dat.name === "Charmander").toBeTruthy();
+        // @ts-expect-error Expect error here, TS should infer type
+        expect(dat.name === "Bulbasaur").toBeFalsy();
+        // @ts-expect-error Attack field isn't present on Charmander document
+        expect(dat.attack).toBeUndefined();
+        expect(dat.hp).toBe(39);
+      }
+    }
+  });
+
   it("can handle conditional selections", async () => {
     const { data, query } = await runPokemonQuery(
       q("*")
@@ -103,6 +144,25 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
           }
         )
     );
+
+    expectTypeOf(data).toEqualTypeOf<
+      | (
+          | {
+              _id: string;
+            }
+          | {
+              _id: string;
+              name: "Charmander";
+              hp: number;
+            }
+          | {
+              _id: string;
+              name: "Bulbasaur";
+              attach: number;
+            }
+        )[]
+      | undefined
+    >();
 
     expect(query).toBe(
       `*[_type == 'pokemon'][0..3]{_id, ...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name, "attack": base.Attack })}`

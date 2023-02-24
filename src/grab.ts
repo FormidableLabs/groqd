@@ -12,16 +12,15 @@ export const grab = <
   selection: S,
   conditionalSelections?: CondSelections
 ) => {
+  type ConditionalSelection = ValueOf<{
+    [K in keyof CondSelections]: FromSelection<S & CondSelections[K]>;
+  }>;
+
   type AllSelection = undefined extends CondSelections
     ? FromSelection<S>
-    : z.ZodUnion<
-        [
-          ValueOf<{
-            [K in keyof CondSelections]: FromSelection<S & CondSelections[K]>;
-          }>,
-          FromSelection<S>
-        ]
-      >;
+    : S extends Record<string, never>
+    ? ConditionalSelection
+    : z.ZodUnion<[ConditionalSelection, FromSelection<S>]>;
 
   type NewType = T extends z.ZodArray<any>
     ? ArrayQuery<AllSelection>
@@ -77,7 +76,10 @@ export const grab = <
       baseSchema.merge(z.object(toSchemaInput(field)))
     );
 
-    const unionEls = [...conditionalFieldSchemas, baseSchema];
+    const unionEls =
+      Object.keys(baseSchema).length === 0
+        ? conditionalFieldSchemas
+        : [...conditionalFieldSchemas, baseSchema];
     const s =
       unionEls.length > 1
         ? z.union([unionEls[0], unionEls[1], ...unionEls.slice(2)])
@@ -86,15 +88,17 @@ export const grab = <
     return schema instanceof z.ZodArray ? z.array(s) : s;
   })();
 
-  const res = (newSchema instanceof z.ZodArray
-    ? new ArrayQuery({
-        query: query + `{${projections.join(", ")}}`,
-        schema: newSchema,
-      })
-    : new EntityQuery({
-        query: query + `{${projections.join(", ")}}`,
-        schema: newSchema,
-      })) as unknown as NewType;
+  const res = (
+    newSchema instanceof z.ZodArray
+      ? new ArrayQuery({
+          query: query + `{${projections.join(", ")}}`,
+          schema: newSchema,
+        })
+      : new EntityQuery({
+          query: query + `{${projections.join(", ")}}`,
+          schema: newSchema,
+        })
+  ) as NewType;
 
   return res;
 };
