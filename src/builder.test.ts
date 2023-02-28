@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { q } from "./index";
+import { q, InferType } from "./index";
 import { z } from "zod";
 import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import invariant from "tiny-invariant";
@@ -83,26 +83,26 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
   });
 
   it("can handle conditional selections", async () => {
-    const { data, query } = await runPokemonQuery(
-      q("*")
-        .filter("_type == 'pokemon'")
-        .slice(0, 3)
-        .grab(
-          {
-            _id: z.string(),
+    const pokemonQuery = q("*")
+      .filter("_type == 'pokemon'")
+      .slice(0, 3)
+      .grab(
+        {
+          _id: z.string(),
+        },
+        {
+          "name == 'Charmander'": {
+            name: q.literal("Charmander"),
+            hp: ["base.HP", q.number()],
           },
-          {
-            "name == 'Charmander'": {
-              name: q.literal("Charmander"),
-              hp: ["base.HP", q.number()],
-            },
-            "name == 'Bulbasaur'": {
-              name: q.literal("Bulbasaur"),
-              attack: ["base.Attack", q.number()],
-            },
-          }
-        )
-    );
+          "name == 'Bulbasaur'": {
+            name: q.literal("Bulbasaur"),
+            attack: ["base.Attack", q.number()],
+          },
+        }
+      );
+
+    const { data, query } = await runPokemonQuery(pokemonQuery);
 
     expect(query).toBe(
       `*[_type == 'pokemon'][0..3]{_id, ...select(name == 'Charmander' => { name, "hp": base.HP }, name == 'Bulbasaur' => { name, "attack": base.Attack })}`
@@ -117,11 +117,14 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
     expect(data[1]).toEqual({ _id: "pokemon.2" });
     expect(data[3]).toEqual({ _id: "pokemon.4", name: "Charmander", hp: 39 });
 
+    type pokemonName = InferType<typeof pokemonQuery>[number]["name"];
+
     for (const dat of data) {
       if ("name" in dat && dat.name === "Charmander") {
-        expect(dat.name === "Charmander").toBeTruthy();
+        const name: pokemonName = dat.name;
+        expect(name === "Charmander").toBeTruthy();
         // @ts-expect-error Expect error here, TS should infer type
-        expect(dat.name === "Bulbasaur").toBeFalsy();
+        expect(name === "Bulbasaur").toBeFalsy();
         // @ts-expect-error Attack field isn't present on Charmander document
         expect(dat.attack).toBeUndefined();
         expect(dat.hp).toBe(39);

@@ -14,14 +14,9 @@ export const grab = <
 ) => {
   type AllSelection = undefined extends CondSelections
     ? FromSelection<S>
-    : z.ZodUnion<
-        [
-          ValueOf<{
-            [K in keyof CondSelections]: FromSelection<S & CondSelections[K]>;
-          }>,
-          FromSelection<S>
-        ]
-      >;
+    : ValueOf<{
+        [K in keyof CondSelections]: FromSelection<S & CondSelections[K]>;
+      }>;
 
   type NewType = T extends z.ZodArray<any>
     ? ArrayQuery<AllSelection>
