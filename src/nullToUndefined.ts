@@ -1,5 +1,5 @@
 import { preprocess, z } from "zod";
-import { Selection } from "./grab";
+import { Selection } from "./types";
 
 export const _nullToUndefined = <T extends z.ZodTypeAny>(schema: T) => {
   return preprocess((arg) => (arg === null ? undefined : arg), schema);
