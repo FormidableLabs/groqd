@@ -7,12 +7,7 @@ import {
 import { extendsBaseQuery, isQuerySchemaTuple } from "./typeGuards";
 import type { FromSelection, Selection } from "./types";
 
-export const select = <
-  Conditions extends Record<
-    string,
-    Selection | BaseQuery<any> | [string, z.ZodType]
-  >
->(
+export const select = <Conditions extends ConditionRecord>(
   conditionalSelections: Conditions
 ) => {
   const getProjection = (
@@ -77,12 +72,21 @@ export const select = <
  * Misc util
  */
 
-type ConditionSchema<
-  Condition extends Selection | BaseQuery<any> | [string, z.ZodType]
-> = Condition extends Selection
-  ? FromSelection<Condition>
-  : Condition extends BaseQuery<any>
-  ? Condition["schema"]
-  : Condition extends [string, z.ZodType]
-  ? Condition[1]
-  : never;
+export type ConditionValue = Selection | BaseQuery<any> | [string, z.ZodType];
+export type ConditionRecord = Record<string, ConditionValue>;
+export type ConditionSchema<Condition extends ConditionValue> =
+  Condition extends Selection
+    ? FromSelection<Condition>
+    : Condition extends BaseQuery<any>
+    ? Condition["schema"]
+    : Condition extends [string, z.ZodType]
+    ? Condition[1]
+    : never;
+
+export type SelectSchemaType<Conditions extends ConditionRecord> = z.ZodUnion<
+  [
+    ConditionSchema<Conditions[keyof Conditions]>,
+    ConditionSchema<Conditions[keyof Conditions]>,
+    ...ConditionSchema<Conditions[keyof Conditions]>[]
+  ]
+>;

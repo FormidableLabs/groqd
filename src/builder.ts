@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { grab } from "./grab";
+import { select } from "./select";
+import type {
+  ConditionRecord,
+  ConditionSchema,
+  SelectSchemaType,
+} from "./select";
 import type { Selection } from "./types";
+import { extendsBaseQuery } from "./typeGuards";
 import {
   nullToUndefined,
   nullToUndefinedOnConditionalSelection,
@@ -44,6 +51,21 @@ export class NullableBaseQuery<T extends z.ZodTypeAny> extends BaseQuery<
 export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
   constructor(payload: Payload<T>) {
     super(payload);
+  }
+
+  __select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): EntityQuery<SelectSchemaType<Conditions>>;
+  __select<S extends z.ZodType>(s: BaseQuery<S>): EntityQuery<S>;
+  __select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): EntityQuery<SelectSchemaType<Conditions>> {
+    const _select = extendsBaseQuery(s) ? s : select(s);
+
+    return new EntityQuery<ConditionSchema<Conditions[string]>>({
+      query: this.query + `{...${_select.query}}`,
+      schema: _select.schema,
+    });
   }
 
   grab<
@@ -118,6 +140,21 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
 > {
   constructor(payload: Payload<z.ZodArray<T>>) {
     super(payload);
+  }
+
+  __select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): ArrayQuery<SelectSchemaType<Conditions>>;
+  __select<S extends z.ZodType>(s: BaseQuery<S>): ArrayQuery<S>;
+  __select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): ArrayQuery<SelectSchemaType<Conditions>> {
+    const _select = extendsBaseQuery(s) ? s : select(s);
+
+    return new ArrayQuery<ConditionSchema<Conditions[string]>>({
+      query: this.query + `{...${_select.query}}`,
+      schema: _select.schema,
+    });
   }
 
   filter(filterValue = "") {
