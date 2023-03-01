@@ -18,7 +18,7 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
   });
 
   it("can grab with {key: [name, schema]} syntax", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .grab({
@@ -285,7 +285,7 @@ describe("UnknownResult.filter/ArrayResult.filter", () => {
   });
 
   it("can filter, project, and filter, and schema of projection is preserved", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .grab({ name: z.string() })
@@ -390,7 +390,7 @@ describe("ArrayResult.slice", () => {
   });
 
   it("keeps T[] as T[] if max provided", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).slice(0, 2)
     );
 
@@ -405,7 +405,7 @@ describe("ArrayResult.slice", () => {
   });
 
   it("turns T[] to T if no max provided, even during conditional selection", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .grab(
@@ -429,7 +429,7 @@ describe("ArrayResult.slice", () => {
   });
 
   it("keeps T[] as T[] if max is provided, even during conditional selection", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .grab(
