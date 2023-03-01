@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { q } from "./index";
 import { z } from "zod";
 import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
@@ -6,15 +6,14 @@ import invariant from "tiny-invariant";
 
 describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
   it("creates schema from unknown array schema", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").grab({ name: z.string() })
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}`);
-    expect(
-      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
-    );
     invariant(data);
+
+    expectTypeOf(data).toEqualTypeOf<{ name: string }[]>();
     expect(data[0].name).toBe("Bulbasaur");
   });
 
@@ -28,11 +27,9 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{"hp": base.HP}`);
-    expect(
-      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
-    );
     invariant(data);
-    expect(data[0].hp).toBe(45);
+    expectTypeOf(data).toEqualTypeOf<{ hp: number }[]>();
+    expect(data[0]).toEqual({ hp: 45 });
   });
 
   it("can grab with {key: q()} composition", async () => {
@@ -44,16 +41,25 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
           name: z.string(),
           pokemon: q("*")
             .filter("_type == 'pokemon' && references(^._id)")
+            .slice(0, 1)
             .grab({ name: z.string() }),
         })
     );
 
     expect(query).toBe(
-      `*[_type == 'poketype'][0..1]{name, "pokemon": *[_type == 'pokemon' && references(^._id)]{name}}`
+      `*[_type == 'poketype'][0..1]{name, "pokemon": *[_type == 'pokemon' && references(^._id)][0..1]{name}}`
     );
     invariant(data);
-    expect(data[0].name).toBe("Grass");
-    expect(data[0].pokemon[0].name).toBe("Bulbasaur");
+    expectTypeOf(data).toEqualTypeOf<
+      {
+        name: string;
+        pokemon: { name: string }[];
+      }[]
+    >();
+    expect(data[0]).toEqual({
+      name: "Grass",
+      pokemon: [{ name: "Bulbasaur" }, { name: "Ivysaur" }],
+    });
   });
 
   it("can handle coalesce statements", async () => {
@@ -70,15 +76,15 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
       `*[_type == 'pokemon'][0..3]{"strength": coalesce(attack, base.Attack)}`
     );
     invariant(data);
-    expect(data[0].strength).toBe(49);
+    expectTypeOf(data).toEqualTypeOf<{ strength: number }[]>();
+    expect(data[0]).toEqual({ strength: 49 });
   });
 
   it("creates schema from unknown singleton schema", async () => {
-    const { schema, data } = await runPokemonQuery(
-      q("").grab({ name: z.null() })
-    );
+    const { data } = await runPokemonQuery(q("").grab({ name: z.null() }));
 
-    expect(schema instanceof z.ZodObject);
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: null }>();
     expect(data).toEqual({ name: null });
   });
 
@@ -109,6 +115,13 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
     );
 
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      (
+        | { name: "Charmander"; hp: number; _id: string }
+        | { name: "Bulbasaur"; _id: string; attack: number }
+        | { _id: string }
+      )[]
+    >();
     expect(data[0]).toEqual({
       _id: "pokemon.1",
       name: "Bulbasaur",
@@ -116,17 +129,6 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
     });
     expect(data[1]).toEqual({ _id: "pokemon.2" });
     expect(data[3]).toEqual({ _id: "pokemon.4", name: "Charmander", hp: 39 });
-
-    for (const dat of data) {
-      if ("name" in dat && dat.name === "Charmander") {
-        expect(dat.name === "Charmander").toBeTruthy();
-        // @ts-expect-error Expect error here, TS should infer type
-        expect(dat.name === "Bulbasaur").toBeFalsy();
-        // @ts-expect-error Attack field isn't present on Charmander document
-        expect(dat.attack).toBeUndefined();
-        expect(dat.hp).toBe(39);
-      }
-    }
   });
 
   it("can stack grabs, and last grab wins", async () => {
@@ -144,8 +146,8 @@ describe("ArrayResult.grab/UnknownResult.grab/EntityResult.grab", () => {
 
     expect(query).toBe(`*[_type == 'pokemon'][0..3]{name}{"foo": name, bar}`);
     invariant(data);
-    expect(data[0].foo).toBe("Bulbasaur");
-    expect(data[0].bar).toBeNull();
+    expectTypeOf(data).toEqualTypeOf<{ foo: string; bar: string | null }[]>();
+    expect(data[0]).toEqual({ foo: "Bulbasaur", bar: null });
   });
 });
 
@@ -160,8 +162,11 @@ describe("grab$", () => {
 
     expect(query).toBe(`*[_type == 'pokemon'][0]{name, foo}`);
     invariant(data);
-    expect(data.name).toBe("Bulbasaur");
-    expect(data.foo).toBeUndefined();
+    expectTypeOf(data).toEqualTypeOf<{
+      foo?: string | undefined;
+      name: string;
+    }>();
+    expect(data).toEqual({ name: "Bulbasaur", foo: undefined });
   });
 
   it("coerces null to undefined on array query", async () => {
@@ -174,8 +179,10 @@ describe("grab$", () => {
 
     expect(query).toBe(`*[_type == 'pokemon'][0..1]{name, foo}`);
     invariant(data);
-    expect(data[0].name).toBe("Bulbasaur");
-    expect(data[0].foo).toBeUndefined();
+    expectTypeOf(data).toEqualTypeOf<
+      { foo?: string | undefined; name: string }[]
+    >();
+    expect(data[0]).toEqual({ name: "Bulbasaur", foo: undefined });
   });
 
   it("works nice with default values", async () => {
@@ -190,8 +197,8 @@ describe("grab$", () => {
     );
 
     invariant(data);
-    expect(data[0].name).toBe("Bulbasaur");
-    expect(data[0].foo).toBe("bar");
+    expectTypeOf(data).toEqualTypeOf<{ name: string; foo: string }[]>();
+    expect(data[0]).toEqual({ name: "Bulbasaur", foo: "bar" });
   });
 
   it("handles conditional selections", async () => {
@@ -211,6 +218,10 @@ describe("grab$", () => {
     );
 
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      | { name: "Bulbasaur"; _id: string; foo: string; nahBrah: number }
+      | { _id: string; nahBrah: number }
+    >();
     expect("name" in data).toBeTruthy();
     expect("foo" in data).toBeTruthy();
 
@@ -232,6 +243,7 @@ describe("grabOne$", () => {
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0].foo`);
+    expectTypeOf(data).toEqualTypeOf<string | undefined>();
     expect(data).toBeUndefined();
   });
 
@@ -245,6 +257,7 @@ describe("grabOne$", () => {
 
     expect(query).toBe(`*[_type == 'pokemon'][0..1].foo`);
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<(string | undefined)[]>();
     expect(data[0]).toBeUndefined();
     expect(data[1]).toBeUndefined();
   });
@@ -252,24 +265,22 @@ describe("grabOne$", () => {
 
 describe("UnknownResult.filter/ArrayResult.filter", () => {
   it("applies simple filter appropriately to UnknownResult, returning unknown array", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'")
     );
 
     expect(query).toBe(`*[_type == 'pokemon']`);
-    expect(schema instanceof z.ZodArray).toBeTruthy();
-    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
     expect(Array.isArray(data) && "name" in data[0]).toBeTruthy();
   });
 
   it("can stack filters, with no projection, schema is still unknown", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").filter("name match 'char*'")
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][name match 'char*']`);
-    expect(schema instanceof z.ZodArray).toBeTruthy();
-    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
     expect(data?.length).toBe(3);
   });
 
@@ -282,9 +293,8 @@ describe("UnknownResult.filter/ArrayResult.filter", () => {
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}[name match 'char*']`);
-    expect(schema instanceof z.ZodArray).toBeTruthy();
-    expect(schema.element instanceof z.ZodObject).toBeTruthy();
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: string }[]>();
     expect(data[0].name).toEqual("Charmander");
   });
 
@@ -303,19 +313,18 @@ describe("UnknownResult.filter/ArrayResult.filter", () => {
 
 describe("ArrayResult.order", () => {
   it("applies order, preserves unknown schema", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").order("name asc")
     );
 
     expect(query).toBe(`*[_type == 'pokemon']|order(name asc)`);
-    expect(schema instanceof z.ZodArray).toBeTruthy();
-    expect(schema.element instanceof z.ZodUnknown).toBeTruthy();
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
     // @ts-expect-error data is unknown type since no grab present
     expect(data?.[0]?.name).toBe("Abra");
   });
 
   it("applies order, preserves schema", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .grab({ name: z.string() })
@@ -323,9 +332,8 @@ describe("ArrayResult.order", () => {
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}|order(name desc)`);
-    expect(schema instanceof z.ZodArray).toBeTruthy();
-    expect(schema.element instanceof z.ZodObject).toBeTruthy();
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: string }[]>();
     expect(data[0].name).toBe("Zubat");
   });
 
@@ -341,44 +349,43 @@ describe("ArrayResult.order", () => {
       `*[_type == 'pokemon']{name, "hp": base.HP}|order(hp desc, name asc)`
     );
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: string; hp: number }[]>();
     expect(data[0].name).toBe("Chansey");
   });
 });
 
 describe("ArrayResult.slice", () => {
   it("turns unknown[] to unknown if no max provided", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").slice(0)
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0]`);
-    expect(schema instanceof z.ZodUnknown);
+    expectTypeOf(data).toEqualTypeOf<unknown>();
     invariant(data);
     // @ts-expect-error data is unknown type since no grab present
     expect("name" in data).toBeTruthy();
   });
 
   it("keeps unknown[] as unknown[] if max provided", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").slice(0, 2)
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0..2]`);
-    expect(
-      schema instanceof z.ZodArray && schema.element instanceof z.ZodUnknown
-    );
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
     invariant(data);
     expect(data.length).toBe(3);
   });
 
   it("turns T[] to T if no max provided", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").grab({ name: z.string() }).slice(0)
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}[0]`);
-    expect(schema instanceof z.ZodObject);
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: string }>();
     expect(data.name).toBe("Bulbasaur");
   });
 
@@ -388,10 +395,8 @@ describe("ArrayResult.slice", () => {
     );
 
     expect(query).toBe(`*[_type == 'pokemon']{name}[0..2]`);
-    expect(
-      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
-    );
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: string }[]>();
     expect(data).toEqual([
       { name: "Bulbasaur" },
       { name: "Ivysaur" },
@@ -418,8 +423,8 @@ describe("ArrayResult.slice", () => {
     expect(query).toBe(
       `*[_type == 'pokemon']{...select(name == 'Bulbasaur' => { name, "hp": base.HP })}[0]`
     );
-    expect(schema instanceof z.ZodObject);
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{} | { name: "Bulbasaur"; hp: number }>();
     expect(data).toEqual({ name: "Bulbasaur", hp: 45 });
   });
 
@@ -442,17 +447,17 @@ describe("ArrayResult.slice", () => {
     expect(query).toBe(
       `*[_type == 'pokemon']{...select(name == 'Bulbasaur' => { name, "hp": base.HP })}[0..2]`
     );
-    expect(
-      schema instanceof z.ZodArray && schema.element instanceof z.ZodObject
-    );
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      ({ name: "Bulbasaur"; hp: number } | {})[]
+    >();
     expect(data).toEqual([{ name: "Bulbasaur", hp: 45 }, {}, {}]);
   });
 });
 
 describe("ArrayResult.grabOne/EntityResult.grabOne", () => {
   it("if input is array, converts to array of given type", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
         .slice(0, 2)
@@ -460,20 +465,18 @@ describe("ArrayResult.grabOne/EntityResult.grabOne", () => {
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0..2].name`);
-    expect(
-      schema instanceof z.ZodArray && schema.element instanceof z.ZodString
-    );
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<string[]>();
     expect(data).toEqual(["Bulbasaur", "Ivysaur", "Venusaur"]);
   });
 
   it("if input is not array, convert to schema type", async () => {
-    const { query, schema, data } = await runPokemonQuery(
+    const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'").slice(0).grabOne("name", z.string())
     );
 
     expect(query).toBe(`*[_type == 'pokemon'][0].name`);
-    expect(schema instanceof z.ZodString);
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<string>();
     expect(data).toBe("Bulbasaur");
   });
 });
@@ -494,6 +497,7 @@ describe("ArrayResult.deref/UnknownResult.deref", () => {
       `*[_type == 'pokemon'][0]{name, "types": types[]->.name}`
     );
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: string; types: string[] }>();
     expect(data.name).toBe("Bulbasaur");
     expect(data.types).toEqual(["Grass", "Poison"]);
   });
@@ -510,6 +514,9 @@ describe("ArrayResult.deref/UnknownResult.deref", () => {
 
     expect(query).toBe(`*[_type == 'user']{name, "role": role->{title}}`);
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      { name: string; role: { title: string } }[]
+    >();
     expect(data[0]).toEqual({ name: "John", role: { title: "guest" } });
   });
 
@@ -531,6 +538,9 @@ describe("BaseQuery.nullable", () => {
         .nullable()
     );
 
+    expectTypeOf(data)
+      .exclude(undefined)
+      .toEqualTypeOf<null | { name: string }>();
     expect(data === null).toBeTruthy();
     expect(error).toBeUndefined();
   });
@@ -551,6 +561,7 @@ describe("ArrayQuery.score", () => {
       `*[_type == 'pokemon'][0..8]|score(name match "char*")|order(_score desc).name`
     );
     invariant(data);
+    expectTypeOf(data).toEqualTypeOf<string[]>();
     expect(data).toEqual([
       "Charmander",
       "Charmeleon",

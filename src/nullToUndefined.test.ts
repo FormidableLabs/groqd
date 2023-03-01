@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { runPokemonQuery } from "../test-utils/runQuery";
 import { nullToUndefined, q } from "./index";
 import invariant from "tiny-invariant";
@@ -19,9 +19,12 @@ describe("nullToUndefined", () => {
     expect(query).toBe(`*[_type == 'pokemon']{name, foo, bar}[0]`);
 
     invariant(data);
-    expect(data.name === "Bulbasaur").toBeTruthy();
-    expect(data.foo === undefined).toBeTruthy();
-    expect(data.bar === "baz").toBeTruthy();
+    expectTypeOf(data).toEqualTypeOf<{
+      name: string;
+      foo?: string | undefined;
+      bar: string;
+    }>();
+    expect(data).toEqual({ name: "Bulbasaur", foo: undefined, bar: "baz" });
   });
 
   it("casts for whole selection", async () => {
@@ -39,8 +42,11 @@ describe("nullToUndefined", () => {
     );
 
     invariant(data);
-    expect(data.name === "Bulbasaur").toBeTruthy();
-    expect(data.foo === undefined).toBeTruthy();
-    expect(data.bar === "baz").toBeTruthy();
+    expectTypeOf(data).toEqualTypeOf<{
+      name: string;
+      foo?: string | undefined;
+      bar: string;
+    }>();
+    expect(data).toEqual({ name: "Bulbasaur", foo: undefined, bar: "baz" });
   });
 });
