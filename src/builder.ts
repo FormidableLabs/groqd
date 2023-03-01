@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { grab } from "./grab";
-import type { Selection } from "./grab";
+import type { Selection } from "./types";
 import {
   nullToUndefined,
   nullToUndefinedOnConditionalSelection,
