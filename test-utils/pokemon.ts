@@ -2057,7 +2057,8 @@ const gen1ImageAssets = gen1.map((mon) => ({
     _type: "sanity.imageMetadata",
     blurHash: "MLCi~.M|00Dj?v~VtR4.IV%Mo~t6M{aeSO",
     dimensions: {
-      _type: "sanity.imageDimensions",
+      // alternate undefined and literal for testing
+      ...(mon.id % 2 === 0 ? { _type: "sanity.imageDimensions" } : ""),
       aspectRatio: 2,
       height: 500,
       width: 1000,

@@ -59,7 +59,7 @@ const paletteFieldSchema = {
 const dimensionFields = {
   dimensions: schemas
     .object({
-      _type: schemas.literal("sanity.imageDimensions"),
+      _type: schemas.literal("sanity.imageDimensions").optional(),
       aspectRatio: schemas.number(),
       height: schemas.number(),
       width: schemas.number(),
