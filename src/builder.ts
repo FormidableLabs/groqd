@@ -3,8 +3,9 @@ import { grab } from "./grab";
 import { select } from "./select";
 import type {
   ConditionRecord,
-  ConditionSchema,
+  ZodUnionAny,
   SelectSchemaType,
+  Spread,
 } from "./select";
 import type { Selection } from "./types";
 import { extendsBaseQuery } from "./typeGuards";
@@ -53,16 +54,18 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     super(payload);
   }
 
-  __select<Conditions extends ConditionRecord>(
+  __experimental_select<Conditions extends ConditionRecord>(
     s: Conditions
-  ): EntityQuery<SelectSchemaType<Conditions>>;
-  __select<S extends z.ZodType>(s: BaseQuery<S>): EntityQuery<S>;
-  __select<Conditions extends ConditionRecord>(
+  ): EntityQuery<Spread<SelectSchemaType<Conditions>>>;
+  __experimental_select<S extends ZodUnionAny>(
+    s: BaseQuery<S>
+  ): EntityQuery<Spread<S>>;
+  __experimental_select<Conditions extends ConditionRecord>(
     s: Conditions
-  ): EntityQuery<SelectSchemaType<Conditions>> {
+  ): EntityQuery<Spread<SelectSchemaType<Conditions>>> {
     const _select = extendsBaseQuery(s) ? s : select(s);
 
-    return new EntityQuery<ConditionSchema<Conditions[string]>>({
+    return new EntityQuery<Spread<SelectSchemaType<Conditions>>>({
       query: this.query + `{...${_select.query}}`,
       schema: _select.schema,
     });
@@ -142,16 +145,18 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     super(payload);
   }
 
-  __select<Conditions extends ConditionRecord>(
+  __experimental_select<Conditions extends ConditionRecord>(
     s: Conditions
-  ): ArrayQuery<SelectSchemaType<Conditions>>;
-  __select<S extends z.ZodType>(s: BaseQuery<S>): ArrayQuery<S>;
-  __select<Conditions extends ConditionRecord>(
+  ): ArrayQuery<Spread<SelectSchemaType<Conditions>>>;
+  __experimental_select<S extends ZodUnionAny>(
+    s: BaseQuery<S>
+  ): ArrayQuery<Spread<S>>;
+  __experimental_select<Conditions extends ConditionRecord>(
     s: Conditions
-  ): ArrayQuery<SelectSchemaType<Conditions>> {
+  ): ArrayQuery<Spread<SelectSchemaType<Conditions>>> {
     const _select = extendsBaseQuery(s) ? s : select(s);
 
-    return new ArrayQuery<ConditionSchema<Conditions[string]>>({
+    return new ArrayQuery<Spread<SelectSchemaType<Conditions>>>({
       query: this.query + `{...${_select.query}}`,
       schema: _select.schema,
     });

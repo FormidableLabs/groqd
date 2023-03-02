@@ -13,7 +13,7 @@ export const pipe = (filter: string): UnknownQuery => {
 };
 
 pipe.sanityImage = sanityImage;
-pipe.__select = select;
+pipe.__experimental_select = select;
 
 // Add schemas
 Object.assign(pipe, schemas);

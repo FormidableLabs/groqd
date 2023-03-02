@@ -40,7 +40,7 @@ export const select = <Conditions extends ConditionRecord>(
 
   const query = `select(${condProjections.join(", ")})`;
 
-  const newSchema = (() => {
+  const newSchema: SelectSchemaType<Conditions> = (() => {
     const toSchemaInput = (
       v: Conditions[keyof Conditions]
     ): ConditionSchema<Conditions[keyof Conditions]> => {
@@ -59,7 +59,11 @@ export const select = <Conditions extends ConditionRecord>(
       Object.values(conditionalSelections) as Conditions[keyof Conditions][]
     ).map(toSchemaInput);
 
-    return z.union([unionEls[0], unionEls[1], ...unionEls.slice(2)]);
+    return (
+      conditionalSelections.default
+        ? z.union([unionEls[0], unionEls[1], ...unionEls.slice(2)])
+        : z.union([z.null(), unionEls[0], ...unionEls.slice(1)])
+    ) as SelectSchemaType<Conditions>;
   })();
 
   return new BaseQuery({
@@ -84,9 +88,38 @@ export type ConditionSchema<Condition extends ConditionValue> =
     : never;
 
 export type SelectSchemaType<Conditions extends ConditionRecord> = z.ZodUnion<
-  [
-    ConditionSchema<Conditions[keyof Conditions]>,
-    ConditionSchema<Conditions[keyof Conditions]>,
-    ...ConditionSchema<Conditions[keyof Conditions]>[]
-  ]
+  Conditions extends { default: any }
+    ? [
+        ConditionSchema<Conditions[keyof Conditions]>,
+        ConditionSchema<Conditions[keyof Conditions]>,
+        ...ConditionSchema<Conditions[keyof Conditions]>[]
+      ]
+    : [
+        z.ZodNull,
+        ConditionSchema<Conditions[keyof Conditions]>,
+        ...ConditionSchema<Conditions[keyof Conditions]>[]
+      ]
 >;
+
+const emptyObject = z.object({});
+type EmptyZodObject = typeof emptyObject;
+type ZodObjectAny = z.ZodObject<Record<string, any>>;
+export type ZodUnionAny = z.ZodUnion<
+  readonly [z.ZodTypeAny, ...z.ZodTypeAny[]]
+>;
+
+export type Spread<ZU extends ZodUnionAny> = ZU extends z.ZodUnion<
+  infer T extends readonly [z.ZodTypeAny, ...z.ZodTypeAny[]]
+>
+  ? z.ZodUnion<
+      [
+        T[number] extends infer U
+          ? U extends ZodObjectAny
+            ? U
+            : U extends ZodUnionAny
+            ? Spread<U>
+            : EmptyZodObject
+          : never
+      ]
+    >
+  : never;
