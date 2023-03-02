@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { runPokemonQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
@@ -20,6 +20,16 @@ describe("sanityImage", () => {
     );
     invariant(data);
 
+    expectTypeOf(data).toEqualTypeOf<
+      {
+        name: string;
+        cover: {
+          readonly _key: string | null;
+          readonly _type: string;
+          asset: { _type: "reference"; _ref: string };
+        };
+      }[]
+    >();
     expect(data[0].name).toBe("Bulbasaur");
     const cover = data[0].cover;
     expect(cover._type === "image").toBeTruthy();
@@ -42,10 +52,17 @@ describe("sanityImage", () => {
     );
     const crop = data?.[0].cover.crop;
     invariant(data && crop);
-    expect(crop.top === 0.028131868131868132).toBeTruthy();
-    expect(crop.bottom === 0.15003663003663004).toBeTruthy();
-    expect(crop.left === 0.01875).toBeTruthy();
-    expect(crop.right === 0.009375000000000022).toBeTruthy();
+    expectTypeOf(crop).toEqualTypeOf<{
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    }>();
+
+    expect(crop.top).toBe(0.028131868131868132);
+    expect(crop.bottom).toBe(0.15003663003663004);
+    expect(crop.left).toBe(0.01875);
+    expect(crop.right).toBe(0.009375000000000022);
 
     // @ts-expect-error we didn't specify withHotspot so we shouldn't expect it in result
     expect(data[0].cover.hotspot).toBeUndefined();
@@ -68,10 +85,16 @@ describe("sanityImage", () => {
     const hotspot = data?.[0].cover.hotspot;
     invariant(data && hotspot);
 
-    expect(hotspot.x === 0.812500000000001).toBeTruthy();
-    expect(hotspot.y === 0.27963369963369955).toBeTruthy();
-    expect(hotspot.height === 0.3248351648351647).toBeTruthy();
-    expect(hotspot.width === 0.28124999999999994).toBeTruthy();
+    expectTypeOf(hotspot).toEqualTypeOf<{
+      x: number;
+      y: number;
+      height: number;
+      width: number;
+    }>();
+    expect(hotspot.x).toBe(0.812500000000001);
+    expect(hotspot.y).toBe(0.27963369963369955);
+    expect(hotspot.height).toBe(0.3248351648351647);
+    expect(hotspot.width).toBe(0.28124999999999994);
 
     // @ts-expect-error we didn't specify withCrop so we shouldn't expect it in result
     expect(data[0].cover.crop).toBeUndefined();
@@ -96,6 +119,12 @@ describe("sanityImage", () => {
       `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset{_ref, _type}, description}}`
     );
     invariant(data);
+    expectTypeOf(data[0].cover).toEqualTypeOf<{
+      readonly _key: string | null;
+      readonly _type: string;
+      asset: { _type: "reference"; _ref: string };
+      description: string;
+    }>();
     expect(
       data[0].cover.description === "Bulbasaur has types Grass, Poison."
     ).toBeTruthy();
@@ -191,10 +220,16 @@ describe("sanityImage", () => {
     );
     const dimensions = data?.[0]?.cover?.asset?.metadata?.dimensions;
     invariant(dimensions);
-    expect(dimensions._type === "sanity.imageDimensions").toBeTruthy();
-    expect(dimensions.aspectRatio === 2).toBeTruthy();
-    expect(dimensions.height === 500).toBeTruthy();
-    expect(dimensions.width === 1000).toBeTruthy();
+    expectTypeOf(dimensions).toEqualTypeOf<{
+      _type: "sanity.imageDimensions";
+      height: number;
+      width: number;
+      aspectRatio: number;
+    }>();
+    expect(dimensions._type).toBe("sanity.imageDimensions");
+    expect(dimensions.aspectRatio).toBe(2);
+    expect(dimensions.height).toBe(500);
+    expect(dimensions.width).toBe(1000);
   });
 
   it("can query fetch image asset data with location metadata", async () => {
@@ -215,9 +250,14 @@ describe("sanityImage", () => {
     );
     const location = data?.[0]?.cover?.asset?.metadata?.location;
     invariant(location);
-    expect(location._type === "geopoint").toBeTruthy();
-    expect(location.lat === 59.92399340000001).toBeTruthy();
-    expect(location.lng === 10.758972200000017).toBeTruthy();
+    expectTypeOf(location).toEqualTypeOf<{
+      _type: "geopoint";
+      lat: number;
+      lng: number;
+    }>();
+    expect(location._type).toBe("geopoint");
+    expect(location.lat).toBe(59.92399340000001);
+    expect(location.lng).toBe(10.758972200000017);
   });
 
   it("can query fetch image asset data with lqip metadata", async () => {
@@ -238,10 +278,10 @@ describe("sanityImage", () => {
     );
     const lqip = data?.[0]?.cover?.asset?.metadata?.lqip;
     invariant(lqip);
-    expect(
-      lqip ===
-        "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABwAE/8QAJBAAAQMDBAEFAAAAAAAAAAAAAQACAwQFEQYHEiEUIjEzQUL/xAAXAQADAQAAAAAAAAAAAAAAAAABAgME/8QAHREAAQMFAQAAAAAAAAAAAAAAAQACAwQREhNRMf/aAAwDAQACEQMRAD8AHNur+NN6ip7jH0xrsFmeiEo7raxivt7pKaJxc2aBuOP5J90H6eaHV9CCARn7STdGN82I8W5DRjpUEWTSbrMagxuxt6sstqt0LuHjMlIHqfI45JUtNR8pUk0DqBqXcX//2Q=="
-    ).toBeTruthy();
+    expectTypeOf(lqip).toEqualTypeOf<string>();
+    expect(lqip).toBe(
+      "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABwAE/8QAJBAAAQMDBAEFAAAAAAAAAAAAAQACAwQFEQYHEiEUIjEzQUL/xAAXAQADAQAAAAAAAAAAAAAAAAABAgME/8QAHREAAQMFAQAAAAAAAAAAAAAAAQACAwQREhNRMf/aAAwDAQACEQMRAD8AHNur+NN6ip7jH0xrsFmeiEo7raxivt7pKaJxc2aBuOP5J90H6eaHV9CCARn7STdGN82I8W5DRjpUEWTSbrMagxuxt6sstqt0LuHjMlIHqfI45JUtNR8pUk0DqBqXcX//2Q=="
+    );
   });
 
   it("can query fetch image asset data with palette metadata", async () => {
@@ -265,17 +305,31 @@ describe("sanityImage", () => {
     const darkMuted = palette.darkMuted;
 
     invariant(darkMuted);
+    type Variant = {
+      _type: "sanity.imagePaletteSwatch";
+      background?: string | null | undefined;
+      foreground?: string | null | undefined;
+      population?: number | null | undefined;
+      title?: string | null | undefined;
+    };
+    expectTypeOf(darkMuted).toEqualTypeOf<Variant>();
     expect(darkMuted._type === "sanity.imagePaletteSwatch").toBeTruthy();
     expect(darkMuted.background === "#2e5663").toBeTruthy();
     expect(darkMuted.foreground === "#fff").toBeTruthy();
     expect(darkMuted.population === 3.02).toBeTruthy();
     expect(darkMuted.title === "#fff").toBeTruthy();
 
+    expectTypeOf(palette.darkVibrant).exclude(null).toEqualTypeOf<Variant>();
     expect(palette.darkVibrant).toBeTruthy();
+    expectTypeOf(palette.dominant).exclude(null).toEqualTypeOf<Variant>();
     expect(palette.dominant).toBeTruthy();
+    expectTypeOf(palette.lightMuted).exclude(null).toEqualTypeOf<Variant>();
     expect(palette.lightMuted).toBeTruthy();
+    expectTypeOf(palette.lightVibrant).exclude(null).toEqualTypeOf<Variant>();
     expect(palette.lightVibrant).toBeTruthy();
+    expectTypeOf(palette.muted).exclude(null).toEqualTypeOf<Variant>();
     expect(palette.muted).toBeTruthy();
+    expectTypeOf(palette.vibrant).exclude(null).toEqualTypeOf<Variant>();
     expect(palette.vibrant).toBeTruthy();
   });
 });

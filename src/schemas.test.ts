@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
@@ -9,7 +9,9 @@ describe("string", () => {
       q("*").filter("_type == 'pokemon'").slice(0).grabOne("name", q.string())
     );
 
-    expect(data === "Bulbasaur").toBeTruthy();
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<string>();
+    expect(data).toEqual("Bulbasaur");
   });
 });
 
@@ -22,7 +24,9 @@ describe("number", () => {
         .grabOne("base.HP", q.number())
     );
 
-    expect(data === 45).toBeTruthy();
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<number>();
+    expect(data).toEqual(45);
   });
 });
 
@@ -35,7 +39,8 @@ describe("boolean", () => {
         .grabOne("base.HP > 30", q.boolean())
     );
 
-    expect(data === true).toBeTruthy();
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<boolean>();
+    expect(data).toEqual(true);
   });
 });
 
@@ -46,7 +51,7 @@ describe("unknown", () => {
     );
 
     // @ts-expect-error Unknown type, shouldn't "know" properties
-    expect(data.HP === 45).toBeTruthy();
+    expectTypeOf(data.HP).toEqualTypeOf<number>();
   });
 });
 
@@ -56,7 +61,8 @@ describe("null", () => {
       q("*").filter("_type == 'pokemon'").slice(0).grabOne("notThere", q.null())
     );
 
-    expect(data === null).toBeTruthy();
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<null>();
+    expect(data).toBeNull();
   });
 });
 
@@ -72,9 +78,9 @@ describe("literal", () => {
     expect(query).toBe(`*[_type == 'pokemon'][0]{name}`);
     invariant(data);
     const name = data.name;
-    expect(name === "Bulbasaur").toBeTruthy();
-    // @ts-expect-error Anything but Bulbasaur should throw type error
-    expect(name === "Charmander").toBeFalsy();
+
+    expectTypeOf(name).toEqualTypeOf<"Bulbasaur">();
+    expect(name).toEqual("Bulbasaur");
   });
 
   it("will generate a literal number type", async () => {
@@ -88,9 +94,9 @@ describe("literal", () => {
     expect(query).toBe(`*[_type == 'pokemon'][0]{"hp": base.HP}`);
     invariant(data);
     const hp = data.hp;
-    expect(hp === 45).toBeTruthy();
-    // @ts-expect-error Anything but 45 should throw type error
-    expect(hp === 50).toBeFalsy();
+
+    expectTypeOf(hp).toEqualTypeOf<45>();
+    expect(hp).toEqual(45);
   });
 });
 
@@ -105,10 +111,10 @@ describe("union", () => {
 
     expect(query).toBe(`*[_type == 'pokemon'][0..1]{name}`);
     invariant(data);
-    expect(data[0].name === "Bulbasaur").toBeTruthy();
-    expect(data[1].name === "Ivysaur").toBeTruthy();
-    // @ts-expect-error Anything but Bulbasaur or Ivysaur should throw type error
-    expect(data[0].name === "Charmander").toBeFalsy();
+
+    expectTypeOf(data[0].name).toEqualTypeOf<"Bulbasaur" | "Ivysaur">();
+    expect(data[0].name).toEqual("Bulbasaur");
+    expect(data[1].name).toEqual("Ivysaur");
   });
 
   it("will generate a union type with strings/numbers", async () => {
@@ -122,10 +128,9 @@ describe("union", () => {
     expect(query).toBe(`*[_type == 'pokemon'][0]{_id}`);
     invariant(data);
     const id = data._id;
-    expect(id === "pokemon.1").toBeTruthy();
-    expect(id === 1).toBeFalsy();
-    // @ts-expect-error Anything but number or string should throw type error
-    expect(id === false).toBeFalsy();
+
+    expectTypeOf(id).toEqualTypeOf<number | string>();
+    expect(id).toBe("pokemon.1");
   });
 });
 
@@ -141,8 +146,13 @@ describe("array", () => {
     );
 
     invariant(data);
-    expect(data[0].name).toBe("John");
-    expect(data[0].nicknames).toEqual(["Johnny", "J Boi", "Dat Boi Doe"]);
+    expectTypeOf(data).toEqualTypeOf<
+      { name: string; nicknames: string[] | null }[]
+    >();
+    expect(data[0]).toEqual({
+      name: "John",
+      nicknames: ["Johnny", "J Boi", "Dat Boi Doe"],
+    });
     expect(data[1].nicknames).toBeNull();
   });
 });
@@ -156,6 +166,7 @@ describe("date", () => {
     );
 
     invariant(data);
+    expectTypeOf(data.createdAt).toEqualTypeOf<Date>();
     expect(data.createdAt).toBeInstanceOf(Date);
   });
 });
@@ -175,8 +186,12 @@ describe("object", () => {
 
     expect(query).toBe(`*[_type == 'pokemon'][0]{types}`);
     invariant(data);
-    expect(data.types[0]._type === "reference").toBeTruthy();
-    expect(data.types[0]._ref === "type.Grass").toBeTruthy();
+
+    expectTypeOf(data.types[0]._type).toEqualTypeOf<"reference">();
+    expect(data.types[0]._type).toBe("reference");
+
+    expectTypeOf(data.types[0]._ref).toEqualTypeOf<string>();
+    expect(data.types[0]._ref).toBe("type.Grass");
   });
 });
 
@@ -228,7 +243,7 @@ describe("slug", () => {
 
     expect(query).toBe(`*[_type == 'user'][0]{"slug": slug.current}`);
     invariant(data);
-    expect(typeof data.slug).toBe("string");
+    expectTypeOf(data.slug).toEqualTypeOf<string>();
     expect(data.slug === "john").toBeTruthy();
   });
 });
