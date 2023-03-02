@@ -78,6 +78,16 @@ const locationFields = {
 const lqipFields = {
   lqip: schemas.string(),
 };
+const isOpaqueFields = {
+  isOpaque: schemas.boolean().nullable(),
+};
+const hasAlphaFields = {
+  hasAlpha: schemas.boolean().nullable(),
+};
+const blurHashFields = {
+  blurHash: schemas.string().nullable(),
+};
+
 const getPaletteField = () => schemas.object(paletteFieldSchema).nullable();
 const paletteFields = {
   palette: schemas.object({
@@ -140,7 +150,10 @@ export function sanityImage(fieldName: string, options?: any) {
     assetIncludes("dimensions") && dimensionFields,
     assetIncludes("location") && locationFields,
     assetIncludes("lqip") && lqipFields,
-    assetIncludes("palette") && paletteFields
+    assetIncludes("palette") && paletteFields,
+    assetIncludes("isOpaque") && isOpaqueFields,
+    assetIncludes("hasAlpha") && hasAlphaFields,
+    assetIncludes("blurHash") && blurHashFields
   );
   const assetFields = Object.assign(
     {},
@@ -181,7 +194,15 @@ type ImageRefSchemaType<
     }
 >;
 
-type WithAssetOption = "base" | "dimensions" | "location" | "lqip" | "palette";
+type WithAssetOption =
+  | "base"
+  | "dimensions"
+  | "location"
+  | "lqip"
+  | "palette"
+  | "isOpaque"
+  | "hasAlpha"
+  | "blurHash";
 
 type Asset<
   WithAsset extends readonly WithAssetOption[] | undefined = undefined
@@ -214,6 +235,15 @@ type AssetMetadata<
         : Empty) &
       (ListIncludes<WithAsset, "palette"> extends true
         ? typeof paletteFields
+        : Empty) &
+      (ListIncludes<WithAsset, "hasAlpha"> extends true
+        ? typeof hasAlphaFields
+        : Empty) &
+      (ListIncludes<WithAsset, "isOpaque"> extends true
+        ? typeof isOpaqueFields
+        : Empty) &
+      (ListIncludes<WithAsset, "blurHash"> extends true
+        ? typeof blurHashFields
         : Empty)
   >
 >;
