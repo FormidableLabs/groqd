@@ -452,6 +452,9 @@ You can pass an array to the `withAsset` option to specify which fields you want
 - pass `"dimensions"` to query the asset document's `metadata.dimensions` field, useful if you need the image's original dimensions or aspect ratio.
 - pass `"location"` to query the asset document's `metadata.location` field.
 - pass `"lqip"` to query the asset's `metadata.lqip` (Low Quality Image Placeholder) field, useful if you need to display LQIPs.
+- pass `"hasAlpha"` to query the asset's `metadata.hasAlpha` field, useful if you need to know if the image has an alpha channel.
+- pass `"isOpaque"` to query the asset's `metadata.isOpaque` field, useful if you need to know if the image is opaque.
+- pass `"blurHash"` to query the asset's `metadata.blurHash` field, useful if you need to display blurhashes.
 - pass `"palette"` to query the asset document's `metadata.palette` field, useful if you want to use the image's color palette in your UI.
 
 An example:
