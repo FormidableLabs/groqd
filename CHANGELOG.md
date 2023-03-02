@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.1
+
+### Patch Changes
+
+- Add hasAlpha, isOpaque, and blurHash options to q.sanityImage's withAsset options. ([#84](https://github.com/FormidableLabs/groqd/pull/84))
+
 ## 0.9.0
 
 ### Minor Changes
