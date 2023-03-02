@@ -332,4 +332,32 @@ describe("sanityImage", () => {
     expectTypeOf(palette.vibrant).exclude(null).toEqualTypeOf<Variant>();
     expect(palette.vibrant).toBeTruthy();
   });
+
+  it("can fetch image data with isOpaque, hasAlpha, and blurHash metadata", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          cover: q.sanityImage("cover", {
+            withAsset: ["hasAlpha", "isOpaque", "blurHash"],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{isOpaque, hasAlpha, blurHash}}}}`
+    );
+    invariant(data);
+    const metadata = data[0].cover.asset.metadata;
+    expectTypeOf(metadata).toEqualTypeOf<{
+      isOpaque: boolean | null;
+      hasAlpha: boolean | null;
+      blurHash: string | null;
+    }>();
+    expect(metadata.isOpaque).toBe(true);
+    expect(metadata.hasAlpha).toBe(false);
+    expect(metadata.blurHash).toBe("MLCi~.M|00Dj?v~VtR4.IV%Mo~t6M{aeSO");
+  });
 });
