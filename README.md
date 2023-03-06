@@ -328,7 +328,17 @@ The available schema types are shown below.
     .filter("_type == 'user'")
     .grab({ body: q.array(q.contentBlock()) });
   ```
-- `q.contentBlocks`, a custom Zod schema, to match a list of `q.contentBlock`'s. 
+  Pass an object of the shape `{ markDefs: z.ZodType }` to `q.contentBlock` to specify custom markdef types, useful if you have custom markdefs, e.g.:
+   ```ts
+  q("*")
+    .filter("_type == 'user'")
+    .grab({
+      body: q.array(q.contentBlock({
+        markDefs: q.object({ _type: q.literal("link"), href: q.string() })
+      }))
+    });
+  ```
+- `q.contentBlocks`, a custom Zod schema, to match a list of `q.contentBlock`'s. Pass an argument of the shape `{ markDefs: z.ZodType }` to specify custom markdef types.
   ```ts
   q("*")
     .filter("_type == 'user'")
