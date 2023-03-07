@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { grab } from "./grab";
-import { select } from "./select";
+import { select, spreadUnionSchema } from "./select";
 import type {
   ConditionRecord,
   ZodUnionAny,
@@ -36,7 +36,7 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
 
     return new EntityQuery<Spread<SelectSchemaType<Conditions>>>({
       query: this.query + `{...${_select.query}}`,
-      schema: _select.schema,
+      schema: spreadUnionSchema(_select.schema),
     });
   }
 
@@ -125,7 +125,7 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
 
     return new ArrayQuery<Spread<SelectSchemaType<Conditions>>>({
       query: this.query + `{...${_select.query}}`,
-      schema: z.array(_select.schema),
+      schema: z.array(spreadUnionSchema(_select.schema)),
     });
   }
 

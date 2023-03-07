@@ -105,7 +105,9 @@ describe("q.select()", () => {
 
     expect(query).toBe('*[]{"foo": select(foo > 2 => { bar }, { baz })}');
     expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<
-      { bar: boolean } | { baz: string }
+      {
+        foo: { bar: boolean } | { baz: string };
+      }[]
     >();
   });
 });
@@ -364,6 +366,86 @@ describe("select() zod validations", () => {
       _id: "pokemon.4",
       name: "Charmander",
       attack: 52,
+    });
+  });
+
+  it("validates empty objects correctly", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter('_type == "pokemon"')
+        .select({
+          'name == "Bulbasaur"': {
+            name: q.literal("Bulbasaur"),
+          },
+        })
+    );
+
+    expect(query).toBe(
+      '*[_type == "pokemon"]{...select(name == "Bulbasaur" => { name })}'
+    );
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      Array<
+        | {
+            name: "Bulbasaur";
+          }
+        | Record<string, never>
+      >
+    >();
+    expect(data).toContainEqual({
+      name: "Bulbasaur",
+    });
+    expect(data).toContainEqual({});
+  });
+
+  it("validates with single default conditional", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter('_type == "pokemon"')
+        .select({
+          default: {
+            name: q.string(),
+          },
+        })
+    );
+
+    expect(query).toBe('*[_type == "pokemon"]{...select({ name })}');
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      Array<{
+        name: string;
+      }>
+    >();
+    expect(data).toContainEqual({
+      name: "Bulbasaur",
+    });
+  });
+
+  it("validates null field correctly", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter('_type == "pokemon"')
+        .grab({
+          name: q.select({
+            'name == "not a pokemon"': ["name", q.string()],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      '*[_type == "pokemon"]{"name": select(name == "not a pokemon" => name)}'
+    );
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      Array<{
+        name: null | string;
+      }>
+    >();
+
+    data.every((selection) => {
+      expect(selection).toStrictEqual({
+        name: null,
+      });
     });
   });
 });

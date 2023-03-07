@@ -61,8 +61,10 @@ export const select = <Conditions extends ConditionRecord>(
 
     return (
       conditionalSelections.default
-        ? z.union([unionEls[0], unionEls[1], ...unionEls.slice(2)])
-        : z.union([z.null(), unionEls[0], ...unionEls.slice(1)])
+        ? // @ts-expect-error unionEls will be a tuple
+          z.union(unionEls)
+        : // @ts-expect-error unionEls will be a tuple
+          z.union([z.null(), ...unionEls])
     ) as SelectSchemaType<Conditions>;
   })();
 
@@ -101,15 +103,13 @@ export type SelectSchemaType<Conditions extends ConditionRecord> = z.ZodUnion<
       ]
 >;
 
-const emptyObject = z.object({});
-type EmptyZodObject = typeof emptyObject;
+const emptyZodRecord = z.record(z.string(), z.never());
+type EmptyZodObject = typeof emptyZodRecord;
 type ZodObjectAny = z.ZodObject<Record<string, any>>;
-export type ZodUnionAny = z.ZodUnion<
-  readonly [z.ZodTypeAny, ...z.ZodTypeAny[]]
->;
+export type ZodUnionAny = z.ZodUnion<readonly [z.ZodType, ...z.ZodType[]]>;
 
 export type Spread<ZU extends ZodUnionAny> = ZU extends z.ZodUnion<
-  infer T extends readonly [z.ZodTypeAny, ...z.ZodTypeAny[]]
+  infer T extends readonly [z.ZodType, ...z.ZodType[]]
 >
   ? z.ZodUnion<
       [
@@ -123,3 +123,28 @@ export type Spread<ZU extends ZodUnionAny> = ZU extends z.ZodUnion<
       ]
     >
   : never;
+
+export function spreadUnionSchema<Z extends z.ZodType>(
+  union: z.ZodUnion<[Z, Z, ...Z[]]>
+): Spread<typeof union> {
+  const spreadOptions: Spread<typeof union>["options"] = union.options.map(
+    (option) => {
+      // option is a zod object
+      if ("shape" in option) return option;
+
+      // @ts-expect-error option is a zod union
+      // Inferring nested union types within zod union outside the casted
+      // return type is unreasonable. It is fine to ignore ts here because the casted
+      // the return type at the end of this function is correct
+      if ("options" in option) return spreadUnionSchema(option);
+
+      // option is a zod primitive
+      return z.record(z.string(), z.never());
+    }
+  ) as Spread<typeof union>["options"];
+
+  // @ts-expect-error Zod complains here but at the end of the day,
+  // we're basically doing `z.union(z.union([/* some tuple */]).options)`
+  // which is completely valid
+  return z.union(spreadOptions) as unknown as Spread<typeof union>;
+}
