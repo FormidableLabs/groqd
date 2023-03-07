@@ -206,6 +206,38 @@ describe("sanityImage", () => {
     const { query, data } = await runPokemonQuery(
       q("*")
         .filter("_type == 'pokemon'")
+        .slice(1, 1)
+        .grab({
+          name: q.string(),
+          cover: q.sanityImage("cover", {
+            withAsset: ["dimensions"],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][1..1]{name, "cover": cover{_key, _type, "asset": asset->{"metadata": metadata{dimensions}}}}`
+    );
+    const dimensions = data?.[0]?.cover?.asset?.metadata?.dimensions;
+    invariant(dimensions);
+
+    expectTypeOf(dimensions).toEqualTypeOf<{
+      _type?: "sanity.imageDimensions" | undefined;
+      aspectRatio: number;
+      height: number;
+      width: number;
+    }>();
+
+    expect(dimensions._type).toBe("sanity.imageDimensions");
+    expect(dimensions.aspectRatio).toBe(2);
+    expect(dimensions.height).toBe(500);
+    expect(dimensions.width).toBe(1000);
+  });
+
+  it("can query fetch image asset data with dimensions metadata WITHOUT `_type`", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
         .slice(0, 1)
         .grab({
           name: q.string(),
@@ -220,13 +252,15 @@ describe("sanityImage", () => {
     );
     const dimensions = data?.[0]?.cover?.asset?.metadata?.dimensions;
     invariant(dimensions);
+
     expectTypeOf(dimensions).toEqualTypeOf<{
-      _type: "sanity.imageDimensions";
+      _type?: "sanity.imageDimensions" | undefined;
+      aspectRatio: number;
       height: number;
       width: number;
-      aspectRatio: number;
     }>();
-    expect(dimensions._type).toBe("sanity.imageDimensions");
+
+    expect(dimensions._type).toBeUndefined();
     expect(dimensions.aspectRatio).toBe(2);
     expect(dimensions.height).toBe(500);
     expect(dimensions.width).toBe(1000);
