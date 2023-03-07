@@ -244,7 +244,81 @@ describe("ArrayQuery.select()", () => {
 });
 
 describe("select() zod validations", () => {
-  it("parses array queries correctly", async () => {
+  it("validates field based select queries correctly", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter('_type == "pokemon"')
+        .grab({
+          name: q.string(),
+          hp: q.select({
+            "base.HP > 50": ['"high"', q.literal("high")],
+            default: ['"low"', q.literal("low")],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      '*[_type == "pokemon"]{name, "hp": select(base.HP > 50 => "high", "low")}'
+    );
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      {
+        name: string;
+        hp: "high" | "low";
+      }[]
+    >();
+    expect(data).toContainEqual({
+      name: "Kakuna",
+      hp: "low",
+    });
+    expect(data).toContainEqual({
+      name: "Butterfree",
+      hp: "high",
+    });
+  });
+
+  it("validates entity queries correctly", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter('_type == "pokemon"')
+        .grab({
+          name: q.string(),
+          base: q("base").select({
+            "HP > 50": {
+              Defense: q.number(),
+            },
+            default: {
+              Speed: q.number(),
+            },
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      '*[_type == "pokemon"]{name, "base": base{...select(HP > 50 => { Defense }, { Speed })}}'
+    );
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      {
+        name: string;
+        base: { Defense: number } | { Speed: number };
+      }[]
+    >();
+    expect(data).toContainEqual({
+      name: "Weedle",
+      base: {
+        Speed: 50,
+      },
+    });
+    expect(data).toContainEqual({
+      name: "Butterfree",
+      base: {
+        Defense: 50,
+      },
+    });
+  });
+
+  it("validates array queries correctly", async () => {
     const { data, query } = await runPokemonQuery(
       q("*")
         .filter("name == 'Bulbasaur' || name == 'Charmander'")
