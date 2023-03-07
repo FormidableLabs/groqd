@@ -54,13 +54,11 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     super(payload);
   }
 
-  __experimental_select<Conditions extends ConditionRecord>(
+  select<Conditions extends ConditionRecord>(
     s: Conditions
   ): EntityQuery<Spread<SelectSchemaType<Conditions>>>;
-  __experimental_select<S extends ZodUnionAny>(
-    s: BaseQuery<S>
-  ): EntityQuery<Spread<S>>;
-  __experimental_select<Conditions extends ConditionRecord>(
+  select<S extends ZodUnionAny>(s: BaseQuery<S>): EntityQuery<Spread<S>>;
+  select<Conditions extends ConditionRecord>(
     s: Conditions
   ): EntityQuery<Spread<SelectSchemaType<Conditions>>> {
     const _select = extendsBaseQuery(s) ? s : select(s);
@@ -145,13 +143,11 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     super(payload);
   }
 
-  __experimental_select<Conditions extends ConditionRecord>(
+  select<Conditions extends ConditionRecord>(
     s: Conditions
   ): ArrayQuery<Spread<SelectSchemaType<Conditions>>>;
-  __experimental_select<S extends ZodUnionAny>(
-    s: BaseQuery<S>
-  ): ArrayQuery<Spread<S>>;
-  __experimental_select<Conditions extends ConditionRecord>(
+  select<S extends ZodUnionAny>(s: BaseQuery<S>): ArrayQuery<Spread<S>>;
+  select<Conditions extends ConditionRecord>(
     s: Conditions
   ): ArrayQuery<Spread<SelectSchemaType<Conditions>>> {
     const _select = extendsBaseQuery(s) ? s : select(s);

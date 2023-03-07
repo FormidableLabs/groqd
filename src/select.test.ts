@@ -4,7 +4,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 
 describe("q.select()", () => {
   it("creates query from {condition: selection} composition", () => {
-    const { query, schema } = q.__experimental_select({
+    const { query, schema } = q.select({
       "foo > 2": {
         bar: z.boolean(),
       },
@@ -20,7 +20,7 @@ describe("q.select()", () => {
   });
 
   it("creates query from {condition: q()} composition", () => {
-    const { query, schema } = q.__experimental_select({
+    const { query, schema } = q.select({
       "foo > 2": q("bar").grab({
         bar: z.boolean(),
       }),
@@ -36,7 +36,7 @@ describe("q.select()", () => {
   });
 
   it("creates query from {condition: [name, schema]} composition", () => {
-    const { query, schema } = q.__experimental_select({
+    const { query, schema } = q.select({
       "foo > 2": ["bar", q.boolean()],
       default: {
         baz: z.string(),
@@ -50,7 +50,7 @@ describe("q.select()", () => {
   });
 
   it("makes schema nullable when default condition omitted", () => {
-    const { query, schema } = q.__experimental_select({
+    const { query, schema } = q.select({
       "foo > 2": {
         bar: z.boolean(),
       },
@@ -63,7 +63,7 @@ describe("q.select()", () => {
   });
 
   it("handles nested selects properly", () => {
-    const nestedSelect = q.__experimental_select({
+    const nestedSelect = q.select({
       'bar == "thing"': {
         b: q.string(),
       },
@@ -72,7 +72,7 @@ describe("q.select()", () => {
       },
     });
 
-    const { query, schema } = q.__experimental_select({
+    const { query, schema } = q.select({
       "foo > 2": nestedSelect,
       default: {
         baz: z.string(),
@@ -91,7 +91,7 @@ describe("q.select()", () => {
 describe("EntityQuery.select()", () => {
   describe("with standalone select input", () => {
     it("updates query and handles nested object types", () => {
-      const standaloneSelect = q.__experimental_select({
+      const standaloneSelect = q.select({
         "foo > 2": {
           bar: z.boolean(),
         },
@@ -99,7 +99,7 @@ describe("EntityQuery.select()", () => {
           baz: z.string(),
         },
       });
-      const entityQuery = q("foo").__experimental_select(standaloneSelect);
+      const entityQuery = q("foo").select(standaloneSelect);
 
       expect(entityQuery.query).toBe(
         "foo{...select(foo > 2 => { bar }, { baz })}"
@@ -110,12 +110,12 @@ describe("EntityQuery.select()", () => {
     });
 
     it("converts no default condition to empty object", () => {
-      const standaloneSelect = q.__experimental_select({
+      const standaloneSelect = q.select({
         "foo > 2": {
           bar: z.boolean(),
         },
       });
-      const entityQuery = q("foo").__experimental_select(standaloneSelect);
+      const entityQuery = q("foo").select(standaloneSelect);
 
       expect(entityQuery.query).toBe("foo{...select(foo > 2 => { bar })}");
       expectTypeOf({} as z.infer<typeof entityQuery.schema>).toEqualTypeOf<
@@ -124,13 +124,13 @@ describe("EntityQuery.select()", () => {
     });
 
     it("converts primitives to empty object", () => {
-      const standaloneSelect = q.__experimental_select({
+      const standaloneSelect = q.select({
         "foo > 2": ["bar", z.boolean()],
         default: {
           baz: z.string(),
         },
       });
-      const entityQuery = q("foo").__experimental_select(standaloneSelect);
+      const entityQuery = q("foo").select(standaloneSelect);
 
       expect(entityQuery.query).toBe("foo{...select(foo > 2 => bar, { baz })}");
       expectTypeOf({} as z.infer<typeof entityQuery.schema>).toEqualTypeOf<
@@ -139,20 +139,20 @@ describe("EntityQuery.select()", () => {
     });
 
     it("handles nested union types properly", () => {
-      const nestedSelect = q.__experimental_select({
+      const nestedSelect = q.select({
         "foo == 3": ["a", q.string()],
         default: {
           b: q.boolean(),
         },
       });
 
-      const standaloneSelect = q.__experimental_select({
+      const standaloneSelect = q.select({
         "foo > 2": nestedSelect,
         default: {
           baz: z.string(),
         },
       });
-      const entityQuery = q("foo").__experimental_select(standaloneSelect);
+      const entityQuery = q("foo").select(standaloneSelect);
 
       expect(entityQuery.query).toBe(
         "foo{...select(foo > 2 => select(foo == 3 => a, { b }), { baz })}"
@@ -165,7 +165,7 @@ describe("EntityQuery.select()", () => {
 
   describe("with {condition: Selection} input", () => {
     it("updates query and handles nested object types", () => {
-      const entityQuery = q("foo").__experimental_select({
+      const entityQuery = q("foo").select({
         "foo > 2": {
           bar: z.boolean(),
         },
@@ -186,7 +186,7 @@ describe("EntityQuery.select()", () => {
 
 describe("ArrayQuery.select()", () => {
   it("handles standalone select input", () => {
-    const standaloneSelect = q.__experimental_select({
+    const standaloneSelect = q.select({
       "foo > 2": {
         bar: z.boolean(),
       },
@@ -194,7 +194,7 @@ describe("ArrayQuery.select()", () => {
         baz: z.string(),
       },
     });
-    const query = q("*").filter().__experimental_select(standaloneSelect);
+    const query = q("*").filter().select(standaloneSelect);
 
     expect(query.query).toBe("*[]{...select(foo > 2 => { bar }, { baz })}");
     expectTypeOf({} as z.infer<typeof query.schema>).toEqualTypeOf<
@@ -205,7 +205,7 @@ describe("ArrayQuery.select()", () => {
   it("handles {condition: Selection} input", () => {
     const query = q("*")
       .filter()
-      .__experimental_select({
+      .select({
         "foo > 2": {
           bar: z.boolean(),
         },
