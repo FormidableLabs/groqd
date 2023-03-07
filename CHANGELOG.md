@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.2
+
+### Patch Changes
+
+- Make `sanityImage` `imageDimensions._type` an optional field ([#86](https://github.com/FormidableLabs/groqd/pull/86))
+
+- Specify custom markdef types in q.contentBlock[s], addresses #61. ([#87](https://github.com/FormidableLabs/groqd/pull/87))
+
 ## 0.9.1
 
 ### Patch Changes
