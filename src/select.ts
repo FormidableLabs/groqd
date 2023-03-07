@@ -136,8 +136,8 @@ export function spreadUnionSchema<Z extends z.ZodType>(
       // option is a zod object
       if ("shape" in option) return option;
 
-      // @ts-expect-error option is a zod union
-      // Inferring nested union types within zod union outside the casted
+      // option is a zod union
+      // @ts-expect-error option Inferring nested union types within zod union outside the casted
       // return type is unreasonable. It is fine to ignore ts here because the casted
       // the return type at the end of this function is correct
       if ("options" in option) return spreadUnionSchema(option);
