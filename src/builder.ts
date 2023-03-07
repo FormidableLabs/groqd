@@ -13,38 +13,9 @@ import {
   nullToUndefined,
   nullToUndefinedOnConditionalSelection,
 } from "./nullToUndefined";
+import { Payload, BaseQuery } from "./baseQuery";
 
-type Query = string;
-type Payload<T extends z.ZodTypeAny> = { schema: T; query: Query };
-
-export class BaseQuery<T extends z.ZodTypeAny> {
-  query: string;
-  schema: T;
-
-  constructor({ query, schema }: Payload<T>) {
-    this.query = query;
-    this.schema = schema;
-  }
-
-  public value(): Payload<T> {
-    return { schema: this.schema, query: this.query };
-  }
-
-  nullable() {
-    return new NullableBaseQuery({
-      query: this.query,
-      schema: this.schema.nullable(),
-    });
-  }
-}
-
-export class NullableBaseQuery<T extends z.ZodTypeAny> extends BaseQuery<
-  z.ZodNullable<T>
-> {
-  constructor({ schema, query }: Payload<T>) {
-    super({ schema: schema.nullable(), query });
-  }
-}
+export { Payload, BaseQuery } from "./baseQuery";
 
 /**
  * Single Entity
@@ -154,7 +125,7 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
 
     return new ArrayQuery<Spread<SelectSchemaType<Conditions>>>({
       query: this.query + `{...${_select.query}}`,
-      schema: _select.schema,
+      schema: z.array(_select.schema),
     });
   }
 

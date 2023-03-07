@@ -1,6 +1,8 @@
-import { q } from "./index";
-import { z } from "zod";
+import invariant from "tiny-invariant";
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { z } from "zod";
+import { runPokemonQuery } from "../test-utils/runQuery";
+import { q } from "./index";
 
 describe("q.select()", () => {
   it("creates query from {condition: selection} composition", () => {
@@ -14,7 +16,7 @@ describe("q.select()", () => {
     });
 
     expect(query).toBe("select(foo > 2 => { bar }, { baz })");
-    expectTypeOf({} as z.infer<typeof schema>).toEqualTypeOf<
+    expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<
       { bar: boolean } | { baz: string }
     >();
   });
@@ -30,7 +32,7 @@ describe("q.select()", () => {
     });
 
     expect(query).toBe("select(foo > 2 => bar{bar}, { baz })");
-    expectTypeOf({} as z.infer<typeof schema>).toEqualTypeOf<
+    expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<
       { bar: boolean } | { baz: string }
     >();
   });
@@ -44,7 +46,7 @@ describe("q.select()", () => {
     });
 
     expect(query).toBe("select(foo > 2 => bar, { baz })");
-    expectTypeOf({} as z.infer<typeof schema>).toEqualTypeOf<
+    expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<
       boolean | { baz: string }
     >();
   });
@@ -57,7 +59,7 @@ describe("q.select()", () => {
     });
 
     expect(query).toBe("select(foo > 2 => { bar })");
-    expectTypeOf({} as z.infer<typeof schema>).toEqualTypeOf<{
+    expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<{
       bar: boolean;
     } | null>();
   });
@@ -82,8 +84,28 @@ describe("q.select()", () => {
     expect(query).toBe(
       'select(foo > 2 => select(bar == "thing" => { b }, { c }), { baz })'
     );
-    expectTypeOf({} as z.infer<typeof schema>).toEqualTypeOf<
+    expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<
       { b: string } | { c: string } | { baz: string }
+    >();
+  });
+
+  it("handles a nested selection referencing the outer scope", () => {
+    const select = q.select({
+      "foo > 2": {
+        bar: z.boolean(),
+      },
+      default: {
+        baz: z.string(),
+      },
+    });
+
+    const { query, schema } = q("*").filter().grab({
+      foo: select,
+    });
+
+    expect(query).toBe('*[]{"foo": select(foo > 2 => { bar }, { baz })}');
+    expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<
+      { bar: boolean } | { baz: string }
     >();
   });
 });
@@ -104,7 +126,7 @@ describe("EntityQuery.select()", () => {
       expect(entityQuery.query).toBe(
         "foo{...select(foo > 2 => { bar }, { baz })}"
       );
-      expectTypeOf({} as z.infer<typeof entityQuery.schema>).toEqualTypeOf<
+      expectTypeOf<z.infer<typeof entityQuery.schema>>().toEqualTypeOf<
         { bar: boolean } | { baz: string }
       >();
     });
@@ -118,8 +140,8 @@ describe("EntityQuery.select()", () => {
       const entityQuery = q("foo").select(standaloneSelect);
 
       expect(entityQuery.query).toBe("foo{...select(foo > 2 => { bar })}");
-      expectTypeOf({} as z.infer<typeof entityQuery.schema>).toEqualTypeOf<
-        { bar: boolean } | {}
+      expectTypeOf<z.infer<typeof entityQuery.schema>>().toEqualTypeOf<
+        { bar: boolean } | Record<string, never>
       >();
     });
 
@@ -133,8 +155,8 @@ describe("EntityQuery.select()", () => {
       const entityQuery = q("foo").select(standaloneSelect);
 
       expect(entityQuery.query).toBe("foo{...select(foo > 2 => bar, { baz })}");
-      expectTypeOf({} as z.infer<typeof entityQuery.schema>).toEqualTypeOf<
-        {} | { baz: string }
+      expectTypeOf<z.infer<typeof entityQuery.schema>>().toEqualTypeOf<
+        Record<string, never> | { baz: string }
       >();
     });
 
@@ -157,8 +179,8 @@ describe("EntityQuery.select()", () => {
       expect(entityQuery.query).toBe(
         "foo{...select(foo > 2 => select(foo == 3 => a, { b }), { baz })}"
       );
-      expectTypeOf({} as z.infer<typeof entityQuery.schema>).toEqualTypeOf<
-        {} | { b: boolean } | { baz: string }
+      expectTypeOf<z.infer<typeof entityQuery.schema>>().toEqualTypeOf<
+        Record<string, never> | { b: boolean } | { baz: string }
       >();
     });
   });
@@ -177,7 +199,7 @@ describe("EntityQuery.select()", () => {
       expect(entityQuery.query).toBe(
         "foo{...select(foo > 2 => { bar }, { baz })}"
       );
-      expectTypeOf({} as z.infer<typeof entityQuery.schema>).toEqualTypeOf<
+      expectTypeOf<z.infer<typeof entityQuery.schema>>().toEqualTypeOf<
         { bar: boolean } | { baz: string }
       >();
     });
@@ -197,7 +219,7 @@ describe("ArrayQuery.select()", () => {
     const query = q("*").filter().select(standaloneSelect);
 
     expect(query.query).toBe("*[]{...select(foo > 2 => { bar }, { baz })}");
-    expectTypeOf({} as z.infer<typeof query.schema>).toEqualTypeOf<
+    expectTypeOf<z.infer<typeof query.schema>>().toEqualTypeOf<
       ({ bar: boolean } | { baz: string })[]
     >();
   });
@@ -215,8 +237,59 @@ describe("ArrayQuery.select()", () => {
       });
 
     expect(query.query).toBe("*[]{...select(foo > 2 => { bar }, { baz })}");
-    expectTypeOf({} as z.infer<typeof query.schema>).toEqualTypeOf<
+    expectTypeOf<z.infer<typeof query.schema>>().toEqualTypeOf<
       ({ bar: boolean } | { baz: string })[]
     >();
+  });
+});
+
+describe("select() zod validations", () => {
+  it("parses array queries correctly", async () => {
+    const { data, query } = await runPokemonQuery(
+      q("*")
+        .filter("name == 'Bulbasaur' || name == 'Charmander'")
+        .select({
+          "name == 'Bulbasaur'": {
+            _id: q.string(),
+            name: q.literal("Bulbasaur"),
+            hp: ["base.HP", q.number()],
+          },
+          default: {
+            _id: q.string(),
+            name: q.literal("Charmander"),
+            attack: ["base.Attack", q.number()],
+          },
+        })
+    );
+
+    expect(query).toBe(
+      "*[name == 'Bulbasaur' || name == 'Charmander']{...select(name == 'Bulbasaur' => { _id, name, \"hp\": base.HP }, { _id, name, \"attack\": base.Attack })}"
+    );
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      Array<
+        | {
+            _id: string;
+            name: "Bulbasaur";
+            hp: number;
+          }
+        | {
+            _id: string;
+            name: "Charmander";
+            attack: number;
+          }
+      >
+    >();
+    expect(data).toHaveLength(2);
+    expect(data).toContainEqual({
+      _id: "pokemon.1",
+      name: "Bulbasaur",
+      hp: 45,
+    });
+    expect(data).toContainEqual({
+      _id: "pokemon.4",
+      name: "Charmander",
+      attack: 52,
+    });
   });
 });

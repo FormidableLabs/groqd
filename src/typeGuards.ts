@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseQuery } from "./builder";
+import { BaseQuery } from "./baseQuery";
 
 export function extendsBaseQuery<T>(
   v: T
