@@ -108,6 +108,10 @@ type EmptyZodObject = typeof emptyZodRecord;
 type ZodObjectAny = z.ZodObject<Record<string, any>>;
 export type ZodUnionAny = z.ZodUnion<readonly [z.ZodType, ...z.ZodType[]]>;
 
+// go through each type in a zod union
+// if it's an object, resolve to that object
+// if it's a union, apply the same logic to each type in that union
+// if it's a primitive, resolve to an empty object
 export type Spread<ZU extends ZodUnionAny> = ZU extends z.ZodUnion<
   infer T extends readonly [z.ZodType, ...z.ZodType[]]
 >
