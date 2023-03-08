@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { evaluate, parse } from "groq-js";
 import { pokemonDataset } from "./pokemon";
-import { BaseQuery } from "../src/builder";
+import { BaseQuery } from "../src/baseQuery";
 import { userDataset } from "./users";
 
 const makeQueryRunner =

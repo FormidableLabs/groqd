@@ -15,8 +15,6 @@ import {
 } from "./nullToUndefined";
 import { Payload, BaseQuery } from "./baseQuery";
 
-export { Payload, BaseQuery } from "./baseQuery";
-
 /**
  * Single Entity
  */
