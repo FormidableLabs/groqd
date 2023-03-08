@@ -1,6 +1,10 @@
 import { z } from "zod";
-import { ValueOf } from "./types";
-import { ArrayQuery, BaseQuery, EntityQuery } from "./builder";
+import type { ValueOf, FromSelection, Selection } from "./types";
+import { ArrayQuery, EntityQuery } from "./builder";
+import {
+  getProjectionEntriesFromSelection,
+  getSchemaFromSelection,
+} from "./selectionUtils";
 
 export const grab = <
   T extends z.ZodTypeAny | z.ZodArray<any>,
@@ -27,27 +31,14 @@ export const grab = <
     ? ArrayQuery<AllSelection>
     : EntityQuery<AllSelection>;
 
-  // Recursively define projections to pick up nested conditionals
-  const getProjections = (sel: Selection) =>
-    Object.entries(sel).reduce<string[]>((acc, [key, val]) => {
-      let toPush = "";
-      if (val instanceof BaseQuery) {
-        toPush = `"${key}": ${val.query}`;
-      } else if (Array.isArray(val)) {
-        toPush = `"${key}": ${val[0]}`;
-      } else {
-        toPush = key;
-      }
-
-      toPush && acc.push(toPush);
-      return acc;
-    }, []);
-  const projections = getProjections(selection);
+  const projections = getProjectionEntriesFromSelection(selection);
   if (conditionalSelections) {
     const condProjections = Object.entries(conditionalSelections).reduce<
       string[]
     >((acc, [key, val]) => {
-      acc.push(`${key} => { ${getProjections(val).join(", ")} }`);
+      acc.push(
+        `${key} => { ${getProjectionEntriesFromSelection(val).join(", ")} }`
+      );
       return acc;
     }, []);
 
@@ -55,26 +46,14 @@ export const grab = <
   }
 
   const newSchema = (() => {
-    const toSchemaInput = (sel: Selection) =>
-      Object.entries(sel).reduce<z.ZodRawShape>((acc, [key, value]) => {
-        if (value instanceof BaseQuery) {
-          acc[key] = value.schema;
-        } else if (Array.isArray(value)) {
-          acc[key] = value[1];
-        } else if (value instanceof z.ZodType) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {});
-
     // Split base and conditional fields
     const conditionalFields = Object.values(
       conditionalSelections || {}
     ) as Selection[];
 
-    const baseSchema = z.object(toSchemaInput(selection));
+    const baseSchema = getSchemaFromSelection(selection);
     const conditionalFieldSchemas = conditionalFields.map((field) =>
-      baseSchema.merge(z.object(toSchemaInput(field)))
+      baseSchema.merge(getSchemaFromSelection(field))
     );
 
     const unionEls = [...conditionalFieldSchemas, baseSchema];
@@ -98,24 +77,3 @@ export const grab = <
 
   return res;
 };
-
-/**
- * Misc util
- */
-
-type Field<T extends z.ZodType> = T;
-type FromField<T> = T extends Field<infer R>
-  ? R
-  : T extends [string, infer R]
-  ? R
-  : never;
-export type FromSelection<Sel extends Selection> = z.ZodObject<{
-  [K in keyof Sel]: Sel[K] extends BaseQuery<any>
-    ? Sel[K]["schema"]
-    : FromField<Sel[K]>;
-}>;
-
-export type Selection = Record<
-  string,
-  BaseQuery<any> | z.ZodType | [string, z.ZodType]
->;

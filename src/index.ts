@@ -2,9 +2,9 @@ import { z } from "zod";
 import { UnknownQuery } from "./builder";
 import { sanityImage } from "./sanityImage";
 import { schemas } from "./schemas";
+import { select } from "./select";
 
-export type { InferType, TypeFromSelection } from "./types";
-export type { Selection } from "./grab";
+export type { InferType, TypeFromSelection, Selection } from "./types";
 export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 export { nullToUndefined } from "./nullToUndefined";
 
@@ -13,6 +13,7 @@ export const pipe = (filter: string): UnknownQuery => {
 };
 
 pipe.sanityImage = sanityImage;
+pipe.select = select;
 
 // Add schemas
 Object.assign(pipe, schemas);

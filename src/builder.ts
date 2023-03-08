@@ -1,42 +1,19 @@
 import { z } from "zod";
 import { grab } from "./grab";
-import type { Selection } from "./grab";
+import { select, spreadUnionSchema } from "./select";
+import type {
+  ConditionRecord,
+  ZodUnionAny,
+  SelectSchemaType,
+  Spread,
+} from "./select";
+import type { Selection } from "./types";
+import { extendsBaseQuery } from "./typeGuards";
 import {
   nullToUndefined,
   nullToUndefinedOnConditionalSelection,
 } from "./nullToUndefined";
-
-type Query = string;
-type Payload<T extends z.ZodTypeAny> = { schema: T; query: Query };
-
-export class BaseQuery<T extends z.ZodTypeAny> {
-  query: string;
-  schema: T;
-
-  constructor({ query, schema }: Payload<T>) {
-    this.query = query;
-    this.schema = schema;
-  }
-
-  public value(): Payload<T> {
-    return { schema: this.schema, query: this.query };
-  }
-
-  nullable() {
-    return new NullableBaseQuery({
-      query: this.query,
-      schema: this.schema.nullable(),
-    });
-  }
-}
-
-export class NullableBaseQuery<T extends z.ZodTypeAny> extends BaseQuery<
-  z.ZodNullable<T>
-> {
-  constructor({ schema, query }: Payload<T>) {
-    super({ schema: schema.nullable(), query });
-  }
-}
+import { Payload, BaseQuery } from "./baseQuery";
 
 /**
  * Single Entity
@@ -44,6 +21,21 @@ export class NullableBaseQuery<T extends z.ZodTypeAny> extends BaseQuery<
 export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
   constructor(payload: Payload<T>) {
     super(payload);
+  }
+
+  select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): EntityQuery<Spread<SelectSchemaType<Conditions>>>;
+  select<S extends ZodUnionAny>(s: BaseQuery<S>): EntityQuery<Spread<S>>;
+  select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): EntityQuery<Spread<SelectSchemaType<Conditions>>> {
+    const _select = extendsBaseQuery(s) ? s : select(s);
+
+    return new EntityQuery<Spread<SelectSchemaType<Conditions>>>({
+      query: this.query + `{...${_select.query}}`,
+      schema: spreadUnionSchema(_select.schema),
+    });
   }
 
   grab<
@@ -118,6 +110,21 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
 > {
   constructor(payload: Payload<z.ZodArray<T>>) {
     super(payload);
+  }
+
+  select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): ArrayQuery<Spread<SelectSchemaType<Conditions>>>;
+  select<S extends ZodUnionAny>(s: BaseQuery<S>): ArrayQuery<Spread<S>>;
+  select<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): ArrayQuery<Spread<SelectSchemaType<Conditions>>> {
+    const _select = extendsBaseQuery(s) ? s : select(s);
+
+    return new ArrayQuery<Spread<SelectSchemaType<Conditions>>>({
+      query: this.query + `{...${_select.query}}`,
+      schema: z.array(spreadUnionSchema(_select.schema)),
+    });
   }
 
   filter(filterValue = "") {

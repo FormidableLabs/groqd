@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseQuery } from "./builder";
+import { BaseQuery } from "./baseQuery";
 
 /**
  * Utility to create a "query runner" that consumes the result of the `q` function.

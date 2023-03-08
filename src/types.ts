@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { BaseQuery } from "./builder";
-import { FromSelection, Selection } from "./grab";
+import { BaseQuery } from "./baseQuery";
 
 export type ValueOf<T> = T[keyof T];
 
@@ -36,3 +35,24 @@ type ArrayToObj<T extends any[]> = {
 type FieldToObj<T> = {
   [K in T & string]: { [Key in K]: true };
 }[T & string];
+
+/**
+ * Misc internal utils
+ */
+
+type Field<T extends z.ZodType> = T;
+type FromField<T> = T extends Field<infer R>
+  ? R
+  : T extends [string, infer R]
+  ? R
+  : never;
+export type FromSelection<Sel extends Selection> = z.ZodObject<{
+  [K in keyof Sel]: Sel[K] extends BaseQuery<any>
+    ? Sel[K]["schema"]
+    : FromField<Sel[K]>;
+}>;
+
+export type Selection = Record<
+  string,
+  BaseQuery<any> | z.ZodType | [string, z.ZodType]
+>;

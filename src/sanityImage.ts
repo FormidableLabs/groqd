@@ -1,5 +1,5 @@
 import { ArrayQuery, EntityQuery, UnknownQuery } from "./builder";
-import type { FromSelection, Selection } from "./grab";
+import type { FromSelection, Selection } from "./types";
 import { schemas } from "./schemas";
 import { ListIncludes } from "./types";
 
