@@ -63,3 +63,15 @@ Review the file, make any necessary adjustments, and commit it to source. When w
 ### Creating versions
 
 On a merge of a feature PR, the changesets GitHub action will open a new PR titled `"Version Packages"`. This PR is automatically kept up to date with additional PRs with changesets. So, if you're not ready to publish yet, just keep merging feature PRs and then merge the version packages PR later.
+
+## Documentation
+
+We're using [Docusaurus](https://docusaurus.io/) to for the scaffolding of our documentation. The docs source files live in `docs` (so they can be viewed on GitHub), but the docusaurus site is built from `website`. To run the docs locally, run the following.
+
+```shell
+cd website
+yarn install
+yarn start
+```
+
+To contribute to the docs, make changes within the `docs` folder.

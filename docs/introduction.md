@@ -6,4 +6,4 @@ slug: /
 
 # Introduction
 
-Just testing some stuff.
+Just getting some stuff setup...
