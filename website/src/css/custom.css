@@ -8,13 +8,13 @@
 
 /* Override infima variables */
 :root {
-  --ifm-color-primary: #5e548e;
-  --ifm-color-primary-dark: #554c80;
-  --ifm-color-primary-darker: #504779;
-  --ifm-color-primary-darkest: #423b63;
-  --ifm-color-primary-light: #675c9c;
-  --ifm-color-primary-lighter: #6d62a2;
-  --ifm-color-primary-lightest: #8177af;
+  --ifm-color-primary: #917129;
+  --ifm-color-primary-dark: #836625;
+  --ifm-color-primary-darker: #775d22;
+  --ifm-color-primary-darkest: #664f1d;
+  --ifm-color-primary-light: #a07c2d;
+  --ifm-color-primary-lighter: #a7822f;
+  --ifm-color-primary-lightest: #bc9335;
 
   /* Fonts */
   --ifm-font-family-base: Roboto, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
@@ -38,13 +38,13 @@
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #be95c4;
-  --ifm-color-primary-dark: #b07fb8;
-  --ifm-color-primary-darker: #aa74b1;
-  --ifm-color-primary-darkest: #92569b;
-  --ifm-color-primary-light: #ccabd0;
-  --ifm-color-primary-lighter: #d2b6d7;
-  --ifm-color-primary-lightest: #e7d7e9;
+  --ifm-color-primary: #c59938;
+  --ifm-color-primary-dark: #b18a32;
+  --ifm-color-primary-darker: #ab8531;
+  --ifm-color-primary-darkest: #a07c2d;
+  --ifm-color-primary-light: #cca34b;
+  --ifm-color-primary-lighter: #cfa854;
+  --ifm-color-primary-lightest: #d7b772;
 
   /* FORMIDABLE ~BRAND COLORS */
   /*--ifm-color-primary: #f2623b;*/
@@ -75,12 +75,9 @@
 }
 
 .header-github-link:hover::before {
-  background-color: #6e5494;
+  background-color: var(--ifm-color-primary);
 }
 
-[data-theme='dark'] .header-github-link:hover::before {
-  background-color: #6e5494;
-}
 
 
 .header-formidable-link::before {
