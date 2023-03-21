@@ -24,22 +24,32 @@ export function contentBlocks({ markDefs }: { markDefs?: z.ZodType } = {}) {
 }
 
 function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
-  return z.object({
-    _type: z.literal("block"),
-    _key: z.string().optional(),
-    children: z.array(
+  return z
+    .object({
+      _type: z.literal("block"),
+      _key: z.string().optional(),
+      children: z.array(
+        z.object({
+          _key: z.string(),
+          _type: z.string(),
+          text: z.string(),
+          marks: z.array(z.string()),
+        })
+      ),
+      markDefs: z.array(markDefs).optional(),
+      style: z.string().optional(),
+      listItem: z.string().optional(),
+      level: z.number().optional(),
+    })
+    .or(
       z.object({
-        _key: z.string(),
-        _type: z.string(),
-        text: z.string(),
-        marks: z.array(z.string()),
+        _type: z.literal("image"),
+        asset: z.object({
+          _ref: z.string(),
+          _type: z.literal("reference"),
+        }),
       })
-    ),
-    markDefs: z.array(markDefs).optional(),
-    style: z.string().optional(),
-    listItem: z.string().optional(),
-    level: z.number().optional(),
-  });
+    );
 }
 
 const baseMarkdefsType = z

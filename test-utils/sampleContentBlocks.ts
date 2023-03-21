@@ -71,4 +71,12 @@ export const sampleContentBlocks = [
     markDefs: [],
     style: "normal",
   },
+  {
+    _key: "d0ad5f54dce1",
+    _type: "image",
+    asset: {
+      _ref: "image-9423cb7859d34db14222b9e19c37-2560x1707-jpg",
+      _type: "reference",
+    },
+  },
 ];
