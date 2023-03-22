@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { q } from ".";
+import { GroqdParseError, q } from ".";
 import { makeSafeQueryRunner } from "./makeSafeQueryRunner";
+import { runPokemonQuery } from "../test-utils/runQuery";
+import { z } from "zod";
 
 describe("makeSafeQueryRunner", () => {
   it("should create a query runner with single argument", async () => {
@@ -34,5 +36,26 @@ describe("makeSafeQueryRunner", () => {
       { id: "123" }
     );
     expect(res).toEqual([]);
+  });
+
+  it("should have better error message", async () => {
+    const fn = vi.fn((_query: string) =>
+      Promise.resolve([{ things: [{ name: 123 }] }])
+    );
+    const runQuery = makeSafeQueryRunner((query) => fn(query));
+    console.log("Running...");
+
+    try {
+      await runQuery(
+        q("*")
+          .filter()
+          .grab({ things: q.array(q.object({ name: q.string() })) })
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(GroqdParseError);
+      expect(e instanceof Error && e.message).toBe(
+        "Error parsing `result[0].things[0].name`: Expected string, received number."
+      );
+    }
   });
 });
