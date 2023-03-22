@@ -14,29 +14,24 @@ export const makeSafeQueryRunner =
       try {
         return schema.parse(res);
       } catch (e) {
-        if (e instanceof z.ZodError) {
-          const errorPath = `result${e.errors[0].path.reduce((acc, el) => {
-            if (typeof el === "string") {
-              return `${acc}.${el}`;
-            }
-            return `${acc}[${el}]`;
-          }, "")}`;
-
-          throw new GroqdParseError(
-            `Error parsing \`${errorPath}\`: ${e.errors[0].message}.`,
-            e
-          );
-        }
-
+        if (e instanceof z.ZodError) throw new GroqdParseError(e);
         throw e;
       }
     });
 
 export class GroqdParseError extends Error {
-  zodError: z.ZodError;
-  constructor(public readonly message: string, zodError: z.ZodError) {
-    super(message);
-    this.zodError = zodError;
+  readonly zodError: z.ZodError;
+  // zodError: z.ZodError;
+  constructor(public readonly err: z.ZodError) {
+    const errorPath = `result${err.errors[0].path.reduce((acc, el) => {
+      if (typeof el === "string") {
+        return `${acc}.${el}`;
+      }
+      return `${acc}[${el}]`;
+    }, "")}`;
+
+    super(`Error parsing \`${errorPath}\`: ${err.errors[0].message}.`);
+    this.zodError = err;
   }
 }
 
