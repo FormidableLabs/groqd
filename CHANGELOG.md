@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.0
+
+### Minor Changes
+
+- Update `makeSafeQueryRunner` to provide more legible error message when parsing fails ([#95](https://github.com/FormidableLabs/groqd/pull/95))
+
 ## 0.10.0
 
 ### Minor Changes
