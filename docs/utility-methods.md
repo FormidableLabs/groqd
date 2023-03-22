@@ -4,6 +4,53 @@ sidebar_position: 5
 
 # Utility Methods
 
+## `makeSafeQueryRunner`
+
+A wrapper around `q` so you can easily use `groqd` with an actual fetch implementation, with a sprinkle of sugar to improve error message legibility.
+
+Pass `makeSafeQueryRunner` a "query executor" of the shape `type QueryExecutor = (query: string, ...rest: any[]) => Promise<any>`, and it will return a "query runner" function. This is best illustrated with an example:
+
+```ts
+import sanityClient from "@sanity/client";
+import { q } from "groqd";
+
+// Wrap sanityClient.fetch
+const client = sanityClient({
+  /* ... */
+});
+export const runQuery = makeSafeQueryRunner((query) => client.fetch(query));
+
+// 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
+const data = await runQuery(
+  q("*").filter("_type == 'pokemon'").grab({ name: q.string() }).slice(0, 150)
+);
+```
+
+In Sanity workflows, you might also want to pass e.g. params to your `client.fetch` call. To support this, add additional arguments to your `makeSafeQueryRunner` argument's arguments as below.
+
+```ts
+// ...
+export const runQuery = makeSafeQueryRunner(
+  //      👇 add a second arg
+  (query, params: Record<string, unknown> = {}) => client.fetch(query, params)
+);
+
+const data = await runQuery(
+  q("*").filter("_type == 'pokemon' && _id == $id").grab({ name: q.string() }),
+  { id: "pokemon.1" } // 👈 and optionally pass them here.
+);
+```
+
+:::tip
+The `makeSafeQueryRunner` utility adds a bit of error handling around parsing, and if parsing fails (due to Zod validation), `makeSafeQueryRunner` will throw a `GroqdParseError` error that contains an error message such as:
+
+```txt
+Error parsing `result[0].things[0].name`: Expected string, received number.
+```
+
+You can import the `GroqdParseError` class directly from `groqd` if you need it for `instanceof` checks.
+:::
+
 ## `nullToUndefined`
 
 GROQ will return `null` if you query for a value that does not exist. This can lead to confusion when writing queries, because Zod's `.optional().default("default value")` doesn't work with null values. `groqd` ships with a `nullToUndefined` method that will preprocess `null` values into `undefined` to smooth over this rough edge.
@@ -140,42 +187,4 @@ q("*")
   });
 
 // -> { cover: { ..., asset: { extension: string; mimeType: string; ...; metadata: { dimensions: { aspectRatio: number; height: number; width: number; }; }; }; } }[]
-```
-
-## `makeSafeQueryRunner`
-
-
-A wrapper around `q` so you can easily use `groqd` with an actual fetch implementation.
-
-Pass `makeSafeQueryRunner` a "query executor" of the shape `type QueryExecutor = (query: string, ...rest: any[]) => Promise<any>`, and it will return a "query runner" function. This is best illustrated with an example:
-
-```ts
-import sanityClient from "@sanity/client";
-import { q } from "groqd";
-
-// Wrap sanityClient.fetch
-const client = sanityClient({
-  /* ... */
-});
-export const runQuery = makeSafeQueryRunner((query) => client.fetch(query));
-
-// 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
-const data = await runQuery(
-  q("*").filter("_type == 'pokemon'").grab({ name: q.string() }).slice(0, 150)
-);
-```
-
-In Sanity workflows, you might also want to pass e.g. params to your `client.fetch` call. To support this, add additional arguments to your `makeSafeQueryRunner` argument's arguments as below.
-
-```ts
-// ...
-export const runQuery = makeSafeQueryRunner(
-  //      👇 add a second arg
-  (query, params: Record<string, unknown> = {}) => client.fetch(query, params)
-);
-
-const data = await runQuery(
-  q("*").filter("_type == 'pokemon' && _id == $id").grab({ name: q.string() }),
-  { id: "pokemon.1" } // 👈 and optionally pass them here.
-);
 ```
