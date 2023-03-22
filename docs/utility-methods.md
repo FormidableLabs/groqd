@@ -26,7 +26,7 @@ const data = await runQuery(
 );
 ```
 
-In Sanity workflows, you might also want to pass e.g. params to your `client.fetch` call. To support this, add additional arguments to your `makeSafeQueryRunner` argument's arguments as below.
+In Sanity workflows, you might also want to pass e.g. params to your `client.fetch` call. To support this add additional arguments to your `makeSafeQueryRunner` query executor's arguments as below.
 
 ```ts
 // ...
