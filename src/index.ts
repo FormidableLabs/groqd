@@ -5,7 +5,7 @@ import { schemas } from "./schemas";
 import { select } from "./select";
 
 export type { InferType, TypeFromSelection, Selection } from "./types";
-export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
+export { makeSafeQueryRunner, GroqdParseError } from "./makeSafeQueryRunner";
 export { nullToUndefined } from "./nullToUndefined";
 
 export const pipe = (filter: string): UnknownQuery => {

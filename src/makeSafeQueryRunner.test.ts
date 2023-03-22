@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { q } from ".";
+import { GroqdParseError, q } from ".";
 import { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 
 describe("makeSafeQueryRunner", () => {
@@ -34,5 +34,41 @@ describe("makeSafeQueryRunner", () => {
       { id: "123" }
     );
     expect(res).toEqual([]);
+  });
+
+  it("should have better error message", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const fn = vi.fn((_query: string) => Promise.resolve({ foo: "bar" }));
+    const runQuery = makeSafeQueryRunner((query) => fn(query));
+
+    try {
+      await runQuery(q("*").grab({ foo: q.literal("baz") }));
+    } catch (e) {
+      expect(e).toBeInstanceOf(GroqdParseError);
+      expect(e instanceof Error && e.message).toBe(
+        'Error parsing `result.foo`: Invalid literal value, expected "baz".'
+      );
+    }
+  });
+
+  it("should have better error message (for nested arrays/objects)", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const fn = vi.fn((_query: string) =>
+      Promise.resolve([{ things: [{ name: 123 }] }])
+    );
+    const runQuery = makeSafeQueryRunner((query) => fn(query));
+
+    try {
+      await runQuery(
+        q("*")
+          .filter()
+          .grab({ things: q.array(q.object({ name: q.string() })) })
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(GroqdParseError);
+      expect(e instanceof Error && e.message).toBe(
+        "Error parsing `result[0].things[0].name`: Expected string, received number."
+      );
+    }
   });
 });
