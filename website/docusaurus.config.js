@@ -9,7 +9,7 @@ const config = {
   title: "GROQD",
   tagline: "Typesafe GROQ Query Builder",
   url: "https://formidable.com",
-  baseUrl: "/open-source/groqd/",
+  baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
