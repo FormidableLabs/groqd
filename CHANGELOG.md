@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0
+
+### Minor Changes
+
+- Optional isArray option for q()/pipe() method ([#98](https://github.com/FormidableLabs/groqd/pull/98))
+
 ## 0.11.0
 
 ### Minor Changes
