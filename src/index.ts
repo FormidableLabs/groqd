@@ -21,9 +21,6 @@ export function pipe(
     ? new UnknownArrayQuery({ query: filter })
     : new UnknownQuery({ query: filter });
 }
-// export const pipe = (filter: string): UnknownQuery => {
-//   return new UnknownQuery({ query: filter });
-// };
 
 pipe.sanityImage = sanityImage;
 pipe.select = select;
