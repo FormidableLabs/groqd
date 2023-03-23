@@ -102,6 +102,15 @@ export const runQuery = makeSafeQueryRunner((query) => client.fetch(query));
 const data = await runQuery(q("*").filter("_type == 'pokemon'"));
 ```
 
+### Starting with an array
+
+Sometimes your base query returns an array. `groqd` has no way of knowing when this occurs, so you'll need to give it a hint by passing `isArray: true` to the second arg of `q`.
+
+```ts
+q("*[_type == 'pokemon']", { isArray: true })
+  .grab$({ name: q.string() })
+```
+
 ### `.grab`
 
 Available on `UnknownQuery`, `ArrayQuery`, and `EntityQuery`, handles [projections](https://www.sanity.io/docs/how-queries-work#727ecb6f5e15), or selecting fields from an existing set of documents. This is the primary mechanism for providing a schema for the data you expect to get.
