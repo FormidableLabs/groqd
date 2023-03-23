@@ -30,6 +30,15 @@ export const runQuery = makeSafeQueryRunner((query) => client.fetch(query));
 const data = await runQuery(q("*").filter("_type == 'pokemon'"));
 ```
 
+### Starting with an array
+
+Sometimes your base query returns an array. `groqd` has no way of knowing when this occurs, so you'll need to give it a hint by passing `isArray: true` to the second arg of `q`.
+
+```ts
+q("*[_type == 'pokemon']", { isArray: true })
+  .grab$({ name: q.string() })
+```
+
 ## `.filter`
 
 Receives a single string argument for the GROQ filter to be applied (without the surrounding `[` and `]`). Applies the GROQ filter to the query and adjusts schema accordingly.
