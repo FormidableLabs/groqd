@@ -97,10 +97,7 @@ export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
   }
 
   filterByType(filterTypeValue: string) {
-    this.query += `[_type == '${filterTypeValue}']`;
-    return new UnknownArrayQuery({
-      ...this.value(),
-    });
+    return this.filter(`_type == '${filterTypeValue}'`);
   }
 
   deref() {
