@@ -36,8 +36,7 @@ const config = {
           routeBasePath: "/",
           path: "../docs",
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl:
-            "https://github.com/FormidableLabs/react-native-zephyr/tree/master/packages/website",
+          editUrl: "https://github.com/FormidableLabs/groqd/tree/main/website",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
