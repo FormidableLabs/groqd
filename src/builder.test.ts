@@ -311,6 +311,41 @@ describe("UnknownResult.filter/ArrayResult.filter", () => {
   });
 });
 
+describe("UnknownResult.filterByType/ArrayResult.filterByType", () => {
+  it("applies a filterByType to an UnknownResult returning an unkown array", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*").filterByType("pokemon")
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon']`);
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
+    expect(Array.isArray(data) && "name" in data[0]).toBeTruthy();
+  });
+
+  it("can stack a filter and filterByType, with no projection, schema is still unknown", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*").filterByType("pokemon").filter("name match 'clef*'")
+    );
+
+    expect(query).toBe(`*[_type == 'pokemon'][name match 'clef*']`);
+    expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
+    expect(data?.length).toBe(2);
+  });
+
+  it("can filterByType, project, and filter, and schema of projection is preserved", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filterByType("pokemon")
+        .grab({ name: z.string() })
+        .filter("name match 'gen*'")
+    );
+    expect(query).toBe(`*[_type == 'pokemon']{name}[name match 'gen*']`);
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ name: string }[]>();
+    expect(data[0].name).toEqual("Gengar");
+  });
+});
+
 describe("ArrayResult.order", () => {
   it("applies order, preserves unknown schema", async () => {
     const { query, data } = await runPokemonQuery(

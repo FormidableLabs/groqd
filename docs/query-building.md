@@ -48,6 +48,15 @@ q("*").filter("_type == 'pokemon'");
 // translates to: *[_type == 'pokemon']
 ```
 
+## `.filterByType`
+
+Receives a single string argument as a convenience method to apply a GROQ filter by type. Applies a GROQ filter by type to the query and adjusts schema accordingly.
+
+```ts
+q("*").filterByType("pokemon");
+// translates to: *[_type == 'pokemon']
+```
+
 ## `.grab`
 
 

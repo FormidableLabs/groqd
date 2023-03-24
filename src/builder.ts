@@ -96,6 +96,13 @@ export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
     });
   }
 
+  filterByType(filterTypeValue: string) {
+    this.query += `[_type == '${filterTypeValue}']`;
+    return new UnknownArrayQuery({
+      ...this.value(),
+    });
+  }
+
   deref() {
     this.query += "->";
     return this;
@@ -129,6 +136,11 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
 
   filter(filterValue = "") {
     this.query += `[${filterValue}]`;
+    return this;
+  }
+
+  filterByType(filterTypeValue: string) {
+    this.query += `[_type == '${filterTypeValue}']`;
     return this;
   }
 
