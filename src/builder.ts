@@ -137,8 +137,7 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
   }
 
   filterByType(filterTypeValue: string) {
-    this.query += `[_type == '${filterTypeValue}']`;
-    return this;
+    return this.filter(`_type == '${filterTypeValue}'`);
   }
 
   grab<
