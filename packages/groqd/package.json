@@ -40,10 +40,7 @@
     "typecheck": "tsc --noEmit",
     "check:ci": "yarn typecheck && yarn lint && yarn test",
     "build": "tsup",
-    "preversion": "yarn check:ci",
-    "prepare": "yarn build",
-    "changeset": "changeset",
-    "version": "yarn changeset version && yarn install --frozen-lockfile"
+    "preversion": "yarn check:ci"
   },
   "devDependencies": {
     "@sanity/client": "^3.4.1",

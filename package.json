@@ -9,7 +9,12 @@
   "scripts": {
     "lint": "eslint packages/**/src --quiet",
     "test": "yarn workspaces run test",
-    "typecheck": "tsc --noEmit"
+    "test:watch": "yarn workspaces run test:watch",
+    "typecheck": "tsc --noEmit",
+    "build": "yarn workspaces run build",
+    "prepare": "yarn build",
+    "changeset": "changeset",
+    "version": "yarn changeset version && yarn install"
   },
   "devDependencies": {
     "@svitejs/changesets-changelog-github-compact": "^1.1.0",
