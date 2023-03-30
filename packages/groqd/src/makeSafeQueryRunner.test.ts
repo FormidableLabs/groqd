@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { GroqdParseError, q } from ".";
+import { GroqdParseError, q } from "./index";
 import { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 
 describe("makeSafeQueryRunner", () => {
