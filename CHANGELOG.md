@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0
+
+### Minor Changes
+
+- Add filterByType convenience method ([#102](https://github.com/FormidableLabs/groqd/pull/102))
+
 ## 0.12.0
 
 ### Minor Changes
