@@ -38,7 +38,6 @@
     "test:watch": "vitest",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "check:ci": "yarn typecheck && yarn lint && yarn test",
     "build": "tsup",
     "preversion": "yarn check:ci"
   },
