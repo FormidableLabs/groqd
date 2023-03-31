@@ -1,5 +1,5 @@
 import sanityClient from "@sanity/client";
-import { makeSafeQueryRunner, q } from "../src";
+import { makeSafeQueryRunner } from "groqd/src";
 
 const client = sanityClient({
   projectId: "your-project-id",

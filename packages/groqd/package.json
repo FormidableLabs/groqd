@@ -1,0 +1,57 @@
+{
+  "name": "groqd",
+  "version": "0.13.0",
+  "license": "MIT",
+  "author": {
+    "name": "Formidable",
+    "url": "https://formidable.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formidablelabs/groqd.git"
+  },
+  "homepage": "https://github.com/formidablelabs/groqd",
+  "keywords": [
+    "sanity",
+    "groq",
+    "query",
+    "typescript"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": [
+      {
+        "import": "./dist/index.mjs",
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./dist/index.js"
+    ],
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test:watch": "vitest",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsup",
+    "preversion": "yarn check:ci"
+  },
+  "devDependencies": {
+    "@sanity/client": "^3.4.1",
+    "groq-js": "^1.1.1",
+    "tiny-invariant": "^1.3.1",
+    "tsup": "^6.3.0",
+    "vitest": "^0.28.5"
+  },
+  "dependencies": {
+    "zod": "^3.20.2"
+  },
+  "engines": {
+    "node": ">= 14"
+  }
+}
