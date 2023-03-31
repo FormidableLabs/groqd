@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.1
+
+### Patch Changes
+
+- Moving to monorepo, this is a test release to ensure changesets functionality remains in tact ([#107](https://github.com/FormidableLabs/groqd/pull/107))
+
 ## 0.13.0
 
 ### Minor Changes
