@@ -13,9 +13,10 @@
     "typecheck": "tsc --noEmit",
     "check:ci": "yarn typecheck && yarn lint && yarn test",
     "build": "yarn workspaces run build",
-    "prepare": "yarn build",
     "changeset": "changeset",
-    "version": "yarn changeset version && yarn install"
+    "version": "yarn changeset version && yarn install",
+    "start:docs": "yarn --cwd website start",
+    "build:docs": "yarn --cwd website build"
   },
   "devDependencies": {
     "@svitejs/changesets-changelog-github-compact": "^1.1.0",
