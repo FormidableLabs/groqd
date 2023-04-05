@@ -77,6 +77,8 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
+
+      image: "/img/groqd-social.png",
     }),
 };
 
