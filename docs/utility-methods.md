@@ -80,17 +80,19 @@ q("*")
 The [`.grab$`](/query-building#grab-1) and [`.grabOne$`](/query-building#grabone-1) methods use this under the hood – in most instances, we recommend you just use `.grab$` and `.grabOne$` instead of this utility.
 :::
 
-## `q.sanityImage`
+## `sanityImage`
 
 A convenience method to make it easier to generate image queries for Sanity's image type. Supports fetching various info from both `image` documents and `asset` documents.
 
 In its simplest form, it looks something like this:
 
 ```ts
+import { q, sanityImage } from "groqd";
+
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    cover: q.sanityImage("cover"), // 👈 just pass the field name
+    cover: sanityImage("cover"), // 👈 just pass the field name
   });
 
 // -> { cover: { _key: string; _type: string; asset: { _type: "reference"; _ref: string; } } }[]
@@ -98,21 +100,25 @@ q("*")
 
 which will allow you to fetch the minimal/basic image document information.
 
-### `q.sanityImage`'s `isList` option
+:::info
+`sanityImage` used to be attached to `q` as `q.sanityImage`. Due to its complexity, it has since been moved out into its own standalone utility method.  
+:::
 
-If you have an array of image documents, you can pass `isList: true` to an options object as the second argument to `q.sanityImage` method.
+### `sanityImage`'s `isList` option
+
+If you have an array of image documents, you can pass `isList: true` to an options object as the second argument to `sanityImage` method.
 
 ```ts
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    images: q.sanityImage("images", { isList: true }), // 👈 fetch as a list
+    images: sanityImage("images", { isList: true }), // 👈 fetch as a list
   });
 
 // -> { images: { ... }[] }[]
 ```
 
-### `q.sanityImage`'s `withCrop` option
+### `sanityImage`'s `withCrop` option
 
 Sanity's image document has fields for crop information, which you can query for with the `withCrop` option.
 
@@ -120,13 +126,13 @@ Sanity's image document has fields for crop information, which you can query for
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    cover: q.sanityImage("cover", { withCrop: true }), // 👈 fetch crop info
+    cover: sanityImage("cover", { withCrop: true }), // 👈 fetch crop info
   });
 
 // -> { cover: { ..., crop: { top: number; bottom: number; left: number; right: number; } | null } }[]
 ```
 
-### `q.sanityImage`'s `withHotspot` option
+### `sanityImage`'s `withHotspot` option
 
 Sanity's image document has fields for hotspot information, which you can query for with the `withHotspot` option.
 
@@ -134,13 +140,13 @@ Sanity's image document has fields for hotspot information, which you can query 
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    cover: q.sanityImage("cover", { withHotpot: true }), // 👈 fetch hotspot info
+    cover: sanityImage("cover", { withHotpot: true }), // 👈 fetch hotspot info
   });
 
 // -> { cover: { ..., hotspot: { x: number; y: number; height: number; width: number; } | null } }[]
 ```
 
-### `q.sanityImage`'s `additionalFields` option
+### `sanityImage`'s `additionalFields` option
 
 Sanity allows you to add additional fields to their image documents, such as alt text or descriptions. The `additionalFields` option allows you to specify such fields to query with your image query.
 
@@ -148,7 +154,7 @@ Sanity allows you to add additional fields to their image documents, such as alt
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    cover: q.sanityImage("cover", {
+    cover: sanityImage("cover", {
       // 👇 fetch additional fields
       additionalFields: {
         alt: q.string(),
@@ -160,9 +166,9 @@ q("*")
 // -> { cover: { ..., alt: string, description: string } }[]
 ```
 
-### `q.sanityImage`'s `withAsset` option
+### `sanityImage`'s `withAsset` option
 
-Sanity's image documents have a reference to an asset document that contains a whole host of information relative to the uploaded image asset itself. The `q.sanityImage` will allow you to dereference this asset document and query various fields from it.
+Sanity's image documents have a reference to an asset document that contains a whole host of information relative to the uploaded image asset itself. The `sanityImage` will allow you to dereference this asset document and query various fields from it.
 
 You can pass an array to the `withAsset` option to specify which fields you want to query from the asset document:
 
@@ -181,7 +187,7 @@ An example:
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    cover: q.sanityImage("cover", {
+    cover: sanityImage("cover", {
       withAsset: ["base", "dimensions"],
     }),
   });
