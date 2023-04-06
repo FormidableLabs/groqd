@@ -3,6 +3,7 @@ import { UnknownArrayQuery, UnknownQuery } from "./builder";
 import { sanityImage } from "./sanityImage";
 import { schemas } from "./schemas";
 import { select } from "./select";
+import { addDeprecationMessage } from "./addDeprecationMessage";
 
 export type { InferType, TypeFromSelection, Selection } from "./types";
 export { makeSafeQueryRunner, GroqdParseError } from "./makeSafeQueryRunner";
@@ -22,7 +23,10 @@ export function pipe(
     : new UnknownQuery({ query: filter });
 }
 
-pipe.sanityImage = sanityImage;
+pipe.sanityImage = addDeprecationMessage(
+  sanityImage,
+  "`q.sanityImage` is being deprecated in favor of importing `sanityImage` directly from `groqd`. `q.sanityImage` will be removed in future versions."
+);
 pipe.select = select;
 
 // Add schemas
@@ -35,4 +39,4 @@ export const q = pipe as Pipe;
 /**
  * Export zod for convenience
  */
-export { z };
+export { z, sanityImage };
