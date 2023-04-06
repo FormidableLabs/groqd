@@ -25,7 +25,7 @@ export function pipe(
 
 pipe.sanityImage = addDeprecationMessage(
   sanityImage,
-  "`q.sanityImage` is being deprecated in favor of importing `sanityImage` directly from `groqd`. `q.sanityImage` will be removed in future versions."
+  "`q.sanityImage` has been deprecated in favor of importing `sanityImage` directly from `groqd`. `q.sanityImage` will be removed in future versions."
 );
 pipe.select = select;
 
