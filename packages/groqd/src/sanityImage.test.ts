@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { runPokemonQuery } from "../test-utils/runQuery";
-import { q } from "./index";
+import { q, sanityImage } from "./index";
 import invariant from "tiny-invariant";
 
 describe("sanityImage", () => {
@@ -11,7 +11,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover"),
+          cover: sanityImage("cover"),
         })
     );
 
@@ -43,7 +43,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", { withCrop: true }),
+          cover: sanityImage("cover", { withCrop: true }),
         })
     );
 
@@ -75,7 +75,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", { withHotspot: true }),
+          cover: sanityImage("cover", { withHotspot: true }),
         })
     );
 
@@ -107,7 +107,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             additionalFields: {
               description: q.string(),
             },
@@ -137,7 +137,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          images: q.sanityImage("images", {
+          images: sanityImage("images", {
             withCrop: true,
             isList: true,
             additionalFields: {
@@ -170,7 +170,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             withAsset: ["base"],
           }),
         })
@@ -209,7 +209,7 @@ describe("sanityImage", () => {
         .slice(1, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             withAsset: ["dimensions"],
           }),
         })
@@ -241,7 +241,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             withAsset: ["dimensions"],
           }),
         })
@@ -273,7 +273,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             withAsset: ["location"],
           }),
         })
@@ -301,7 +301,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             withAsset: ["lqip"],
           }),
         })
@@ -325,7 +325,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             withAsset: ["palette"],
           }),
         })
@@ -374,7 +374,7 @@ describe("sanityImage", () => {
         .slice(0, 1)
         .grab({
           name: q.string(),
-          cover: q.sanityImage("cover", {
+          cover: sanityImage("cover", {
             withAsset: ["hasAlpha", "isOpaque", "blurHash"],
           }),
         })
