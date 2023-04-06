@@ -25,7 +25,7 @@ export function contentBlocks({ markDefs }: { markDefs?: z.ZodType } = {}) {
 
 function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
   return z.object({
-    _type: z.literal("block"),
+    _type: z.string(),
     _key: z.string().optional(),
     children: z.array(
       z.object({
