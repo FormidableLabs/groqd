@@ -27,4 +27,3 @@ const response = schema.parse(await sanityClient.fetch(query));
 // At this point, response has a type of:
 // { name: string, pokemons: { name: string }[] }[]
 // 👆👆
-```
