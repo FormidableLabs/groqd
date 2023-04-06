@@ -28,20 +28,3 @@ const response = schema.parse(await sanityClient.fetch(query));
 // { name: string, pokemons: { name: string }[] }[]
 // 👆👆
 ```
-
-## Support
-
-Have a question about Groqd? Submit an issue in this repository using the
-["Question" template](https://github.com/FormidableLabs/groqd/issues/new?template=question.md).
-
-Notice something inaccurate or confusing? Feel free to [open an issue](https://github.com/FormidableLabs/groqd/issues/new/choose) or [make a pull request](https://github.com/FormidableLabs/groqd/pulls) to help improve the documentation for everyone!
-
-The source for our docs site lives in this repo in the [`docs`](https://github.com/FormidableLabs/groqd/blob/main/docs) folder.
-
-## Contributing
-
-Please see our [contributing guide](CONTRIBUTING.md).
-
-## Maintenance Status
-
-**Active:** Formidable is actively working on this project, and we expect to continue for work for the foreseeable future. Bug reports, feature requests and pull requests are welcome.
