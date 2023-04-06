@@ -23,14 +23,17 @@ export class GroqdParseError extends Error {
   readonly zodError: z.ZodError;
   // zodError: z.ZodError;
   constructor(public readonly err: z.ZodError) {
-    const errorPath = `result${err.errors[0].path.reduce((acc, el) => {
-      if (typeof el === "string") {
-        return `${acc}.${el}`;
-      }
-      return `${acc}[${el}]`;
-    }, "")}`;
+    const errorMessages = err.errors.map(
+      (e) =>
+        `\t\`result${e.path.reduce((acc, el) => {
+          if (typeof el === "string") {
+            return `${acc}.${el}`;
+          }
+          return `${acc}[${el}]`;
+        }, "")}\`: ${e.message}`
+    );
 
-    super(`Error parsing \`${errorPath}\`: ${err.errors[0].message}.`);
+    super(`Error parsing:\n${errorMessages.join("\n")}`);
     this.zodError = err;
   }
 }
