@@ -3,8 +3,9 @@ import { evaluate, parse } from "groq-js";
 import { pokemonDataset } from "./pokemon";
 import { BaseQuery } from "../src/baseQuery";
 import { userDataset } from "./users";
+import { GroqdParseError, makeSafeQueryRunner } from "../src";
 
-const makeQueryRunner =
+const _makeRunner =
   (dataset: any[]) =>
   async <T extends z.ZodType>(
     pipeVal: BaseQuery<T>
@@ -14,22 +15,27 @@ const makeQueryRunner =
     data?: z.infer<T>;
     error?: Error;
   }> => {
-    try {
-      const tree = parse(pipeVal.query);
+    const runner = makeSafeQueryRunner(async (query: string) => {
+      const tree = parse(query);
       const _ = await evaluate(tree, { dataset });
       const rawRes = await _.get();
 
-      const data = pipeVal.schema.parse(rawRes);
+      return rawRes;
+    });
+
+    try {
+      const data = await runner(pipeVal);
+
       return { data, query: pipeVal.query, schema: pipeVal.schema };
     } catch (err) {
       return {
         query: pipeVal.query,
         schema: pipeVal.schema,
-        error: err as Error,
+        error: err as GroqdParseError,
       };
     }
   };
 
-export const runPokemonQuery = makeQueryRunner(pokemonDataset);
+export const runPokemonQuery = _makeRunner(pokemonDataset);
 
-export const runUserQuery = makeQueryRunner(userDataset);
+export const runUserQuery = _makeRunner(userDataset);

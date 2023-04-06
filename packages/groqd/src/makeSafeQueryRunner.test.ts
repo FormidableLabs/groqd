@@ -46,7 +46,7 @@ describe("makeSafeQueryRunner", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(GroqdParseError);
       expect(e instanceof Error && e.message).toBe(
-        'Error parsing `result.foo`: Invalid literal value, expected "baz".'
+        'Error parsing:\n\t`result.foo`: Invalid literal value, expected "baz"'
       );
     }
   });
@@ -54,7 +54,7 @@ describe("makeSafeQueryRunner", () => {
   it("should have better error message (for nested arrays/objects)", async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const fn = vi.fn((_query: string) =>
-      Promise.resolve([{ things: [{ name: 123 }] }])
+      Promise.resolve([{ things: [{ name: 123 }], foo: "bar" }])
     );
     const runQuery = makeSafeQueryRunner((query) => fn(query));
 
@@ -62,12 +62,15 @@ describe("makeSafeQueryRunner", () => {
       await runQuery(
         q("*")
           .filter()
-          .grab({ things: q.array(q.object({ name: q.string() })) })
+          .grab({
+            things: q.array(q.object({ name: q.string() })),
+            foo: q.literal("baz"),
+          })
       );
     } catch (e) {
       expect(e).toBeInstanceOf(GroqdParseError);
       expect(e instanceof Error && e.message).toBe(
-        "Error parsing `result[0].things[0].name`: Expected string, received number."
+        `Error parsing:\n\t\`result[0].things[0].name\`: Expected string, received number\n\t\`result[0].foo\`: Invalid literal value, expected "baz"`
       );
     }
   });
