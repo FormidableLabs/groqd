@@ -3,28 +3,28 @@ import { z } from "zod";
 /**
  * Content block schema for standard content blocks.
  */
-export function contentBlock(): ReturnType<
-  typeof makeContentBlockQuery<typeof baseMarkdefsType>
+export function contentBlock(): z.ZodObject<
+  ReturnType<typeof makeContentBlockQuery<typeof baseMarkdefsType>>
 >;
 export function contentBlock<T extends z.ZodType>(args: {
   markDefs: T;
-}): ReturnType<typeof makeContentBlockQuery<T>>;
+}): z.ZodObject<ReturnType<typeof makeContentBlockQuery<T>>>;
 export function contentBlock({ markDefs }: { markDefs?: z.ZodType } = {}) {
-  return makeContentBlockQuery(markDefs || baseMarkdefsType);
+  return z.object(makeContentBlockQuery(markDefs || baseMarkdefsType));
 }
 
 export function contentBlocks(): z.ZodArray<
-  ReturnType<typeof makeContentBlockQuery<typeof baseMarkdefsType>>
+  z.ZodObject<ReturnType<typeof makeContentBlockQuery<typeof baseMarkdefsType>>>
 >;
 export function contentBlocks<T extends z.ZodType>(args: {
   markDefs: T;
-}): z.ZodArray<ReturnType<typeof makeContentBlockQuery<T>>>;
+}): z.ZodArray<z.ZodObject<ReturnType<typeof makeContentBlockQuery<T>>>>;
 export function contentBlocks({ markDefs }: { markDefs?: z.ZodType } = {}) {
-  return z.array(makeContentBlockQuery(markDefs || baseMarkdefsType));
+  return z.array(z.object(makeContentBlockQuery(markDefs || baseMarkdefsType)));
 }
 
-function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
-  return z.object({
+export function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
+  return {
     _type: z.string(),
     _key: z.string().optional(),
     children: z.array(
@@ -39,7 +39,7 @@ function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
     style: z.string().optional(),
     listItem: z.string().optional(),
     level: z.number().optional(),
-  });
+  };
 }
 
 const baseMarkdefsType = z

@@ -194,3 +194,30 @@ q("*")
 
 // -> { cover: { ..., asset: { extension: string; mimeType: string; ...; metadata: { dimensions: { aspectRatio: number; height: number; width: number; }; }; }; } }[]
 ```
+
+## `makeContentBlockQuery`
+
+`groqd` offers a [`q.contentBlock`](./schema-types.md#qcontentblock) utility method. Under the hood, it uses `makeContentBlockQuery` which generates a content block query that is passed into `z.object` under the hood. This utility method is exposed publicly for cases where you need a little bit of additional flexibility around block content queries.
+
+The raw source code for this function is shown below if you need a reference to the specific fields it returns.
+
+```ts
+export function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
+  return {
+    _type: z.string(),
+    _key: z.string().optional(),
+    children: z.array(
+      z.object({
+        _key: z.string(),
+        _type: z.string(),
+        text: z.string(),
+        marks: z.array(z.string()),
+      })
+    ),
+    markDefs: z.array(markDefs).optional(),
+    style: z.string().optional(),
+    listItem: z.string().optional(),
+    level: z.number().optional(),
+  };
+}
+```
