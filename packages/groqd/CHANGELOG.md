@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.14.0
+
+### Minor Changes
+
+- Deprecate q.sanityImage in favor of standalone sanityImage method, address #109 ([#117](https://github.com/FormidableLabs/groqd/pull/117))
+
+- Loosen \_type field of content block to z.string(), since \_type: "block" isn't necessarily required. Addresses #114. ([#118](https://github.com/FormidableLabs/groqd/pull/118))
+
+### Patch Changes
+
+- Add README back to groqd package ([#113](https://github.com/FormidableLabs/groqd/pull/113))
+
+- Report all errors in makeSafeQueryRunner ([#121](https://github.com/FormidableLabs/groqd/pull/121))
+
+- Expose makeContentBlockQuery function for more flexibility around block content querying. ([#120](https://github.com/FormidableLabs/groqd/pull/120))
+
 ## 0.13.1
 
 ### Patch Changes
