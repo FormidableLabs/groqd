@@ -23,7 +23,7 @@ export function contentBlocks({ markDefs }: { markDefs?: z.ZodType } = {}) {
   return z.array(z.object(makeContentBlockQuery(markDefs || baseMarkdefsType)));
 }
 
-export function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
+export function makeContentBlockQuery<T extends z.ZodType>(markDefs?: T) {
   return {
     _type: z.string(),
     _key: z.string().optional(),
@@ -35,7 +35,7 @@ export function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
         marks: z.array(z.string()),
       })
     ),
-    markDefs: z.array(markDefs).optional(),
+    markDefs: z.array(markDefs === undefined ? z.any() : markDefs).optional(),
     style: z.string().optional(),
     listItem: z.string().optional(),
     level: z.number().optional(),
