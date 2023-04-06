@@ -103,3 +103,34 @@
 [data-theme='dark'] .header-formidable-link:hover::before {
   background-color: var(--ifm-color-primary);
 }
+
+.workspace {
+  display: flex;
+  align-items: stretch;
+  flex-grow: 1;
+}
+
+.editor, 
+.preview {
+  position: relative;
+  width: 50%;
+}
+
+.editor > pre,
+.preview > pre {
+  height: 100%;
+}
+
+.preview > pre {
+  background-color: inherit;
+}
+
+.editor > pre {
+  counter-reset: token-line;
+}
+
+.editor > .token-line::before {
+  counter-increment: token-line;
+  content: counter(token-line);
+  padding-right: 10px;
+}
