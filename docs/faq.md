@@ -6,7 +6,28 @@ sidebar_position: 7
 
 ## How do I pass parameters to my groq query?
 
-TODO:
+To pass params to your groq query, you can create a `runQuery` function that wraps `makeSafeQueryRunner` and passes the params as an object to the client object.
+
+```ts
+const client = sanityClient({
+  /* ... */
+});
+
+const query = q("*")
+  .filter("_type == 'pokemon'")
+  .order("name $direction")
+  .grab({
+    name: q.string(),
+  });
+
+const runQuery = (
+  query: string,
+  params: Record<string, number | string> = {}
+) => makeSafeQueryRunner((query) => client.fetch(query, params));
+
+runQuery(query, { direction: 'asc' })
+
+```
 
 ## Can `groqd` handle groq's `coalesce` operator?
 
