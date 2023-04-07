@@ -13,18 +13,20 @@ const client = sanityClient({
   /* ... */
 });
 
-const query = q("*")
-  .filter("_type == 'pokemon'")
-  .order("name $direction")
-  .grab({
-    name: q.string(),
-  });
-
+// 👇 add a params argument
 const runQuery = makeSafeQueryRunner((
   query: string,
   params: Record<string, number | string> = {}
 ) => client.fetch(query, params));
 
+const query = q("*")
+  .filter("_type == 'pokemon'")
+  .order("name $direction") // 👈 use GROQ parameters
+  .grab({
+    name: q.string(),
+  });
+
+// 👇 and pass parameter values to your query runner.
 runQuery(query, { direction: 'asc' })
 
 ```
