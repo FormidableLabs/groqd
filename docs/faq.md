@@ -20,10 +20,10 @@ const query = q("*")
     name: q.string(),
   });
 
-const runQuery = (
+const runQuery = makeSafeQueryRunner((
   query: string,
   params: Record<string, number | string> = {}
-) => makeSafeQueryRunner((query) => client.fetch(query, params));
+) => client.fetch(query, params));
 
 runQuery(query, { direction: 'asc' })
 
