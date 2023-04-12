@@ -11,6 +11,9 @@ export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
 
+  /**
+   * Run the editor code to extract query, and then emit that out
+   */
   const runCode = React.useCallback(async () => {
     try {
       const editor = editorRef.current;
@@ -35,7 +38,6 @@ export function App() {
           },
         },
       };
-      //
       const scope = {
         exports: {},
         require: (name: keyof typeof libs) => libs[name],
@@ -76,7 +78,7 @@ export function App() {
       monaco.Uri.parse("file:///main.ts")
     );
 
-    const u = model.onDidChangeContent(handleContentChange);
+    const didChangeInstance = model.onDidChangeContent(handleContentChange);
 
     editorRef.current = monaco.editor.create(container, {
       model,
@@ -90,17 +92,16 @@ export function App() {
     runCode().catch(console.error);
 
     return () => {
-      u.dispose();
+      didChangeInstance.dispose();
     };
   }, []);
 
   return (
-    <div className="App">
-      <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}></div>
-    </div>
+    <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}></div>
   );
 }
 
+// Initial code, will likely change in the future.
 const INIT_VALUE = [
   `import { runQuery } from "playground";`,
   `import { q } from "groqd";`,
@@ -108,6 +109,7 @@ const INIT_VALUE = [
   `const query = runQuery(\n\tq("*")\n\t.filterByType("employee")\n\t.slice(0, 10)\n\t.grab$({\n\t\tname: q.string()\n\t})\n);`,
 ].join("\n");
 
+// Adding in groqd types, and our custom playground.runQuery helper.
 const extraLibs = [
   {
     content: `declare module "groqd" {${types.groqd["dist/index.d.ts"]}`,
@@ -128,6 +130,7 @@ const extraLibs = [
   },
 ];
 
+// And don't forget the zod types.
 for (const [filename, content] of Object.entries<string>(types.zod)) {
   extraLibs.push({
     content: content,

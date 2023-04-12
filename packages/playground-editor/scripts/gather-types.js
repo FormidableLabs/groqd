@@ -3,6 +3,10 @@ const { globSync } = require("glob");
 const path = require("node:path");
 const fs = require("node:fs/promises");
 
+/**
+ * fn to gather declaration files from groqd and zod so that we can
+ *   load them into the monaco editor.
+ */
 const main = async () => {
   await fs.writeFile(
     path.resolve(__dirname, "../src/types.json"),
