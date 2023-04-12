@@ -19,6 +19,8 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Build library
+        run: yarn build:lib
       - name: Type Check
         run: yarn typecheck
       - name: Lint

@@ -12,6 +12,7 @@
     "test:watch": "yarn workspaces run test:watch",
     "typecheck": "yarn workspaces run typecheck",
     "check:ci": "yarn typecheck && yarn lint && yarn test",
+    "build:lib": "yarn workspace groqd run build",
     "build": "yarn workspaces run build",
     "changeset": "changeset",
     "version": "yarn changeset version && yarn install",
