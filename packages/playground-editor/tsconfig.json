@@ -1,7 +1,10 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "target": "ES6",
     "jsx": "react-jsx",
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "Node"
   }
 }

@@ -10,7 +10,7 @@
     "lint": "eslint packages/**/src --quiet",
     "test": "yarn workspaces run test",
     "test:watch": "yarn workspaces run test:watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "yarn workspaces run typecheck",
     "check:ci": "yarn typecheck && yarn lint && yarn test",
     "build": "yarn workspaces run build",
     "changeset": "changeset",
