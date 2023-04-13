@@ -1,4 +1,5 @@
 import {definePlugin} from "sanity";
+import { lazy } from "react";
 import {route} from "sanity/router";
 
 export const groqdTool = definePlugin(() => {
@@ -8,7 +9,7 @@ export const groqdTool = definePlugin(() => {
 			{
 				name: "groqd-playground",
 				title: "GROQD",
-				component: () => null,
+				component: lazy(() => import("./Playground")),
 				options: {},
 				router: route.create("/*")
 			}

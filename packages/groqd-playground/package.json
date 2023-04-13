@@ -2,8 +2,41 @@
   "name": "groqd-playground",
   "private": false,
   "version": "0.0.1",
+  "author": {
+    "name": "Formidable",
+    "url": "https://formidable.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formidablelabs/groqd.git"
+  },
+  "homepage": "https://github.com/formidablelabs/groqd",
+  "keywords": [
+    "sanity",
+    "groq",
+    "query",
+    "typescript"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": [
+      {
+        "import": "./dist/index.mjs",
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./dist/index.js"
+    ],
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "build:watch": "tsup --watch"
   },
   "devDependencies": {
     "eslint-utils": "^3.0.0",
