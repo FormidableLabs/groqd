@@ -1,0 +1,57 @@
+{
+  "name": "groqd-playground",
+  "private": false,
+  "license": "MIT",
+  "version": "0.0.1",
+  "author": {
+    "name": "Formidable",
+    "url": "https://formidable.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formidablelabs/groqd.git"
+  },
+  "homepage": "https://github.com/formidablelabs/groqd",
+  "keywords": [
+    "sanity",
+    "groq",
+    "query",
+    "typescript"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": [
+      {
+        "import": "./dist/index.mjs",
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./dist/index.js"
+    ],
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "exit 0"
+  },
+  "devDependencies": {
+    "eslint-utils": "^3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^18.2.0",
+    "sanity": "^3.8.3",
+    "styled-components": "^5.3.9",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4"
+  },
+  "peerDependencies": {
+    "sanity": "^3.0.0"
+  }
+}

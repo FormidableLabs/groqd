@@ -7,7 +7,7 @@
     ]
   },
   "scripts": {
-    "lint": "eslint packages/**/src --quiet",
+    "lint": "eslint packages --quiet",
     "test": "yarn workspaces run test",
     "test:watch": "yarn workspaces run test:watch",
     "typecheck": "yarn workspaces run typecheck",
