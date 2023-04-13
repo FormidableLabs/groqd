@@ -2,7 +2,7 @@ import {definePlugin} from "sanity";
 import { lazy } from "react";
 import {route} from "sanity/router";
 
-export const groqdTool = definePlugin(() => {
+export const groqdPlaygroundTool = definePlugin(() => {
 	return {
 		name: "groqd-playground",
 		tools: [
