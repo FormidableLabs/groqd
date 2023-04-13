@@ -271,7 +271,7 @@ describe("UnknownResult.filter/ArrayResult.filter", () => {
 
     expect(query).toBe(`*[_type == 'pokemon']`);
     expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
-    expect(Array.isArray(data) && "name" in data[0]).toBeTruthy();
+    expect(Array.isArray(data) && "name" in (data[0] as object)).toBeTruthy();
   });
 
   it("can stack filters, with no projection, schema is still unknown", async () => {
@@ -319,7 +319,7 @@ describe("UnknownResult.filterByType/ArrayResult.filterByType", () => {
 
     expect(query).toBe(`*[_type == 'pokemon']`);
     expectTypeOf(data).exclude(undefined).toEqualTypeOf<unknown[]>();
-    expect(Array.isArray(data) && "name" in data[0]).toBeTruthy();
+    expect(Array.isArray(data) && "name" in (data[0] as object)).toBeTruthy();
   });
 
   it("can stack a filter and filterByType, with no projection, schema is still unknown", async () => {
