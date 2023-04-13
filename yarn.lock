@@ -3450,6 +3450,13 @@ bundle-require@^3.1.0:
   dependencies:
     load-tsconfig "^0.2.0"
 
+bundle-require@^4.0.0:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/bundle-require/-/bundle-require-4.0.1.tgz#2cc1ad76428043d15e0e7f30990ee3d5404aa2e3"
+  integrity sha512-9NQkRHlNdNpDBGmLpngF3EFDcwodhMUuLz9PaWYciVcQF9SE4LFjM2DB/xV1Li5JiuDMv7ZUWuC3rGbqR0MAXQ==
+  dependencies:
+    load-tsconfig "^0.2.3"
+
 bytes@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.0.0.tgz#d32815404d689699f85a4ea4fa8755dd13a96048"
@@ -4687,7 +4694,7 @@ esbuild@^0.16.14, esbuild@^0.16.5:
     "@esbuild/win32-ia32" "0.16.17"
     "@esbuild/win32-x64" "0.16.17"
 
-esbuild@^0.17.5:
+esbuild@^0.17.5, esbuild@^0.17.6:
   version "0.17.16"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.17.16.tgz#5efec24a8ff29e0c157359f27e1b5532a728b720"
   integrity sha512-aeSuUKr9aFVY9Dc8ETVELGgkj4urg5isYx8pLf4wlGgB0vTFjxJQdHnNH6Shmx4vYYrOTLCHtRI5i1XZ9l2Zcg==
@@ -6603,6 +6610,11 @@ load-tsconfig@^0.2.0:
   resolved "https://registry.yarnpkg.com/load-tsconfig/-/load-tsconfig-0.2.3.tgz#08af3e7744943caab0c75f8af7f1703639c3ef1f"
   integrity sha512-iyT2MXws+dc2Wi6o3grCFtGXpeMvHmJqS27sMPGtV2eUu4PeFnG+33I8BlFK1t1NWMjOpcx9bridn5yxLDX2gQ==
 
+load-tsconfig@^0.2.3:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/load-tsconfig/-/load-tsconfig-0.2.5.tgz#453b8cd8961bfb912dea77eb6c168fe8cca3d3a1"
+  integrity sha512-IXO6OCs9yg8tMKzfPZ1YmheJbZCiEsnBdcB03l0OcfK9prKnJb96siuHCr5Fl37/yo9DnKU+TLpxzTUspw9shg==
+
 load-yaml-file@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/load-yaml-file/-/load-yaml-file-0.2.0.tgz#af854edaf2bea89346c07549122753c07372f64d"
@@ -8223,7 +8235,7 @@ rollup@^3.10.0:
   optionalDependencies:
     fsevents "~2.3.2"
 
-rollup@^3.18.0:
+rollup@^3.18.0, rollup@^3.2.5:
   version "3.20.2"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.20.2.tgz#f798c600317f216de2e4ad9f4d9ab30a89b690ff"
   integrity sha512-3zwkBQl7Ai7MFYQE0y1MeQ15+9jsi7XxfrqwTb/9EK8D9C9+//EBR4M+CuA1KODRaNbFez/lWxA5vhEGZp4MUg==
@@ -8299,7 +8311,7 @@ sanity-diff-patch@^1.0.9:
   dependencies:
     diff-match-patch "^1.0.5"
 
-sanity@^3.0.0:
+sanity@^3.0.0, sanity@^3.8.3:
   version "3.8.3"
   resolved "https://registry.yarnpkg.com/sanity/-/sanity-3.8.3.tgz#a3625a258f65404de671c732b73f21485522f51e"
   integrity sha512-+mjfx3+DOgd/iHPJYSz34YpI1FQ5rS6nGGtkKFdQ0yaP6RV2wu6l0QIZUw07O0n0w3GA4VZtgoRk0UlFxJtFVw==
@@ -8960,7 +8972,7 @@ style-value-types@5.0.0:
     hey-listen "^1.0.8"
     tslib "^2.1.0"
 
-styled-components@^5.2.0:
+styled-components@^5.2.0, styled-components@^5.3.9:
   version "5.3.9"
   resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-5.3.9.tgz#641af2a8bb89904de708c71b439caa9633e8f0ba"
   integrity sha512-Aj3kb13B75DQBo2oRwRa/APdB5rSmwUfN5exyarpX+x/tlM/rwZA2vVk2vQgVSP6WKaZJHWwiFrzgHt+CLtB4A==
@@ -9250,6 +9262,26 @@ tsup@^6.3.0:
     postcss-load-config "^3.0.1"
     resolve-from "^5.0.0"
     rollup "^2.74.1"
+    source-map "0.8.0-beta.0"
+    sucrase "^3.20.3"
+    tree-kill "^1.2.2"
+
+tsup@^6.7.0:
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/tsup/-/tsup-6.7.0.tgz#416f350f32a07b6ae86792ad7e52b0cafc566d64"
+  integrity sha512-L3o8hGkaHnu5TdJns+mCqFsDBo83bJ44rlK7e6VdanIvpea4ArPcU3swWGsLVbXak1PqQx/V+SSmFPujBK+zEQ==
+  dependencies:
+    bundle-require "^4.0.0"
+    cac "^6.7.12"
+    chokidar "^3.5.1"
+    debug "^4.3.1"
+    esbuild "^0.17.6"
+    execa "^5.0.0"
+    globby "^11.0.3"
+    joycon "^3.0.1"
+    postcss-load-config "^3.0.1"
+    resolve-from "^5.0.0"
+    rollup "^3.2.5"
     source-map "0.8.0-beta.0"
     sucrase "^3.20.3"
     tree-kill "^1.2.2"
