@@ -2,7 +2,10 @@
   "name": "playground-example",
   "version": "0.0.1",
   "scripts": {
-    "dev": "sanity dev"
+    "dev": "sanity dev",
+    "build": "exit 0",
+    "typecheck": "exit 0",
+    "test": "exit 0"
   },
   "dependencies": {
     "@sanity/vision": "^3.0.0",
