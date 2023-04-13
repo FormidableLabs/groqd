@@ -13,6 +13,7 @@
     "typecheck": "pnpm run -r typecheck",
     "check:ci": "pnpm run typecheck && pnpm run lint && pnpm run test",
     "build:lib": "pnpm run --filter groqd build",
+    "build:packages": "pnpm run --filter groqd --filter groqd-playground build",
     "build": "pnpm run -r build",
     "changeset": "changeset",
     "version": "pnpm changeset version && pnpm install",

@@ -20,18 +20,28 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-          cache: 'yarn'
+          node-version: 18
 
       - name: AWS CLI version
         run: "aws --version"
 
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
-        working-directory: ./website
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.2.0
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Build the website
-        run: yarn build
+        run: pnpm run build
         working-directory: ./website
 
       # Use `gh` tool to infer more information about the pull request.
@@ -46,7 +56,7 @@ jobs:
 
       - name: Deploy docs (production)
         if: github.ref == 'refs/heads/main'
-        run: yarn deploy:prod
+        run: pnpm run deploy:prod
         working-directory: ./website
         env:
           GITHUB_DEPLOYMENT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
