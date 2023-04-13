@@ -1,4 +1,4 @@
-let targetUrl!: string;
+let targetUrl = "";
 const getTargetUrl = () => {
   if (!targetUrl) {
     const params = new URLSearchParams(window.location.search);
