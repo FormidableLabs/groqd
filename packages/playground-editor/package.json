@@ -9,7 +9,7 @@
     "dev": "pnpm run gather-types && webpack serve --mode development",
     "build": "pnpm run gather-types && webpack --mode production",
     "gather-types": "node ./scripts/gather-types.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "pnpm run gather-types && tsc --noEmit"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
