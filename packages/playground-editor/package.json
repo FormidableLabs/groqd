@@ -9,8 +9,7 @@
     "dev": "yarn gather-types && webpack serve --mode development",
     "build": "yarn gather-types && webpack --mode production",
     "gather-types": "node ./scripts/gather-types.js",
-    "typecheck": "tsc --noEmit",
-    "test": "exit 0"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",

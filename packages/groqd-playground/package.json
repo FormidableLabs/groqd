@@ -39,10 +39,9 @@
     "build": "tsup",
     "build:watch": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "exit 0"
+    "test": ""
   },
   "devDependencies": {
-    "eslint-utils": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",

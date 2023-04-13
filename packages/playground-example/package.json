@@ -4,10 +4,7 @@
   "private": true,
   "description": "sample sanity project to test out the groqd-playground package",
   "scripts": {
-    "dev": "sanity dev",
-    "build": "exit 0",
-    "typecheck": "exit 0",
-    "test": "exit 0"
+    "dev": "sanity dev"
   },
   "dependencies": {
     "@sanity/vision": "^3.0.0",
