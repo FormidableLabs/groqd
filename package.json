@@ -8,16 +8,17 @@
   },
   "scripts": {
     "lint": "eslint packages --quiet",
-    "test": "yarn workspaces run test",
-    "test:watch": "yarn workspaces run test:watch",
-    "typecheck": "yarn workspaces run typecheck",
-    "check:ci": "yarn typecheck && yarn lint && yarn test",
-    "build:lib": "yarn workspace groqd run build",
-    "build": "yarn workspaces run build",
+    "test": "pnpm run -r test",
+    "test:watch": "pnpm run -r test:watch",
+    "typecheck": "pnpm run -r typecheck",
+    "check:ci": "pnpm run typecheck && pnpm run lint && pnpm run test",
+    "build:lib": "pnpm run --filter groqd build",
+    "build:packages": "pnpm run --filter groqd --filter groqd-playground build",
+    "build": "pnpm run -r build",
     "changeset": "changeset",
-    "version": "yarn changeset version && yarn install",
-    "start:docs": "yarn --cwd website start",
-    "build:docs": "yarn --cwd website build"
+    "version": "pnpm changeset version && pnpm install",
+    "start:docs": "pnpm run --filter website start",
+    "build:docs": "pnpm run --filter website build"
   },
   "devDependencies": {
     "@svitejs/changesets-changelog-github-compact": "^1.1.0",

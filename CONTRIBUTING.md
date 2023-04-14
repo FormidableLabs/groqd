@@ -2,22 +2,24 @@
 
 ## Install
 
+We use [pnpm](https://pnpm.io/) for this project. Install dependencies via:
+
 ```sh
-yarn install
+pnpm install
 ```
 
 ## Build
 
 ```sh
-yarn run build
+pnpm run build
 ```
 
 ## Run tests
 
 ```sh
-yarn run test
+pnpm run test
 
-yarn run test:watch
+pnpm run test:watch
 ```
 
 ## Release
@@ -39,7 +41,7 @@ Here are more details:
 When you would like to add a changeset (which creates a file indicating the type of change), in your branch/PR issue this command:
 
 ```sh
-$ yarn run changeset
+$ pnpm run changeset
 ```
 
 to produce an interactive menu. Navigate the packages with arrow keys and hit `<space>` to select 1+ packages. Hit `<return>` when done. Select semver versions for packages and add appropriate messages. From there, you'll be prompted to enter a summary of the change. Some tips for this summary:
@@ -69,9 +71,7 @@ On a merge of a feature PR, the changesets GitHub action will open a new PR titl
 We're using [Docusaurus](https://docusaurus.io/) to for the scaffolding of our documentation. The docs source files live in `docs` (so they can be viewed on GitHub), but the docusaurus site is built from `website`. To run the docs locally, run the following.
 
 ```shell
-cd website
-yarn install
-yarn start
+pnpm run start:docs 
 ```
 
 To contribute to the docs, make changes within the `docs` folder.

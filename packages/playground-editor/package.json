@@ -6,11 +6,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "yarn gather-types && webpack serve --mode development",
-    "build": "yarn gather-types && webpack --mode production",
+    "dev": "pnpm run gather-types && webpack serve --mode development",
+    "build": "pnpm run gather-types && webpack --mode production",
     "gather-types": "node ./scripts/gather-types.js",
-    "typecheck": "tsc --noEmit",
-    "test": "exit 0"
+    "typecheck": "pnpm run gather-types && tsc --noEmit"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
