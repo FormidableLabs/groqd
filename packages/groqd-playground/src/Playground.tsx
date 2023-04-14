@@ -3,17 +3,14 @@ import { useClient } from "sanity";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
-import Split from "@uiw/react-split";
-import { Box } from "@sanity/ui";
 
 export default function GroqdPlayground() {
   const [query, setQuery] = React.useState<BaseQuery<any>>(q.q(""));
   const [response, setResponse] = React.useState("");
   const client = useClient({ apiVersion: "v2021-10-21" });
 
-  const runQuery = React.useMemo(
-    () => q.makeSafeQueryRunner((query) => client.fetch(query)),
-    [client]
+  const runQuery = React.useRef(
+    q.makeSafeQueryRunner((query) => client.fetch(query))
   );
 
   React.useEffect(() => {
@@ -63,7 +60,7 @@ export default function GroqdPlayground() {
 
   const handleRun = async () => {
     try {
-      const data = await runQuery(query);
+      const data = await runQuery.current(query);
       setResponse(JSON.stringify(data, null, 2)); // TODO: JSON explorer
     } catch (err) {
       if (err instanceof q.GroqdParseError) {
@@ -73,33 +70,26 @@ export default function GroqdPlayground() {
   };
 
   return (
-    <div style={{ height: "100%" }}>
-      <Split style={{ width: "100%", height: "100%" }}>
-        <div>Left</div>
-        <div>Right</div>
-      </Split>
+    <div>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <div>
+          <iframe src={iframeSrc} width="500" height="500" />
+          <button onClick={handleRun}>RUN QUERY</button>
+        </div>
+        <div>
+          <div>
+            <h3>Query</h3>
+            <pre>{query.query}</pre>
+          </div>
+          <div>
+            <h3>Query Response</h3>
+            <pre>{response}</pre>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-//       <div>
-//         <div style={{ display: "flex", flexDirection: "row" }}>
-//           <div>
-//             <iframe src={iframeSrc} width="500" height="500" />
-//             <button onClick={handleRun}>RUN QUERY</button>
-//           </div>
-//           <div>
-//             <div>
-//               <h3>Query</h3>
-//               <pre>{query.query}</pre>
-//             </div>
-//             <div>
-//               <h3>Query Response</h3>
-//               <pre>{response}</pre>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
 
 const inputSchema = z.object({
   event: z.literal("INPUT"),
