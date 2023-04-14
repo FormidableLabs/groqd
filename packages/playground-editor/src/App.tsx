@@ -63,6 +63,7 @@ export function App() {
       language: "typescript",
       minimap: { enabled: false },
       automaticLayout: true,
+      scrollBeyondLastLine: false,
     });
 
     monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
