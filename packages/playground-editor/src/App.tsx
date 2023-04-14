@@ -3,9 +3,8 @@ import * as monaco from "monaco-editor";
 import { languages } from "monaco-editor";
 import types from "./types.json";
 import ScriptTarget = languages.typescript.ScriptTarget;
-import * as q from "groqd";
 import debounce from "lodash.debounce";
-import { emitError, emitQuery } from "./messaging";
+import { emitError, emitInput } from "./messaging";
 
 export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -27,28 +26,7 @@ export function App() {
       const emitResult = await client.getEmitOutput(model.uri.toString());
       const code = emitResult.outputFiles[0].text;
 
-      let result = "";
-      const libs = {
-        groqd: q,
-        playground: {
-          runQuery: (query: { query: string }) => {
-            try {
-              result = query.query;
-            } catch {}
-          },
-        },
-      };
-      const scope = {
-        exports: {},
-        require: (name: keyof typeof libs) => libs[name],
-      };
-      const keys = Object.keys(scope);
-      new Function(...keys, code)(
-        ...keys.map((key) => scope[key as keyof typeof scope])
-      );
-
-      // Emit the result
-      emitQuery(result);
+      emitInput({ code });
     } catch (err) {
       console.error(err);
       emitError(err instanceof Error ? err.message : "");

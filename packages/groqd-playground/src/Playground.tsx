@@ -1,8 +1,13 @@
 import * as React from "react";
 import { useClient } from "sanity";
+import { z } from "zod";
+import * as q from "groqd";
 
 export default function GroqdPlayground() {
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = React.useState<{
+    query: string;
+    schema: z.ZodType;
+  }>({ query: "", schema: z.unknown() });
   const [response, setResponse] = React.useState("");
   const client = useClient({ apiVersion: "v2021-10-21" });
 
@@ -11,9 +16,33 @@ export default function GroqdPlayground() {
       if (message.origin !== "http://localhost:3069") return;
 
       try {
-        const payload = JSON.parse(message.data);
-        if (!isQueryPayload(payload) || !payload.query) return;
-        setQuery(payload.query);
+        const payload = messageSchema.parse(JSON.parse(message.data));
+
+        if (payload.event === "INPUT") {
+          console.log(payload.code);
+          const libs = {
+            groqd: q,
+            playground: {
+              runQuery: (query: { query: string; schema: z.ZodType }) => {
+                try {
+                  setQuery(query);
+                } catch {}
+              },
+            },
+          };
+          const scope = {
+            exports: {},
+            require: (name: keyof typeof libs) => libs[name],
+          };
+          const keys = Object.keys(scope);
+          new Function(...keys, payload.code)(
+            ...keys.map((key) => scope[key as keyof typeof scope])
+          );
+
+          // setQuery(query)
+        } else if (payload.event === "ERROR") {
+          console.error(payload.message);
+        }
       } catch {}
     };
 
@@ -33,9 +62,14 @@ export default function GroqdPlayground() {
   const handleRun = () => {
     // Try to query?
     client
-      .fetch(query)
+      .fetch(query.query)
       .then((res) => {
-        setResponse(JSON.stringify(res, null, 2));
+        const r = query.schema.safeParse(res);
+        if (r.success) {
+          setResponse(JSON.stringify(r.data, null, 2));
+        } else {
+          setResponse(r.error.toString());
+        }
       })
       .catch(console.error);
   };
@@ -50,7 +84,7 @@ export default function GroqdPlayground() {
         <div>
           <div>
             <h3>Query</h3>
-            <pre>{query}</pre>
+            <pre>{query.query}</pre>
           </div>
           <div>
             <h3>Query Response</h3>
@@ -62,14 +96,15 @@ export default function GroqdPlayground() {
   );
 }
 
-type QueryPayload = { event: "QUERY"; query: string };
-const isQueryPayload = (
-  maybePayload: unknown
-): maybePayload is QueryPayload => {
-  return (
-    "event" in maybePayload &&
-    maybePayload.event === "QUERY" &&
-    "query" in maybePayload &&
-    typeof maybePayload.query === "string"
-  );
-};
+const inputSchema = z.object({
+  event: z.literal("INPUT"),
+  code: z.string(),
+  query: z.string(),
+});
+
+const errorSchema = z.object({
+  event: z.literal("ERROR"),
+  message: z.string(),
+});
+
+const messageSchema = z.union([inputSchema, errorSchema]);
