@@ -112,7 +112,7 @@ const INIT_VALUE = [
 // Adding in groqd types, and our custom playground.runQuery helper.
 const extraLibs = [
   {
-    content: `declare module "groqd" {${types.groqd["dist/index.d.ts"]}`,
+    content: `declare module "groqd" {${types.groqd["index.d.ts"]}`,
     filePath: monaco.Uri.file(`/node_modules/groqd/dist/index.d.ts`).toString(),
   },
   {
