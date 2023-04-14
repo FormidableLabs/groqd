@@ -59,6 +59,12 @@ importers:
 
   packages/groqd-playground:
     dependencies:
+      '@rexxars/react-split-pane':
+        specifier: ^0.1.93
+        version: 0.1.93(react-dom@18.2.0)(react@18.2.0)
+      '@uiw/react-split':
+        specifier: ^5.8.10
+        version: 5.8.10(react-dom@18.2.0)(react@18.2.0)
       groqd:
         specifier: workspace:^0.14.0
         version: link:../groqd
@@ -5395,6 +5401,16 @@ packages:
       - '@codemirror/language'
       - '@codemirror/lint'
       - '@codemirror/search'
+    dev: false
+
+  /@uiw/react-split@5.8.10(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-gqfZtcU+nDmI0AYwBQxIBS8s916kbPLM+ehfiIksJFwrAWHfSlC/j0+u/4YVFSL3B4q+UKqMoXlUj3Lb7qt29g==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@vitejs/plugin-react@3.1.0(vite@4.2.1):

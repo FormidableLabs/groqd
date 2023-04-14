@@ -3,6 +3,8 @@ import { useClient } from "sanity";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
+import Split from "@uiw/react-split";
+import { Box } from "@sanity/ui";
 
 export default function GroqdPlayground() {
   const [query, setQuery] = React.useState<BaseQuery<any>>(q.q(""));
@@ -71,26 +73,33 @@ export default function GroqdPlayground() {
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <div>
-          <iframe src={iframeSrc} width="500" height="500" />
-          <button onClick={handleRun}>RUN QUERY</button>
-        </div>
-        <div>
-          <div>
-            <h3>Query</h3>
-            <pre>{query.query}</pre>
-          </div>
-          <div>
-            <h3>Query Response</h3>
-            <pre>{response}</pre>
-          </div>
-        </div>
-      </div>
+    <div style={{ height: "100%" }}>
+      <Split style={{ width: "100%", height: "100%" }}>
+        <div>Left</div>
+        <div>Right</div>
+      </Split>
     </div>
   );
 }
+
+//       <div>
+//         <div style={{ display: "flex", flexDirection: "row" }}>
+//           <div>
+//             <iframe src={iframeSrc} width="500" height="500" />
+//             <button onClick={handleRun}>RUN QUERY</button>
+//           </div>
+//           <div>
+//             <div>
+//               <h3>Query</h3>
+//               <pre>{query.query}</pre>
+//             </div>
+//             <div>
+//               <h3>Query Response</h3>
+//               <pre>{response}</pre>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
 
 const inputSchema = z.object({
   event: z.literal("INPUT"),

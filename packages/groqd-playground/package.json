@@ -55,6 +55,8 @@
     "sanity": "^3.0.0"
   },
   "dependencies": {
+    "@rexxars/react-split-pane": "^0.1.93",
+    "@uiw/react-split": "^5.8.10",
     "groqd": "workspace:^0.14.0",
     "zod": "^3.21.4"
   }
