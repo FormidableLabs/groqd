@@ -9,9 +9,8 @@ export default function GroqdPlayground() {
   const [response, setResponse] = React.useState("");
   const client = useClient({ apiVersion: "v2021-10-21" });
 
-  const runQuery = React.useMemo(
-    () => q.makeSafeQueryRunner((query) => client.fetch(query)),
-    [client]
+  const runQuery = React.useRef(
+    q.makeSafeQueryRunner((query) => client.fetch(query))
   );
 
   React.useEffect(() => {
@@ -61,7 +60,7 @@ export default function GroqdPlayground() {
 
   const handleRun = async () => {
     try {
-      const data = await runQuery(query);
+      const data = await runQuery.current(query);
       setResponse(JSON.stringify(data, null, 2)); // TODO: JSON explorer
     } catch (err) {
       if (err instanceof q.GroqdParseError) {
