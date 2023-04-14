@@ -62,6 +62,9 @@ importers:
 
   packages/groqd-playground:
     dependencies:
+      '@uiw/react-split':
+        specifier: ^5.8.10
+        version: 5.8.10(react-dom@18.2.0)(react@18.2.0)
       groqd:
         specifier: workspace:^0.14.0
         version: link:../groqd
@@ -5490,6 +5493,16 @@ packages:
       - '@codemirror/search'
     dev: false
 
+  /@uiw/react-split@5.8.10(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-gqfZtcU+nDmI0AYwBQxIBS8s916kbPLM+ehfiIksJFwrAWHfSlC/j0+u/4YVFSL3B4q+UKqMoXlUj3Lb7qt29g==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /@vitejs/plugin-react@3.1.0(vite@4.2.1):
     resolution: {integrity: sha512-AfgcRL8ZBhAlc3BFdigClmTUMISmmzHn7sB2h9U1odvc5U/MjWXsAaz18b/WoppUTDBzxOJwo2VdClfUcItu9g==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -6057,7 +6070,7 @@ packages:
   /axios@0.25.0:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
     dependencies:
-      follow-redirects: 1.15.2(debug@2.6.9)
+      follow-redirects: 1.15.2(debug@4.3.4)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8506,6 +8519,7 @@ packages:
         optional: true
     dependencies:
       debug: 2.6.9
+    dev: true
 
   /follow-redirects@1.15.2(debug@4.3.4):
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
@@ -8517,7 +8531,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4(supports-color@5.5.0)
-    dev: false
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -9367,7 +9380,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.2(debug@2.6.9)
+      follow-redirects: 1.15.2(debug@4.3.4)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
