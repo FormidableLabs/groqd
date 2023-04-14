@@ -10,11 +10,11 @@ const getTargetUrl = () => {
 
 const IS_EMBEDDED = window.location !== window.parent.location;
 
-export const emitQuery = (query: string) => {
+export const emitInput = ({ code }: { code: string }) => {
   if (!IS_EMBEDDED) return;
 
   window.parent.postMessage(
-    JSON.stringify({ event: "QUERY", query }),
+    JSON.stringify({ event: "INPUT", code }),
     getTargetUrl()
   );
 };

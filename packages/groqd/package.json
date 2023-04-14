@@ -39,7 +39,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsup",
-    "build:watch": "tsup --watch"
+    "build:watch": "tsup --watch",
+    "dev": "pnpm run build:watch"
   },
   "devDependencies": {
     "@sanity/client": "^3.4.1",

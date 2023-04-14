@@ -22,6 +22,22 @@ pnpm run test
 pnpm run test:watch
 ```
 
+## Developing Groqd Playground
+
+Run the following:
+
+```sh
+cp ./packages/playground-example/.env.example ./packages/playground-example/.env
+```
+
+And then add a Sanity project ID. 
+
+Then, run `pnpm run dev:playground` from the root to start up all the necessary dev servers. From there you can:
+
+- edit the editor in `packages/playground-editor`;
+- edit the `groqd-playground` package from `packages/groqd-playground`;
+- test the integration in `packages/playground-example`.
+
 ## Release
 
 We use [changesets](https://github.com/changesets/changesets) to create package versions and publish them.
