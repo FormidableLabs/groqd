@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useClient } from "sanity";
-import { Box } from "@sanity/ui";
+import { Box, Code, Flex, Stack } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
@@ -72,16 +72,9 @@ export default function GroqdPlayground() {
   };
 
   return (
-    <Split style={{ width: "100%", height: "100%" }}>
+    <Split style={{ width: "100%", height: "100%", overflow: "hidden" }}>
       <div style={{ width: EDITOR_INITIAL_WIDTH, minWidth: 200 }}>
-        <Split mode="vertical">
-          <div style={{ flex: 1 }}>
-            <iframe src={iframeSrc} width="100%" height="100%" />
-          </div>
-          <Box style={{ height: 300, minHeight: 100 }}>
-            <h3>Variables</h3>
-          </Box>
-        </Split>
+        <iframe src={iframeSrc} width="100%" height="100%" />
       </div>
       <Box
         style={{
@@ -90,15 +83,17 @@ export default function GroqdPlayground() {
         }}
       >
         <Split mode="vertical">
-          <div>
+          <Box>
             <h3>Query</h3>
             <pre>{query.query}</pre>
-          </div>
-          <div>
+          </Box>
+          <Flex flex={1} direction="column" overflow="hidden">
             <h3>Query Response</h3>
             <button onClick={handleRun}>RUN QUERY</button>
-            <pre>{response}</pre>
-          </div>
+            <Box flex={1} overflow="auto">
+              <Code language="json">{response}</Code>
+            </Box>
+          </Flex>
         </Split>
       </Box>
     </Split>
