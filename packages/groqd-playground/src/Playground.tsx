@@ -22,7 +22,6 @@ export default function GroqdPlayground() {
         const payload = messageSchema.parse(JSON.parse(message.data));
 
         if (payload.event === "INPUT") {
-          console.log(payload.code);
           const libs = {
             groqd: q,
             playground: {
@@ -41,8 +40,6 @@ export default function GroqdPlayground() {
           new Function(...keys, payload.code)(
             ...keys.map((key) => scope[key as keyof typeof scope])
           );
-
-          // setQuery(query)
         } else if (payload.event === "ERROR") {
           console.error(payload.message);
         }
