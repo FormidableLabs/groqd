@@ -26,6 +26,8 @@ export function App() {
       const emitResult = await client.getEmitOutput(model.uri.toString());
       const code = emitResult.outputFiles[0].text;
 
+      console.log("EMITTING?");
+
       emitInput({ code });
     } catch (err) {
       console.error(err);

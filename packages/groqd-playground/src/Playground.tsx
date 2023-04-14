@@ -2,14 +2,17 @@ import * as React from "react";
 import { useClient } from "sanity";
 import { z } from "zod";
 import * as q from "groqd";
+import { BaseQuery } from "groqd/src/baseQuery";
 
 export default function GroqdPlayground() {
-  const [query, setQuery] = React.useState<{
-    query: string;
-    schema: z.ZodType;
-  }>({ query: "", schema: z.unknown() });
+  const [query, setQuery] = React.useState<BaseQuery<any>>(q.q(""));
   const [response, setResponse] = React.useState("");
   const client = useClient({ apiVersion: "v2021-10-21" });
+
+  const runQuery = React.useMemo(
+    () => q.makeSafeQueryRunner((query) => client.fetch(query)),
+    [client]
+  );
 
   React.useEffect(() => {
     const handleMessage = (message: MessageEvent) => {
@@ -23,7 +26,7 @@ export default function GroqdPlayground() {
           const libs = {
             groqd: q,
             playground: {
-              runQuery: (query: { query: string; schema: z.ZodType }) => {
+              runQuery: (query: BaseQuery<any>) => {
                 try {
                   setQuery(query);
                 } catch {}
@@ -59,19 +62,15 @@ export default function GroqdPlayground() {
     return url.toString();
   }, []);
 
-  const handleRun = () => {
-    // Try to query?
-    client
-      .fetch(query.query)
-      .then((res) => {
-        const r = query.schema.safeParse(res);
-        if (r.success) {
-          setResponse(JSON.stringify(r.data, null, 2));
-        } else {
-          setResponse(r.error.toString());
-        }
-      })
-      .catch(console.error);
+  const handleRun = async () => {
+    try {
+      const data = await runQuery(query);
+      setResponse(JSON.stringify(data, null, 2)); // TODO: JSON explorer
+    } catch (err) {
+      if (err instanceof q.GroqdParseError) {
+        setResponse(err.message);
+      }
+    }
   };
 
   return (
@@ -99,7 +98,6 @@ export default function GroqdPlayground() {
 const inputSchema = z.object({
   event: z.literal("INPUT"),
   code: z.string(),
-  query: z.string(),
 });
 
 const errorSchema = z.object({
