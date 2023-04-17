@@ -35,6 +35,49 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
+  examples/playground-example:
+    dependencies:
+      '@sanity/vision':
+        specifier: ^3.0.0
+        version: 3.8.3(@babel/runtime@7.21.0)(@codemirror/lint@6.2.1)(@codemirror/state@6.2.0)(@codemirror/theme-one-dark@6.1.1)(@lezer/common@1.0.2)(codemirror@6.0.1)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9)
+      groqd-playground:
+        specifier: '*'
+        version: link:../../packages/groqd-playground
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-is:
+        specifier: ^18.2.0
+        version: 18.2.0
+      sanity:
+        specifier: ^3.0.0
+        version: 3.8.3(@types/react@18.0.35)(react-dom@18.2.0)(react@18.2.0)(styled-components@5.3.9)
+      styled-components:
+        specifier: ^5.2.0
+        version: 5.3.9(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+    devDependencies:
+      '@sanity/eslint-config-studio':
+        specifier: ^2.0.1
+        version: 2.0.1(eslint@8.38.0)(typescript@4.9.5)
+      '@types/react':
+        specifier: ^18.0.25
+        version: 18.0.35
+      '@types/styled-components':
+        specifier: ^5.1.26
+        version: 5.1.26
+      eslint:
+        specifier: ^8.6.0
+        version: 8.38.0
+      prettier:
+        specifier: ^2.8.7
+        version: 2.8.7
+      typescript:
+        specifier: ^4.0.0
+        version: 4.9.5
+
   packages/groqd:
     dependencies:
       zod:
@@ -178,49 +221,6 @@ importers:
       webpack-dev-server:
         specifier: ^4.13.2
         version: 4.13.2(webpack-cli@5.0.1)(webpack@5.79.0)
-
-  packages/playground-example:
-    dependencies:
-      '@sanity/vision':
-        specifier: ^3.0.0
-        version: 3.8.3(@babel/runtime@7.21.0)(@codemirror/lint@6.2.1)(@codemirror/state@6.2.0)(@codemirror/theme-one-dark@6.1.1)(@lezer/common@1.0.2)(codemirror@6.0.1)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9)
-      groqd-playground:
-        specifier: '*'
-        version: link:../groqd-playground
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-is:
-        specifier: ^18.2.0
-        version: 18.2.0
-      sanity:
-        specifier: ^3.0.0
-        version: 3.8.3(@types/react@18.0.35)(react-dom@18.2.0)(react@18.2.0)(styled-components@5.3.9)
-      styled-components:
-        specifier: ^5.2.0
-        version: 5.3.9(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
-    devDependencies:
-      '@sanity/eslint-config-studio':
-        specifier: ^2.0.1
-        version: 2.0.1(eslint@8.38.0)(typescript@4.9.5)
-      '@types/react':
-        specifier: ^18.0.25
-        version: 18.0.35
-      '@types/styled-components':
-        specifier: ^5.1.26
-        version: 5.1.26
-      eslint:
-        specifier: ^8.6.0
-        version: 8.38.0
-      prettier:
-        specifier: ^2.8.7
-        version: 2.8.7
-      typescript:
-        specifier: ^4.0.0
-        version: 4.9.5
 
   website:
     dependencies:
@@ -6076,7 +6076,7 @@ packages:
   /axios@0.25.0:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
     dependencies:
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.2(debug@2.6.9)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8525,7 +8525,6 @@ packages:
         optional: true
     dependencies:
       debug: 2.6.9
-    dev: true
 
   /follow-redirects@1.15.2(debug@4.3.4):
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
@@ -8537,6 +8536,7 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4(supports-color@5.5.0)
+    dev: false
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -9391,7 +9391,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.2(debug@2.6.9)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
