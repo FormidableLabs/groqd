@@ -1,18 +1,32 @@
 import * as React from "react";
-import { useClient } from "sanity";
+import { type Tool, useClient } from "sanity";
 import { Box, Button, Card, Code, Flex, Label, Stack, Text } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
 import { PlayIcon } from "@sanity/icons";
+import { PlaygroundConfig } from "./types";
 
-export default function GroqdPlayground() {
+type GroqdPlaygroundProps = {
+  tool: Tool<PlaygroundConfig>;
+};
+
+export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
     { query, params, parsedResponse, fetchParseError, rawResponse },
     dispatch,
   ] = React.useReducer(reducer, { query: q.q("") });
-  const client = useClient({ apiVersion: "v2021-10-21" });
+  const _client = useClient({
+    apiVersion: tool.options?.defaultApiVersion || "v2021-10-21",
+  });
+  const client = React.useMemo(
+    () =>
+      _client.withConfig({
+        dataset: tool.options?.defaultDataset || "production",
+      }),
+    []
+  );
 
   const runQuery = React.useRef(
     q.makeSafeQueryRunner((query, params?: Record<string, string | number>) =>
@@ -28,7 +42,7 @@ export default function GroqdPlayground() {
 
   React.useEffect(() => {
     const handleMessage = (message: MessageEvent) => {
-      if (message.origin !== "http://localhost:3069") return;
+      if (message.origin !== EDITOR_ORIGIN) return;
 
       try {
         const payload = messageSchema.parse(JSON.parse(message.data));
@@ -72,7 +86,7 @@ export default function GroqdPlayground() {
   }, []);
 
   const iframeSrc = React.useMemo(() => {
-    const url = new URL("http://localhost:3069");
+    const url = new URL(EDITOR_ORIGIN);
     url.searchParams.append("host", window.location.href);
     return url.toString();
   }, []);
@@ -208,6 +222,11 @@ export default function GroqdPlayground() {
     </Split>
   );
 }
+
+const IS_DEV = process.env.MODE === "development";
+const EDITOR_ORIGIN = IS_DEV
+  ? "http://localhost:3069"
+  : "https://groqd-playground-editor.formidable.dev";
 
 type Params = Record<string, string | number>;
 type State = {
