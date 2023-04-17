@@ -55,7 +55,6 @@
     "styled-components": "^5.3.9"
   },
   "dependencies": {
-    "@rexxars/react-json-inspector": "^8.0.1",
     "@uiw/react-split": "^5.8.10",
     "groqd": "workspace:^0.14.0",
     "zod": "^3.21.4"
