@@ -12,12 +12,12 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        test: /\.ttf$/,
+        type: "asset/resource",
       },
       {
-        test: /\.ttf$/,
-        use: ["file-loader"],
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.(js|jsx)$/,
@@ -34,11 +34,11 @@ module.exports = {
     extensions: [".", ".js", ".jsx", ".ts", ".tsx"],
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "public", "index.html"),
-    }),
     new MonacoWebpackPlugin({
       languages: ["typescript"],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "public", "index.html"),
     }),
   ],
   devServer: {
