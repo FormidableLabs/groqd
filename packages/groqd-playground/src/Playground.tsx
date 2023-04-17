@@ -11,12 +11,14 @@ import {
   Select,
   Stack,
   Text,
+  TextInput,
+  Tooltip,
 } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
-import { PlayIcon } from "@sanity/icons";
+import { CopyIcon, PlayIcon } from "@sanity/icons";
 import { PlaygroundConfig } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
@@ -35,6 +37,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       rawResponse,
       activeDataset,
       activeAPIVersion,
+      queryUrl,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -49,6 +52,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
     return { query: q.q(""), activeDataset, activeAPIVersion };
   });
+  const operationUrlRef = React.useRef<HTMLInputElement>(null);
 
   // Configure client
   const _client = useClient({
@@ -63,6 +67,19 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     [_client, activeDataset, activeAPIVersion]
   );
   const datasets = useDatasets(_client);
+
+  const generateQueryUrl = React.useCallback(() => {
+    const searchParams = new URLSearchParams();
+    searchParams.append("query", query.query);
+    if (params) {
+      for (const [key, value] of Object.entries(params))
+        searchParams.append(key, String(value));
+    }
+
+    return client.getUrl(
+      client.getDataUrl("query", "?" + searchParams.toString())
+    );
+  }, [client, query.query, params]);
 
   // Make sure activeDataset isn't outside of available datasets.
   React.useEffect(() => {
@@ -138,6 +155,10 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   }, []);
 
   const handleRun = async () => {
+    dispatch({
+      type: "MAKE_FETCH_REQUEST",
+      payload: { queryUrl: generateQueryUrl() },
+    });
     try {
       const data = await runQuery(query, params);
       dispatch({
@@ -157,6 +178,16 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   };
   const handleAPIVersionChange = (apiVersion: string) => {
     dispatch({ type: "SET_ACTIVE_API_VERSION", payload: { apiVersion } });
+  };
+  const handleCopyQueryUrl = async () => {
+    const el = operationUrlRef.current;
+    if (!el) return;
+
+    try {
+      el.select();
+      await navigator.clipboard.writeText(el.value);
+      console.log("COPIED!");
+    } catch {}
   };
 
   const responseView = (() => {
@@ -244,6 +275,42 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
               </Select>
             </Stack>
           </Box>
+
+          {/* Query URL */}
+          {queryUrl && (
+            <Box padding={1} flex={1} column={8}>
+              <Stack>
+                <Card paddingY={2}>
+                  <Label muted>Query URL</Label>
+                </Card>
+                <Flex flex={1} gap={1}>
+                  <Box flex={1}>
+                    <TextInput
+                      readOnly
+                      type="url"
+                      value={queryUrl}
+                      ref={operationUrlRef}
+                    />
+                  </Box>
+                  <Tooltip
+                    content={
+                      <Box padding={2}>
+                        <Text>Copy to clipboard</Text>
+                      </Box>
+                    }
+                  >
+                    <Button
+                      aria-label="Copy to clipboard"
+                      type="button"
+                      mode="ghost"
+                      icon={CopyIcon}
+                      onClick={handleCopyQueryUrl}
+                    />
+                  </Tooltip>
+                </Flex>
+              </Stack>
+            </Box>
+          )}
         </Grid>
       </Card>
 
@@ -263,7 +330,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
               width="100%"
               style={{ flex: 1, border: "none" }}
             />
-            <Card paddingTop={3} paddingBottom={3}>
+            <Card paddingTop={3} paddingBottom={3} borderTop>
               <Stack space={3}>
                 <Box>
                   <Box paddingX={3} marginBottom={1}>
@@ -331,6 +398,7 @@ type Params = Record<string, string | number>;
 type State = {
   query: BaseQuery<any>;
   params?: Params;
+  queryUrl?: string;
   rawResponse?: unknown;
   parsedResponse?: unknown;
   inputParseError?: Error;
@@ -345,6 +413,7 @@ type Action =
       payload: { query: BaseQuery<any>; params?: Params };
     }
   | { type: "INPUT_PARSE_FAILURE"; payload: { inputParseError: Error } }
+  | { type: "MAKE_FETCH_REQUEST"; payload: { queryUrl: string } }
   | { type: "RAW_RESPONSE_RECEIVED"; payload: { rawResponse: unknown } }
   | { type: "FETCH_RESPONSE_PARSED"; payload: { parsedResponse: unknown } }
   | {
@@ -367,6 +436,11 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         inputParseError: action.payload.inputParseError,
+      };
+    case "MAKE_FETCH_REQUEST":
+      return {
+        ...state,
+        queryUrl: action.payload.queryUrl,
       };
     case "RAW_RESPONSE_RECEIVED":
       return {
