@@ -19,7 +19,7 @@ import Split from "@uiw/react-split";
 import { PlayIcon } from "@sanity/icons";
 import { PlaygroundConfig } from "./types";
 import { useDatasets } from "./useDatasets";
-import { STORAGE_KEYS } from "./consts";
+import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 
 type GroqdPlaygroundProps = {
   tool: Tool<PlaygroundConfig>;
@@ -34,6 +34,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       fetchParseError,
       rawResponse,
       activeDataset,
+      activeAPIVersion,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -41,8 +42,12 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       localStorage.getItem(STORAGE_KEYS.DATASET) ||
       tool.options?.defaultDataset ||
       "production";
+    const activeAPIVersion =
+      localStorage.getItem(STORAGE_KEYS.API_VERSION) ||
+      tool.options?.defaultApiVersion ||
+      DEFAULT_API_VERSION;
 
-    return { query: q.q(""), activeDataset };
+    return { query: q.q(""), activeDataset, activeAPIVersion };
   });
 
   // Configure client
@@ -50,10 +55,20 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     apiVersion: tool.options?.defaultApiVersion || "v2021-10-21",
   });
   const client = React.useMemo(
-    () => _client.withConfig({ dataset: activeDataset }),
-    [_client, activeDataset]
+    () =>
+      _client.withConfig({
+        dataset: activeDataset,
+        apiVersion: activeAPIVersion,
+      }),
+    [_client, activeDataset, activeAPIVersion]
   );
   const datasets = useDatasets(_client);
+
+  // Make sure activeDataset isn't outside of available datasets.
+  React.useEffect(() => {
+    if (datasets[0] && !datasets.includes(activeDataset))
+      handleDatasetChange(datasets[0]);
+  }, [datasets]);
 
   const runQuery = React.useMemo(
     () =>
@@ -140,6 +155,9 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const handleDatasetChange = (datasetName: string) => {
     dispatch({ type: "SET_ACTIVE_DATASET", payload: { dataset: datasetName } });
   };
+  const handleAPIVersionChange = (apiVersion: string) => {
+    dispatch({ type: "SET_ACTIVE_API_VERSION", payload: { apiVersion } });
+  };
 
   const responseView = (() => {
     if (fetchParseError) {
@@ -216,7 +234,14 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
               <Card paddingY={2}>
                 <Label muted>API Version</Label>
               </Card>
-              <Select></Select>
+              <Select
+                value={activeAPIVersion}
+                onChange={(e) => handleAPIVersionChange(e.currentTarget.value)}
+              >
+                {API_VERSIONS.map((v) => (
+                  <option key={v}>{v}</option>
+                ))}
+              </Select>
             </Stack>
           </Box>
         </Grid>
@@ -310,6 +335,7 @@ type State = {
   parsedResponse?: unknown;
   inputParseError?: Error;
   fetchParseError?: unknown;
+  activeAPIVersion: string;
   activeDataset: string;
 };
 
@@ -325,7 +351,8 @@ type Action =
       type: "FETCH_PARSE_FAILURE";
       payload: { fetchParseError: unknown; rawResponse?: unknown };
     }
-  | { type: "SET_ACTIVE_DATASET"; payload: { dataset: string } };
+  | { type: "SET_ACTIVE_DATASET"; payload: { dataset: string } }
+  | { type: "SET_ACTIVE_API_VERSION"; payload: { apiVersion: string } };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -354,6 +381,9 @@ const reducer = (state: State, action: Action): State => {
       };
     case "FETCH_PARSE_FAILURE":
       return { ...state, fetchParseError: action.payload.fetchParseError };
+    case "SET_ACTIVE_API_VERSION":
+      localStorage.setItem(STORAGE_KEYS.API_VERSION, action.payload.apiVersion);
+      return { ...state, activeAPIVersion: action.payload.apiVersion };
     case "SET_ACTIVE_DATASET":
       localStorage.setItem(STORAGE_KEYS.DATASET, action.payload.dataset);
       return { ...state, activeDataset: action.payload.dataset };
