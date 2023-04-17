@@ -5,10 +5,12 @@ import types from "./types.json";
 import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
 import { emitError, emitInput } from "./messaging";
+import { useIsDarkMode } from "./useDarkMode";
 
 export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+  const prefersDark = useIsDarkMode();
 
   /**
    * Run the editor code to extract query, and then emit that out
@@ -63,6 +65,9 @@ export function App() {
       language: "typescript",
       minimap: { enabled: false },
       automaticLayout: true,
+      scrollBeyondLastLine: false,
+      theme: prefersDark ? "vs-dark" : "vs",
+      fontSize: 13,
     });
 
     monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
@@ -74,6 +79,11 @@ export function App() {
       didChangeInstance.dispose();
     };
   }, []);
+
+  React.useEffect(() => {
+    if (!editorRef.current) return;
+    monaco.editor.setTheme(prefersDark ? "vs-dark" : "vs");
+  }, [prefersDark]);
 
   return (
     <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}></div>
@@ -100,7 +110,10 @@ const extraLibs = [
             import type { infer, ZodType, ZodNumber } from "zod";
             import type { BaseQuery } from "groqd";
 
-            export const runQuery: <T extends any>(query: { schema: ZodType<T>; query: string }) => T;
+            export const runQuery: <T extends any>(
+              query: { schema: ZodType<T>; query: string },
+              params?: Record<string, string|number>
+             ) => T;
           }
         `,
     filePath: monaco.Uri.file(
