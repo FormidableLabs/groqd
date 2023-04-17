@@ -1,10 +1,11 @@
 import * as React from "react";
 import { useClient } from "sanity";
-import { Box, Code, Flex } from "@sanity/ui";
+import { Box, Button, Card, Code, Flex, Label, Stack, Text } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
+import { PlayIcon } from "@sanity/icons";
 
 export default function GroqdPlayground() {
   const [
@@ -91,62 +92,115 @@ export default function GroqdPlayground() {
     }
   };
 
+  const responseView = (() => {
+    if (fetchParseError) {
+      return (
+        <Flex style={{ height: "100%" }} direction="column">
+          <Box marginY={3} paddingX={3}>
+            <Label muted>Error</Label>
+          </Box>
+          <Box paddingX={3}>
+            <pre>
+              {fetchParseError instanceof Error
+                ? fetchParseError.message
+                : "Something went wrong."}
+            </pre>
+          </Box>
+          <Box paddingX={3} marginY={3}>
+            <Label muted>Raw Response</Label>
+          </Box>
+          <Box
+            flex={1}
+            paddingX={3}
+            paddingBottom={3}
+            paddingTop={1}
+            overflow="auto"
+          >
+            <Code language="json" size={1}>
+              {JSON.stringify(rawResponse, null, 2)}
+            </Code>
+          </Box>
+        </Flex>
+      );
+    }
+
+    return (
+      <Flex flex={1} direction="column">
+        <Box padding={3}>
+          <Label muted>Query Response</Label>
+        </Box>
+        <Box flex={1} overflow="auto" padding={3}>
+          <Code language="json" size={1}>
+            {JSON.stringify(parsedResponse, null, 2)}
+          </Code>
+        </Box>
+      </Flex>
+    );
+  })();
+
   return (
     <Split style={{ width: "100%", height: "100%", overflow: "hidden" }}>
-      <div style={{ width: EDITOR_INITIAL_WIDTH, minWidth: 200 }}>
-        <iframe src={iframeSrc} width="100%" height="100%" />
+      <div
+        style={{
+          width: EDITOR_INITIAL_WIDTH,
+          minWidth: 200,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <iframe src={iframeSrc} width="100%" style={{ flex: 1 }} />
+        <Card paddingTop={3} paddingBottom={3}>
+          <Stack space={3}>
+            <Box>
+              <Box paddingX={3} marginBottom={1}>
+                <Label muted>Query</Label>
+              </Box>
+              <Flex padding={3} paddingBottom={4} overflow="auto">
+                <Code language="text">{query.query}</Code>
+                <Box width={3} />
+              </Flex>
+            </Box>
+
+            {params && Object.keys(params).length > 0 ? (
+              <Box paddingX={3}>
+                <Box marginBottom={3}>
+                  <Label muted>Params</Label>
+                </Box>
+                <Stack space={3} marginLeft={3}>
+                  {Object.entries(params).map(([key, value]) => (
+                    <Text key={key} size={2} muted>
+                      ${key}: {value}
+                    </Text>
+                  ))}
+                </Stack>
+              </Box>
+            ) : null}
+          </Stack>
+        </Card>
+        <Card padding={3} borderTop>
+          <Button
+            tone="primary"
+            icon={PlayIcon}
+            text="Fetch"
+            fontSize={[2]}
+            padding={[3]}
+            style={{ width: "100%" }}
+            onClick={handleRun}
+          />
+        </Card>
       </div>
       <Box
         style={{
           width: `calc(100% - ${EDITOR_INITIAL_WIDTH}px)`,
           minWidth: 100,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <Split mode="vertical">
-          <Box>
-            <h3>Query</h3>
-            <pre>{query.query}</pre>
-            {params && Object.keys(params).length > 0 ? (
-              <div>
-                <h3>Params</h3>
-                <ul>
-                  {Object.entries(params).map(([key, value]) => (
-                    <li key={key}>
-                      ${key}: {value}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            <button onClick={handleRun}>RUN QUERY</button>
-          </Box>
-          <Flex flex={1} direction="column" overflow="hidden">
-            {fetchParseError ? (
-              <Box flex={1} overflow="auto">
-                <h3>Error:</h3>
-                <pre>
-                  {fetchParseError instanceof Error
-                    ? fetchParseError.message
-                    : "Something went wrong."}
-                </pre>
-                <h3>Raw response:</h3>
-                <Code language="json">
-                  {JSON.stringify(rawResponse, null, 2)}
-                </Code>
-              </Box>
-            ) : (
-              <React.Fragment>
-                <h3>Query Response</h3>
-                <Box flex={1} overflow="auto">
-                  <Code language="json">
-                    {JSON.stringify(parsedResponse, null, 2)}
-                  </Code>
-                </Box>
-              </React.Fragment>
-            )}
-          </Flex>
-        </Split>
+        <Flex flex={1} direction="column" overflow="hidden">
+          {responseView}
+        </Flex>
       </Box>
     </Split>
   );
@@ -207,7 +261,7 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const EDITOR_INITIAL_WIDTH = 500;
+const EDITOR_INITIAL_WIDTH = 400;
 
 const inputSchema = z.object({
   event: z.literal("INPUT"),
