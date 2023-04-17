@@ -8,6 +8,7 @@ import { addDeprecationMessage } from "./addDeprecationMessage";
 export type { InferType, TypeFromSelection, Selection } from "./types";
 export { makeSafeQueryRunner, GroqdParseError } from "./makeSafeQueryRunner";
 export { nullToUndefined } from "./nullToUndefined";
+export { BaseQuery } from "./baseQuery";
 
 export function pipe(filter: string): UnknownQuery;
 export function pipe<IsArray extends boolean>(
