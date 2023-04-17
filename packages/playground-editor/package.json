@@ -20,7 +20,6 @@
     "@types/react-dom": "^18.0.11",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.7.3",
-    "file-loader": "^6.2.0",
     "glob": "^10.0.0",
     "html-webpack-plugin": "^5.5.0",
     "monaco-editor-webpack-plugin": "^7.0.1",

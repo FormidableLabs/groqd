@@ -19,7 +19,8 @@
     "version": "pnpm changeset version && pnpm install",
     "start:docs": "pnpm run --filter website start",
     "build:docs": "pnpm run --filter website build",
-    "dev:playground": "concurrently \"pnpm run --filter groqd dev\" \"pnpm run --filter playground-editor dev\" \"pnpm run --filter groqd-playground dev\" \"pnpm run --filter playground-example dev\""
+    "dev:playground": "concurrently \"pnpm run --filter groqd dev\" \"pnpm run --filter playground-editor dev\" \"pnpm run --filter groqd-playground dev\" \"pnpm run --filter playground-example dev\"",
+    "dev:editor": "pnpm run --filter playground-editor dev"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.0",
