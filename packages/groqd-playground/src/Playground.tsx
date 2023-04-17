@@ -130,9 +130,11 @@ export default function GroqdPlayground() {
           <Label muted>Query Response</Label>
         </Box>
         <Box flex={1} overflow="auto" padding={3}>
-          <Code language="json" size={1}>
-            {JSON.stringify(parsedResponse, null, 2)}
-          </Code>
+          {parsedResponse ? (
+            <Code language="json" size={1}>
+              {JSON.stringify(parsedResponse, null, 2)}
+            </Code>
+          ) : null}
         </Box>
       </Flex>
     );
@@ -187,6 +189,7 @@ export default function GroqdPlayground() {
             padding={[3]}
             style={{ width: "100%" }}
             onClick={handleRun}
+            disabled={!query.query}
           />
         </Card>
       </div>
