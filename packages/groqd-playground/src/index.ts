@@ -5,9 +5,7 @@ import { CodeIcon } from "@sanity/icons";
 import { PlaygroundToolConfig } from "./types";
 
 export const groqdPlaygroundTool = definePlugin<PlaygroundToolConfig | void>(
-  (options) => {
-    const { name, title, icon, defaultApiVersion, defaultDataset } =
-      options || {};
+  ({ name, title, icon, defaultApiVersion, defaultDataset } = {}) => {
     return {
       name: "groqd-playground",
       tools: [
