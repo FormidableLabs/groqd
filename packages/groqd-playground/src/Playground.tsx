@@ -8,11 +8,16 @@ import Split from "@uiw/react-split";
 
 export default function GroqdPlayground() {
   const [query, setQuery] = React.useState<BaseQuery<any>>(q.q(""));
+  const [params, setParams] = React.useState<Record<string, string | number>>(
+    {}
+  );
   const [response, setResponse] = React.useState("");
   const client = useClient({ apiVersion: "v2021-10-21" });
 
   const runQuery = React.useRef(
-    q.makeSafeQueryRunner((query) => client.fetch(query))
+    q.makeSafeQueryRunner((query, params?: Record<string, string | number>) =>
+      client.fetch(query, params)
+    )
   );
 
   React.useEffect(() => {
@@ -26,9 +31,13 @@ export default function GroqdPlayground() {
           const libs = {
             groqd: q,
             playground: {
-              runQuery: (query: BaseQuery<any>) => {
+              runQuery: (
+                query: BaseQuery<any>,
+                params?: Record<string, string | number>
+              ) => {
                 try {
                   setQuery(query);
+                  setParams(params || {});
                 } catch {}
               },
             },
@@ -62,7 +71,7 @@ export default function GroqdPlayground() {
 
   const handleRun = async () => {
     try {
-      const data = await runQuery.current(query);
+      const data = await runQuery.current(query, params);
       setResponse(JSON.stringify(data, null, 2)); // TODO: JSON explorer
     } catch (err) {
       if (err instanceof q.GroqdParseError) {
@@ -86,6 +95,12 @@ export default function GroqdPlayground() {
           <Box>
             <h3>Query</h3>
             <pre>{query.query}</pre>
+            {Object.keys(params).length > 0 && (
+              <div>
+                <h3>Params</h3>
+                <pre>{JSON.stringify(params, null, 2)}</pre>
+              </div>
+            )}
           </Box>
           <Flex flex={1} direction="column" overflow="hidden">
             <h3>Query Response</h3>
