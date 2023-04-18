@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.15.0
+
+### Minor Changes
+
+- Remove makeContentBlockQuery from exports ([#127](https://github.com/FormidableLabs/groqd/pull/127))
+
+### Patch Changes
+
+- Export BaseQuery class ([#131](https://github.com/FormidableLabs/groqd/pull/131))
+
 ## 0.14.0
 
 ### Minor Changes
