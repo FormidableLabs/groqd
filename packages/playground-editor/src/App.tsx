@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as monaco from "monaco-editor";
-import { languages } from "monaco-editor";
+import { editor, languages } from "monaco-editor";
 import types from "./types.json";
 import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
@@ -11,29 +11,6 @@ export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
   const prefersDark = useIsDarkMode();
-
-  /**
-   * Run the editor code to extract query, and then emit that out
-   */
-  const runCode = React.useCallback(async () => {
-    try {
-      const editor = editorRef.current;
-      if (!editor) throw new Error("Editor not yet instantiated");
-
-      const model = editor.getModel();
-      if (!model) throw new Error();
-
-      const worker = await monaco.languages.typescript.getTypeScriptWorker();
-      const client = await worker(model.uri);
-      const emitResult = await client.getEmitOutput(model.uri.toString());
-      const code = emitResult.outputFiles[0].text;
-
-      emitInput({ code });
-    } catch (err) {
-      console.error(err);
-      emitError(err instanceof Error ? err.message : "");
-    }
-  }, []);
 
   const handleContentChange = React.useMemo(
     () => debounce(runCode, 300),
@@ -70,10 +47,19 @@ export function App() {
       fontSize: 13,
     });
 
+    editorRef.current?.addAction({
+      id: "trigger-run",
+      label: "My label!",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      run() {
+        runCode().catch(console.error);
+      },
+    });
+
     monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
 
     // Run the code on mount
-    runCode().catch(console.error);
+    runCode(editorRef.current).catch(console.error);
 
     return () => {
       didChangeInstance.dispose();
@@ -89,6 +75,28 @@ export function App() {
     <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}></div>
   );
 }
+
+const runCode = async (
+  editor: monaco.editor.IStandaloneCodeEditor,
+  requestFetch = false
+) => {
+  try {
+    if (!editor) throw new Error("Editor not yet instantiated");
+
+    const model = editor.getModel();
+    if (!model) throw new Error();
+
+    const worker = await monaco.languages.typescript.getTypeScriptWorker();
+    const client = await worker(model.uri);
+    const emitResult = await client.getEmitOutput(model.uri.toString());
+    const code = emitResult.outputFiles[0].text;
+
+    emitInput({ code });
+  } catch (err) {
+    console.error(err);
+    emitError(err instanceof Error ? err.message : "");
+  }
+};
 
 // Initial code, will likely change in the future.
 const INIT_VALUE = [
