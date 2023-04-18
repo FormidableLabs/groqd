@@ -6,37 +6,15 @@ import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
 import { emitError, emitInput } from "./messaging";
 import { useIsDarkMode } from "./useDarkMode";
+import { createTwoslashInlayProvider } from "./twoslashInlays";
 
 export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
   const prefersDark = useIsDarkMode();
 
-  /**
-   * Run the editor code to extract query, and then emit that out
-   */
-  const runCode = React.useCallback(async () => {
-    try {
-      const editor = editorRef.current;
-      if (!editor) throw new Error("Editor not yet instantiated");
-
-      const model = editor.getModel();
-      if (!model) throw new Error();
-
-      const worker = await monaco.languages.typescript.getTypeScriptWorker();
-      const client = await worker(model.uri);
-      const emitResult = await client.getEmitOutput(model.uri.toString());
-      const code = emitResult.outputFiles[0].text;
-
-      emitInput({ code });
-    } catch (err) {
-      console.error(err);
-      emitError(err instanceof Error ? err.message : "");
-    }
-  }, []);
-
   const handleContentChange = React.useMemo(
-    () => debounce(runCode, 300),
+    () => debounce(() => editorRef.current && runCode(editorRef.current), 300),
     [runCode]
   );
 
@@ -70,10 +48,23 @@ export function App() {
       fontSize: 13,
     });
 
+    editorRef.current?.addAction({
+      id: "trigger-run",
+      label: "Trigger playground fetch",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      run(editor) {
+        runCode(editor, true).catch(console.error);
+      },
+    });
+
     monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
+    monaco.languages.registerInlayHintsProvider(
+      "typescript",
+      createTwoslashInlayProvider()
+    );
 
     // Run the code on mount
-    runCode().catch(console.error);
+    runCode(editorRef.current).catch(console.error);
 
     return () => {
       didChangeInstance.dispose();
@@ -90,12 +81,34 @@ export function App() {
   );
 }
 
+const runCode = async (
+  editor: monaco.editor.ICodeEditor,
+  requestImmediateFetch = false
+) => {
+  try {
+    if (!editor) throw new Error("Editor not yet instantiated");
+
+    const model = editor.getModel();
+    if (!model) throw new Error();
+
+    const worker = await monaco.languages.typescript.getTypeScriptWorker();
+    const client = await worker(model.uri);
+    const emitResult = await client.getEmitOutput(model.uri.toString());
+    const code = emitResult.outputFiles[0].text;
+
+    emitInput({ code, requestImmediateFetch });
+  } catch (err) {
+    console.error(err);
+    emitError(err instanceof Error ? err.message : "");
+  }
+};
+
 // Initial code, will likely change in the future.
 const INIT_VALUE = [
   `import { runQuery } from "playground";`,
   `import { q } from "groqd";`,
   "",
-  `const query = runQuery(\n\tq("*")\n\t.filterByType("employee")\n\t.slice(0, 10)\n\t.grab$({\n\t\tname: q.string()\n\t})\n);`,
+  `runQuery(\n\tq("*")\n\t.filterByType("employee")\n\t.slice(0, 10)\n\t.grab$({\n\t\tname: q.string(),\n\t\tjobTitle: q.string()\n\t})\n);`,
 ].join("\n");
 
 // Adding in groqd types, and our custom playground.runQuery helper.

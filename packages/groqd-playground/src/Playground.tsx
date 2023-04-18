@@ -9,6 +9,7 @@ import {
   Grid,
   Label,
   Select,
+  Spinner,
   Stack,
   Text,
   TextInput,
@@ -38,6 +39,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       activeDataset,
       activeAPIVersion,
       queryUrl,
+      isFetching,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -50,7 +52,12 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       tool.options?.defaultApiVersion ||
       DEFAULT_API_VERSION;
 
-    return { query: q.q(""), activeDataset, activeAPIVersion };
+    return {
+      query: q.q(""),
+      activeDataset,
+      activeAPIVersion,
+      isFetching: false,
+    };
   });
   const operationUrlRef = React.useRef<HTMLInputElement>(null);
 
@@ -68,7 +75,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   );
   const datasets = useDatasets(_client);
 
-  const generateQueryUrl = React.useCallback(() => {
+  const generateQueryUrl = (query: q.BaseQuery<any>, params?: Params) => {
     const searchParams = new URLSearchParams();
     searchParams.append("query", query.query);
     if (params) {
@@ -79,7 +86,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     return client.getUrl(
       client.getDataUrl("query", "?" + searchParams.toString())
     );
-  }, [client, query.query, params]);
+  };
 
   // Make sure activeDataset isn't outside of available datasets.
   React.useEffect(() => {
@@ -100,6 +107,25 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       ),
     [client]
   );
+
+  const handleRun = async (query: q.BaseQuery<any>, params?: Params) => {
+    dispatch({
+      type: "MAKE_FETCH_REQUEST",
+      payload: { queryUrl: generateQueryUrl(query, params) },
+    });
+    try {
+      const data = await runQuery(query, params);
+      dispatch({
+        type: "FETCH_RESPONSE_PARSED",
+        payload: { parsedResponse: data },
+      });
+    } catch (err) {
+      dispatch({
+        type: "FETCH_PARSE_FAILURE",
+        payload: { fetchParseError: err },
+      });
+    }
+  };
 
   React.useEffect(() => {
     const handleMessage = (message: MessageEvent) => {
@@ -122,6 +148,9 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                       type: "INPUT_EVAL_SUCCESS",
                       payload: { query, params },
                     });
+                    if (payload.requestImmediateFetch) {
+                      handleRun(query, params);
+                    }
                   }
                 } catch {}
               },
@@ -154,25 +183,6 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     return url.toString();
   }, []);
 
-  const handleRun = async () => {
-    dispatch({
-      type: "MAKE_FETCH_REQUEST",
-      payload: { queryUrl: generateQueryUrl() },
-    });
-    try {
-      const data = await runQuery(query, params);
-      dispatch({
-        type: "FETCH_RESPONSE_PARSED",
-        payload: { parsedResponse: data },
-      });
-    } catch (err) {
-      dispatch({
-        type: "FETCH_PARSE_FAILURE",
-        payload: { fetchParseError: err },
-      });
-    }
-  };
-
   const handleDatasetChange = (datasetName: string) => {
     dispatch({ type: "SET_ACTIVE_DATASET", payload: { dataset: datasetName } });
   };
@@ -191,6 +201,14 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   };
 
   const responseView = (() => {
+    if (isFetching) {
+      return (
+        <Flex justify="center" flex={1} align="center">
+          <Spinner muted />
+        </Flex>
+      );
+    }
+
     if (fetchParseError) {
       return (
         <Flex style={{ height: "100%" }} direction="column">
@@ -366,7 +384,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 fontSize={[2]}
                 padding={[3]}
                 style={{ width: "100%" }}
-                onClick={handleRun}
+                onClick={() => handleRun(query, params)}
                 disabled={!query.query}
               />
             </Card>
@@ -399,6 +417,7 @@ type State = {
   query: BaseQuery<any>;
   params?: Params;
   queryUrl?: string;
+  isFetching: boolean;
   rawResponse?: unknown;
   parsedResponse?: unknown;
   inputParseError?: Error;
@@ -440,11 +459,13 @@ const reducer = (state: State, action: Action): State => {
     case "MAKE_FETCH_REQUEST":
       return {
         ...state,
+        isFetching: true,
         queryUrl: action.payload.queryUrl,
       };
     case "RAW_RESPONSE_RECEIVED":
       return {
         ...state,
+        isFetching: false,
         rawResponse: action.payload.rawResponse,
       };
     case "FETCH_RESPONSE_PARSED":
@@ -471,6 +492,7 @@ const EDITOR_INITIAL_WIDTH = 400;
 const inputSchema = z.object({
   event: z.literal("INPUT"),
   code: z.string(),
+  requestImmediateFetch: z.boolean().optional().default(false),
 });
 
 const errorSchema = z.object({
