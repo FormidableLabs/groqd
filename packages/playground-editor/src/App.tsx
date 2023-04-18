@@ -50,7 +50,7 @@ export function App() {
 
     editorRef.current?.addAction({
       id: "trigger-run",
-      label: "My label!",
+      label: "Trigger playground fetch",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run(editor) {
         runCode(editor, true).catch(console.error);
