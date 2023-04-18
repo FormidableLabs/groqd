@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@uiw/react-split": "^5.8.10",
-    "groqd": "workspace:^0.14.0",
+    "groqd": "workspace:*",
     "zod": "^3.21.4"
   }
 }

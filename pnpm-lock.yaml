@@ -115,7 +115,7 @@ importers:
         specifier: ^5.8.10
         version: 5.8.10(react-dom@18.2.0)(react@18.2.0)
       groqd:
-        specifier: workspace:^0.14.0
+        specifier: workspace:*
         version: link:../groqd
       react:
         specifier: ^18.2.0
