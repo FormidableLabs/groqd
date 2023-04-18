@@ -1,15 +1,26 @@
 {
-  "name": "playground-editor",
+  "name": "groqd-playground-editor",
   "description": "Code editor for GROQD playground. GROQD Playground will consume this via iframe.",
-  "version": "1.0.1",
+  "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
-  "private": true,
+  "private": false,
+  "author": {
+    "name": "Formidable",
+    "url": "https://formidable.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formidablelabs/groqd.git"
+  },
+  "homepage": "https://github.com/formidablelabs/groqd",
+  "files": ["build"],
   "scripts": {
     "dev": "pnpm run gather-types && webpack serve --mode development",
     "build": "pnpm run gather-types && webpack --mode production",
     "gather-types": "node ./scripts/gather-types.js",
-    "typecheck": "pnpm run gather-types && tsc --noEmit"
+    "typecheck": "pnpm run gather-types && tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
