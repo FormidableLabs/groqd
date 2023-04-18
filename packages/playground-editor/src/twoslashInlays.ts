@@ -5,7 +5,7 @@ export const createTwoslashInlayProvider = () => {
   const provider: monaco.languages.InlayHintsProvider = {
     provideInlayHints: async (model, _, cancel) => {
       const text = model.getValue();
-      const queryRegex = /^(const|let|var)\s*(\w+)\s*=\s*runQuery\(/gm;
+      const queryRegex = /runQuery\(/gm;
       let match;
       const results: monaco.languages.InlayHint[] = [];
       const worker = await (
@@ -20,7 +20,7 @@ export const createTwoslashInlayProvider = () => {
       }
 
       while ((match = queryRegex.exec(text)) !== null) {
-        const end = match.index + match[0].indexOf(match[2]);
+        const end = match.index;
         const endPos = model.getPositionAt(end);
         const inspectionPos = new monaco.Position(
           endPos.lineNumber,
@@ -46,7 +46,8 @@ export const createTwoslashInlayProvider = () => {
           .map((d) => d.text)
           .join("")
           .replace(/\n/gm, " ")
-          .replace(/  /g, "");
+          .replace(/  /g, "")
+          .replace(/.*runQuery<(.+?)>.*/, "$1");
         if (text.length > 120) text = text.slice(0, 119) + "...";
 
         const inlay: monaco.languages.InlayHint = {
