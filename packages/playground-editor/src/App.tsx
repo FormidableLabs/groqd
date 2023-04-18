@@ -6,6 +6,7 @@ import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
 import { emitError, emitInput } from "./messaging";
 import { useIsDarkMode } from "./useDarkMode";
+import { createTwoslashInlayProvider } from "./twoslashInlays";
 
 export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -57,6 +58,10 @@ export function App() {
     });
 
     monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
+    monaco.languages.registerInlayHintsProvider(
+      "typescript",
+      createTwoslashInlayProvider()
+    );
 
     // Run the code on mount
     runCode(editorRef.current).catch(console.error);
@@ -103,7 +108,7 @@ const INIT_VALUE = [
   `import { runQuery } from "playground";`,
   `import { q } from "groqd";`,
   "",
-  `const query = runQuery(\n\tq("*")\n\t.filterByType("employee")\n\t.slice(0, 10)\n\t.grab$({\n\t\tname: q.string()\n\t})\n);`,
+  `const query = runQuery(\n//    ^?\n\tq("*")\n\t.filterByType("employee")\n\t.slice(0, 10)\n\t.grab$({\n\t\tname: q.string(),\n\t\tjobTitle: q.string()\n\t})\n);`,
 ].join("\n");
 
 // Adding in groqd types, and our custom playground.runQuery helper.
