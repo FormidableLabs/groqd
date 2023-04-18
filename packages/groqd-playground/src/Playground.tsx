@@ -75,7 +75,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   );
   const datasets = useDatasets(_client);
 
-  const generateQueryUrl = React.useCallback(() => {
+  const generateQueryUrl = (query: q.BaseQuery<any>, params?: Params) => {
     const searchParams = new URLSearchParams();
     searchParams.append("query", query.query);
     if (params) {
@@ -86,7 +86,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     return client.getUrl(
       client.getDataUrl("query", "?" + searchParams.toString())
     );
-  }, [client, query.query, params]);
+  };
 
   // Make sure activeDataset isn't outside of available datasets.
   React.useEffect(() => {
@@ -111,7 +111,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const handleRun = async (query: q.BaseQuery<any>, params?: Params) => {
     dispatch({
       type: "MAKE_FETCH_REQUEST",
-      payload: { queryUrl: generateQueryUrl() },
+      payload: { queryUrl: generateQueryUrl(query, params) },
     });
     try {
       const data = await runQuery(query, params);
