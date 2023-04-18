@@ -2,7 +2,7 @@
   "name": "groqd-playground",
   "private": false,
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Formidable",
     "url": "https://formidable.com"
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@uiw/react-split": "^5.8.10",
-    "groqd": "workspace:^0.14.0",
+    "groqd": "workspace:^0.15.0",
     "zod": "^3.21.4"
   }
 }
