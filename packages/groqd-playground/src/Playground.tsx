@@ -9,6 +9,7 @@ import {
   Grid,
   Label,
   Select,
+  Spinner,
   Stack,
   Text,
   TextInput,
@@ -38,6 +39,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       activeDataset,
       activeAPIVersion,
       queryUrl,
+      isFetching,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -50,7 +52,12 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       tool.options?.defaultApiVersion ||
       DEFAULT_API_VERSION;
 
-    return { query: q.q(""), activeDataset, activeAPIVersion };
+    return {
+      query: q.q(""),
+      activeDataset,
+      activeAPIVersion,
+      isFetching: false,
+    };
   });
   const operationUrlRef = React.useRef<HTMLInputElement>(null);
 
@@ -191,6 +198,14 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   };
 
   const responseView = (() => {
+    if (isFetching) {
+      return (
+        <Flex justify="center" flex={1} align="center">
+          <Spinner muted />
+        </Flex>
+      );
+    }
+
     if (fetchParseError) {
       return (
         <Flex style={{ height: "100%" }} direction="column">
@@ -399,6 +414,7 @@ type State = {
   query: BaseQuery<any>;
   params?: Params;
   queryUrl?: string;
+  isFetching: boolean;
   rawResponse?: unknown;
   parsedResponse?: unknown;
   inputParseError?: Error;
@@ -440,11 +456,13 @@ const reducer = (state: State, action: Action): State => {
     case "MAKE_FETCH_REQUEST":
       return {
         ...state,
+        isFetching: true,
         queryUrl: action.payload.queryUrl,
       };
     case "RAW_RESPONSE_RECEIVED":
       return {
         ...state,
+        isFetching: false,
         rawResponse: action.payload.rawResponse,
       };
     case "FETCH_RESPONSE_PARSED":
