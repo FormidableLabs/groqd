@@ -410,7 +410,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 const IS_DEV = process.env.MODE === "development";
 const EDITOR_ORIGIN = IS_DEV
   ? "http://localhost:3069"
-  : "https://groqd-playground-editor.formidable.dev";
+  : "https://unpkg.com/groqd-playground-editor@0.0.2/build/index.html";
 
 type Params = Record<string, string | number>;
 type State = {
