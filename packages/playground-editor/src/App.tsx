@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as monaco from "monaco-editor";
-import { editor, languages } from "monaco-editor";
+import { languages } from "monaco-editor";
 import types from "./types.json";
 import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
@@ -13,7 +13,7 @@ export function App() {
   const prefersDark = useIsDarkMode();
 
   const handleContentChange = React.useMemo(
-    () => debounce(runCode, 300),
+    () => debounce(() => editorRef.current && runCode(editorRef.current), 300),
     [runCode]
   );
 
@@ -51,8 +51,8 @@ export function App() {
       id: "trigger-run",
       label: "My label!",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      run() {
-        runCode().catch(console.error);
+      run(editor) {
+        runCode(editor, true).catch(console.error);
       },
     });
 
@@ -77,8 +77,8 @@ export function App() {
 }
 
 const runCode = async (
-  editor: monaco.editor.IStandaloneCodeEditor,
-  requestFetch = false
+  editor: monaco.editor.ICodeEditor,
+  requestImmediateFetch = false
 ) => {
   try {
     if (!editor) throw new Error("Editor not yet instantiated");
@@ -91,7 +91,7 @@ const runCode = async (
     const emitResult = await client.getEmitOutput(model.uri.toString());
     const code = emitResult.outputFiles[0].text;
 
-    emitInput({ code });
+    emitInput({ code, requestImmediateFetch });
   } catch (err) {
     console.error(err);
     emitError(err instanceof Error ? err.message : "");

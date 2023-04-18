@@ -108,6 +108,25 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     [client]
   );
 
+  const handleRun = async (query: q.BaseQuery<any>, params?: Params) => {
+    dispatch({
+      type: "MAKE_FETCH_REQUEST",
+      payload: { queryUrl: generateQueryUrl() },
+    });
+    try {
+      const data = await runQuery(query, params);
+      dispatch({
+        type: "FETCH_RESPONSE_PARSED",
+        payload: { parsedResponse: data },
+      });
+    } catch (err) {
+      dispatch({
+        type: "FETCH_PARSE_FAILURE",
+        payload: { fetchParseError: err },
+      });
+    }
+  };
+
   React.useEffect(() => {
     const handleMessage = (message: MessageEvent) => {
       if (message.origin !== EDITOR_ORIGIN) return;
@@ -129,6 +148,9 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                       type: "INPUT_EVAL_SUCCESS",
                       payload: { query, params },
                     });
+                    if (payload.requestImmediateFetch) {
+                      handleRun(query, params);
+                    }
                   }
                 } catch {}
               },
@@ -160,25 +182,6 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     url.searchParams.append("host", window.location.href);
     return url.toString();
   }, []);
-
-  const handleRun = async () => {
-    dispatch({
-      type: "MAKE_FETCH_REQUEST",
-      payload: { queryUrl: generateQueryUrl() },
-    });
-    try {
-      const data = await runQuery(query, params);
-      dispatch({
-        type: "FETCH_RESPONSE_PARSED",
-        payload: { parsedResponse: data },
-      });
-    } catch (err) {
-      dispatch({
-        type: "FETCH_PARSE_FAILURE",
-        payload: { fetchParseError: err },
-      });
-    }
-  };
 
   const handleDatasetChange = (datasetName: string) => {
     dispatch({ type: "SET_ACTIVE_DATASET", payload: { dataset: datasetName } });
@@ -381,7 +384,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 fontSize={[2]}
                 padding={[3]}
                 style={{ width: "100%" }}
-                onClick={handleRun}
+                onClick={() => handleRun(query, params)}
                 disabled={!query.query}
               />
             </Card>
@@ -489,6 +492,7 @@ const EDITOR_INITIAL_WIDTH = 400;
 const inputSchema = z.object({
   event: z.literal("INPUT"),
   code: z.string(),
+  requestImmediateFetch: z.boolean().optional().default(false),
 });
 
 const errorSchema = z.object({
