@@ -17,7 +17,7 @@ import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
-import { PlayIcon } from "@sanity/icons";
+import { PlayIcon, ResetIcon } from "@sanity/icons";
 import { GroqdPlaygroundProps } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
@@ -323,11 +323,17 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
               flexDirection: "column",
             }}
           >
-            <iframe
-              src={iframeSrc}
-              width="100%"
-              style={{ flex: 1, border: "none" }}
-            />
+            <div style={{ flex: 1, position: "relative" }}>
+              <iframe
+                src={iframeSrc}
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+              />
+              <div style={{ position: "absolute", bottom: 12, left: 12 }}>
+                <Button icon={ResetIcon} text="Reset" mode="ghost" />
+              </div>
+            </div>
             <Card paddingTop={3} paddingBottom={3} borderTop>
               <Stack space={3}>
                 <Box>
