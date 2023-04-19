@@ -14,7 +14,9 @@
     "url": "https://github.com/formidablelabs/groqd.git"
   },
   "homepage": "https://github.com/formidablelabs/groqd",
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "scripts": {
     "dev": "pnpm run gather-types && webpack serve --mode development",
     "build": "pnpm run gather-types && webpack --mode production",
@@ -44,6 +46,7 @@
   "dependencies": {
     "groqd": "^0.15.0",
     "lodash.debounce": "^4.0.8",
+    "lz-string": "^1.5.0",
     "monaco-editor": "^0.37.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

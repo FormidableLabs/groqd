@@ -11,16 +11,23 @@ const getTargetUrl = () => {
 const IS_EMBEDDED = window.location !== window.parent.location;
 
 export const emitInput = ({
+  compressedRawCode,
   code,
   requestImmediateFetch,
 }: {
+  compressedRawCode: string;
   code: string;
   requestImmediateFetch: boolean;
 }) => {
   if (!IS_EMBEDDED) return;
 
   window.parent.postMessage(
-    JSON.stringify({ event: "INPUT", code, requestImmediateFetch }),
+    JSON.stringify({
+      event: "INPUT",
+      code,
+      compressedRawCode,
+      requestImmediateFetch,
+    }),
     getTargetUrl()
   );
 };

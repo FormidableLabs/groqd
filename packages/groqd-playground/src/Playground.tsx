@@ -23,6 +23,7 @@ import { CopyIcon, PlayIcon } from "@sanity/icons";
 import { PlaygroundConfig } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
+import lzstring from "lz-string";
 
 type GroqdPlaygroundProps = {
   tool: Tool<PlaygroundConfig>;
@@ -135,6 +136,9 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         const payload = messageSchema.parse(JSON.parse(message.data));
 
         if (payload.event === "INPUT") {
+          localStorage.setItem(STORAGE_KEYS.CODE, payload.compressedRawCode);
+          setQP("code", payload.compressedRawCode);
+
           const libs = {
             groqd: q,
             playground: {
@@ -180,6 +184,12 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const iframeSrc = React.useMemo(() => {
     const url = new URL(EDITOR_ORIGIN);
     url.searchParams.append("host", window.location.href);
+
+    const storedCode =
+      new URL(window.location.href).searchParams.get("code") ||
+      localStorage.getItem(STORAGE_KEYS.CODE);
+    if (storedCode) url.searchParams.append("code", storedCode);
+
     return url.toString();
   }, []);
 
@@ -495,6 +505,7 @@ const EDITOR_INITIAL_WIDTH = 400;
 
 const inputSchema = z.object({
   event: z.literal("INPUT"),
+  compressedRawCode: z.string(),
   code: z.string(),
   requestImmediateFetch: z.boolean().optional().default(false),
 });
@@ -505,3 +516,9 @@ const errorSchema = z.object({
 });
 
 const messageSchema = z.union([inputSchema, errorSchema]);
+
+const url = new URL(window.location.href);
+const setQP = (key: string, value: string) => {
+  url.searchParams.set(key, value);
+  window.history.replaceState(null, "", url);
+};
