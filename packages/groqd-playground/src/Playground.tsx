@@ -12,6 +12,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
 } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
@@ -37,6 +38,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       activeAPIVersion,
       queryUrl,
       isFetching,
+      rawExecutionTime,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -102,14 +104,24 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
   const runQuery = React.useMemo(
     () =>
-      q.makeSafeQueryRunner((query, params?: Record<string, string | number>) =>
-        client.fetch(query, params).then((res) => {
-          dispatch({
-            type: "RAW_RESPONSE_RECEIVED",
-            payload: { rawResponse: res },
-          });
-          return res;
-        })
+      q.makeSafeQueryRunner(
+        (query, params?: Record<string, string | number>) =>
+          new Promise((resolve, reject) => {
+            client.observable
+              .fetch(query, params, { filterResponse: false })
+              .subscribe({
+                next: (res) => {
+                  dispatch({
+                    type: "RAW_RESPONSE_RECEIVED",
+                    payload: { rawResponse: res.result, execTime: res.ms },
+                  });
+                  resolve(res.result);
+                },
+                error: (err) => {
+                  reject(err);
+                },
+              });
+          })
       ),
     [client]
   );
@@ -236,6 +248,19 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       );
     }
 
+    const execTimeDisplay = rawExecutionTime && (
+      <Tooltip
+        placement="right-end"
+        content={
+          <Box padding={2}>
+            <Text>Raw execution time of query</Text>
+          </Box>
+        }
+      >
+        <span> ({rawExecutionTime}ms)</span>
+      </Tooltip>
+    );
+
     if (fetchParseError) {
       return (
         <Flex style={{ height: "100%" }} direction="column">
@@ -250,7 +275,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             </pre>
           </Box>
           <Box paddingX={3} marginY={3}>
-            <Label muted>Raw Response</Label>
+            <Label muted>Raw Response {execTimeDisplay}</Label>
           </Box>
           <Box
             flex={1}
@@ -270,7 +295,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     return (
       <Flex flex={1} direction="column">
         <Box padding={3}>
-          <Label muted>Query Response</Label>
+          <Label muted>Query Response {execTimeDisplay}</Label>
         </Box>
         <Box flex={1} overflow="auto" padding={3}>
           {parsedResponse ? (
@@ -414,7 +439,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           </div>
           <Box
             style={{
-              width: `calc(100% - ${EDITOR_INITIAL_WIDTH}px)`,
+              width: `calc(100% - ${editorInitialWidth}px)`,
               minWidth: 100,
               display: "flex",
               flexDirection: "column",
@@ -441,6 +466,7 @@ type State = {
   params?: Params;
   queryUrl?: string;
   isFetching: boolean;
+  rawExecutionTime?: number;
   rawResponse?: unknown;
   parsedResponse?: unknown;
   inputParseError?: Error;
@@ -456,7 +482,10 @@ type Action =
     }
   | { type: "INPUT_PARSE_FAILURE"; payload: { inputParseError: Error } }
   | { type: "MAKE_FETCH_REQUEST"; payload: { queryUrl: string } }
-  | { type: "RAW_RESPONSE_RECEIVED"; payload: { rawResponse: unknown } }
+  | {
+      type: "RAW_RESPONSE_RECEIVED";
+      payload: { rawResponse: unknown; execTime: number };
+    }
   | { type: "FETCH_RESPONSE_PARSED"; payload: { parsedResponse: unknown } }
   | {
       type: "FETCH_PARSE_FAILURE";
@@ -490,6 +519,7 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         isFetching: false,
         rawResponse: action.payload.rawResponse,
+        rawExecutionTime: action.payload.execTime,
       };
     case "FETCH_RESPONSE_PARSED":
       return {
