@@ -19,16 +19,10 @@ export const ShareUrlField = ({
   url,
   column = 4,
 }: ShareUrlFieldProps) => {
-  const ref = React.useRef<HTMLInputElement>(null);
-
   const handleCopyQueryUrl = async () => {
-    const el = ref.current;
-    if (!el) return;
-
     try {
-      el.select();
-      await navigator.clipboard.writeText(el.value);
-      console.log("COPIED!"); // TODO: Toaster boy
+      await navigator.clipboard.writeText(url);
+      // TODO: Toasta boi
     } catch {}
   };
 
@@ -40,7 +34,7 @@ export const ShareUrlField = ({
         </Card>
         <Flex flex={1} gap={1}>
           <Box flex={1}>
-            <TextInput readOnly type="url" value={url} ref={ref} />
+            <TextInput readOnly type="url" value={url} />
           </Box>
           <Tooltip
             content={

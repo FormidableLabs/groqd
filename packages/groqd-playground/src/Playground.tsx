@@ -140,9 +140,13 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           localStorage.setItem(STORAGE_KEYS.CODE, payload.compressedRawCode);
           setQP("code", payload.compressedRawCode);
 
-          // TODO: Copy to clipboard.
           if (payload.requestShareCopy) {
-            alert("COPY TO CLIPBOARD" + window.location.href);
+            navigator.clipboard
+              .writeText(window.location.href)
+              .then(() => {
+                // TODO: Toasta boi
+              })
+              .catch(() => null);
           }
 
           const libs = {
