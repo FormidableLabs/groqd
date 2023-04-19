@@ -55,12 +55,23 @@ export function App() {
       fontSize: 13,
     });
 
+    // Cmd + Enter to run query
     editorRef.current?.addAction({
       id: "trigger-run",
       label: "Trigger playground fetch",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run(editor) {
         runCode(editor, true).catch(console.error);
+      },
+    });
+
+    // Cmd + S to copy URL to clipboard?
+    editorRef.current?.addAction({
+      id: "copy-url",
+      label: "Copy URL to clipboard",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      run() {
+        console.log("COPY TO CLIPBOARD!");
       },
     });
 

@@ -23,7 +23,6 @@ import { CopyIcon, PlayIcon } from "@sanity/icons";
 import { PlaygroundConfig } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
-import lzstring from "lz-string";
 
 type GroqdPlaygroundProps = {
   tool: Tool<PlaygroundConfig>;
@@ -309,7 +308,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             <Box padding={1} flex={1} column={8}>
               <Stack>
                 <Card paddingY={2}>
-                  <Label muted>Query URL</Label>
+                  <Label muted>Raw Query URL</Label>
                 </Card>
                 <Flex flex={1} gap={1}>
                   <Box flex={1}>
