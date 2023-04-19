@@ -1,5 +1,5 @@
 import * as React from "react";
-import { type Tool, useClient } from "sanity";
+import { useClient } from "sanity";
 import {
   Box,
   Button,
@@ -12,22 +12,17 @@ import {
   Spinner,
   Stack,
   Text,
-  TextInput,
-  Tooltip,
 } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
-import { CopyIcon, PlayIcon } from "@sanity/icons";
-import { PlaygroundConfig } from "./types";
+import { PlayIcon } from "@sanity/icons";
+import { GroqdPlaygroundProps } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 import { ShareUrlField } from "./components/ShareUrlField";
-
-type GroqdPlaygroundProps = {
-  tool: Tool<PlaygroundConfig>;
-};
+import { useCopyUrlAndNotify } from "./hooks/copyUrl";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -60,7 +55,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       isFetching: false,
     };
   });
-  const operationUrlRef = React.useRef<HTMLInputElement>(null);
+  const copyShareUrl = useCopyUrlAndNotify("Copied share URL to clipboard!");
   const windowHref = window.location.href;
 
   // Configure client
@@ -141,12 +136,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           setQP("code", payload.compressedRawCode);
 
           if (payload.requestShareCopy) {
-            navigator.clipboard
-              .writeText(window.location.href)
-              .then(() => {
-                // TODO: Toasta boi
-              })
-              .catch(() => null);
+            copyShareUrl(window.location.href);
           }
 
           const libs = {
@@ -208,16 +198,6 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   };
   const handleAPIVersionChange = (apiVersion: string) => {
     dispatch({ type: "SET_ACTIVE_API_VERSION", payload: { apiVersion } });
-  };
-  const handleCopyQueryUrl = async () => {
-    const el = operationUrlRef.current;
-    if (!el) return;
-
-    try {
-      el.select();
-      await navigator.clipboard.writeText(el.value);
-      console.log("COPIED!");
-    } catch {}
   };
 
   const responseView = (() => {
@@ -319,9 +299,16 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             url={windowHref}
             title="Share URL"
             column={queryUrl ? 4 : 8}
+            notificationMessage="Copied share URL to clipboard!"
           />
           {/* Query URL */}
-          {queryUrl && <ShareUrlField url={queryUrl} title="Raw Query URL" />}
+          {queryUrl && (
+            <ShareUrlField
+              url={queryUrl}
+              title="Raw Query URL"
+              notificationMessage="Copied raw query URL to clipboard!"
+            />
+          )}
         </Grid>
       </Card>
 

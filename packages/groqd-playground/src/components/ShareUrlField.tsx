@@ -11,20 +11,23 @@ import {
   Tooltip,
 } from "@sanity/ui";
 import { CopyIcon } from "@sanity/icons";
+import { useCopyUrlAndNotify } from "../hooks/copyUrl";
 
-type ShareUrlFieldProps = { url: string; title: string; column?: number };
+type ShareUrlFieldProps = {
+  url: string;
+  title: string;
+  column?: number;
+  notificationMessage?: string;
+};
 
 export const ShareUrlField = ({
   title,
   url,
   column = 4,
+  notificationMessage = "Copied URL to clipboard!",
 }: ShareUrlFieldProps) => {
-  const handleCopyQueryUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      // TODO: Toasta boi
-    } catch {}
-  };
+  const copyUrl = useCopyUrlAndNotify(notificationMessage);
+  const handleCopyUrl = () => copyUrl(url);
 
   return (
     <Box padding={1} flex={1} column={column}>
@@ -48,7 +51,7 @@ export const ShareUrlField = ({
               type="button"
               mode="ghost"
               icon={CopyIcon}
-              onClick={handleCopyQueryUrl}
+              onClick={handleCopyUrl}
             />
           </Tooltip>
         </Flex>
