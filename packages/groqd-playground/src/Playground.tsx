@@ -23,6 +23,7 @@ import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 import { ShareUrlField } from "./components/ShareUrlField";
 import { useCopyUrlAndNotify } from "./hooks/copyUrl";
+import { emitReset } from "./messaging";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -55,6 +56,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       isFetching: false,
     };
   });
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
   const copyShareUrl = useCopyUrlAndNotify("Copied share URL to clipboard!");
   const windowHref = window.location.href;
 
@@ -150,8 +152,6 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 playgroundRunQueryCount++;
                 if (playgroundRunQueryCount > 1) return;
 
-                console.log(playgroundRunQueryCount);
-
                 try {
                   if (query instanceof q.BaseQuery) {
                     dispatch({
@@ -204,6 +204,10 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   };
   const handleAPIVersionChange = (apiVersion: string) => {
     dispatch({ type: "SET_ACTIVE_API_VERSION", payload: { apiVersion } });
+  };
+
+  const handleReset = () => {
+    iframeRef.current && emitReset(iframeRef.current, EDITOR_ORIGIN);
   };
 
   const responseView = (() => {
@@ -335,9 +339,15 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 width="100%"
                 height="100%"
                 style={{ border: "none" }}
+                ref={iframeRef}
               />
               <div style={{ position: "absolute", bottom: 12, left: 12 }}>
-                <Button icon={ResetIcon} text="Reset" mode="ghost" />
+                <Button
+                  icon={ResetIcon}
+                  text="Reset"
+                  mode="ghost"
+                  onClick={handleReset}
+                />
               </div>
             </div>
             <Card paddingTop={3} paddingBottom={3} borderTop>
