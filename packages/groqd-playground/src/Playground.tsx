@@ -57,6 +57,13 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     };
   });
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
+  const editorContainer = React.useRef<HTMLDivElement>(null);
+  const editorInitialWidth = React.useMemo(
+    () =>
+      +(localStorage.getItem(STORAGE_KEYS.EDITOR_WIDTH) || 0) ||
+      EDITOR_INITIAL_WIDTH,
+    []
+  );
   const copyShareUrl = useCopyUrlAndNotify("Copied share URL to clipboard!");
   const windowHref = window.location.href;
 
@@ -210,6 +217,16 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     iframeRef.current && emitReset(iframeRef.current, EDITOR_ORIGIN);
   };
 
+  const handleEditorResize = () => {
+    const container = editorContainer.current;
+    if (!container) return;
+
+    localStorage.setItem(
+      STORAGE_KEYS.EDITOR_WIDTH,
+      String(container.clientWidth)
+    );
+  };
+
   const responseView = (() => {
     if (isFetching) {
       return (
@@ -323,15 +340,19 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       </Card>
 
       <Box flex={1}>
-        <Split style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+        <Split
+          style={{ width: "100%", height: "100%", overflow: "hidden" }}
+          onDragEnd={handleEditorResize}
+        >
           <div
             style={{
-              width: EDITOR_INITIAL_WIDTH,
+              width: editorInitialWidth,
               minWidth: 200,
               height: "100%",
               display: "flex",
               flexDirection: "column",
             }}
+            ref={editorContainer}
           >
             <div style={{ flex: 1, position: "relative" }}>
               <iframe
@@ -493,7 +514,7 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const EDITOR_INITIAL_WIDTH = 400;
+const EDITOR_INITIAL_WIDTH = 500;
 
 const inputSchema = z.object({
   event: z.literal("INPUT"),
