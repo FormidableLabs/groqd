@@ -475,7 +475,11 @@ const reducer = (state: State, action: Action): State => {
         fetchParseError: undefined,
       };
     case "FETCH_PARSE_FAILURE":
-      return { ...state, fetchParseError: action.payload.fetchParseError };
+      return {
+        ...state,
+        isFetching: false,
+        fetchParseError: action.payload.fetchParseError,
+      };
     case "SET_ACTIVE_API_VERSION":
       localStorage.setItem(STORAGE_KEYS.API_VERSION, action.payload.apiVersion);
       return { ...state, activeAPIVersion: action.payload.apiVersion };
