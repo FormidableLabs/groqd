@@ -4,8 +4,8 @@ import * as monaco from "monaco-editor";
 export const createTwoslashInlayProvider = () => {
   const provider: monaco.languages.InlayHintsProvider = {
     provideInlayHints: async (model, _, cancel) => {
-      const text = model.getValue();
-      const queryRegex = /runQuery\(/gm;
+      const editorText = model.getValue();
+      const queryRegex = /(\n\s*\n)^(.*)runQuery\(/gm;
       let match;
       const results: monaco.languages.InlayHint[] = [];
       const worker = await (
@@ -19,8 +19,8 @@ export const createTwoslashInlayProvider = () => {
         };
       }
 
-      while ((match = queryRegex.exec(text)) !== null) {
-        const end = match.index;
+      while ((match = queryRegex.exec(editorText)) !== null) {
+        const end = match.index + match[1].length + match[2].length;
         const endPos = model.getPositionAt(end);
         const inspectionPos = new monaco.Position(
           endPos.lineNumber,
