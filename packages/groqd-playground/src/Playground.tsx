@@ -23,6 +23,7 @@ import { CopyIcon, PlayIcon } from "@sanity/icons";
 import { PlaygroundConfig } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
+import { ShareUrlField } from "./components/ShareUrlField";
 
 type GroqdPlaygroundProps = {
   tool: Tool<PlaygroundConfig>;
@@ -60,6 +61,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     };
   });
   const operationUrlRef = React.useRef<HTMLInputElement>(null);
+  const windowHref = window.location.href;
 
   // Configure client
   const _client = useClient({
@@ -137,6 +139,11 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         if (payload.event === "INPUT") {
           localStorage.setItem(STORAGE_KEYS.CODE, payload.compressedRawCode);
           setQP("code", payload.compressedRawCode);
+
+          // TODO: Copy to clipboard.
+          if (payload.requestShareCopy) {
+            alert("COPY TO CLIPBOARD" + window.location.href);
+          }
 
           const libs = {
             groqd: q,
@@ -303,41 +310,14 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             </Stack>
           </Box>
 
+          {/* Share URL*/}
+          <ShareUrlField
+            url={windowHref}
+            title="Share URL"
+            column={queryUrl ? 4 : 8}
+          />
           {/* Query URL */}
-          {queryUrl && (
-            <Box padding={1} flex={1} column={8}>
-              <Stack>
-                <Card paddingY={2}>
-                  <Label muted>Raw Query URL</Label>
-                </Card>
-                <Flex flex={1} gap={1}>
-                  <Box flex={1}>
-                    <TextInput
-                      readOnly
-                      type="url"
-                      value={queryUrl}
-                      ref={operationUrlRef}
-                    />
-                  </Box>
-                  <Tooltip
-                    content={
-                      <Box padding={2}>
-                        <Text>Copy to clipboard</Text>
-                      </Box>
-                    }
-                  >
-                    <Button
-                      aria-label="Copy to clipboard"
-                      type="button"
-                      mode="ghost"
-                      icon={CopyIcon}
-                      onClick={handleCopyQueryUrl}
-                    />
-                  </Tooltip>
-                </Flex>
-              </Stack>
-            </Box>
-          )}
+          {queryUrl && <ShareUrlField url={queryUrl} title="Raw Query URL" />}
         </Grid>
       </Card>
 
@@ -507,6 +487,7 @@ const inputSchema = z.object({
   compressedRawCode: z.string(),
   code: z.string(),
   requestImmediateFetch: z.boolean().optional().default(false),
+  requestShareCopy: z.boolean().optional().default(false),
 });
 
 const errorSchema = z.object({

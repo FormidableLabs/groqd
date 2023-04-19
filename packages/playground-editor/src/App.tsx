@@ -61,7 +61,7 @@ export function App() {
       label: "Trigger playground fetch",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run(editor) {
-        runCode(editor, true).catch(console.error);
+        runCode(editor, { requestImmediateFetch: true }).catch(console.error);
       },
     });
 
@@ -70,8 +70,8 @@ export function App() {
       id: "copy-url",
       label: "Copy URL to clipboard",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
-      run() {
-        console.log("COPY TO CLIPBOARD!");
+      run(editor) {
+        runCode(editor, { requestShareCopy: true });
       },
     });
 
@@ -101,7 +101,10 @@ export function App() {
 
 const runCode = async (
   editor: monaco.editor.ICodeEditor,
-  requestImmediateFetch = false
+  {
+    requestImmediateFetch = false,
+    requestShareCopy,
+  }: { requestImmediateFetch?: boolean; requestShareCopy?: boolean } = {}
 ) => {
   try {
     if (!editor) throw new Error("Editor not yet instantiated");
@@ -117,6 +120,7 @@ const runCode = async (
     emitInput({
       code,
       requestImmediateFetch,
+      requestShareCopy,
       compressedRawCode: lzstring.compressToEncodedURIComponent(
         editor.getValue()
       ),

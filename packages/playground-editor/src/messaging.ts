@@ -14,10 +14,12 @@ export const emitInput = ({
   compressedRawCode,
   code,
   requestImmediateFetch,
+  requestShareCopy,
 }: {
   compressedRawCode: string;
   code: string;
   requestImmediateFetch: boolean;
+  requestShareCopy?: boolean;
 }) => {
   if (!IS_EMBEDDED) return;
 
@@ -27,6 +29,7 @@ export const emitInput = ({
       code,
       compressedRawCode,
       requestImmediateFetch,
+      requestShareCopy,
     }),
     getTargetUrl()
   );
