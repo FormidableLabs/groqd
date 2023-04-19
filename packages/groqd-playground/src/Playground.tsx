@@ -1,5 +1,5 @@
 import * as React from "react";
-import { type Tool, useClient } from "sanity";
+import { useClient } from "sanity";
 import {
   Box,
   Button,
@@ -12,21 +12,17 @@ import {
   Spinner,
   Stack,
   Text,
-  TextInput,
-  Tooltip,
 } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
-import { CopyIcon, PlayIcon } from "@sanity/icons";
-import { PlaygroundConfig } from "./types";
+import { PlayIcon, ResetIcon } from "@sanity/icons";
+import { GroqdPlaygroundProps } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
-
-type GroqdPlaygroundProps = {
-  tool: Tool<PlaygroundConfig>;
-};
+import { ShareUrlField } from "./components/ShareUrlField";
+import { useCopyUrlAndNotify } from "./hooks/copyUrl";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -59,7 +55,8 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       isFetching: false,
     };
   });
-  const operationUrlRef = React.useRef<HTMLInputElement>(null);
+  const copyShareUrl = useCopyUrlAndNotify("Copied share URL to clipboard!");
+  const windowHref = window.location.href;
 
   // Configure client
   const _client = useClient({
@@ -135,6 +132,13 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         const payload = messageSchema.parse(JSON.parse(message.data));
 
         if (payload.event === "INPUT") {
+          localStorage.setItem(STORAGE_KEYS.CODE, payload.compressedRawCode);
+          setQP("code", payload.compressedRawCode);
+
+          if (payload.requestShareCopy) {
+            copyShareUrl(window.location.href);
+          }
+
           const libs = {
             groqd: q,
             playground: {
@@ -180,6 +184,12 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const iframeSrc = React.useMemo(() => {
     const url = new URL(EDITOR_ORIGIN);
     url.searchParams.append("host", window.location.href);
+
+    const storedCode =
+      new URL(window.location.href).searchParams.get("code") ||
+      localStorage.getItem(STORAGE_KEYS.CODE);
+    if (storedCode) url.searchParams.append("code", storedCode);
+
     return url.toString();
   }, []);
 
@@ -188,16 +198,6 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   };
   const handleAPIVersionChange = (apiVersion: string) => {
     dispatch({ type: "SET_ACTIVE_API_VERSION", payload: { apiVersion } });
-  };
-  const handleCopyQueryUrl = async () => {
-    const el = operationUrlRef.current;
-    if (!el) return;
-
-    try {
-      el.select();
-      await navigator.clipboard.writeText(el.value);
-      console.log("COPIED!");
-    } catch {}
   };
 
   const responseView = (() => {
@@ -294,40 +294,20 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             </Stack>
           </Box>
 
+          {/* Share URL*/}
+          <ShareUrlField
+            url={windowHref}
+            title="Share URL"
+            column={queryUrl ? 4 : 8}
+            notificationMessage="Copied share URL to clipboard!"
+          />
           {/* Query URL */}
           {queryUrl && (
-            <Box padding={1} flex={1} column={8}>
-              <Stack>
-                <Card paddingY={2}>
-                  <Label muted>Query URL</Label>
-                </Card>
-                <Flex flex={1} gap={1}>
-                  <Box flex={1}>
-                    <TextInput
-                      readOnly
-                      type="url"
-                      value={queryUrl}
-                      ref={operationUrlRef}
-                    />
-                  </Box>
-                  <Tooltip
-                    content={
-                      <Box padding={2}>
-                        <Text>Copy to clipboard</Text>
-                      </Box>
-                    }
-                  >
-                    <Button
-                      aria-label="Copy to clipboard"
-                      type="button"
-                      mode="ghost"
-                      icon={CopyIcon}
-                      onClick={handleCopyQueryUrl}
-                    />
-                  </Tooltip>
-                </Flex>
-              </Stack>
-            </Box>
+            <ShareUrlField
+              url={queryUrl}
+              title="Raw Query URL"
+              notificationMessage="Copied raw query URL to clipboard!"
+            />
           )}
         </Grid>
       </Card>
@@ -343,11 +323,17 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
               flexDirection: "column",
             }}
           >
-            <iframe
-              src={iframeSrc}
-              width="100%"
-              style={{ flex: 1, border: "none" }}
-            />
+            <div style={{ flex: 1, position: "relative" }}>
+              <iframe
+                src={iframeSrc}
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+              />
+              <div style={{ position: "absolute", bottom: 12, left: 12 }}>
+                <Button icon={ResetIcon} text="Reset" mode="ghost" />
+              </div>
+            </div>
             <Card paddingTop={3} paddingBottom={3} borderTop>
               <Stack space={3}>
                 <Box>
@@ -495,8 +481,10 @@ const EDITOR_INITIAL_WIDTH = 400;
 
 const inputSchema = z.object({
   event: z.literal("INPUT"),
+  compressedRawCode: z.string(),
   code: z.string(),
   requestImmediateFetch: z.boolean().optional().default(false),
+  requestShareCopy: z.boolean().optional().default(false),
 });
 
 const errorSchema = z.object({
@@ -505,3 +493,9 @@ const errorSchema = z.object({
 });
 
 const messageSchema = z.union([inputSchema, errorSchema]);
+
+const url = new URL(window.location.href);
+const setQP = (key: string, value: string) => {
+  url.searchParams.set(key, value);
+  window.history.replaceState(null, "", url);
+};

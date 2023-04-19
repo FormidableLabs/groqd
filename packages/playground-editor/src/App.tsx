@@ -7,6 +7,7 @@ import debounce from "lodash.debounce";
 import { emitError, emitInput } from "./messaging";
 import { useIsDarkMode } from "./useDarkMode";
 import { createTwoslashInlayProvider } from "./twoslashInlays";
+import lzstring from "lz-string";
 
 export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -14,13 +15,19 @@ export function App() {
   const prefersDark = useIsDarkMode();
 
   const handleContentChange = React.useMemo(
-    () => debounce(() => editorRef.current && runCode(editorRef.current), 300),
+    () => debounce(() => editorRef.current && runCode(editorRef.current), 500),
     [runCode]
   );
 
   React.useEffect(() => {
     const container = containerRef.current;
     if (!container || editorRef.current) return;
+
+    const params = new URLSearchParams(window.location.href);
+    let initCode = params.get("code");
+    if (initCode) {
+      initCode = lzstring.decompressFromEncodedURIComponent(initCode);
+    }
 
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       typeRoots: ["groqd", "zod"],
@@ -31,7 +38,7 @@ export function App() {
     });
 
     const model = monaco.editor.createModel(
-      INIT_VALUE,
+      initCode || DEFAULT_INIT_CODE,
       "typescript",
       monaco.Uri.parse("file:///main.ts")
     );
@@ -48,12 +55,23 @@ export function App() {
       fontSize: 13,
     });
 
+    // Cmd + Enter to run query
     editorRef.current?.addAction({
       id: "trigger-run",
       label: "Trigger playground fetch",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run(editor) {
-        runCode(editor, true).catch(console.error);
+        runCode(editor, { requestImmediateFetch: true }).catch(console.error);
+      },
+    });
+
+    // Cmd + S to copy URL to clipboard?
+    editorRef.current?.addAction({
+      id: "copy-url",
+      label: "Copy URL to clipboard",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      run(editor) {
+        runCode(editor, { requestShareCopy: true });
       },
     });
 
@@ -83,7 +101,10 @@ export function App() {
 
 const runCode = async (
   editor: monaco.editor.ICodeEditor,
-  requestImmediateFetch = false
+  {
+    requestImmediateFetch = false,
+    requestShareCopy,
+  }: { requestImmediateFetch?: boolean; requestShareCopy?: boolean } = {}
 ) => {
   try {
     if (!editor) throw new Error("Editor not yet instantiated");
@@ -96,7 +117,14 @@ const runCode = async (
     const emitResult = await client.getEmitOutput(model.uri.toString());
     const code = emitResult.outputFiles[0].text;
 
-    emitInput({ code, requestImmediateFetch });
+    emitInput({
+      code,
+      requestImmediateFetch,
+      requestShareCopy,
+      compressedRawCode: lzstring.compressToEncodedURIComponent(
+        editor.getValue()
+      ),
+    });
   } catch (err) {
     console.error(err);
     emitError(err instanceof Error ? err.message : "");
@@ -104,7 +132,7 @@ const runCode = async (
 };
 
 // Initial code, will likely change in the future.
-const INIT_VALUE = [
+const DEFAULT_INIT_CODE = [
   `import { runQuery } from "playground";`,
   `import { q } from "groqd";`,
   "",

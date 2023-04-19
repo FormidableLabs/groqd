@@ -13,7 +13,7 @@ export const groqdPlaygroundTool = definePlugin<PlaygroundToolConfig | void>(
           name: name || "groqd-playground",
           title: title || "GROQD",
           icon: CodeIcon || icon,
-          component: lazy(() => import("./Playground")),
+          component: lazy(() => import("./PlaygroundWrapper")),
           options: {
             defaultApiVersion: defaultApiVersion || "v2021-10-21",
             defaultDataset: defaultDataset || "production",
