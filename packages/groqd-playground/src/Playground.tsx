@@ -139,6 +139,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             copyShareUrl(window.location.href);
           }
 
+          let playgroundRunQueryCount = 0;
           const libs = {
             groqd: q,
             playground: {
@@ -146,6 +147,11 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 query: BaseQuery<any>,
                 params?: Record<string, string | number>
               ) => {
+                playgroundRunQueryCount++;
+                if (playgroundRunQueryCount > 1) return;
+
+                console.log(playgroundRunQueryCount);
+
                 try {
                   if (query instanceof q.BaseQuery) {
                     dispatch({
