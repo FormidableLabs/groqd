@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.3
+
+### Patch Changes
+
+- Fix iframe URL, start some playground docs ([#137](https://github.com/FormidableLabs/groqd/pull/137))
+
+- Cmd + Enter to auto-run query, twoslash-like support for runQuery type, and loading indicator on fetch ([#134](https://github.com/FormidableLabs/groqd/pull/134))
+
+- More playground features! ([`0ade8e4`](https://github.com/FormidableLabs/groqd/commit/0ade8e4afd03d1731d0ac3048cedd5c51d05eb83))
+
 ## 0.0.2
 
 ### Patch Changes
