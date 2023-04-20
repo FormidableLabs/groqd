@@ -4,7 +4,7 @@ import { languages } from "monaco-editor";
 import types from "./types.json";
 import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
-import { emitError, emitInput } from "./messaging";
+import { emitError, emitInput, emitReady } from "./messaging";
 import { useIsDarkMode } from "./useDarkMode";
 import { createTwoslashInlayProvider } from "./twoslashInlays";
 import lzstring from "lz-string";
@@ -14,18 +14,27 @@ export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
   const prefersDark = useIsDarkMode();
+  const originRef = React.useRef("");
+  const [initPayload, setInitPayload] = React.useState<z.infer<
+    typeof initEventSchema
+  > | null>(null);
 
   const handleContentChange = React.useMemo(
-    () => debounce(() => editorRef.current && runCode(editorRef.current), 500),
+    () =>
+      debounce(
+        () =>
+          editorRef.current &&
+          runCode(editorRef.current, { target: originRef.current }),
+        500
+      ),
     [runCode]
   );
 
   React.useEffect(() => {
     const container = containerRef.current;
-    if (!container || editorRef.current) return;
+    if (!container || !initPayload || editorRef.current) return;
 
-    const params = new URLSearchParams(window.location.href);
-    let initCode = params.get("code");
+    let initCode = initPayload.code;
     if (initCode) {
       initCode = lzstring.decompressFromEncodedURIComponent(initCode);
     }
@@ -62,7 +71,10 @@ export function App() {
       label: "Trigger playground fetch",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run(editor) {
-        runCode(editor, { requestImmediateFetch: true }).catch(console.error);
+        runCode(editor, {
+          requestImmediateFetch: true,
+          target: originRef.current,
+        }).catch(console.error);
       },
     });
 
@@ -72,7 +84,7 @@ export function App() {
       label: "Copy URL to clipboard",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       run(editor) {
-        runCode(editor, { requestShareCopy: true });
+        runCode(editor, { requestShareCopy: true, target: originRef.current });
       },
     });
 
@@ -83,12 +95,14 @@ export function App() {
     );
 
     // Run the code on mount
-    runCode(editorRef.current).catch(console.error);
+    runCode(editorRef.current, { target: originRef.current }).catch(
+      console.error
+    );
 
     return () => {
       didChangeInstance.dispose();
     };
-  }, []);
+  }, [initPayload]);
 
   React.useEffect(() => {
     if (!editorRef.current) return;
@@ -96,18 +110,20 @@ export function App() {
   }, [prefersDark]);
 
   React.useEffect(() => {
-    let hostOrigin = "";
-    try {
-      const qHost = new URLSearchParams(window.location.search).get("host");
-      if (qHost) hostOrigin = new URL(qHost).origin;
-    } catch {}
-
     const handleMessage = (message: MessageEvent) => {
-      if (message.origin !== hostOrigin) return;
+      if (message.source !== window.parent) {
+        return;
+      }
 
       try {
         const payload = messageSchema.parse(JSON.parse(message.data));
         const editor = editorRef.current;
+
+        if (payload.event === "INIT") {
+          originRef.current = payload.origin;
+
+          setInitPayload(payload);
+        }
 
         if (editor && payload.event === "RESET_CODE") {
           editor.setValue(DEFAULT_INIT_CODE);
@@ -116,6 +132,7 @@ export function App() {
     };
 
     window.addEventListener("message", handleMessage);
+    emitReady();
 
     return () => {
       window.removeEventListener("message", handleMessage);
@@ -132,7 +149,12 @@ const runCode = async (
   {
     requestImmediateFetch = false,
     requestShareCopy,
-  }: { requestImmediateFetch?: boolean; requestShareCopy?: boolean } = {}
+    target,
+  }: {
+    requestImmediateFetch?: boolean;
+    requestShareCopy?: boolean;
+    target: string;
+  }
 ) => {
   try {
     if (!editor) throw new Error("Editor not yet instantiated");
@@ -145,17 +167,20 @@ const runCode = async (
     const emitResult = await client.getEmitOutput(model.uri.toString());
     const code = emitResult.outputFiles[0].text;
 
-    emitInput({
-      code,
-      requestImmediateFetch,
-      requestShareCopy,
-      compressedRawCode: lzstring.compressToEncodedURIComponent(
-        editor.getValue()
-      ),
-    });
+    emitInput(
+      {
+        code,
+        requestImmediateFetch,
+        requestShareCopy,
+        compressedRawCode: lzstring.compressToEncodedURIComponent(
+          editor.getValue()
+        ),
+      },
+      target
+    );
   } catch (err) {
     console.error(err);
-    emitError(err instanceof Error ? err.message : "");
+    emitError(err instanceof Error ? err.message : "", target);
   }
 };
 
@@ -203,4 +228,10 @@ const resetCodeEventSchema = z.object({
   event: z.literal("RESET_CODE"),
 });
 
-const messageSchema = resetCodeEventSchema;
+const initEventSchema = z.object({
+  event: z.literal("INIT"),
+  code: z.string().optional(),
+  origin: z.string(),
+});
+
+const messageSchema = z.union([resetCodeEventSchema, initEventSchema]);

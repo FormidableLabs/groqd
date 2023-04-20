@@ -4,3 +4,13 @@ export const emitReset = (iframe: HTMLIFrameElement, target: string) => {
     target
   );
 };
+
+export const emitInit = (
+  source: MessageEventSource,
+  target: string,
+  payload: { code?: string; origin: string }
+) => {
+  source.postMessage(JSON.stringify({ event: "INIT", ...payload }), {
+    targetOrigin: target,
+  });
+};
