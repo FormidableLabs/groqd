@@ -14,15 +14,30 @@ export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
   const prefersDark = useIsDarkMode();
+  const originRef = React.useRef("");
+  const [initPayload, setInitPayload] = React.useState<z.infer<
+    typeof initEventSchema
+  > | null>(null);
 
   const handleContentChange = React.useMemo(
-    () => debounce(() => editorRef.current && runCode(editorRef.current), 500),
+    () =>
+      debounce(
+        () =>
+          editorRef.current &&
+          runCode(editorRef.current, { target: originRef.current }),
+        500
+      ),
     [runCode]
   );
 
   React.useEffect(() => {
     const container = containerRef.current;
-    if (!container || editorRef.current) return;
+    if (!container || !initPayload || editorRef.current) return;
+
+    let initCode = initPayload.code;
+    if (initCode) {
+      initCode = lzstring.decompressFromEncodedURIComponent(initCode);
+    }
 
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       typeRoots: ["groqd", "zod"],
@@ -33,7 +48,7 @@ export function App() {
     });
 
     const model = monaco.editor.createModel(
-      "", // Empty initial code, rely on INIT payload for that.
+      initCode || DEFAULT_INIT_CODE,
       "typescript",
       monaco.Uri.parse("file:///main.ts")
     );
@@ -56,7 +71,10 @@ export function App() {
       label: "Trigger playground fetch",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run(editor) {
-        runCode(editor, { requestImmediateFetch: true }).catch(console.error);
+        runCode(editor, {
+          requestImmediateFetch: true,
+          target: originRef.current,
+        }).catch(console.error);
       },
     });
 
@@ -66,7 +84,7 @@ export function App() {
       label: "Copy URL to clipboard",
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       run(editor) {
-        runCode(editor, { requestShareCopy: true });
+        runCode(editor, { requestShareCopy: true, target: originRef.current });
       },
     });
 
@@ -77,12 +95,14 @@ export function App() {
     );
 
     // Run the code on mount
-    runCode(editorRef.current).catch(console.error);
+    runCode(editorRef.current, { target: originRef.current }).catch(
+      console.error
+    );
 
     return () => {
       didChangeInstance.dispose();
     };
-  }, []);
+  }, [initPayload]);
 
   React.useEffect(() => {
     if (!editorRef.current) return;
@@ -91,8 +111,7 @@ export function App() {
 
   React.useEffect(() => {
     const handleMessage = (message: MessageEvent) => {
-      if (message.origin !== ANCESTOR_ORIGIN) {
-        console.log(`Rejecting message from ${message.origin}`);
+      if (message.source !== window.parent) {
         return;
       }
 
@@ -101,12 +120,9 @@ export function App() {
         const editor = editorRef.current;
 
         if (payload.event === "INIT") {
-          let initCode = payload.code;
-          if (initCode) {
-            initCode = lzstring.decompressFromEncodedURIComponent(initCode);
-          }
+          originRef.current = payload.origin;
 
-          editor && initCode && editor.setValue(initCode || DEFAULT_INIT_CODE);
+          setInitPayload(payload);
         }
 
         if (editor && payload.event === "RESET_CODE") {
@@ -116,7 +132,7 @@ export function App() {
     };
 
     window.addEventListener("message", handleMessage);
-    emitReady(ANCESTOR_ORIGIN);
+    emitReady();
 
     return () => {
       window.removeEventListener("message", handleMessage);
@@ -133,7 +149,12 @@ const runCode = async (
   {
     requestImmediateFetch = false,
     requestShareCopy,
-  }: { requestImmediateFetch?: boolean; requestShareCopy?: boolean } = {}
+    target,
+  }: {
+    requestImmediateFetch?: boolean;
+    requestShareCopy?: boolean;
+    target: string;
+  }
 ) => {
   try {
     if (!editor) throw new Error("Editor not yet instantiated");
@@ -155,11 +176,11 @@ const runCode = async (
           editor.getValue()
         ),
       },
-      ANCESTOR_ORIGIN
+      target
     );
   } catch (err) {
     console.error(err);
-    emitError(err instanceof Error ? err.message : "", ANCESTOR_ORIGIN);
+    emitError(err instanceof Error ? err.message : "", target);
   }
 };
 
@@ -210,8 +231,7 @@ const resetCodeEventSchema = z.object({
 const initEventSchema = z.object({
   event: z.literal("INIT"),
   code: z.string().optional(),
+  origin: z.string(),
 });
 
 const messageSchema = z.union([resetCodeEventSchema, initEventSchema]);
-
-const ANCESTOR_ORIGIN = window.location.ancestorOrigins[0] || "";

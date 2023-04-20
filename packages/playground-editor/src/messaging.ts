@@ -1,9 +1,3 @@
-/**
- * NOTE: Using "*" as target for postMessages. Generally, this is a no-no.
- * In this case, we don't care who embeds the editor – go to town, if you'd like.
- * The _consumer_ is responsible for validating messages coming from the editor (by checking message.origin)
- */
-
 const IS_EMBEDDED = window.location !== window.parent.location;
 
 export const emitInput = (
@@ -43,7 +37,16 @@ export const emitError = (message: string, target: string) => {
   );
 };
 
-export const emitReady = (target: string) => {
+/**
+ * Using "*" as postMessage target is generally a no-no.
+ * For our "READY" event, we can't reliably know the cross-origin parent, so we'll emit to everyone.
+ * On the consuming side, we'll do an origin check – and then respond to the event with the origin to use in follow-up messages.
+ *
+ * This message payload contains no useful information, so no biggy if it's intercepted.
+ * The postMessage listener also checks that responders to this message are the parent window,
+ *   so this message will only be responded to from an embedding window.
+ */
+export const emitReady = () => {
   if (!IS_EMBEDDED) return;
-  window.parent.postMessage(JSON.stringify({ event: "READY" }), target);
+  window.parent.postMessage(JSON.stringify({ event: "READY" }), "*");
 };

@@ -6,12 +6,11 @@ export const emitReset = (iframe: HTMLIFrameElement, target: string) => {
 };
 
 export const emitInit = (
-  iframe: HTMLIFrameElement,
+  source: MessageEventSource,
   target: string,
-  payload: { code?: string }
+  payload: { code?: string; origin: string }
 ) => {
-  iframe.contentWindow?.postMessage(
-    JSON.stringify({ event: "INIT", code: payload.code }),
-    target
-  );
+  source.postMessage(JSON.stringify({ event: "INIT", ...payload }), {
+    targetOrigin: target,
+  });
 };
