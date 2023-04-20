@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.5
+
+### Patch Changes
+
+- Split out URL and Origin for messaging ([#142](https://github.com/FormidableLabs/groqd/pull/142))
+
 ## 0.0.4
 
 ### Patch Changes
