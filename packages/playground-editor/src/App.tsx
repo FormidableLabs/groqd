@@ -91,6 +91,11 @@ export function App() {
 
   React.useEffect(() => {
     const handleMessage = (message: MessageEvent) => {
+      if (message.origin !== ANCESTOR_ORIGIN) {
+        console.log(`Rejecting message from ${message.origin}`);
+        return;
+      }
+
       try {
         const payload = messageSchema.parse(JSON.parse(message.data));
         const editor = editorRef.current;
@@ -111,7 +116,7 @@ export function App() {
     };
 
     window.addEventListener("message", handleMessage);
-    emitReady();
+    emitReady(ANCESTOR_ORIGIN);
 
     return () => {
       window.removeEventListener("message", handleMessage);
@@ -141,17 +146,20 @@ const runCode = async (
     const emitResult = await client.getEmitOutput(model.uri.toString());
     const code = emitResult.outputFiles[0].text;
 
-    emitInput({
-      code,
-      requestImmediateFetch,
-      requestShareCopy,
-      compressedRawCode: lzstring.compressToEncodedURIComponent(
-        editor.getValue()
-      ),
-    });
+    emitInput(
+      {
+        code,
+        requestImmediateFetch,
+        requestShareCopy,
+        compressedRawCode: lzstring.compressToEncodedURIComponent(
+          editor.getValue()
+        ),
+      },
+      ANCESTOR_ORIGIN
+    );
   } catch (err) {
     console.error(err);
-    emitError(err instanceof Error ? err.message : "");
+    emitError(err instanceof Error ? err.message : "", ANCESTOR_ORIGIN);
   }
 };
 
@@ -205,3 +213,5 @@ const initEventSchema = z.object({
 });
 
 const messageSchema = z.union([resetCodeEventSchema, initEventSchema]);
+
+const ANCESTOR_ORIGIN = window.location.ancestorOrigins[0] || "";
