@@ -4,7 +4,7 @@ import { languages } from "monaco-editor";
 import types from "./types.json";
 import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
-import { emitError, emitInput } from "./messaging";
+import { emitError, emitInput, emitReady } from "./messaging";
 import { useIsDarkMode } from "./useDarkMode";
 import { createTwoslashInlayProvider } from "./twoslashInlays";
 import lzstring from "lz-string";
@@ -24,12 +24,6 @@ export function App() {
     const container = containerRef.current;
     if (!container || editorRef.current) return;
 
-    const params = new URLSearchParams(window.location.href);
-    let initCode = params.get("code");
-    if (initCode) {
-      initCode = lzstring.decompressFromEncodedURIComponent(initCode);
-    }
-
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       typeRoots: ["groqd", "zod"],
       target: ScriptTarget.ES5,
@@ -39,7 +33,7 @@ export function App() {
     });
 
     const model = monaco.editor.createModel(
-      initCode || DEFAULT_INIT_CODE,
+      "", // Empty initial code, rely on INIT payload for that.
       "typescript",
       monaco.Uri.parse("file:///main.ts")
     );
@@ -96,18 +90,19 @@ export function App() {
   }, [prefersDark]);
 
   React.useEffect(() => {
-    let hostOrigin = "";
-    try {
-      const qHost = new URLSearchParams(window.location.search).get("host");
-      if (qHost) hostOrigin = new URL(qHost).origin;
-    } catch {}
-
     const handleMessage = (message: MessageEvent) => {
-      if (message.origin !== hostOrigin) return;
-
       try {
         const payload = messageSchema.parse(JSON.parse(message.data));
         const editor = editorRef.current;
+
+        if (payload.event === "INIT") {
+          let initCode = payload.code;
+          if (initCode) {
+            initCode = lzstring.decompressFromEncodedURIComponent(initCode);
+          }
+
+          editor && initCode && editor.setValue(initCode || DEFAULT_INIT_CODE);
+        }
 
         if (editor && payload.event === "RESET_CODE") {
           editor.setValue(DEFAULT_INIT_CODE);
@@ -116,6 +111,7 @@ export function App() {
     };
 
     window.addEventListener("message", handleMessage);
+    emitReady();
 
     return () => {
       window.removeEventListener("message", handleMessage);
@@ -203,4 +199,9 @@ const resetCodeEventSchema = z.object({
   event: z.literal("RESET_CODE"),
 });
 
-const messageSchema = resetCodeEventSchema;
+const initEventSchema = z.object({
+  event: z.literal("INIT"),
+  code: z.string().optional(),
+});
+
+const messageSchema = z.union([resetCodeEventSchema, initEventSchema]);

@@ -24,7 +24,7 @@ import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 import { ShareUrlField } from "./components/ShareUrlField";
 import { useCopyUrlAndNotify } from "./hooks/copyUrl";
-import { emitReset } from "./messaging";
+import { emitReset, emitInit } from "./messaging";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -152,7 +152,16 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       try {
         const payload = messageSchema.parse(JSON.parse(message.data));
 
-        if (payload.event === "INPUT") {
+        if (payload.event === "READY") {
+          const storedCode =
+            new URL(window.location.href).searchParams.get("code") ||
+            localStorage.getItem(STORAGE_KEYS.CODE);
+
+          iframeRef.current &&
+            emitInit(iframeRef.current, EDITOR_ORIGIN, {
+              code: storedCode || undefined,
+            });
+        } else if (payload.event === "INPUT") {
           localStorage.setItem(STORAGE_KEYS.CODE, payload.compressedRawCode);
           setQP("code", payload.compressedRawCode);
 
@@ -204,18 +213,6 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
-
-  const iframeSrc = React.useMemo(() => {
-    const url = new URL(EDITOR_ORIGIN);
-    url.searchParams.append("host", window.location.href);
-
-    const storedCode =
-      new URL(window.location.href).searchParams.get("code") ||
-      localStorage.getItem(STORAGE_KEYS.CODE);
-    if (storedCode) url.searchParams.append("code", storedCode);
-
-    return url.toString();
   }, []);
 
   const handleDatasetChange = (datasetName: string) => {
@@ -381,7 +378,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           >
             <div style={{ flex: 1, position: "relative" }}>
               <iframe
-                src={iframeSrc}
+                src={EDITOR_ORIGIN}
                 width="100%"
                 height="100%"
                 style={{ border: "none" }}
@@ -546,6 +543,10 @@ const reducer = (state: State, action: Action): State => {
 
 const EDITOR_INITIAL_WIDTH = 500;
 
+const readySchema = z.object({
+  event: z.literal("READY"),
+});
+
 const inputSchema = z.object({
   event: z.literal("INPUT"),
   compressedRawCode: z.string(),
@@ -559,7 +560,7 @@ const errorSchema = z.object({
   message: z.string(),
 });
 
-const messageSchema = z.union([inputSchema, errorSchema]);
+const messageSchema = z.union([inputSchema, errorSchema, readySchema]);
 
 const url = new URL(window.location.href);
 const setQP = (key: string, value: string) => {
