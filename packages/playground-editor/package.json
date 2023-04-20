@@ -1,7 +1,7 @@
 {
   "name": "groqd-playground-editor",
   "description": "Code editor for GROQD playground. GROQD Playground will consume this via iframe.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "build/index.html",
   "license": "MIT",
   "private": false,

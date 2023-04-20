@@ -1,5 +1,11 @@
 # playground-editor
 
+## 0.0.4
+
+### Patch Changes
+
+- Init editor iframe with postMessage instead of query params ([#140](https://github.com/FormidableLabs/groqd/pull/140))
+
 ## 0.0.3
 
 ### Patch Changes
