@@ -457,7 +457,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 const EDITOR_ORIGIN =
   process.env.SANITY_STUDIO_GROQD_PLAYGROUND_ENV === "development"
     ? "http://localhost:3069"
-    : "https://unpkg.com/groqd-playground-editor@0.0.3/build/index.html";
+    : "https://unpkg.com/groqd-playground-editor@0.0.4/build/index.html";
 
 type Params = Record<string, string | number>;
 type State = {
