@@ -12,6 +12,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
 } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
@@ -23,6 +24,7 @@ import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 import { ShareUrlField } from "./components/ShareUrlField";
 import { useCopyUrlAndNotify } from "./hooks/copyUrl";
+import { emitReset } from "./messaging";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -36,6 +38,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       activeAPIVersion,
       queryUrl,
       isFetching,
+      rawExecutionTime,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -55,6 +58,14 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       isFetching: false,
     };
   });
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+  const editorContainer = React.useRef<HTMLDivElement>(null);
+  const editorInitialWidth = React.useMemo(
+    () =>
+      +(localStorage.getItem(STORAGE_KEYS.EDITOR_WIDTH) || 0) ||
+      EDITOR_INITIAL_WIDTH,
+    []
+  );
   const copyShareUrl = useCopyUrlAndNotify("Copied share URL to clipboard!");
   const windowHref = window.location.href;
 
@@ -93,14 +104,24 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
   const runQuery = React.useMemo(
     () =>
-      q.makeSafeQueryRunner((query, params?: Record<string, string | number>) =>
-        client.fetch(query, params).then((res) => {
-          dispatch({
-            type: "RAW_RESPONSE_RECEIVED",
-            payload: { rawResponse: res },
-          });
-          return res;
-        })
+      q.makeSafeQueryRunner(
+        (query, params?: Record<string, string | number>) =>
+          new Promise((resolve, reject) => {
+            client.observable
+              .fetch(query, params, { filterResponse: false })
+              .subscribe({
+                next: (res) => {
+                  dispatch({
+                    type: "RAW_RESPONSE_RECEIVED",
+                    payload: { rawResponse: res.result, execTime: res.ms },
+                  });
+                  resolve(res.result);
+                },
+                error: (err) => {
+                  reject(err);
+                },
+              });
+          })
       ),
     [client]
   );
@@ -139,6 +160,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             copyShareUrl(window.location.href);
           }
 
+          let playgroundRunQueryCount = 0;
           const libs = {
             groqd: q,
             playground: {
@@ -146,6 +168,9 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 query: BaseQuery<any>,
                 params?: Record<string, string | number>
               ) => {
+                playgroundRunQueryCount++;
+                if (playgroundRunQueryCount > 1) return;
+
                 try {
                   if (query instanceof q.BaseQuery) {
                     dispatch({
@@ -200,6 +225,20 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     dispatch({ type: "SET_ACTIVE_API_VERSION", payload: { apiVersion } });
   };
 
+  const handleReset = () => {
+    iframeRef.current && emitReset(iframeRef.current, EDITOR_ORIGIN);
+  };
+
+  const handleEditorResize = () => {
+    const container = editorContainer.current;
+    if (!container) return;
+
+    localStorage.setItem(
+      STORAGE_KEYS.EDITOR_WIDTH,
+      String(container.clientWidth)
+    );
+  };
+
   const responseView = (() => {
     if (isFetching) {
       return (
@@ -208,6 +247,19 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         </Flex>
       );
     }
+
+    const execTimeDisplay = rawExecutionTime && (
+      <Tooltip
+        placement="right-end"
+        content={
+          <Box padding={2}>
+            <Text>Raw execution time of query</Text>
+          </Box>
+        }
+      >
+        <span> ({rawExecutionTime}ms)</span>
+      </Tooltip>
+    );
 
     if (fetchParseError) {
       return (
@@ -223,7 +275,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             </pre>
           </Box>
           <Box paddingX={3} marginY={3}>
-            <Label muted>Raw Response</Label>
+            <Label muted>Raw Response {execTimeDisplay}</Label>
           </Box>
           <Box
             flex={1}
@@ -243,7 +295,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     return (
       <Flex flex={1} direction="column">
         <Box padding={3}>
-          <Label muted>Query Response</Label>
+          <Label muted>Query Response {execTimeDisplay}</Label>
         </Box>
         <Box flex={1} overflow="auto" padding={3}>
           {parsedResponse ? (
@@ -313,15 +365,19 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       </Card>
 
       <Box flex={1}>
-        <Split style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+        <Split
+          style={{ width: "100%", height: "100%", overflow: "hidden" }}
+          onDragEnd={handleEditorResize}
+        >
           <div
             style={{
-              width: EDITOR_INITIAL_WIDTH,
+              width: editorInitialWidth,
               minWidth: 200,
               height: "100%",
               display: "flex",
               flexDirection: "column",
             }}
+            ref={editorContainer}
           >
             <div style={{ flex: 1, position: "relative" }}>
               <iframe
@@ -329,9 +385,15 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 width="100%"
                 height="100%"
                 style={{ border: "none" }}
+                ref={iframeRef}
               />
               <div style={{ position: "absolute", bottom: 12, left: 12 }}>
-                <Button icon={ResetIcon} text="Reset" mode="ghost" />
+                <Button
+                  icon={ResetIcon}
+                  text="Reset"
+                  mode="ghost"
+                  onClick={handleReset}
+                />
               </div>
             </div>
             <Card paddingTop={3} paddingBottom={3} borderTop>
@@ -377,7 +439,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           </div>
           <Box
             style={{
-              width: `calc(100% - ${EDITOR_INITIAL_WIDTH}px)`,
+              width: `calc(100% - ${editorInitialWidth}px)`,
               minWidth: 100,
               display: "flex",
               flexDirection: "column",
@@ -396,7 +458,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 const EDITOR_ORIGIN =
   process.env.SANITY_STUDIO_GROQD_PLAYGROUND_ENV === "development"
     ? "http://localhost:3069"
-    : "https://unpkg.com/groqd-playground-editor@0.0.2/build/index.html";
+    : "https://unpkg.com/groqd-playground-editor@0.0.3/build/index.html";
 
 type Params = Record<string, string | number>;
 type State = {
@@ -404,6 +466,7 @@ type State = {
   params?: Params;
   queryUrl?: string;
   isFetching: boolean;
+  rawExecutionTime?: number;
   rawResponse?: unknown;
   parsedResponse?: unknown;
   inputParseError?: Error;
@@ -419,7 +482,10 @@ type Action =
     }
   | { type: "INPUT_PARSE_FAILURE"; payload: { inputParseError: Error } }
   | { type: "MAKE_FETCH_REQUEST"; payload: { queryUrl: string } }
-  | { type: "RAW_RESPONSE_RECEIVED"; payload: { rawResponse: unknown } }
+  | {
+      type: "RAW_RESPONSE_RECEIVED";
+      payload: { rawResponse: unknown; execTime: number };
+    }
   | { type: "FETCH_RESPONSE_PARSED"; payload: { parsedResponse: unknown } }
   | {
       type: "FETCH_PARSE_FAILURE";
@@ -453,6 +519,7 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         isFetching: false,
         rawResponse: action.payload.rawResponse,
+        rawExecutionTime: action.payload.execTime,
       };
     case "FETCH_RESPONSE_PARSED":
       return {
@@ -477,7 +544,7 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const EDITOR_INITIAL_WIDTH = 400;
+const EDITOR_INITIAL_WIDTH = 500;
 
 const inputSchema = z.object({
   event: z.literal("INPUT"),

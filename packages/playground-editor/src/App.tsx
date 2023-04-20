@@ -8,6 +8,7 @@ import { emitError, emitInput } from "./messaging";
 import { useIsDarkMode } from "./useDarkMode";
 import { createTwoslashInlayProvider } from "./twoslashInlays";
 import lzstring from "lz-string";
+import { z } from "zod";
 
 export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -94,6 +95,33 @@ export function App() {
     monaco.editor.setTheme(prefersDark ? "vs-dark" : "vs");
   }, [prefersDark]);
 
+  React.useEffect(() => {
+    let hostOrigin = "";
+    try {
+      const qHost = new URLSearchParams(window.location.search).get("host");
+      if (qHost) hostOrigin = new URL(qHost).origin;
+    } catch {}
+
+    const handleMessage = (message: MessageEvent) => {
+      if (message.origin !== hostOrigin) return;
+
+      try {
+        const payload = messageSchema.parse(JSON.parse(message.data));
+        const editor = editorRef.current;
+
+        if (editor && payload.event === "RESET_CODE") {
+          editor.setValue(DEFAULT_INIT_CODE);
+        }
+      } catch {}
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
   return (
     <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}></div>
   );
@@ -136,7 +164,7 @@ const DEFAULT_INIT_CODE = [
   `import { runQuery } from "playground";`,
   `import { q } from "groqd";`,
   "",
-  `runQuery(\n\tq("*")\n\t.filterByType("employee")\n\t.slice(0, 10)\n\t.grab$({\n\t\tname: q.string(),\n\t\tjobTitle: q.string()\n\t})\n);`,
+  `runQuery(\n\tq("*")\n\t.filter()\n\t.slice(0, 10)\n\t.grab$({\n\t\t_id: q.string()\n\t})\n);`,
 ].join("\n");
 
 // Adding in groqd types, and our custom playground.runQuery helper.
@@ -170,3 +198,9 @@ for (const [filename, content] of Object.entries<string>(types.zod)) {
     filePath: monaco.Uri.file(`/node_modules/zod/${filename}`).toString(),
   });
 }
+
+const resetCodeEventSchema = z.object({
+  event: z.literal("RESET_CODE"),
+});
+
+const messageSchema = resetCodeEventSchema;
