@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import { q } from "./index";
 import invariant from "tiny-invariant";
+import { z } from "zod";
 
 describe("string", () => {
   it("will generate a string type", async () => {

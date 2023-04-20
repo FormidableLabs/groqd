@@ -25,6 +25,7 @@ import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 import { ShareUrlField } from "./components/ShareUrlField";
 import { useCopyUrlAndNotify } from "./hooks/copyUrl";
 import { emitReset, emitInit } from "./messaging";
+import { JSONExplorer } from "./components/JSONExplorer";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -39,6 +40,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       queryUrl,
       isFetching,
       rawExecutionTime,
+      errorPaths,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -138,9 +140,21 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         payload: { parsedResponse: data },
       });
     } catch (err) {
+      console.log("ERRORED");
+      let errorPaths: Map<string, string> | undefined;
+      if (err instanceof q.GroqdParseError) {
+        console.log("IS ZOD ERROR");
+        errorPaths = new Map();
+        for (const e of err.zodError.errors) {
+          errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
+        }
+
+        console.log(errorPaths);
+      }
+
       dispatch({
         type: "FETCH_PARSE_FAILURE",
-        payload: { fetchParseError: err },
+        payload: { fetchParseError: err, errorPaths },
       });
     }
   };
@@ -282,9 +296,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
             paddingTop={1}
             overflow="auto"
           >
-            <Code language="json" size={1}>
-              {JSON.stringify(rawResponse, null, 2)}
-            </Code>
+            <JSONExplorer data={rawResponse} highlightedPaths={errorPaths} />
           </Box>
         </Flex>
       );
@@ -296,11 +308,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           <Label muted>Query Response {execTimeDisplay}</Label>
         </Box>
         <Box flex={1} overflow="auto" padding={3}>
-          {parsedResponse ? (
-            <Code language="json" size={1}>
-              {JSON.stringify(parsedResponse, null, 2)}
-            </Code>
-          ) : null}
+          {parsedResponse ? <JSONExplorer data={parsedResponse} /> : null}
         </Box>
       </Flex>
     );
@@ -472,6 +480,7 @@ type State = {
   fetchParseError?: unknown;
   activeAPIVersion: string;
   activeDataset: string;
+  errorPaths?: Map<string, string>;
 };
 
 type Action =
@@ -488,7 +497,11 @@ type Action =
   | { type: "FETCH_RESPONSE_PARSED"; payload: { parsedResponse: unknown } }
   | {
       type: "FETCH_PARSE_FAILURE";
-      payload: { fetchParseError: unknown; rawResponse?: unknown };
+      payload: {
+        fetchParseError: unknown;
+        rawResponse?: unknown;
+        errorPaths?: Map<string, string>;
+      };
     }
   | { type: "SET_ACTIVE_DATASET"; payload: { dataset: string } }
   | { type: "SET_ACTIVE_API_VERSION"; payload: { apiVersion: string } };
@@ -525,12 +538,14 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         parsedResponse: action.payload.parsedResponse,
         fetchParseError: undefined,
+        errorPaths: undefined,
       };
     case "FETCH_PARSE_FAILURE":
       return {
         ...state,
         isFetching: false,
         fetchParseError: action.payload.fetchParseError,
+        errorPaths: action.payload.errorPaths,
       };
     case "SET_ACTIVE_API_VERSION":
       localStorage.setItem(STORAGE_KEYS.API_VERSION, action.payload.apiVersion);
