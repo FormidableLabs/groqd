@@ -1,5 +1,11 @@
 # playground-editor
 
+## 0.0.3
+
+### Patch Changes
+
+- More playground features! ([`0ade8e4`](https://github.com/FormidableLabs/groqd/commit/0ade8e4afd03d1731d0ac3048cedd5c51d05eb83))
+
 ## 1.0.1
 
 ### Patch Changes
