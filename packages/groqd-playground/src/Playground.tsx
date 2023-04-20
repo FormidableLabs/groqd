@@ -153,7 +153,6 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         const payload = messageSchema.parse(JSON.parse(message.data));
 
         if (payload.event === "READY") {
-          message.source;
           const storedCode =
             new URL(window.location.href).searchParams.get("code") ||
             localStorage.getItem(STORAGE_KEYS.CODE);
