@@ -23,8 +23,9 @@ import { GroqdPlaygroundProps } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 import { ShareUrlField } from "./components/ShareUrlField";
-import { useCopyUrlAndNotify } from "./hooks/copyUrl";
+import { useCopyDataAndNotify } from "./hooks/copyDataToClipboard";
 import { emitReset, emitInit } from "./messaging";
+import { JSONExplorer } from "./components/JSONExplorer";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -39,6 +40,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       queryUrl,
       isFetching,
       rawExecutionTime,
+      errorPaths,
     },
     dispatch,
   ] = React.useReducer(reducer, null, () => {
@@ -66,7 +68,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       EDITOR_INITIAL_WIDTH,
     []
   );
-  const copyShareUrl = useCopyUrlAndNotify("Copied share URL to clipboard!");
+  const copyShareUrl = useCopyDataAndNotify("Copied share URL to clipboard!");
   const windowHref = window.location.href;
 
   // Configure client
@@ -138,9 +140,17 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         payload: { parsedResponse: data },
       });
     } catch (err) {
+      let errorPaths: Map<string, string> | undefined;
+      if (err instanceof q.GroqdParseError) {
+        errorPaths = new Map();
+        for (const e of err.zodError.errors) {
+          errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
+        }
+      }
+
       dispatch({
         type: "FETCH_PARSE_FAILURE",
-        payload: { fetchParseError: err },
+        payload: { fetchParseError: err, errorPaths },
       });
     }
   };
@@ -261,11 +271,11 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
     if (fetchParseError) {
       return (
-        <Flex style={{ height: "100%" }} direction="column">
+        <Flex flex={1} direction="column">
           <Box marginY={3} paddingX={3}>
             <Label muted>Error</Label>
           </Box>
-          <Box paddingX={3}>
+          <Box paddingX={3} style={{ maxHeight: 250 }} overflow="auto">
             <pre>
               {fetchParseError instanceof Error
                 ? fetchParseError.message
@@ -275,33 +285,17 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           <Box paddingX={3} marginY={3}>
             <Label muted>Raw Response {execTimeDisplay}</Label>
           </Box>
-          <Box
-            flex={1}
-            paddingX={3}
-            paddingBottom={3}
-            paddingTop={1}
-            overflow="auto"
-          >
-            <Code language="json" size={1}>
-              {JSON.stringify(rawResponse, null, 2)}
-            </Code>
-          </Box>
+          <JSONExplorer data={rawResponse} highlightedPaths={errorPaths} />
         </Flex>
       );
     }
 
     return (
-      <Flex flex={1} direction="column">
+      <Flex flex={1} direction="column" style={{ maxHeight: "100%" }}>
         <Box padding={3}>
           <Label muted>Query Response {execTimeDisplay}</Label>
         </Box>
-        <Box flex={1} overflow="auto" padding={3}>
-          {parsedResponse ? (
-            <Code language="json" size={1}>
-              {JSON.stringify(parsedResponse, null, 2)}
-            </Code>
-          ) : null}
-        </Box>
+        {parsedResponse ? <JSONExplorer data={parsedResponse} /> : null}
       </Flex>
     );
   })();
@@ -472,6 +466,7 @@ type State = {
   fetchParseError?: unknown;
   activeAPIVersion: string;
   activeDataset: string;
+  errorPaths?: Map<string, string>;
 };
 
 type Action =
@@ -488,7 +483,11 @@ type Action =
   | { type: "FETCH_RESPONSE_PARSED"; payload: { parsedResponse: unknown } }
   | {
       type: "FETCH_PARSE_FAILURE";
-      payload: { fetchParseError: unknown; rawResponse?: unknown };
+      payload: {
+        fetchParseError: unknown;
+        rawResponse?: unknown;
+        errorPaths?: Map<string, string>;
+      };
     }
   | { type: "SET_ACTIVE_DATASET"; payload: { dataset: string } }
   | { type: "SET_ACTIVE_API_VERSION"; payload: { apiVersion: string } };
@@ -525,12 +524,14 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         parsedResponse: action.payload.parsedResponse,
         fetchParseError: undefined,
+        errorPaths: undefined,
       };
     case "FETCH_PARSE_FAILURE":
       return {
         ...state,
         isFetching: false,
         fetchParseError: action.payload.fetchParseError,
+        errorPaths: action.payload.errorPaths,
       };
     case "SET_ACTIVE_API_VERSION":
       localStorage.setItem(STORAGE_KEYS.API_VERSION, action.payload.apiVersion);
