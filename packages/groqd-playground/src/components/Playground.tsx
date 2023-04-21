@@ -19,13 +19,14 @@ import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
 import { PlayIcon, ResetIcon } from "@sanity/icons";
-import { GroqdPlaygroundProps } from "./types";
-import { useDatasets } from "./useDatasets";
-import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
-import { ShareUrlField } from "./components/ShareUrlField";
-import { useCopyDataAndNotify } from "./hooks/copyDataToClipboard";
-import { emitReset, emitInit } from "./messaging";
-import { JSONExplorer } from "./components/JSONExplorer";
+import { GroqdPlaygroundProps } from "../types";
+import { useDatasets } from "../util/useDatasets";
+import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "../consts";
+import { ShareUrlField } from "./ShareUrlField";
+import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
+import { emitReset, emitInit } from "../util/messaging";
+import { JSONExplorer } from "./JSONExplorer";
+import { ErrorLineItem } from "./Playground.styled";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -270,17 +271,63 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     );
 
     if (fetchParseError) {
+      let errorView = null;
+      const scrollToError = (path: (string | number)[]) => {
+        const pathString = path.map((v) => String(v)).join(".");
+        const lineEl = document.getElementById(`json-item-${pathString}`);
+        if (lineEl instanceof HTMLElement)
+          lineEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+
+      if (fetchParseError instanceof q.GroqdParseError) {
+        errorView = (
+          <Stack space={2}>
+            <Box marginBottom={1}>
+              <Text weight="semibold" size={1}>
+                Error parsing:
+              </Text>
+            </Box>
+            {fetchParseError.zodError.errors.map((e) => {
+              return (
+                <ErrorLineItem
+                  key={e.path.join(".")}
+                  onClick={() => scrollToError(e.path)}
+                  padding={1}
+                >
+                  <Text size={2}>
+                    `result
+                    {e.path.reduce((acc, el) => {
+                      if (typeof el === "string") {
+                        return `${acc}.${el}`;
+                      }
+                      return `${acc}[${el}]`;
+                    }, "")}
+                    `: {e.message}
+                  </Text>
+                </ErrorLineItem>
+              );
+            })}
+          </Stack>
+        );
+      } else if (fetchParseError instanceof Error) {
+        errorView = <pre>{fetchParseError.message}</pre>;
+      } else {
+        errorView = <span>Something went wrong...</span>;
+      }
+
       return (
         <Flex flex={1} direction="column">
           <Box marginY={3} paddingX={3}>
             <Label muted>Error</Label>
           </Box>
-          <Box paddingX={3} style={{ maxHeight: 250 }} overflow="auto">
-            <pre>
-              {fetchParseError instanceof Error
-                ? fetchParseError.message
-                : "Something went wrong."}
-            </pre>
+          <Box
+            paddingX={3}
+            paddingY={1}
+            style={{ maxHeight: 250 }}
+            overflow="auto"
+            marginBottom={2}
+          >
+            {errorView}
           </Box>
           <Box paddingX={3} marginY={3}>
             <Label muted>Raw Response {execTimeDisplay}</Label>
