@@ -1,31 +1,50 @@
 import * as React from "react";
+import { Stack, usePrefersDark } from "@sanity/ui";
 
-type JSONExplorerProps = {
+type JSONExplorerDisplayProps = {
   data: unknown;
   prefix?: string;
   highlightedPaths?: Map<string, string>;
   currentPath?: string;
 };
 
-export const JSONExplorer = ({
+export const JSONExplorer = (props: JSONExplorerDisplayProps) => {
+  return (
+    <div style={{ fontFamily: "Menlo,monospace" }}>
+      <JSONExplorerDisplay {...props} />
+    </div>
+  );
+};
+
+const JSONExplorerDisplay = ({
   data,
   prefix,
   highlightedPaths,
   currentPath = "",
-}: JSONExplorerProps) => {
-  const prefixDisplay = prefix !== undefined ? `${prefix}:  ` : "";
+}: JSONExplorerDisplayProps) => {
+  const COLORS = useColors();
+  const prefixDisplay =
+    prefix !== undefined ? (
+      <span style={{ color: COLORS.KEY }}>{prefix}: </span>
+    ) : null;
   const errorMessage = highlightedPaths && highlightedPaths.get(currentPath);
 
   // Arrays
   if (Array.isArray(data)) {
     return (
-      <div>
-        <div>
-          {prefixDisplay}[...] {data.length} items
-        </div>
-        <div style={{ marginLeft: 12 }}>
+      <Collapsible
+        title={
+          <React.Fragment>
+            {prefixDisplay}
+            <span style={{ color: COLORS.LABEL }}>
+              [...] {data.length} items
+            </span>
+          </React.Fragment>
+        }
+      >
+        <Stack space={2} marginLeft={3}>
           {data.map((dat, i) => (
-            <JSONExplorer
+            <JSONExplorerDisplay
               data={dat}
               key={i}
               prefix={String(i)}
@@ -33,23 +52,27 @@ export const JSONExplorer = ({
               highlightedPaths={highlightedPaths}
             />
           ))}
-        </div>
-      </div>
+        </Stack>
+      </Collapsible>
     );
   }
 
   // Objects
   if (isObject(data)) {
     return (
-      <div>
-        <div>
-          {prefixDisplay}
-          {`{...}`}
-          {Object.keys(data).length} properties
-        </div>
-        <div style={{ marginLeft: 12 }}>
+      <Collapsible
+        title={
+          <React.Fragment>
+            {prefixDisplay}
+            <span style={{ color: COLORS.LABEL }}>
+              {`{...}`} {Object.keys(data).length} properties
+            </span>
+          </React.Fragment>
+        }
+      >
+        <Stack space={2} marginLeft={3}>
           {Object.entries(data).map(([key, dat]) => (
-            <JSONExplorer
+            <JSONExplorerDisplay
               data={dat}
               key={key}
               prefix={key}
@@ -57,8 +80,8 @@ export const JSONExplorer = ({
               highlightedPaths={highlightedPaths}
             />
           ))}
-        </div>
-      </div>
+        </Stack>
+      </Collapsible>
     );
   }
 
@@ -66,7 +89,10 @@ export const JSONExplorer = ({
   return (
     <div style={{ backgroundColor: errorMessage ? "pink" : "inherit" }}>
       {prefixDisplay}
-      {formatPrimitiveData(data)} [{errorMessage}]
+      <span style={{ color: COLORS.VALUE }}>
+        {formatPrimitiveData(data)}
+      </span>{" "}
+      {errorMessage && `[${errorMessage}]`}
     </div>
   );
 };
@@ -79,3 +105,37 @@ const isObject = (data: unknown): data is Record<string, unknown> =>
 
 const addToPath = (existingPath: string, newSegment: string) =>
   existingPath ? `${existingPath}.${newSegment}` : newSegment;
+
+const Collapsible = ({
+  title,
+  children,
+}: React.PropsWithChildren<{ title: JSX.Element }>) => {
+  const [isExpanded, setIsExpanded] = React.useState(true);
+
+  return (
+    <div>
+      <div onClick={() => setIsExpanded((v) => !v)}>{title}</div>
+      <div style={{ height: isExpanded ? "auto" : 0, overflow: "hidden" }}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+type Colors = { KEY: string; LABEL: string; VALUE: string };
+const DARK_COLORS = {
+  KEY: "#5998fc",
+  LABEL: "#d05afc",
+  VALUE: "#dbb931",
+} satisfies Colors;
+
+const LIGHT_COLORS = {
+  KEY: "#1e61cd",
+  LABEL: "#9d1fcd",
+  VALUE: "#967e1c",
+} satisfies Colors;
+
+const useColors = (): Colors => {
+  const prefersDark = usePrefersDark();
+  return prefersDark ? DARK_COLORS : LIGHT_COLORS;
+};
