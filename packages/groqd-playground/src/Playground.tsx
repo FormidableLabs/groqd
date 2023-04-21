@@ -275,11 +275,11 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
     if (fetchParseError) {
       return (
-        <Flex style={{ height: "100%" }} direction="column">
+        <Flex flex={1} direction="column">
           <Box marginY={3} paddingX={3}>
             <Label muted>Error</Label>
           </Box>
-          <Box paddingX={3}>
+          <Box paddingX={3} style={{ maxHeight: 250 }} overflow="auto">
             <pre>
               {fetchParseError instanceof Error
                 ? fetchParseError.message

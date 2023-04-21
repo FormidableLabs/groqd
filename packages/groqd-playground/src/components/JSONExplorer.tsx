@@ -1,5 +1,13 @@
 import * as React from "react";
-import { Stack, usePrefersDark } from "@sanity/ui";
+import { Box, Stack, usePrefersDark } from "@sanity/ui";
+import {
+  Root,
+  Label,
+  Key,
+  Value,
+  LineItem,
+  ErrorMessageText,
+} from "./JSONExplorer.styled";
 
 type JSONExplorerDisplayProps = {
   data: unknown;
@@ -10,9 +18,9 @@ type JSONExplorerDisplayProps = {
 
 export const JSONExplorer = (props: JSONExplorerDisplayProps) => {
   return (
-    <div style={{ fontFamily: "Menlo,monospace" }}>
+    <Root>
       <JSONExplorerDisplay {...props} />
-    </div>
+    </Root>
   );
 };
 
@@ -22,27 +30,23 @@ const JSONExplorerDisplay = ({
   highlightedPaths,
   currentPath = "",
 }: JSONExplorerDisplayProps) => {
-  const COLORS = useColors();
-  const prefixDisplay =
-    prefix !== undefined ? (
-      <span style={{ color: COLORS.KEY }}>{prefix}: </span>
-    ) : null;
+  const prefixDisplay = prefix !== undefined ? <Key>{prefix}: </Key> : null;
   const errorMessage = highlightedPaths && highlightedPaths.get(currentPath);
+  const depth = currentPath === "" ? 0 : currentPath?.split(".").length || 0;
 
   // Arrays
   if (Array.isArray(data)) {
     return (
       <Collapsible
+        depth={depth}
         title={
           <React.Fragment>
             {prefixDisplay}
-            <span style={{ color: COLORS.LABEL }}>
-              [...] {data.length} items
-            </span>
+            <Label>[...] {data.length} items</Label>
           </React.Fragment>
         }
       >
-        <Stack space={2} marginLeft={3}>
+        <Stack space={2}>
           {data.map((dat, i) => (
             <JSONExplorerDisplay
               data={dat}
@@ -61,16 +65,17 @@ const JSONExplorerDisplay = ({
   if (isObject(data)) {
     return (
       <Collapsible
+        depth={depth}
         title={
           <React.Fragment>
             {prefixDisplay}
-            <span style={{ color: COLORS.LABEL }}>
+            <Label>
               {`{...}`} {Object.keys(data).length} properties
-            </span>
+            </Label>
           </React.Fragment>
         }
       >
-        <Stack space={2} marginLeft={3}>
+        <Stack space={2}>
           {Object.entries(data).map(([key, dat]) => (
             <JSONExplorerDisplay
               data={dat}
@@ -87,13 +92,15 @@ const JSONExplorerDisplay = ({
 
   // Primitive leafs
   return (
-    <div style={{ backgroundColor: errorMessage ? "pink" : "inherit" }}>
-      {prefixDisplay}
-      <span style={{ color: COLORS.VALUE }}>
-        {formatPrimitiveData(data)}
-      </span>{" "}
-      {errorMessage && `[${errorMessage}]`}
-    </div>
+    <LineItem paddingY={1} depth={depth} hasError={!!errorMessage}>
+      <Stack space={1}>
+        {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}
+        <div>
+          {prefixDisplay}
+          <Value>{formatPrimitiveData(data)}</Value>{" "}
+        </div>
+      </Stack>
+    </LineItem>
   );
 };
 
@@ -108,34 +115,24 @@ const addToPath = (existingPath: string, newSegment: string) =>
 
 const Collapsible = ({
   title,
+  depth,
   children,
-}: React.PropsWithChildren<{ title: JSX.Element }>) => {
+}: React.PropsWithChildren<{ title: JSX.Element; depth: number }>) => {
   const [isExpanded, setIsExpanded] = React.useState(true);
 
   return (
-    <div>
-      <div onClick={() => setIsExpanded((v) => !v)}>{title}</div>
+    <Stack space={2}>
+      <LineItem
+        paddingY={1}
+        depth={depth}
+        onClick={() => setIsExpanded((v) => !v)}
+        pointer
+      >
+        {title}
+      </LineItem>
       <div style={{ height: isExpanded ? "auto" : 0, overflow: "hidden" }}>
         {children}
       </div>
-    </div>
+    </Stack>
   );
-};
-
-type Colors = { KEY: string; LABEL: string; VALUE: string };
-const DARK_COLORS = {
-  KEY: "#5998fc",
-  LABEL: "#d05afc",
-  VALUE: "#dbb931",
-} satisfies Colors;
-
-const LIGHT_COLORS = {
-  KEY: "#1e61cd",
-  LABEL: "#9d1fcd",
-  VALUE: "#967e1c",
-} satisfies Colors;
-
-const useColors = (): Colors => {
-  const prefersDark = usePrefersDark();
-  return prefersDark ? DARK_COLORS : LIGHT_COLORS;
 };
