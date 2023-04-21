@@ -140,16 +140,12 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         payload: { parsedResponse: data },
       });
     } catch (err) {
-      console.log("ERRORED");
       let errorPaths: Map<string, string> | undefined;
       if (err instanceof q.GroqdParseError) {
-        console.log("IS ZOD ERROR");
         errorPaths = new Map();
         for (const e of err.zodError.errors) {
           errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
         }
-
-        console.log(errorPaths);
       }
 
       dispatch({
