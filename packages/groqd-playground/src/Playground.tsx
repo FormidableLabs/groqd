@@ -285,15 +285,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           <Box paddingX={3} marginY={3}>
             <Label muted>Raw Response {execTimeDisplay}</Label>
           </Box>
-          {/*<Box*/}
-          {/*  flex={1}*/}
-          {/*  paddingX={3}*/}
-          {/*  paddingBottom={3}*/}
-          {/*  paddingTop={1}*/}
-          {/*  overflow="auto"*/}
-          {/*>*/}
           <JSONExplorer data={rawResponse} highlightedPaths={errorPaths} />
-          {/*</Box>*/}
         </Flex>
       );
     }
@@ -303,9 +295,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         <Box padding={3}>
           <Label muted>Query Response {execTimeDisplay}</Label>
         </Box>
-        {/*<Box flex={1} overflow="auto" padding={3}>*/}
         {parsedResponse ? <JSONExplorer data={parsedResponse} /> : null}
-        {/*</Box>*/}
       </Flex>
     );
   })();
