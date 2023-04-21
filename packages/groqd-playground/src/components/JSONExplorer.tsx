@@ -9,7 +9,7 @@ import {
   ErrorMessageText,
 } from "./JSONExplorer.styled";
 import { CopyIcon } from "@sanity/icons";
-import { useCopyDataAndNotify } from "../hooks/copyDataToClipboard";
+import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 
 type JSONExplorerDisplayProps = {
   data: unknown;
@@ -121,7 +121,7 @@ const JSONExplorerDisplay = ({
       paddingY={1}
       depth={depth}
       hasError={!!errorMessage}
-      id={`item-${currentPath}`}
+      id={`json-item-${currentPath}`}
     >
       <Stack space={1}>
         {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}

@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "@sanity/ui";
 import { CopyIcon } from "@sanity/icons";
-import { useCopyDataAndNotify } from "../hooks/copyDataToClipboard";
+import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 
 type ShareUrlFieldProps = {
   url: string;
