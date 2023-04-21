@@ -138,7 +138,7 @@ const formatPrimitiveData = (data: unknown) =>
   typeof data === "string" ? `\"${data}\"` : String(data);
 
 const isObject = (data: unknown): data is Record<string, unknown> =>
-  typeof data === "object" && data !== null;
+  typeof data === "object" && data !== null && !Array.isArray(data);
 
 const addToPath = (existingPath: string, newSegment: string) =>
   existingPath ? `${existingPath}.${newSegment}` : newSegment;
