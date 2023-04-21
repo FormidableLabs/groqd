@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Stack, usePrefersDark } from "@sanity/ui";
+import { Box, Button, Stack } from "@sanity/ui";
 import {
   Root,
   Label,
@@ -8,6 +8,8 @@ import {
   LineItem,
   ErrorMessageText,
 } from "./JSONExplorer.styled";
+import { CopyIcon } from "@sanity/icons";
+import { useCopyDataAndNotify } from "../hooks/copyDataToClipboard";
 
 type JSONExplorerDisplayProps = {
   data: unknown;
@@ -17,9 +19,32 @@ type JSONExplorerDisplayProps = {
 };
 
 export const JSONExplorer = (props: JSONExplorerDisplayProps) => {
+  const copyUrl = useCopyDataAndNotify("Copied JSON to clipboard!");
+  const handleCopy = () => {
+    try {
+      copyUrl(JSON.stringify(props.data, null, 2));
+    } catch {}
+  };
+
   return (
-    <Root>
-      <JSONExplorerDisplay {...props} />
+    <Root flex={1}>
+      <Box
+        padding={3}
+        style={{ position: "absolute", inset: 0 }}
+        overflow="auto"
+      >
+        <JSONExplorerDisplay {...props} />
+      </Box>
+      <Box style={{ position: "absolute", bottom: 0, right: 0 }} padding={3}>
+        <Button
+          aria-label="Copy to clipboard"
+          type="button"
+          mode="ghost"
+          icon={CopyIcon}
+          text="Copy to clipboard"
+          onClick={handleCopy}
+        />
+      </Box>
     </Root>
   );
 };
@@ -92,7 +117,12 @@ const JSONExplorerDisplay = ({
 
   // Primitive leafs
   return (
-    <LineItem paddingY={1} depth={depth} hasError={!!errorMessage}>
+    <LineItem
+      paddingY={1}
+      depth={depth}
+      hasError={!!errorMessage}
+      id={`item-${currentPath}`}
+    >
       <Stack space={1}>
         {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}
         <div>

@@ -23,7 +23,7 @@ import { GroqdPlaygroundProps } from "./types";
 import { useDatasets } from "./useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "./consts";
 import { ShareUrlField } from "./components/ShareUrlField";
-import { useCopyUrlAndNotify } from "./hooks/copyUrl";
+import { useCopyDataAndNotify } from "./hooks/copyDataToClipboard";
 import { emitReset, emitInit } from "./messaging";
 import { JSONExplorer } from "./components/JSONExplorer";
 
@@ -68,7 +68,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       EDITOR_INITIAL_WIDTH,
     []
   );
-  const copyShareUrl = useCopyUrlAndNotify("Copied share URL to clipboard!");
+  const copyShareUrl = useCopyDataAndNotify("Copied share URL to clipboard!");
   const windowHref = window.location.href;
 
   // Configure client
@@ -289,27 +289,27 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           <Box paddingX={3} marginY={3}>
             <Label muted>Raw Response {execTimeDisplay}</Label>
           </Box>
-          <Box
-            flex={1}
-            paddingX={3}
-            paddingBottom={3}
-            paddingTop={1}
-            overflow="auto"
-          >
-            <JSONExplorer data={rawResponse} highlightedPaths={errorPaths} />
-          </Box>
+          {/*<Box*/}
+          {/*  flex={1}*/}
+          {/*  paddingX={3}*/}
+          {/*  paddingBottom={3}*/}
+          {/*  paddingTop={1}*/}
+          {/*  overflow="auto"*/}
+          {/*>*/}
+          <JSONExplorer data={rawResponse} highlightedPaths={errorPaths} />
+          {/*</Box>*/}
         </Flex>
       );
     }
 
     return (
-      <Flex flex={1} direction="column">
+      <Flex flex={1} direction="column" style={{ maxHeight: "100%" }}>
         <Box padding={3}>
           <Label muted>Query Response {execTimeDisplay}</Label>
         </Box>
-        <Box flex={1} overflow="auto" padding={3}>
-          {parsedResponse ? <JSONExplorer data={parsedResponse} /> : null}
-        </Box>
+        {/*<Box flex={1} overflow="auto" padding={3}>*/}
+        {parsedResponse ? <JSONExplorer data={parsedResponse} /> : null}
+        {/*</Box>*/}
       </Flex>
     );
   })();

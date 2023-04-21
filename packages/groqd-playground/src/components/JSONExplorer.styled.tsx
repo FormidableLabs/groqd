@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import { Box } from "@sanity/ui";
 
-export const Root = styled.div`
+export const Root = styled(Box)`
   font-family: Menlo, monospace;
   font-size: 0.9em;
+  position: relative;
 `;
 
 export const Label = styled.span`

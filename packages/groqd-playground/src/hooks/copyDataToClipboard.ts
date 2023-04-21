@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useToast } from "@sanity/ui";
 
-export const useCopyUrlAndNotify = (message: string) => {
+export const useCopyDataAndNotify = (message: string) => {
   const toast = useToast();
 
   return React.useCallback(

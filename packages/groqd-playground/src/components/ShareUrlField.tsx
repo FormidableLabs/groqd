@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "@sanity/ui";
 import { CopyIcon } from "@sanity/icons";
-import { useCopyUrlAndNotify } from "../hooks/copyUrl";
+import { useCopyDataAndNotify } from "../hooks/copyDataToClipboard";
 
 type ShareUrlFieldProps = {
   url: string;
@@ -26,7 +26,7 @@ export const ShareUrlField = ({
   column = 4,
   notificationMessage = "Copied URL to clipboard!",
 }: ShareUrlFieldProps) => {
-  const copyUrl = useCopyUrlAndNotify(notificationMessage);
+  const copyUrl = useCopyDataAndNotify(notificationMessage);
   const handleCopyUrl = () => copyUrl(url);
 
   return (
