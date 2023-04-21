@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.6
+
+### Patch Changes
+
+- Add JSON explorer and "jump to error" functionality ([#145](https://github.com/FormidableLabs/groqd/pull/145))
+
 ## 0.0.5
 
 ### Patch Changes
