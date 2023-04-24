@@ -263,7 +263,7 @@ describe("grabOne$", () => {
   });
 });
 
-describe("UnknownResult.filter/ArrayResult.filter", () => {
+describe("UnknownResult.filter/ArrayResult.filter/EntityQuery.filter", () => {
   it("applies simple filter appropriately to UnknownResult, returning unknown array", async () => {
     const { query, data } = await runPokemonQuery(
       q("*").filter("_type == 'pokemon'")
@@ -308,6 +308,22 @@ describe("UnknownResult.filter/ArrayResult.filter", () => {
     expect(
       schema2 instanceof z.ZodArray && schema2.element instanceof z.ZodUnknown
     );
+  });
+
+  it("works on EntityQuery", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filterByType("pokemon")
+        .slice(0)
+        .grabOne("types", q.unknown())
+        .filter()
+        .grab$({
+          _ref: q.string(),
+        })
+    );
+
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<{ _ref: string }[]>();
   });
 });
 
