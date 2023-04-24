@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.1
+
+### Patch Changes
+
+- Add .filter() method to EntityQuery ([#149](https://github.com/FormidableLabs/groqd/pull/149))
+
 ## 0.15.0
 
 ### Minor Changes
