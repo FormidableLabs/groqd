@@ -59,7 +59,7 @@ const data = await runQuery(
 
 Using `makeSafeQueryRunner` is totally optional; you might find using `q().schema` and `q().query` in your own abstractions works better for you.
 
-## The "Playground"
+## The Playground
 
 We also provide a [Vision](https://www.sanity.io/docs/the-vision-plugin)-like Sanity Studio tool for experimenting with groqd queries and running them against your actual dataset.
 
