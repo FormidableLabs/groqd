@@ -134,11 +134,17 @@ const JSONExplorerDisplay = ({
   );
 };
 
-const formatPrimitiveData = (data: unknown) =>
-  typeof data === "string" ? `\"${data}\"` : String(data);
+const formatPrimitiveData = (data: unknown) => {
+  if (typeof data === "string") return `\"${data}\"`;
+  if (data instanceof Date) return `(Date) ${data}`;
+  return String(data);
+};
 
 const isObject = (data: unknown): data is Record<string, unknown> =>
-  typeof data === "object" && data !== null && !Array.isArray(data);
+  typeof data === "object" &&
+  data !== null &&
+  !Array.isArray(data) &&
+  !(data instanceof Date);
 
 const addToPath = (existingPath: string, newSegment: string) =>
   existingPath ? `${existingPath}.${newSegment}` : newSegment;
