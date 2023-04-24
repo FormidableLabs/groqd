@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.7
+
+### Patch Changes
+
+- Update README ([#148](https://github.com/FormidableLabs/groqd/pull/148))
+
+- Fix Date display in playground ([#151](https://github.com/FormidableLabs/groqd/pull/151))
+
 ## 0.0.6
 
 ### Patch Changes
