@@ -100,6 +100,30 @@ The standard workflow is:
 4. If the response fails validation, the playground will show the validation error(s) and the raw groq response for you to inspect.
 
 
+### Passing parameters to the query
+
+To pass parameter values to your query, pass an object as the second argument to `runQuery`:
+
+```ts
+import { runQuery } from "playground";
+import { q } from "groqd";
+
+runQuery(
+  q("*")
+  .filterByType("pokemon")
+  .filter("name == $name")
+  .slice(0, 10)
+  .grab$({
+    name: q.string()
+  }),
+  // 👇 Pass your parameters here
+  {
+    name: "Bulbasaur"
+  }
+);
+```
+
+
 ### Editor Keyboard shortcuts
 
 When the editor is focused, the following keyboard shortcuts are available:
