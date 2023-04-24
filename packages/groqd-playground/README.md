@@ -6,6 +6,8 @@ Groqd Playground is a plugin for Sanity Studio for testing [groqd](https://formi
 - parsed response and error messages for when responses fail to pass Zod validation;
 - dataset/api version switchers.
 
+![Screenshot of Groqd Playground in action](https://raw.githubusercontent.com/FormidableLabs/groqd/main/docs/img/groqd-playground-sample.png)
+
 To setup, just `yarn add groqd-playground` and then add the `groqdPlaygroundTool` plugin to your sanity config:
 
 ```ts

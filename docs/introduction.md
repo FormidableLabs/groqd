@@ -59,6 +59,14 @@ const data = await runQuery(
 
 Using `makeSafeQueryRunner` is totally optional; you might find using `q().schema` and `q().query` in your own abstractions works better for you.
 
+## The Playground
+
+We also provide a [Vision](https://www.sanity.io/docs/the-vision-plugin)-like Sanity Studio tool for experimenting with groqd queries and running them against your actual dataset.
+
+![Screenshot of groqd playground in action](./img/groqd-playground-sample.png)
+
+The playground is a drop-in Sanity plugin, and is an easy way to test out groqd within your dataset. See [the playground docs](./groqd-playground.mdx) for more information on the playground.
+
 ## Why `groqd`? 🤷‍
 
 GROQ's primary use is with [Sanity](https://www.sanity.io/). Sanity's Content Lake is fundamentally unstructured, and GROQ (and Sanity's GROQ API) do not have any sort of GraqhQL-like type contracts.
