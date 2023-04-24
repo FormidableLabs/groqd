@@ -23,6 +23,14 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     super(payload);
   }
 
+  filter(filterValue = ""): ArrayQuery<T> {
+    this.query += `[${filterValue}]`;
+    return new ArrayQuery({
+      query: this.query,
+      schema: z.array(this.schema),
+    });
+  }
+
   select<Conditions extends ConditionRecord>(
     s: Conditions
   ): EntityQuery<Spread<SelectSchemaType<Conditions>>>;
