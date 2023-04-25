@@ -18,13 +18,13 @@ import { z } from "zod";
 import * as q from "groqd";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
-import { ClipboardIcon, CopyIcon, PlayIcon, ResetIcon } from "@sanity/icons";
+import { PlayIcon, ResetIcon } from "@sanity/icons";
 import { GroqdPlaygroundProps } from "../types";
 import { useDatasets } from "../util/useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "../consts";
 import { ShareUrlField } from "./ShareUrlField";
 import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
-import { emitReset, emitInit } from "../util/messaging";
+import { emitInit, emitReset } from "../util/messaging";
 import { JSONExplorer } from "./JSONExplorer";
 import { ErrorLineItem } from "./Playground.styled";
 
