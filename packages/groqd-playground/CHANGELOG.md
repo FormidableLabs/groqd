@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.9
+
+### Patch Changes
+
+- Setup NPM provenance ([#156](https://github.com/FormidableLabs/groqd/pull/156))
+
+- Updated dependencies [[`f16c703`](https://github.com/FormidableLabs/groqd/commit/f16c7030400d341dceafd88dd780c93452047ac3)]:
+  - groqd@0.15.2
+
 ## 0.0.8
 
 ### Patch Changes
