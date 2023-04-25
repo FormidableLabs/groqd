@@ -60,5 +60,8 @@
     "@uiw/react-split": "^5.8.10",
     "groqd": "workspace:*",
     "zod": "^3.21.4"
+  },
+  "publishConfig": {
+    "provenance": true
   }
 }
