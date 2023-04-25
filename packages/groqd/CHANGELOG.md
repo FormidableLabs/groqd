@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.2
+
+### Patch Changes
+
+- Setup NPM provenance ([#156](https://github.com/FormidableLabs/groqd/pull/156))
+
 ## 0.15.1
 
 ### Patch Changes
