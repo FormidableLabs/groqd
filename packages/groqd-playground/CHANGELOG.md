@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.11
+
+### Patch Changes
+
+- Safely access process.env.SANITY*STUDIO*... to support older versions of SS3. ([#163](https://github.com/FormidableLabs/groqd/pull/163))
+
 ## 0.0.10
 
 ### Patch Changes
