@@ -26,7 +26,7 @@ import { ShareUrlField } from "./ShareUrlField";
 import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 import { emitInit, emitReset } from "../util/messaging";
 import { JSONExplorer } from "./JSONExplorer";
-import { ErrorLineItem } from "./Playground.styled";
+import { CopyQueryButton, ErrorLineItem } from "./Playground.styled";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -445,12 +445,9 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                     <Label muted>
                       Query{"  "}
                       {query.query && (
-                        <span
-                          style={{ cursor: "pointer" }}
-                          onClick={handleCopyQuery}
-                        >
+                        <CopyQueryButton onClick={handleCopyQuery} tabIndex={0}>
                           (Copy to clipboard)
-                        </span>
+                        </CopyQueryButton>
                       )}
                     </Label>
                   </Box>
