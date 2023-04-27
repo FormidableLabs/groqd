@@ -1,5 +1,14 @@
 # playground-editor
 
+## 0.0.5
+
+### Patch Changes
+
+- Changed default code in editor, added functionality to copy query to clipboard ([#154](https://github.com/FormidableLabs/groqd/pull/154))
+
+- Updated dependencies [[`3d3eea9`](https://github.com/FormidableLabs/groqd/commit/3d3eea9aa4f0de15fef83043786ff3d6028e9c23), [`63eb17c`](https://github.com/FormidableLabs/groqd/commit/63eb17c077856599770209ec6f223511809977a2)]:
+  - groqd@0.15.3
+
 ## 0.0.4
 
 ### Patch Changes
