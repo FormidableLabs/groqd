@@ -185,12 +185,22 @@ const runCode = async (
 };
 
 // Initial code, will likely change in the future.
-const DEFAULT_INIT_CODE = [
-  `import { runQuery } from "playground";`,
-  `import { q } from "groqd";`,
-  "",
-  `runQuery(\n\tq("*")\n\t.filter()\n\t.slice(0, 10)\n\t.grab$({\n\t\t_id: q.string()\n\t})\n);`,
-].join("\n");
+const DEFAULT_INIT_CODE = `
+import { runQuery } from "playground";
+import { q } from "groqd";
+
+runQuery(
+  q("*")
+    .filter()
+    .slice(0, 10)
+    .grab$({
+      _id: q.string()
+    }),
+	// params (optional)
+  {}
+);
+
+`.trim();
 
 // Adding in groqd types, and our custom playground.runQuery helper.
 const extraLibs = [

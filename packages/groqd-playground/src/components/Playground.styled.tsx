@@ -15,3 +15,13 @@ export const ErrorLineItem = styled(Box)`
     }
   }
 `;
+
+export const CopyQueryButton = styled.button`
+  all: unset;
+  cursor: pointer;
+  &:focus {
+    box-shadow: inset 0 0 0 1px var(--card-border-color), 0 0 0 1px #fff,
+      0 0 0 3px var(--card-focus-ring-color);
+    border-radius: 0.1875rem;
+  }
+`;

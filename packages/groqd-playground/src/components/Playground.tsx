@@ -24,9 +24,9 @@ import { useDatasets } from "../util/useDatasets";
 import { API_VERSIONS, DEFAULT_API_VERSION, STORAGE_KEYS } from "../consts";
 import { ShareUrlField } from "./ShareUrlField";
 import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
-import { emitReset, emitInit } from "../util/messaging";
+import { emitInit, emitReset } from "../util/messaging";
 import { JSONExplorer } from "./JSONExplorer";
-import { ErrorLineItem } from "./Playground.styled";
+import { CopyQueryButton, ErrorLineItem } from "./Playground.styled";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -70,6 +70,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
     []
   );
   const copyShareUrl = useCopyDataAndNotify("Copied share URL to clipboard!");
+  const copyQueryUrl = useCopyDataAndNotify("Copied Query to clipboard!");
   const windowHref = window.location.href;
 
   // Configure client
@@ -237,6 +238,8 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const handleReset = () => {
     iframeRef.current && emitReset(iframeRef.current, EDITOR_ORIGIN);
   };
+
+  const handleCopyQuery = () => query.query && copyQueryUrl(query.query);
 
   const handleEditorResize = () => {
     const container = editorContainer.current;
@@ -439,7 +442,14 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
               <Stack space={3}>
                 <Box>
                   <Box paddingX={3} marginBottom={1}>
-                    <Label muted>Query</Label>
+                    <Label muted>
+                      Query{"  "}
+                      {query.query && (
+                        <CopyQueryButton onClick={handleCopyQuery} tabIndex={0}>
+                          (Copy to clipboard)
+                        </CopyQueryButton>
+                      )}
+                    </Label>
                   </Box>
                   <Flex padding={3} paddingBottom={4} overflow="auto">
                     <Code language="text">{query.query}</Code>
@@ -497,7 +507,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 const EDITOR_URL =
   process.env.SANITY_STUDIO_GROQD_PLAYGROUND_ENV === "development"
     ? "http://localhost:3069"
-    : "https://unpkg.com/groqd-playground-editor@0.0.4/build/index.html";
+    : "https://unpkg.com/groqd-playground-editor@0.0.5/build/index.html";
 const EDITOR_ORIGIN = new URL(EDITOR_URL).origin;
 
 type Params = Record<string, string | number>;
