@@ -69,6 +69,21 @@ Corresponds to [Zod's array type](https://github.com/colinhacks/zod#arrays).
 
 Corresponds to [Zod's object type](https://github.com/colinhacks/zod#objects).
 
+## `q.slug`
+
+A convenience schema to easily grab a slug. Takes a single argument, which is the name of the slug field.
+
+```ts
+q("*")
+  .filterByType("blogPost")
+  .grab({
+    //     👇 slug schema
+    slug: q.slug("slug"),
+    // equivalent to...
+    slug: ["slug.current", q.string()]
+  });
+```
+
 ## `q.contentBlock`
 
 A custom Zod schema to match Sanity's `block` type, helpful for fetching data from a field that uses Sanity's block editor. For example:

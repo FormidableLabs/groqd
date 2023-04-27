@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { GroqdParseError, q } from "./index";
 import { makeSafeQueryRunner } from "./makeSafeQueryRunner";
+import { runPokemonQuery } from "../test-utils/runQuery";
+import invariant from "tiny-invariant";
 
 describe("makeSafeQueryRunner", () => {
   it("should create a query runner with single argument", async () => {
@@ -73,5 +75,14 @@ describe("makeSafeQueryRunner", () => {
         `Error parsing:\n\t\`result[0].things[0].name\`: Expected string, received number\n\t\`result[0].foo\`: Invalid literal value, expected "baz"`
       );
     }
+  });
+
+  it("should contain raw response on error", async () => {
+    const { error } = await runPokemonQuery(
+      q("*").filterByType("pokemon").slice(0, 1).grabOne("name", q.number())
+    );
+
+    invariant(error instanceof GroqdParseError);
+    expect(error.rawResponse).toEqual(["Bulbasaur", "Ivysaur"]);
   });
 });

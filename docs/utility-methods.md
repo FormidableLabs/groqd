@@ -49,6 +49,8 @@ Error parsing `result[0].things[0].name`: Expected string, received number.
 ```
 
 You can import the `GroqdParseError` class directly from `groqd` if you need it for `instanceof` checks.
+
+The `GroqdParseError` class contains a `zodError` field to view the full Zod error, and a `.rawResponse` field so you can view the raw response that failed validation (helpful for debugging).
 :::
 
 ## `nullToUndefined`
