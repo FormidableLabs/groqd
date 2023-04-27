@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.12
+
+### Patch Changes
+
+- Better error highlighting ([#168](https://github.com/FormidableLabs/groqd/pull/168))
+
+- Updated dependencies [[`b77bdfb`](https://github.com/FormidableLabs/groqd/commit/b77bdfbb2f5da460d31f1cbe66ab15445da7acfe)]:
+  - groqd@0.15.4
+
 ## 0.0.11
 
 ### Patch Changes
