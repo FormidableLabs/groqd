@@ -42,6 +42,7 @@
     "dev": "pnpm run build:watch"
   },
   "devDependencies": {
+    "@types/lodash.has": "^4.5.7",
     "@types/react": "^18.0.35",
     "@types/styled-components": "^5.1.26",
     "tsup": "^6.7.0",
@@ -59,6 +60,7 @@
   "dependencies": {
     "@uiw/react-split": "^5.8.10",
     "groqd": "workspace:*",
+    "lodash.has": "^4.5.2",
     "zod": "^3.21.4"
   },
   "publishConfig": {

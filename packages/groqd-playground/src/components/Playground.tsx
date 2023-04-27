@@ -16,6 +16,7 @@ import {
 } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
+import has from "lodash.has";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
 import { PlayIcon, ResetIcon } from "@sanity/icons";
@@ -27,6 +28,7 @@ import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 import { emitInit, emitReset } from "../util/messaging";
 import { JSONExplorer } from "./JSONExplorer";
 import { CopyQueryButton, ErrorLineItem } from "./Playground.styled";
+import { formatErrorPath } from "../util/formatErrorPath";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -142,11 +144,25 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         payload: { parsedResponse: data },
       });
     } catch (err) {
+      /**
+       * Generate error paths
+       */
       let errorPaths: Map<string, string> | undefined;
       if (err instanceof q.GroqdParseError) {
         errorPaths = new Map();
         for (const e of err.zodError.errors) {
-          errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
+          // If "Required" message and missing path, we're going to want to
+          if (e.message === "Required" && !has(err.rawResponse, e.path)) {
+            errorPaths.set(
+              e.path
+                .slice(0, -1)
+                .map((v) => String(v))
+                .join("."),
+              `Field "${e.path.at(-1)}" is Required`
+            );
+          } else {
+            errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
+          }
         }
       }
 
@@ -273,43 +289,33 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       </Tooltip>
     );
 
-    if (fetchParseError) {
+    if (fetchParseError || errorPaths?.size) {
       let errorView = null;
-      const scrollToError = (path: (string | number)[]) => {
-        const pathString = path.map((v) => String(v)).join(".");
-        const lineEl = document.getElementById(`json-item-${pathString}`);
+      const scrollToError = (path: string) => {
+        const lineEl = document.getElementById(`json-item-${path}`);
         if (lineEl instanceof HTMLElement)
           lineEl.scrollIntoView({ behavior: "smooth", block: "start" });
       };
 
-      if (fetchParseError instanceof q.GroqdParseError) {
+      if (errorPaths) {
         errorView = (
-          <Stack space={2}>
+          <Stack space={2} flex={1} paddingX={3} paddingY={1}>
             <Box marginBottom={1}>
               <Text weight="semibold" size={1}>
                 Error parsing:
               </Text>
             </Box>
-            {fetchParseError.zodError.errors.map((e) => {
-              return (
-                <ErrorLineItem
-                  key={e.path.join(".")}
-                  onClick={() => scrollToError(e.path)}
-                  padding={1}
-                >
-                  <Text size={2}>
-                    `result
-                    {e.path.reduce((acc, el) => {
-                      if (typeof el === "string") {
-                        return `${acc}.${el}`;
-                      }
-                      return `${acc}[${el}]`;
-                    }, "")}
-                    `: {e.message}
-                  </Text>
-                </ErrorLineItem>
-              );
-            })}
+            {[...errorPaths.entries()].map(([path, message]) => (
+              <ErrorLineItem
+                key={path}
+                onClick={() => scrollToError(path)}
+                padding={1}
+              >
+                <Text size={2}>
+                  `result{formatErrorPath(path)}`: {message}
+                </Text>
+              </ErrorLineItem>
+            ))}
           </Stack>
         );
       } else if (fetchParseError instanceof Error) {
@@ -320,22 +326,27 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
       return (
         <Flex flex={1} direction="column">
-          <Box marginY={3} paddingX={3}>
-            <Label muted>Error</Label>
-          </Box>
-          <Box
-            paddingX={3}
-            paddingY={1}
-            style={{ maxHeight: 250 }}
-            overflow="auto"
-            marginBottom={2}
-          >
-            {errorView}
-          </Box>
-          <Box paddingX={3} marginY={3}>
-            <Label muted>Raw Response {execTimeDisplay}</Label>
-          </Box>
-          <JSONExplorer data={rawResponse} highlightedPaths={errorPaths} />
+          <Split mode="vertical">
+            <Flex direction="column" style={{ maxHeight: 400 }}>
+              <Box marginY={3} paddingX={3}>
+                <Label muted>❗Error</Label>
+              </Box>
+              <Box flex={1} overflow="auto">
+                {errorView}
+              </Box>
+            </Flex>
+            <Flex flex={1} direction="column">
+              <Box paddingX={3} marginY={3}>
+                <Label muted>Raw Response {execTimeDisplay}</Label>
+              </Box>
+              <Box flex={1} style={{ height: "100%" }}>
+                <JSONExplorer
+                  data={rawResponse}
+                  highlightedPaths={errorPaths}
+                />
+              </Box>
+            </Flex>
+          </Split>
         </Flex>
       );
     }
