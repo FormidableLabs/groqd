@@ -329,7 +329,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
           <Split mode="vertical">
             <Flex direction="column" style={{ maxHeight: 400 }}>
               <Box marginY={3} paddingX={3}>
-                <Label muted>⚠️ Error</Label>
+                <Label muted>❗Error</Label>
               </Box>
               <Box flex={1} overflow="auto">
                 {errorView}
