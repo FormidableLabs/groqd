@@ -43,13 +43,54 @@ pnpm add groqd-playground
 </TabItem>
 </Tabs>
 
-:::note
-The playground tool has the following peer dependenciesc which are typically already a part of most Sanity Studio implementations:
+The playground tool has the following peer dependencies which are typically already a part of most Sanity Studio implementations:
 
 ```text
 sanity @sanity/ui @sanity/icons styled-components
 ```
+
+:::caution
+This plugin is Studio V3-compatible, and likely will not work in a Studio V2 setup.
 :::
+
+### Usage with Next.js
+
+Currently, `groqd-playground` has a dependency on `@uiw/react-split` which imports its own CSS. This can cause some hiccups in Next.js-embedded studios.
+
+<Tabs>
+<TabItem value="appDir" label="/app Directory">
+
+The new `/app` directory supports global CSS imports, so no extra configuration is needed.
+
+</TabItem>
+
+<TabItem value="geq13.1" label="Next.js >= 13.1">
+
+With 13.1, Next.js [started offering a transpilePackages](https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable) option, and you can configure it to transpile `@uiw/react-split`:
+
+```js
+const nextConfig = {
+  reactStrictMode: true,
+  transpilePackages: ["@uiw/react-split"]
+}
+```
+
+</TabItem>
+
+<TabItem value="lt13.1" label="Next.js < 13.1">
+
+For version of Next below 13.1, you'll likely be stuck using [`next-transpile-modules`](https://www.npmjs.com/package/next-transpile-modules) to transpile `@uiw/react-split`:
+
+```js
+const withTM = require("next-transpile-modules")(["@uiw/react-split"]);
+
+const nextConfig = { /* ... */ };
+
+module.exports = withTM(nextConfig);
+```
+
+</TabItem>
+</Tabs>
 
 ## Configuration
 
