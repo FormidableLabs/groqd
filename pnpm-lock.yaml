@@ -152,7 +152,7 @@ importers:
   packages/playground-editor:
     dependencies:
       groqd:
-        specifier: ^0.15.0
+        specifier: ^0.15.3
         version: link:../groqd
       lodash.debounce:
         specifier: ^4.0.8

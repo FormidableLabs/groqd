@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.3
+
+### Patch Changes
+
+- Move .deref from UnknownQuery to EntityQuery so that one can deref on EntityQuery if need be. ([#160](https://github.com/FormidableLabs/groqd/pull/160))
+
+- Default z.unknown() schema for .grabOne/.grabOne$ methods ([#162](https://github.com/FormidableLabs/groqd/pull/162))
+
 ## 0.15.2
 
 ### Patch Changes
