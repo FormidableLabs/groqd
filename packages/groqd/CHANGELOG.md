@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.4
+
+### Patch Changes
+
+- Add rawResponse on GroqdParseError ([#166](https://github.com/FormidableLabs/groqd/pull/166))
+
 ## 0.15.3
 
 ### Patch Changes
