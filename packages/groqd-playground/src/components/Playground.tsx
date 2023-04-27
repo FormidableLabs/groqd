@@ -289,10 +289,9 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       </Tooltip>
     );
 
-    if (fetchParseError) {
+    if (fetchParseError || errorPaths?.size) {
       let errorView = null;
       const scrollToError = (path: string) => {
-        console.log(path);
         const lineEl = document.getElementById(`json-item-${path}`);
         if (lineEl instanceof HTMLElement)
           lineEl.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -300,7 +299,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
       if (errorPaths) {
         errorView = (
-          <Stack space={2}>
+          <Stack space={2} flex={1} paddingX={3} paddingY={1}>
             <Box marginBottom={1}>
               <Text weight="semibold" size={1}>
                 Error parsing:
@@ -327,22 +326,27 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
       return (
         <Flex flex={1} direction="column">
-          <Box marginY={3} paddingX={3}>
-            <Label muted>⚠️ Error</Label>
-          </Box>
-          <Box
-            paddingX={3}
-            paddingY={1}
-            style={{ maxHeight: 250 }}
-            overflow="auto"
-            marginBottom={2}
-          >
-            {errorView}
-          </Box>
-          <Box paddingX={3} marginY={3}>
-            <Label muted>Raw Response {execTimeDisplay}</Label>
-          </Box>
-          <JSONExplorer data={rawResponse} highlightedPaths={errorPaths} />
+          <Split mode="vertical">
+            <Flex direction="column" style={{ maxHeight: 400 }}>
+              <Box marginY={3} paddingX={3}>
+                <Label muted>⚠️ Error</Label>
+              </Box>
+              <Box flex={1} overflow="auto">
+                {errorView}
+              </Box>
+            </Flex>
+            <Flex flex={1} direction="column">
+              <Box paddingX={3} marginY={3}>
+                <Label muted>Raw Response {execTimeDisplay}</Label>
+              </Box>
+              <Box flex={1} style={{ height: "100%" }}>
+                <JSONExplorer
+                  data={rawResponse}
+                  highlightedPaths={errorPaths}
+                />
+              </Box>
+            </Flex>
+          </Split>
         </Flex>
       );
     }

@@ -5,6 +5,7 @@ export const Root = styled(Box)`
   font-family: Menlo, monospace;
   font-size: 0.9em;
   position: relative;
+  height: 100%;
 
   --border-radius: 4px;
   --error-bg-color: #ffe5ea;
