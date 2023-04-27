@@ -117,6 +117,9 @@ importers:
       groqd:
         specifier: workspace:*
         version: link:../groqd
+      lodash.has:
+        specifier: ^4.5.2
+        version: 4.5.2
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -136,6 +139,9 @@ importers:
         specifier: ^3.21.4
         version: 3.21.4
     devDependencies:
+      '@types/lodash.has':
+        specifier: ^4.5.7
+        version: 4.5.7
       '@types/react':
         specifier: ^18.0.35
         version: 18.0.35
@@ -5140,6 +5146,12 @@ packages:
 
   /@types/lodash.debounce@4.0.7:
     resolution: {integrity: sha512-X1T4wMZ+gT000M2/91SYj0d/7JfeNZ9PeeOldSNoE/lunLeQXKvkmIumI29IaKMotU/ln/McOIvgzZcQ/3TrSA==}
+    dependencies:
+      '@types/lodash': 4.14.192
+    dev: true
+
+  /@types/lodash.has@4.5.7:
+    resolution: {integrity: sha512-nfbAzRbsZBdzSAkL9iiLy4SQk89uuFcXBFwZ7pf6oZhBgPvNys8BY5Twp/w8XvZKGt1o6cAa85wX4QhqO3uQ7A==}
     dependencies:
       '@types/lodash': 4.14.192
     dev: true
@@ -10338,6 +10350,10 @@ packages:
 
   /lodash.flow@3.5.0:
     resolution: {integrity: sha512-ff3BX/tSioo+XojX4MOsOMhJw0nZoUEF011LX8g8d3gvjVbxd89cCio4BCXronjxcTUIJUoqKEUA+n4CqvvRPw==}
+    dev: false
+
+  /lodash.has@4.5.2:
+    resolution: {integrity: sha512-rnYUdIo6xRCJnQmbVFEwcxF144erlD+M3YcJUVesflU9paQaE8p+fJDcIQrlMYbxoANFL+AB9hZrzSBBk5PL+g==}
     dev: false
 
   /lodash.isplainobject@4.0.6:

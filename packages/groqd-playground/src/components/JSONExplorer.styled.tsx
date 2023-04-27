@@ -1,10 +1,19 @@
 import styled from "styled-components";
-import { Box } from "@sanity/ui";
+import { Box, Stack } from "@sanity/ui";
 
 export const Root = styled(Box)`
   font-family: Menlo, monospace;
   font-size: 0.9em;
   position: relative;
+
+  --border-radius: 4px;
+  --error-bg-color: #ffe5ea;
+  --item-hover-color: #e7e7e7;
+
+  @media (prefers-color-scheme: dark) {
+    --error-bg-color: #470417;
+    --item-hover-color: #505050;
+  }
 `;
 
 export const Label = styled.span`
@@ -33,22 +42,23 @@ export const LineItem = styled(Box)<{
   hasError?: boolean;
 }>`
   padding-left: ${({ depth }) => depth * DEPTH_SC}px;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   cursor: ${({ pointer }) => (pointer ? "pointer" : "initial")};
 
-  background-color: ${({ hasError }) => (hasError ? "#ffe5ea" : "initial")};
+  background-color: ${({ hasError }) =>
+    hasError ? "var(--error-bg-color)" : "initial"};
 
   &:hover {
-    background-color: ${({ hasError }) => (hasError ? undefined : "#e7e7e7")};
+    background-color: ${({ hasError }) =>
+      hasError ? undefined : "var(--item-hover-color)"};
   }
+`;
 
-  @media (prefers-color-scheme: dark) {
-    background-color: ${({ hasError }) => (hasError ? "#470417" : "initial")};
+export const CollapsibleContainer = styled(Stack)<{ hasError?: boolean }>`
+  border-radius: var(--border-radius);
 
-    &:hover {
-      background-color: ${({ hasError }) => (hasError ? undefined : "#505050")};
-    }
-  }
+  background-color: ${({ hasError }) =>
+    hasError ? "var(--error-bg-color)" : "initial"};
 `;
 
 export const ErrorMessageText = styled.div`

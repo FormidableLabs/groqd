@@ -7,6 +7,7 @@ import {
   Value,
   LineItem,
   ErrorMessageText,
+  CollapsibleContainer,
 } from "./JSONExplorer.styled";
 import { CopyIcon } from "@sanity/icons";
 import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
@@ -70,6 +71,8 @@ const JSONExplorerDisplay = ({
             <Label>[...] {data.length} items</Label>
           </React.Fragment>
         }
+        errorMessage={errorMessage}
+        id={`json-item-${currentPath}`}
       >
         <Stack space={2}>
           {data.map((dat, i) => (
@@ -99,6 +102,8 @@ const JSONExplorerDisplay = ({
             </Label>
           </React.Fragment>
         }
+        errorMessage={errorMessage}
+        id={`json-item-${currentPath}`}
       >
         <Stack space={2}>
           {Object.entries(data).map(([key, dat]) => (
@@ -153,22 +158,32 @@ const Collapsible = ({
   title,
   depth,
   children,
-}: React.PropsWithChildren<{ title: JSX.Element; depth: number }>) => {
+  errorMessage,
+  id,
+}: React.PropsWithChildren<{
+  title: JSX.Element;
+  depth: number;
+  errorMessage?: string;
+  id?: string;
+}>) => {
   const [isExpanded, setIsExpanded] = React.useState(true);
 
   return (
-    <Stack space={2}>
+    <CollapsibleContainer space={2} id={id} hasError={!!errorMessage}>
       <LineItem
         paddingY={1}
         depth={depth}
         onClick={() => setIsExpanded((v) => !v)}
         pointer
       >
-        {title}
+        <Stack space={1}>
+          {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}
+          <Box>{title}</Box>
+        </Stack>
       </LineItem>
       <div style={{ height: isExpanded ? "auto" : 0, overflow: "hidden" }}>
         {children}
       </div>
-    </Stack>
+    </CollapsibleContainer>
   );
 };

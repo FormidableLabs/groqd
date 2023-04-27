@@ -16,6 +16,7 @@ import {
 } from "@sanity/ui";
 import { z } from "zod";
 import * as q from "groqd";
+import has from "lodash.has";
 import { BaseQuery } from "groqd/src/baseQuery";
 import Split from "@uiw/react-split";
 import { PlayIcon, ResetIcon } from "@sanity/icons";
@@ -142,10 +143,18 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
         payload: { parsedResponse: data },
       });
     } catch (err) {
+      /**
+       * Generate error paths
+       */
       let errorPaths: Map<string, string> | undefined;
       if (err instanceof q.GroqdParseError) {
+        console.log(err.rawResponse);
         errorPaths = new Map();
         for (const e of err.zodError.errors) {
+          if (e.message === "Required") {
+            // if ()
+          }
+
           errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
         }
       }
@@ -321,7 +330,7 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
       return (
         <Flex flex={1} direction="column">
           <Box marginY={3} paddingX={3}>
-            <Label muted>Error</Label>
+            <Label muted>⚠️ Error</Label>
           </Box>
           <Box
             paddingX={3}
