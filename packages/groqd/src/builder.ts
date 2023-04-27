@@ -86,6 +86,13 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
       schema: nullToUndefined(fieldSchema),
     });
   }
+
+  deref(): UnknownQuery {
+    return new UnknownQuery({
+      ...this.value(),
+      query: this.query + "->",
+    });
+  }
 }
 
 /**
@@ -106,11 +113,6 @@ export class UnknownQuery extends EntityQuery<z.ZodUnknown> {
 
   filterByType(filterTypeValue: string) {
     return this.filter(`_type == '${filterTypeValue}'`);
-  }
-
-  deref() {
-    this.query += "->";
-    return this;
   }
 }
 
