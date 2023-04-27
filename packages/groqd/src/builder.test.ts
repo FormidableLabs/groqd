@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { q } from "./index";
-import { z } from "zod";
+import { unknown, z } from "zod";
 import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import invariant from "tiny-invariant";
 
@@ -260,6 +260,25 @@ describe("grabOne$", () => {
     expectTypeOf(data).toEqualTypeOf<(string | undefined)[]>();
     expect(data[0]).toBeUndefined();
     expect(data[1]).toBeUndefined();
+  });
+
+  it("defaults to unknown() if no second arg provided on EntityQuery", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filterByType("pokemon").slice(0).grabOne$("name")
+    );
+
+    expectTypeOf(data).toEqualTypeOf<unknown>();
+    expect(data).toEqual("Bulbasaur");
+  });
+
+  it("defaults to unknown() if no second arg provided on ArrayQuery", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filterByType("pokemon").slice(0, 1).grabOne$("name")
+    );
+
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<unknown[]>();
+    expect(data).toEqual(["Bulbasaur", "Ivysaur"]);
   });
 });
 
@@ -529,6 +548,25 @@ describe("ArrayResult.grabOne/EntityResult.grabOne", () => {
     expect(query).toBe(`*[_type == 'pokemon'][0].name`);
     expectTypeOf(data).exclude(undefined).toEqualTypeOf<string>();
     expect(data).toBe("Bulbasaur");
+  });
+
+  it("defaults to unknown() if no second arg provided on EntityQuery", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filterByType("pokemon").slice(0).grabOne("name")
+    );
+
+    expectTypeOf(data).toEqualTypeOf<unknown>();
+    expect(data).toEqual("Bulbasaur");
+  });
+
+  it("defaults to unknown() if no second arg provided on ArrayQuery", async () => {
+    const { data } = await runPokemonQuery(
+      q("*").filterByType("pokemon").slice(0, 1).grabOne("name")
+    );
+
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<unknown[]>();
+    expect(data).toEqual(["Bulbasaur", "Ivysaur"]);
   });
 });
 
