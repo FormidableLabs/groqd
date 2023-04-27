@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { q } from "./index";
-import { unknown, z } from "zod";
+import { z } from "zod";
 import { runPokemonQuery, runUserQuery } from "../test-utils/runQuery";
 import invariant from "tiny-invariant";
 
