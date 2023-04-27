@@ -67,23 +67,27 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     );
   }
 
+  grabOne(name: string): EntityQuery<z.ZodUnknown>;
   grabOne<GrabOneType extends z.ZodType>(
     name: string,
     fieldSchema: GrabOneType
-  ) {
-    return new EntityQuery<GrabOneType>({
+  ): EntityQuery<GrabOneType>;
+  grabOne(name: string, fieldSchema?: z.ZodType) {
+    return new EntityQuery({
       query: this.query + `.${name}`,
-      schema: fieldSchema,
+      schema: fieldSchema || z.unknown(),
     });
   }
 
+  grabOne$(name: string): EntityQuery<z.ZodEffects<z.ZodUnknown>>;
   grabOne$<GrabOneType extends z.ZodType>(
     name: string,
     fieldSchema: GrabOneType
-  ) {
-    return new EntityQuery<z.ZodEffects<GrabOneType>>({
+  ): EntityQuery<z.ZodEffects<GrabOneType>>;
+  grabOne$(name: string, fieldSchema?: z.ZodType) {
+    return new EntityQuery({
       query: this.query + `.${name}`,
-      schema: nullToUndefined(fieldSchema),
+      schema: nullToUndefined(fieldSchema || z.unknown()),
     });
   }
 }
@@ -169,23 +173,27 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     );
   }
 
+  grabOne(name: string): ArrayQuery<z.ZodUnknown>;
   grabOne<GrabOneType extends z.ZodType>(
     name: string,
     fieldSchema: GrabOneType
-  ) {
-    return new ArrayQuery<GrabOneType>({
+  ): ArrayQuery<GrabOneType>;
+  grabOne(name: string, fieldSchema?: z.ZodType) {
+    return new ArrayQuery({
       query: this.query + `.${name}`,
-      schema: z.array(fieldSchema),
+      schema: z.array(fieldSchema || z.unknown()),
     });
   }
 
+  grabOne$(name: string): ArrayQuery<z.ZodEffects<z.ZodUnknown>>;
   grabOne$<GrabOneType extends z.ZodType>(
     name: string,
     fieldSchema: GrabOneType
-  ) {
-    return new ArrayQuery<z.ZodEffects<GrabOneType>>({
+  ): ArrayQuery<z.ZodEffects<GrabOneType>>;
+  grabOne$(name: string, fieldSchema?: z.ZodType) {
+    return new ArrayQuery({
       query: this.query + `.${name}`,
-      schema: z.array(nullToUndefined(fieldSchema)),
+      schema: z.array(nullToUndefined(fieldSchema || z.unknown())),
     });
   }
 
