@@ -28,6 +28,7 @@ import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 import { emitInit, emitReset } from "../util/messaging";
 import { JSONExplorer } from "./JSONExplorer";
 import { CopyQueryButton, ErrorLineItem } from "./Playground.styled";
+import { formatErrorPath } from "../util/formatErrorPath";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [
@@ -148,14 +149,20 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
        */
       let errorPaths: Map<string, string> | undefined;
       if (err instanceof q.GroqdParseError) {
-        console.log(err.rawResponse);
         errorPaths = new Map();
         for (const e of err.zodError.errors) {
-          if (e.message === "Required") {
-            // if ()
+          // If "Required" message and missing path, we're going to want to
+          if (e.message === "Required" && !has(err.rawResponse, e.path)) {
+            errorPaths.set(
+              e.path
+                .slice(0, -1)
+                .map((v) => String(v))
+                .join("."),
+              `Field "${e.path.at(-1)}" is Required`
+            );
+          } else {
+            errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
           }
-
-          errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
         }
       }
 
@@ -284,14 +291,14 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
 
     if (fetchParseError) {
       let errorView = null;
-      const scrollToError = (path: (string | number)[]) => {
-        const pathString = path.map((v) => String(v)).join(".");
-        const lineEl = document.getElementById(`json-item-${pathString}`);
+      const scrollToError = (path: string) => {
+        console.log(path);
+        const lineEl = document.getElementById(`json-item-${path}`);
         if (lineEl instanceof HTMLElement)
           lineEl.scrollIntoView({ behavior: "smooth", block: "start" });
       };
 
-      if (fetchParseError instanceof q.GroqdParseError) {
+      if (errorPaths) {
         errorView = (
           <Stack space={2}>
             <Box marginBottom={1}>
@@ -299,26 +306,17 @@ export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
                 Error parsing:
               </Text>
             </Box>
-            {fetchParseError.zodError.errors.map((e) => {
-              return (
-                <ErrorLineItem
-                  key={e.path.join(".")}
-                  onClick={() => scrollToError(e.path)}
-                  padding={1}
-                >
-                  <Text size={2}>
-                    `result
-                    {e.path.reduce((acc, el) => {
-                      if (typeof el === "string") {
-                        return `${acc}.${el}`;
-                      }
-                      return `${acc}[${el}]`;
-                    }, "")}
-                    `: {e.message}
-                  </Text>
-                </ErrorLineItem>
-              );
-            })}
+            {[...errorPaths.entries()].map(([path, message]) => (
+              <ErrorLineItem
+                key={path}
+                onClick={() => scrollToError(path)}
+                padding={1}
+              >
+                <Text size={2}>
+                  `result{formatErrorPath(path)}`: {message}
+                </Text>
+              </ErrorLineItem>
+            ))}
           </Stack>
         );
       } else if (fetchParseError instanceof Error) {
