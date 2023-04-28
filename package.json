@@ -1,11 +1,6 @@
 {
   "name": "groqd-workspace",
   "private": "true",
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
   "scripts": {
     "lint": "eslint packages --quiet",
     "test": "pnpm run -r test",
