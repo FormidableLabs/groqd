@@ -190,3 +190,16 @@ q("*")
   });
 ```
 
+## Can I perform multiple queries in one request?
+
+Yes! To make multiple queries, you can leave the initial query empty and add a `.grab` with multiple queries as values on that `.grab`, as shown below.
+
+```ts
+import { q } from "groqd";
+
+q("").grab({
+  posts: q("*").filter("_type == 'post'").grab({ name: q.string() }),
+  faqs: q("*").filter("_type == 'faq'").grab({ content: q.string() }),
+});
+// { posts: { name: string }[]; faqs: { content: string }[] }
+```
