@@ -200,5 +200,6 @@ import { q } from "groqd";
 q("").grab({
   posts: q("*").filter("_type == 'post'").grab({ name: q.string() }),
   faqs: q("*").filter("_type == 'faq'").grab({ content: q.string() }),
-})
+});
+// { posts: { name: string }[]; faqs: { content: string }[] }
 ```
