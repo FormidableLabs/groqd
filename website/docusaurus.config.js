@@ -3,6 +3,7 @@
 
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/okaidia");
+const MonacoEditorWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -54,6 +55,21 @@ const config = {
           postcssOptions.plugins.push(require("tailwindcss"));
           postcssOptions.plugins.push(require("autoprefixer"));
           return postcssOptions;
+        },
+      };
+    },
+
+    async function monacoPlugin() {
+      return {
+        name: "monaco-plugin",
+        configureWebpack() {
+          return {
+            plugins: [
+              new MonacoEditorWebpackPlugin({
+                languages: ["typescript"],
+              }),
+            ],
+          };
         },
       };
     },
