@@ -2,18 +2,35 @@ import { MODELS } from "@site/src/arcade/models";
 import { BaseQuery } from "groqd";
 
 type Params = Record<string, string | number>;
-type State = {
+export type State = {
   activeModel: keyof typeof MODELS;
   query: BaseQuery<any>;
   params?: Params;
   inputParseError?: Error;
+  isExecutingQuery: boolean;
+  rawResponse?: unknown;
+  parsedResponse?: unknown;
+  fetchParseError?: unknown;
+  errorPaths?: Map<string, string>;
 };
 
-type Action =
+export type Action =
   | { type: "SET_ACTIVE_MODEL"; payload: keyof typeof MODELS }
   | {
       type: "INPUT_EVAL_SUCCESS";
       payload: { query: BaseQuery<any>; params?: Params };
+    }
+  | {
+      type: "START_QUERY_EXEC";
+    }
+  | { type: "RAW_RESPONSE_RECEIVED"; payload: { rawResponse: unknown } }
+  | {
+      type: "PARSE_SUCCESS";
+      payload: { parsedResponse: unknown };
+    }
+  | {
+      type: "PARSE_FAILURE";
+      payload: { fetchParseError: unknown; errorPaths?: Map<string, string> };
     };
 
 export const reducer = (state: State, action: Action): State => {
@@ -26,6 +43,25 @@ export const reducer = (state: State, action: Action): State => {
         query: action.payload.query,
         params: action.payload.params,
         inputParseError: undefined,
+      };
+    case "START_QUERY_EXEC":
+      return { ...state, isExecutingQuery: true };
+    case "RAW_RESPONSE_RECEIVED":
+      return { ...state, rawResponse: action.payload.rawResponse };
+    case "PARSE_SUCCESS":
+      return {
+        ...state,
+        isExecutingQuery: false,
+        parsedResponse: action.payload.parsedResponse,
+        fetchParseError: undefined,
+        errorPaths: undefined,
+      };
+    case "PARSE_FAILURE":
+      return {
+        ...state,
+        isExecutingQuery: false,
+        fetchParseError: action.payload.fetchParseError,
+        errorPaths: action.payload.errorPaths,
       };
     default:
       return state;

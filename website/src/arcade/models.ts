@@ -25,7 +25,7 @@ export const MODELS = {
   ),
 
   json: monaco.editor.createModel(
-    JSON.stringify([{ name: "john doe" }], null, 2),
+    JSON.stringify([{ _id: "1234", firstName: "John" }], null, 2),
     "json",
     monaco.Uri.parse("file:///data.json")
   ),

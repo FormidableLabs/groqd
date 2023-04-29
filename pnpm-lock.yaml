@@ -257,6 +257,9 @@ importers:
       glob:
         specifier: ^10.0.0
         version: 10.0.0
+      groq-js:
+        specifier: ^1.1.1
+        version: 1.1.9
       groqd:
         specifier: workspace:*
         version: link:../packages/groqd
@@ -9224,7 +9227,6 @@ packages:
   /groq-js@1.1.9:
     resolution: {integrity: sha512-Kml1SgKotOOEmm1rK1w/K4UprIWJ/UU0SzeO2dPy8ab2wcAGfE82X5CTdaD1AMaP+40Ug1gAsVgPF5S2H/fcPw==}
     engines: {node: '>= 14'}
-    dev: true
 
   /gunzip-maybe@1.4.2:
     resolution: {integrity: sha512-4haO1M4mLO91PW57BMsDFf75UmwoRX0GkdD+Faw+Lr+r/OZrOCS0pIBwOL1xCKQqnQzbNFGgK2V2CpBUPeFNTw==}

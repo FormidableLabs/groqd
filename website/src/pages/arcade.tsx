@@ -10,13 +10,26 @@ import { reducer } from "@site/src/arcade/state";
 import types from "@site/src/types.json";
 import debounce from "lodash.debounce";
 import * as q from "groqd";
+import { evaluate, parse } from "groq-js";
+import { ArcadeSuccessView } from "@site/src/arcade/ArcadeSuccessView";
 
 export default function Arcade() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-  const [{ activeModel, query }, dispatch] = React.useReducer(reducer, {
+  const [
+    {
+      activeModel,
+      query,
+      isExecutingQuery,
+      fetchParseError,
+      parsedResponse,
+      errorPaths,
+    },
+    dispatch,
+  ] = React.useReducer(reducer, {
     activeModel: "ts",
     query: q.q(""),
+    isExecutingQuery: false,
   });
 
   const runCode = React.useRef(async () => {
@@ -47,7 +60,6 @@ export default function Arcade() {
                   type: "INPUT_EVAL_SUCCESS",
                   payload: { query, params },
                 });
-                console.log(query);
               }
             } catch {}
           },
@@ -100,6 +112,43 @@ export default function Arcade() {
     };
   }, []);
 
+  const runQuery = async () => {
+    if (!query.query) return;
+
+    dispatch({ type: "START_QUERY_EXEC" });
+
+    let json: unknown;
+    try {
+      json = JSON.parse(MODELS.json.getValue());
+    } catch {
+      console.log("error parsing JSON");
+      // TODO: alert error
+    }
+
+    const runner = q.makeSafeQueryRunner(async (query: string) => {
+      const tree = parse(query);
+      const _ = await evaluate(tree, { dataset: json });
+      const rawResponse = await _.get();
+      dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
+
+      return rawResponse;
+    });
+
+    try {
+      const data = await runner(query);
+      dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
+    } catch (err) {
+      const errorPaths = new Map(); // TODO: Generate these
+      dispatch({
+        type: "PARSE_FAILURE",
+        payload: { fetchParseError: err, errorPaths },
+      });
+      console.error(err);
+    }
+
+    console.log(query.query);
+  };
+
   const switchModel = (newModel: keyof typeof MODELS) => {
     const editor = editorRef.current;
     if (!editor) return;
@@ -110,7 +159,11 @@ export default function Arcade() {
 
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col">
-      <ArcadeHeader />
+      <ArcadeHeader>
+        <button onClick={runQuery} disabled={!query.query}>
+          Run query
+        </button>
+      </ArcadeHeader>
       <Split className="flex-1">
         <div style={{ width: "50%" }} className="flex flex-col">
           <ArcadeEditorTabs
@@ -121,7 +174,13 @@ export default function Arcade() {
           <ArcadeQueryDisplay query={query.query} />
         </div>
         <div style={{ width: "50%" }}>
-          <ArcadeLoadingIndicator />
+          {(() => {
+            if (isExecutingQuery) return <ArcadeLoadingIndicator />;
+            if (fetchParseError || errorPaths) return <div>Uh oh...</div>;
+            if (parsedResponse)
+              return <ArcadeSuccessView data={parsedResponse} />;
+            return null;
+          })()}
         </div>
       </Split>
     </div>
