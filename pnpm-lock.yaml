@@ -245,12 +245,24 @@ importers:
       '@mdx-js/react':
         specifier: ^1.6.22
         version: 1.6.22(react@17.0.2)
+      '@uiw/react-split':
+        specifier: ^5.8.10
+        version: 5.8.10(react-dom@17.0.2)(react@17.0.2)
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.14(postcss@8.4.21)
       clsx:
         specifier: ^1.2.1
         version: 1.2.1
+      glob:
+        specifier: ^10.0.0
+        version: 10.0.0
+      groqd:
+        specifier: workspace:*
+        version: link:../packages/groqd
+      lodash.debounce:
+        specifier: ^4.0.8
+        version: 4.0.8
       monaco-editor:
         specifier: ^0.37.1
         version: 0.37.1
@@ -263,9 +275,15 @@ importers:
       react-dom:
         specifier: ^17.0.2
         version: 17.0.2(react@17.0.2)
+      react-icons:
+        specifier: ^4.8.0
+        version: 4.8.0(react@17.0.2)
       tailwindcss:
         specifier: ^3.3.2
         version: 3.3.2(ts-node@10.9.1)
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
     devDependencies:
       '@algolia/client-search':
         specifier: ^4.17.0
@@ -279,6 +297,9 @@ importers:
       '@tsconfig/docusaurus':
         specifier: ^1.0.5
         version: 1.0.7
+      '@types/lodash.debounce':
+        specifier: ^4.0.7
+        version: 4.0.7
       '@types/node':
         specifier: ^18.7.5
         version: 18.15.11
@@ -5531,6 +5552,16 @@ packages:
       - '@codemirror/search'
     dev: false
 
+  /@uiw/react-split@5.8.10(react-dom@17.0.2)(react@17.0.2):
+    resolution: {integrity: sha512-gqfZtcU+nDmI0AYwBQxIBS8s916kbPLM+ehfiIksJFwrAWHfSlC/j0+u/4YVFSL3B4q+UKqMoXlUj3Lb7qt29g==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
+    dev: false
+
   /@uiw/react-split@5.8.10(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-gqfZtcU+nDmI0AYwBQxIBS8s916kbPLM+ehfiIksJFwrAWHfSlC/j0+u/4YVFSL3B4q+UKqMoXlUj3Lb7qt29g==}
     peerDependencies:
@@ -9041,7 +9072,6 @@ packages:
       minimatch: 9.0.0
       minipass: 5.0.0
       path-scurry: 1.6.4
-    dev: true
 
   /glob@7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
@@ -10552,7 +10582,6 @@ packages:
   /lru-cache@9.0.2:
     resolution: {integrity: sha512-7zYMKApzQ9qQE13xQUzbXVY3p2C5lh+9V+bs8M9fRf1TF59id+8jkljRWtIPfBfNP4yQAol5cqh/e8clxatdXw==}
     engines: {node: 14 || >=16.14}
-    dev: true
 
   /lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
@@ -10782,7 +10811,6 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       brace-expansion: 2.0.1
-    dev: true
 
   /minimist-options@4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}
@@ -10803,7 +10831,6 @@ packages:
   /minipass@5.0.0:
     resolution: {integrity: sha512-3FnjYuehv9k6ovOEbyOswadCDPX1piCfhV8ncmYtHOjuPwylVWsghTLo7rabjC3Rx5xD4HDx8Wm1xnMF7S5qFQ==}
     engines: {node: '>=8'}
-    dev: true
 
   /mississippi@4.0.0:
     resolution: {integrity: sha512-7PujJ3Te6GGg9lG1nfw5jYCPV6/BsoAT0nCQwb6w+ROuromXYxI6jc/CQSlD82Z/OUMSBX1SoaqhTE+vXiLQzQ==}
@@ -11444,7 +11471,6 @@ packages:
     dependencies:
       lru-cache: 9.0.2
       minipass: 5.0.0
-    dev: true
 
   /path-to-regexp@0.1.7:
     resolution: {integrity: sha512-5DFkuoqlv1uYQKxy8omFBeJPQcdoE07Kv2sferDCrAq1ohOU+MSDswDIbnx3YAM60qIOnYa53wBhXW0EbMonrQ==}
@@ -12722,6 +12748,14 @@ packages:
       react-dom: 17.0.2(react@17.0.2)
       react-fast-compare: 3.2.1
       shallowequal: 1.1.0
+
+  /react-icons@4.8.0(react@17.0.2):
+    resolution: {integrity: sha512-N6+kOLcihDiAnj5Czu637waJqSnwlMNROzVZMhfX68V/9bu9qHaMIJC4UdozWoOk57gahFCNHwVvWzm0MTzRjg==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 17.0.2
+    dev: false
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}

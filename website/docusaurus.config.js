@@ -66,7 +66,7 @@ const config = {
           return {
             plugins: [
               new MonacoEditorWebpackPlugin({
-                languages: ["typescript"],
+                languages: ["typescript", "json"],
               }),
             ],
           };
