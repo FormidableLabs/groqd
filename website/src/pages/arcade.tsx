@@ -2,7 +2,6 @@ import * as React from "react";
 import { MODELS } from "@site/src/arcade/models";
 import { reducer } from "@site/src/arcade/state";
 import * as q from "groqd";
-import { evaluate, parse } from "groq-js";
 import { ArcadeHeader } from "@site/src/arcade/ArcadeHeader";
 import Split from "@uiw/react-split";
 import { ArcadeEditorTabs } from "@site/src/arcade/ArcadeEditorTabs";
@@ -30,49 +29,18 @@ export default function Arcade() {
     isExecutingQuery: false,
   });
 
-  const runQuery = async () => {
-    if (!query.query) return;
-
-    dispatch({ type: "START_QUERY_EXEC" });
-
-    let json: unknown;
-    try {
-      json = JSON.parse(MODELS.json.getValue());
-    } catch {
-      console.log("error parsing JSON");
-      // TODO: alert error
-    }
-
-    const runner = q.makeSafeQueryRunner(async (query: string) => {
-      const tree = parse(query);
-      const _ = await evaluate(tree, { dataset: json });
-      const rawResponse = await _.get();
-      dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
-
-      return rawResponse;
-    });
-
-    try {
-      const data = await runner(query);
-      dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
-    } catch (err) {
-      const errorPaths = new Map(); // TODO: Generate these
-      dispatch({
-        type: "PARSE_FAILURE",
-        payload: { fetchParseError: err, errorPaths },
-      });
-      console.error(err);
-    }
-
-    console.log(query.query);
-  };
-
   const setModel = (newModel: keyof typeof MODELS) => {
     const editor = editorRef.current;
     if (!editor) return;
 
     dispatch({ type: "SET_ACTIVE_MODEL", payload: newModel });
     editor.setModel(newModel);
+  };
+
+  const runQuery = () => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.runQuery();
   };
 
   return (
@@ -91,7 +59,13 @@ export default function Arcade() {
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
                 require("@site/src/arcade/ArcadeEditor").ArcadeEditor;
 
-              return <ArcadeEditor dispatch={dispatch} ref={editorRef} />;
+              return (
+                <ArcadeEditor
+                  dispatch={dispatch}
+                  ref={editorRef}
+                  query={query}
+                />
+              );
             }}
           </BrowserOnly>
           <ArcadeQueryDisplay query={query.query} />

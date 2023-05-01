@@ -4,22 +4,31 @@ import debounce from "lodash.debounce";
 import { MODELS } from "@site/src/arcade/models";
 import types from "@site/src/types.json";
 import * as q from "groqd";
-import { ArcadeDispatch } from "@site/src/arcade/state";
+import { ArcadeDispatch, State } from "@site/src/arcade/state";
+import { evaluate, parse } from "groq-js";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
+  query: State["query"];
 };
 
 export type ArcadeEditorHandle = {
   setModel(model: keyof typeof MODELS): void;
+  runQuery(): void;
 };
 
 export const ArcadeEditor = React.forwardRef(
-  ({ dispatch }: ArcadeEditorProps, ref: React.Ref<ArcadeEditorHandle>) => {
+  (
+    { dispatch, query }: ArcadeEditorProps,
+    ref: React.Ref<ArcadeEditorHandle>
+  ) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
     const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
     const activeModel = "ts";
 
+    /**
+     * Execute TS query code, generates a query to store in state
+     */
     const runCode = React.useCallback(async () => {
       const editor = editorRef.current;
       if (!editor) return;
@@ -64,6 +73,9 @@ export const ArcadeEditor = React.forwardRef(
       } catch {}
     }, []);
 
+    /**
+     * Set up editor on mount
+     */
     React.useEffect(() => {
       const container = containerRef.current;
       const editor = editorRef.current;
@@ -100,13 +112,63 @@ export const ArcadeEditor = React.forwardRef(
       };
     }, []);
 
-    React.useImperativeHandle(ref, () => {
-      return {
-        setModel(newModel: keyof typeof MODELS) {
-          editorRef.current?.setModel(MODELS[newModel]);
-        },
-      };
-    });
+    /**
+     * Run the query that's in state.
+     */
+    const runQuery = React.useCallback(async () => {
+      if (!query.query) return;
+      //
+      dispatch({ type: "START_QUERY_EXEC" });
+      //
+      let json: unknown;
+      try {
+        json = JSON.parse(MODELS.json.getValue());
+      } catch {
+        console.log("error parsing JSON");
+        // TODO: alert error
+      }
+
+      const runner = q.makeSafeQueryRunner(async (query: string) => {
+        const tree = parse(query);
+        const _ = await evaluate(tree, { dataset: json });
+        const rawResponse = await _.get();
+        dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
+
+        return rawResponse;
+      });
+
+      try {
+        const data = await runner(query);
+        dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
+      } catch (err) {
+        const errorPaths = new Map(); // TODO: Generate these
+        dispatch({
+          type: "PARSE_FAILURE",
+          payload: { fetchParseError: err, errorPaths },
+        });
+        console.error(err);
+      }
+
+      console.log(query.query);
+    }, [query]);
+
+    /**
+     * Need a handle so that parent component can call methods here.
+     *  A bit of an anti-pattern, but monaco-shenanigans needs to get isolated here
+     *   so that SSG doesn't choke on client-side APIs from monaco.
+     */
+    React.useImperativeHandle(
+      ref,
+      () => {
+        return {
+          setModel(newModel: keyof typeof MODELS) {
+            editorRef.current?.setModel(MODELS[newModel]);
+          },
+          runQuery,
+        };
+      },
+      [runQuery]
+    );
 
     return <div className="flex-1" ref={containerRef} />;
   }
