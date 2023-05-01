@@ -45,8 +45,7 @@ jobs:
         run: pnpm run build:lib
 
       - name: Build the website
-        run: pnpm run build
-        working-directory: ./website
+        run: pnpm run build:docs
 
       # Use `gh` tool to infer more information about the pull request.
       # The underlying issue here is pushes to a non-mergeable/main target branch
