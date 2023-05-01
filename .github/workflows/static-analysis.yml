@@ -35,6 +35,8 @@ jobs:
 
       - name: Build library
         run: pnpm run build:lib
+      - name: Testing a thing
+        run: cat pnpm-lock.yml
       - name: Type Check
         run: pnpm run typecheck
       - name: Lint
