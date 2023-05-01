@@ -109,6 +109,7 @@ export const ArcadeEditor = React.forwardRef(
 
       return () => {
         didChangeInstance.dispose();
+        handleContentChange.cancel();
       };
     }, []);
 
