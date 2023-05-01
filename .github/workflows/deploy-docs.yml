@@ -41,6 +41,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build groqd library
+        run: pnpm run build:lib
+
       - name: Build the website
         run: pnpm run build
         working-directory: ./website
