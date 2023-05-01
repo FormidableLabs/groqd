@@ -1,11 +1,6 @@
 {
   "name": "groqd-workspace",
   "private": "true",
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
   "scripts": {
     "lint": "eslint packages --quiet",
     "test": "pnpm run -r test",
@@ -18,7 +13,7 @@
     "changeset": "changeset",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
     "dev:docs": "pnpm run --filter website start",
-    "build:docs": "pnpm run --filter website build",
+    "build:docs": "pnpm run build:lib && pnpm run --filter website build",
     "dev:playground": "concurrently \"pnpm run --filter groqd dev\" \"pnpm run --filter groqd-playground-editor dev\" \"pnpm run --filter groqd-playground dev\" \"pnpm run --filter playground-example dev\"",
     "dev:editor": "pnpm run --filter playground-editor dev"
   },
