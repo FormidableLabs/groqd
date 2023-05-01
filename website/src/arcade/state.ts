@@ -1,3 +1,4 @@
+import * as React from "react";
 import { MODELS } from "@site/src/arcade/models";
 import { BaseQuery } from "groqd";
 
@@ -32,6 +33,8 @@ export type Action =
       type: "PARSE_FAILURE";
       payload: { fetchParseError: unknown; errorPaths?: Map<string, string> };
     };
+
+export type ArcadeDispatch = React.Dispatch<Action>;
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {

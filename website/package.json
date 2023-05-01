@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "pnpm run gather-types && docusaurus start",
+    "dev": "pnpm run gather-types && docusaurus start",
     "build": "pnpm run gather-types && docusaurus build --out-dir build/open-source/groqd",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
