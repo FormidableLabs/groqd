@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ImSpinner9 } from "react-icons/Im";
+import { ImSpinner9 } from "react-icons/im";
 
 export function ArcadeLoadingIndicator() {
   return (
