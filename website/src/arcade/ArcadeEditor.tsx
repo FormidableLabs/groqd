@@ -9,97 +9,25 @@ import {
   getStorageValue,
   GroqdQueryParams,
   setStorageValue,
-  State,
 } from "@site/src/arcade/state";
 import { evaluate, parse } from "groq-js";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
-import datasets from "@site/src/datasets.json";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
-  query: State["query"];
-  params: State["params"];
 };
 
 export type ArcadeEditorHandle = {
   setModel(model: keyof typeof MODELS): void;
   runQuery: typeof runQuery;
-  setDatasetPreset(preset: keyof typeof datasets): void;
 };
 
 export const ArcadeEditor = React.forwardRef(
-  (
-    { dispatch, query, params }: ArcadeEditorProps,
-    ref: React.Ref<ArcadeEditorHandle>
-  ) => {
+  ({ dispatch }: ArcadeEditorProps, ref: React.Ref<ArcadeEditorHandle>) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
     const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
     const activeModel = "ts";
-
-    /**
-     * Execute TS query code, generates a query to store in state
-     * TODO: Make sure this only runs once. Cancel previous runs if this is called again.
-     */
-    const runCode = React.useRef(
-      async ({
-        shouldRunQueryImmediately = false,
-      }: { shouldRunQueryImmediately?: boolean } = {}) => {
-        const editor = editorRef.current;
-        if (!editor) return;
-
-        try {
-          const model = MODELS.ts;
-          const worker =
-            await monaco.languages.typescript.getTypeScriptWorker();
-          const client = await worker(model.uri);
-          const emitResult = await client.getEmitOutput(model.uri.toString());
-          const code = emitResult.outputFiles[0].text;
-
-          // write the raw code to query params
-          setStorageValue(
-            ARCADE_STORAGE_KEYS.CODE,
-            lzstring.compressToEncodedURIComponent(model.getValue())
-          );
-
-          let playgroundRunQueryCount = 0;
-          const libs = {
-            groqd: q,
-            playground: {
-              runQuery: (
-                query: q.BaseQuery<any>,
-                params?: Record<string, string | number>
-              ) => {
-                playgroundRunQueryCount++;
-                if (playgroundRunQueryCount > 1) return;
-
-                try {
-                  if (query instanceof q.BaseQuery) {
-                    dispatch({
-                      type: "INPUT_EVAL_SUCCESS",
-                      payload: { query, params },
-                    });
-
-                    if (shouldRunQueryImmediately)
-                      runQuery({ query, params, dispatch });
-                  }
-                } catch {
-                  // TODO: Should we handle this case? Maybe just emit a toast?
-                }
-              },
-            },
-          };
-          const scope = {
-            exports: {},
-            require: (name: keyof typeof libs) => libs[name],
-          };
-          const keys = Object.keys(scope);
-          new Function(...keys, code)(
-            ...keys.map((key) => scope[key as keyof typeof scope])
-          );
-        } catch {}
-      }
-    );
 
     /**
      * Set up editor on mount
@@ -128,7 +56,10 @@ export const ArcadeEditor = React.forwardRef(
 
       monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
 
-      const handleContentChange = debounce(() => runCode.current(), 500);
+      const handleContentChange = debounce(
+        () => runCode({ editor, dispatch }),
+        500
+      );
       const didChangeInstance =
         MODELS.ts.onDidChangeContent(handleContentChange);
 
@@ -147,12 +78,12 @@ export const ArcadeEditor = React.forwardRef(
         label: "Trigger Arcard query run",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
         run() {
-          runCode.current({ shouldRunQueryImmediately: true });
+          runCode({ editor, dispatch, shouldRunQueryImmediately: true });
         },
       });
 
       // Run code on start
-      runCode.current().catch(console.error);
+      runCode({ editor, dispatch }).catch(console.error);
 
       return () => {
         didChangeInstance.dispose();
@@ -173,19 +104,77 @@ export const ArcadeEditor = React.forwardRef(
             editorRef.current?.setModel(MODELS[newModel]);
           },
           runQuery,
-          setDatasetPreset(preset: keyof typeof datasets) {
-            MODELS.json.setValue(
-              JSON.stringify(datasets[preset].data, null, 2)
-            );
-          },
         };
       },
-      [runQuery]
+      []
     );
 
     return <div className="flex-1" ref={containerRef} />;
   }
 );
+
+/**
+ * Execute TS query code, generates a query to store in state
+ * TODO: Make sure this only runs once. Cancel previous runs if this is called again.
+ */
+const runCode = async ({
+  dispatch,
+  shouldRunQueryImmediately = false,
+}: {
+  editor: monaco.editor.IStandaloneCodeEditor;
+  dispatch: ArcadeDispatch;
+  shouldRunQueryImmediately?: boolean;
+}) => {
+  try {
+    const model = MODELS.ts;
+    const worker = await monaco.languages.typescript.getTypeScriptWorker();
+    const client = await worker(model.uri);
+    const emitResult = await client.getEmitOutput(model.uri.toString());
+    const code = emitResult.outputFiles[0].text;
+
+    // write the raw code to query params
+    setStorageValue(
+      ARCADE_STORAGE_KEYS.CODE,
+      lzstring.compressToEncodedURIComponent(model.getValue())
+    );
+
+    let playgroundRunQueryCount = 0;
+    const libs = {
+      groqd: q,
+      playground: {
+        runQuery: (
+          query: q.BaseQuery<any>,
+          params?: Record<string, string | number>
+        ) => {
+          playgroundRunQueryCount++;
+          if (playgroundRunQueryCount > 1) return;
+
+          try {
+            if (query instanceof q.BaseQuery) {
+              dispatch({
+                type: "INPUT_EVAL_SUCCESS",
+                payload: { query, params },
+              });
+
+              if (shouldRunQueryImmediately)
+                runQuery({ query, params, dispatch });
+            }
+          } catch {
+            // TODO: Should we handle this case? Maybe just emit a toast?
+          }
+        },
+      },
+    };
+    const scope = {
+      exports: {},
+      require: (name: keyof typeof libs) => libs[name],
+    };
+    const keys = Object.keys(scope);
+    new Function(...keys, code)(
+      ...keys.map((key) => scope[key as keyof typeof scope])
+    );
+  } catch {}
+};
 
 /**
  * Run a given query against dataset in the JSON model
