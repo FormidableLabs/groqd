@@ -23,9 +23,9 @@ export const ArcadeActionList = <T,>({
           <Menu.Button
             className={clsx(
               "inline-flex w-full justify-center items-center rounded-md bg-black px-4 py-2 border-none cursor-pointer",
-              "bg-transparent hover:bg-gray-50 transition-colors duration-150",
+              "hover:bg-gray-50 transition-colors duration-150",
               "text-lg font-bold text-gray-700",
-              open && "text-gray-400"
+              open ? "bg-gray-50" : "bg-transparent"
             )}
           >
             {title}
@@ -41,7 +41,7 @@ export const ArcadeActionList = <T,>({
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none flex flex-col gap-2 p-2">
+            <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none flex flex-col gap-2 p-2 z-[2]">
               {items.map((item) => (
                 <div className="" key={item.title}>
                   <Menu.Item>
