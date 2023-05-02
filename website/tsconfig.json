@@ -5,6 +5,7 @@
     "target": "ES6",
     "baseUrl": ".",
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler"
   }
 }

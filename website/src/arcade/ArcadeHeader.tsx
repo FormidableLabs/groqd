@@ -1,12 +1,17 @@
 import * as React from "react";
-import {
-  ArcadeDatasetSelector,
-  ArcadeDatasetSelectorProps,
-} from "@site/src/arcade/ArcadeDatasetSelector";
+import { ArcadeActionList } from "@site/src/arcade/ArcadeActionList";
+import datasets from "@site/src/datasets.json";
+import { ExamplePayload, EXAMPLES } from "@site/src/arcade/examples";
+
+type ArcadeHeaderProps = {
+  selectDatasetPreset(preset: keyof typeof datasets): void;
+  selectExample(item: ExamplePayload): void;
+};
 
 export function ArcadeHeader({
   selectDatasetPreset,
-}: React.PropsWithChildren<ArcadeDatasetSelectorProps & {}>) {
+  selectExample,
+}: React.PropsWithChildren<ArcadeHeaderProps>) {
   return (
     <div className="py-5">
       <div className="container max-w-[2400px] flex items-center gap-5">
@@ -18,8 +23,28 @@ export function ArcadeHeader({
           <span className="text-2xl font-bold text-gray-700">GROQD</span>
         </a>
 
-        <ArcadeDatasetSelector selectDatasetPreset={selectDatasetPreset} />
+        <ArcadeActionList
+          title="Dataset"
+          items={DatasetItems}
+          onSelectItem={selectDatasetPreset}
+        />
+
+        <ArcadeActionList
+          title="Example"
+          items={ExampleItems}
+          onSelectItem={selectExample}
+        />
       </div>
     </div>
   );
 }
+
+const DatasetItems = Object.entries(datasets).map(([key, { title }]) => ({
+  title,
+  value: key,
+}));
+
+const ExampleItems = Object.entries(EXAMPLES).map(([title, value]) => ({
+  title,
+  value,
+}));

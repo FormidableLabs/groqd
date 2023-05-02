@@ -12,10 +12,8 @@ import { ArcadeLoadingIndicator } from "@site/src/arcade/ArcadeLoadingIndicator"
 import { ArcadeSuccessView } from "@site/src/arcade/ArcadeSuccessView";
 import type { ArcadeEditorType } from "@site/src/arcade/ArcadeEditor";
 import { ArcadeEditor } from "@site/src/arcade/ArcadeEditor";
-import { ArcadeDatasetSelector } from "@site/src/arcade/ArcadeDatasetSelector";
 import datasets from "@site/src/datasets.json";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
-import { ArcadeExampleSelector } from "@site/src/arcade/ArcadeExampleSelector";
 import { ExamplePayload } from "@site/src/arcade/examples";
 import { ArcadeSection } from "@site/src/arcade/ArcadeSection";
 import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
@@ -34,7 +32,9 @@ export function Arcade() {
     dispatch,
   ] = React.useReducer(reducer, defaultState);
 
-  const runQuery = () => {
+  // TODO: We need a "run" button somewhere
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _runQuery = () => {
     const editor = editorRef.current;
     if (!editor) return;
     editor.runQuery({ query, params, dispatch });
@@ -76,7 +76,10 @@ export function Arcade() {
 
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col">
-      <ArcadeHeader selectDatasetPreset={setDatasetPreset}>
+      <ArcadeHeader
+        selectDatasetPreset={setDatasetPreset}
+        selectExample={loadExample}
+      >
         {/*<button onClick={runQuery} disabled={!query.query}>*/}
         {/*  Run query*/}
         {/*</button>*/}
