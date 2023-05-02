@@ -69,8 +69,8 @@ export const ArcadeEditor = React.forwardRef(
 
       editorRef.current = monaco.editor.create(container, {
         model: MODELS[activeModel],
-        language: "json",
-        fontSize: 14,
+        language: "ts",
+        fontSize: 15,
         automaticLayout: true,
         minimap: { enabled: false },
       });

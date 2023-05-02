@@ -1,7 +1,7 @@
 import * as React from "react";
 import datasets from "@site/src/datasets.json";
 
-type ArcadeDatasetSelectorProps = {
+export type ArcadeDatasetSelectorProps = {
   selectDatasetPreset: (preset: keyof typeof datasets) => void;
 };
 

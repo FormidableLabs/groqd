@@ -1,12 +1,10 @@
 import * as React from "react";
-import { MODELS } from "@site/src/arcade/models";
 import { BaseQuery } from "groqd";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import { q } from "groqd";
 
 export type GroqdQueryParams = Record<string, string | number>;
 export type State = {
-  activeModel: keyof typeof MODELS;
   query: BaseQuery<any>;
   params?: GroqdQueryParams;
   inputParseError?: Error;
@@ -18,13 +16,11 @@ export type State = {
 };
 
 export const defaultState: State = {
-  activeModel: "ts",
   query: q(""),
   isExecutingQuery: false,
 };
 
 export type Action =
-  | { type: "SET_ACTIVE_MODEL"; payload: keyof typeof MODELS }
   | {
       type: "INPUT_EVAL_SUCCESS";
       payload: { query: BaseQuery<any>; params?: GroqdQueryParams };
@@ -46,8 +42,6 @@ export type ArcadeDispatch = React.Dispatch<Action>;
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case "SET_ACTIVE_MODEL":
-      return { ...state, activeModel: action.payload };
     case "INPUT_EVAL_SUCCESS":
       return {
         ...state,

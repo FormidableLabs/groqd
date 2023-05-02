@@ -8,6 +8,10 @@ module.exports = {
   darkMode: ["class", '[data-theme="dark"]'], // hooks into docusaurus' dark mode settigns
   theme: {
     extend: {},
+    container: {
+      center: true,
+      padding: "2rem",
+    },
   },
   plugins: [],
 };
