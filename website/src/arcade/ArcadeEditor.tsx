@@ -14,6 +14,7 @@ import {
 import { evaluate, parse } from "groq-js";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
+import datasets from "@site/src/datasets.json";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -23,7 +24,8 @@ export type ArcadeEditorProps = {
 
 export type ArcadeEditorHandle = {
   setModel(model: keyof typeof MODELS): void;
-  runQuery(...params: Parameters<typeof runQuery>): void;
+  runQuery: typeof runQuery;
+  fetchDatasetPreset: typeof fetchDatasetPreset;
 };
 
 export const ArcadeEditor = React.forwardRef(
@@ -171,6 +173,7 @@ export const ArcadeEditor = React.forwardRef(
             editorRef.current?.setModel(MODELS[newModel]);
           },
           runQuery,
+          fetchDatasetPreset,
         };
       },
       [runQuery]
@@ -241,6 +244,28 @@ const runQuery = async ({
     });
     console.error(err);
   }
+};
+
+const fetchDatasetPreset = ({
+  datasetPreset,
+  dispatch,
+}: {
+  datasetPreset: keyof typeof datasets;
+  dispatch: ArcadeDispatch;
+}) => {
+  const base = window.location.href.replace(
+    /(.*open-source\/groqd)\/(.*)/,
+    `$1/datasets/${datasetPreset}.json`
+  );
+
+  fetch(base)
+    .then((res) => res.json())
+    .then((json) => {
+      MODELS.json.setValue(JSON.stringify(json, null, 2));
+    })
+    .finally(() => {
+      dispatch({ type: "FINISH_DATASET_FETCH" });
+    });
 };
 
 /**

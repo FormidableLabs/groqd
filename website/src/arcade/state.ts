@@ -2,6 +2,7 @@ import * as React from "react";
 import { MODELS } from "@site/src/arcade/models";
 import { BaseQuery } from "groqd";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
+import { q } from "groqd";
 
 export type GroqdQueryParams = Record<string, string | number>;
 export type State = {
@@ -14,6 +15,14 @@ export type State = {
   parsedResponse?: unknown;
   fetchParseError?: unknown;
   errorPaths?: Map<string, string>;
+  datasetPresetFetchStatus: "idle" | "fetching";
+};
+
+export const defaultState: State = {
+  activeModel: "ts",
+  query: q(""),
+  isExecutingQuery: false,
+  datasetPresetFetchStatus: "idle",
 };
 
 export type Action =
@@ -33,7 +42,9 @@ export type Action =
   | {
       type: "PARSE_FAILURE";
       payload: { fetchParseError: unknown; errorPaths?: Map<string, string> };
-    };
+    }
+  | { type: "START_DATASET_FETCH" }
+  | { type: "FINISH_DATASET_FETCH" };
 
 export type ArcadeDispatch = React.Dispatch<Action>;
 
@@ -66,6 +77,16 @@ export const reducer = (state: State, action: Action): State => {
         isExecutingQuery: false,
         fetchParseError: action.payload.fetchParseError,
         errorPaths: action.payload.errorPaths,
+      };
+    case "START_DATASET_FETCH":
+      return {
+        ...state,
+        datasetPresetFetchStatus: "fetching",
+      };
+    case "FINISH_DATASET_FETCH":
+      return {
+        ...state,
+        datasetPresetFetchStatus: "idle",
       };
     default:
       return state;
