@@ -128,7 +128,7 @@ export const ArcadeEditor = React.forwardRef(
       []
     );
 
-    return <div className="flex-1" ref={containerRef} />;
+    return <div className="absolute inset-0" ref={containerRef} />;
   }
 );
 
@@ -201,7 +201,6 @@ const runCode = async ({
 const runQuery = async ({
   query,
   dispatch,
-  params,
 }: {
   query: q.BaseQuery<any>;
   dispatch: ArcadeDispatch;

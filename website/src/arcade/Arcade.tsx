@@ -79,23 +79,15 @@ export function Arcade() {
       <ArcadeHeader
         selectDatasetPreset={setDatasetPreset}
         selectExample={loadExample}
-      >
-        {/*<button onClick={runQuery} disabled={!query.query}>*/}
-        {/*  Run query*/}
-        {/*</button>*/}
-        {/*<div className="w-12" />*/}
-        {/*<ArcadeDatasetSelector selectDatasetPreset={setDatasetPreset} />*/}
-        {/*<div className="w-12" />*/}
-        {/*<ArcadeExampleSelector loadExample={loadExample} />*/}
-      </ArcadeHeader>
+      />
 
       <div className="flex-1 flex items-center">
-        <div className="w-full grid grid-cols-3 gap-5 max-h-[1200px] h-full container max-w-[2400px]">
+        <div className="w-full grid grid-cols-3 gap-5 max-h-[1200px] h-full container max-w-[2400px] pb-5">
           <ArcadeSection
             title="Dataset"
             subtitle="The data your query will run against."
           >
-            <div className="h-full flex">
+            <div className="h-full relative">
               <ArcadeDatasetEditor />
             </div>
           </ArcadeSection>
@@ -104,7 +96,9 @@ export function Arcade() {
             subtitle="Your code to run a GROQD query."
           >
             <div className="h-full flex flex-col">
-              <ArcadeEditor dispatch={dispatch} ref={editorRef} />
+              <div className="relative flex-1">
+                <ArcadeEditor dispatch={dispatch} ref={editorRef} />
+              </div>
               <ArcadeQueryDisplay query={query.query} />
             </div>
           </ArcadeSection>

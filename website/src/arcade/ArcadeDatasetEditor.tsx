@@ -21,5 +21,5 @@ export function ArcadeDatasetEditor({}: ArcadeDatasetEditorProps) {
     });
   }, []);
 
-  return <div className="flex-1" ref={containerRef} />;
+  return <div className="absolute inset-0" ref={containerRef} />;
 }
