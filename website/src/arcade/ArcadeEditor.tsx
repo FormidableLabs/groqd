@@ -20,7 +20,11 @@ export type ArcadeEditorProps = {
 
 export type ArcadeEditorHandle = {
   setModel(model: keyof typeof MODELS): void;
+  runCode(
+    args: Pick<Parameters<typeof runCode>[0], "shouldRunQueryImmediately">
+  ): void;
   runQuery: typeof runQuery;
+  formatDocument(): void;
 };
 
 export const ArcadeEditor = React.forwardRef(
@@ -104,6 +108,21 @@ export const ArcadeEditor = React.forwardRef(
             editorRef.current?.setModel(MODELS[newModel]);
           },
           runQuery,
+          runCode({ shouldRunQueryImmediately }) {
+            const editor = editorRef.current;
+            if (!editor) return;
+
+            return runCode({ dispatch, editor, shouldRunQueryImmediately });
+          },
+          formatDocument() {
+            const editor = editorRef.current;
+            if (!editor) return;
+
+            editor
+              .getAction("editor.action.formatDocument")
+              .run()
+              .catch(() => null);
+          },
         };
       },
       []

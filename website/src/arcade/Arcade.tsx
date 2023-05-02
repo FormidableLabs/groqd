@@ -17,6 +17,8 @@ import { ArcadeEditor } from "@site/src/arcade/ArcadeEditor";
 import { ArcadeDatasetSelector } from "@site/src/arcade/ArcadeDatasetSelector";
 import datasets from "@site/src/datasets.json";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
+import { ArcadeExampleSelector } from "@site/src/arcade/ArcadeExampleSelector";
+import { ExamplePayload } from "@site/src/arcade/examples";
 
 export function Arcade() {
   const editorRef = React.useRef<React.ElementRef<ArcadeEditorType>>();
@@ -60,6 +62,17 @@ export function Arcade() {
     []
   );
 
+  const loadExample = ({ code, dataset }: ExamplePayload) => {
+    setDatasetPreset(dataset);
+    MODELS.ts.setValue(code);
+
+    const editor = editorRef.current;
+    if (!editor) return;
+    editorRef.current?.runCode({
+      shouldRunQueryImmediately: true,
+    });
+  };
+
   React.useEffect(() => {
     const storedDataset =
       getStorageValue(ARCADE_STORAGE_KEYS.DATASET) || "pokemon";
@@ -78,6 +91,8 @@ export function Arcade() {
         </button>
         <div className="w-12" />
         <ArcadeDatasetSelector selectDatasetPreset={setDatasetPreset} />
+        <div className="w-12" />
+        <ArcadeExampleSelector loadExample={loadExample} />
       </ArcadeHeader>
       <Split className="flex-1">
         <div style={{ width: "50%" }} className="flex flex-col">
