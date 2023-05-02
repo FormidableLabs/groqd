@@ -7,24 +7,21 @@ import {
   setStorageValue,
 } from "@site/src/arcade/state";
 import { ArcadeHeader } from "@site/src/arcade/ArcadeHeader";
-import Split from "@uiw/react-split";
-import { ArcadeEditorTabs } from "@site/src/arcade/ArcadeEditorTabs";
 import { ArcadeQueryDisplay } from "@site/src/arcade/ArcadeQueryDisplay";
 import { ArcadeLoadingIndicator } from "@site/src/arcade/ArcadeLoadingIndicator";
 import { ArcadeSuccessView } from "@site/src/arcade/ArcadeSuccessView";
 import type { ArcadeEditorType } from "@site/src/arcade/ArcadeEditor";
 import { ArcadeEditor } from "@site/src/arcade/ArcadeEditor";
-import { ArcadeDatasetSelector } from "@site/src/arcade/ArcadeDatasetSelector";
 import datasets from "@site/src/datasets.json";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
-import { ArcadeExampleSelector } from "@site/src/arcade/ArcadeExampleSelector";
 import { ExamplePayload } from "@site/src/arcade/examples";
+import { ArcadeSection } from "@site/src/arcade/ArcadeSection";
+import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 
 export function Arcade() {
   const editorRef = React.useRef<React.ElementRef<ArcadeEditorType>>();
   const [
     {
-      activeModel,
       query,
       params,
       isExecutingQuery,
@@ -35,15 +32,9 @@ export function Arcade() {
     dispatch,
   ] = React.useReducer(reducer, defaultState);
 
-  const setModel = (newModel: keyof typeof MODELS) => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    dispatch({ type: "SET_ACTIVE_MODEL", payload: newModel });
-    editor.setModel(newModel);
-  };
-
-  const runQuery = () => {
+  // TODO: We need a "run" button somewhere
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _runQuery = () => {
     const editor = editorRef.current;
     if (!editor) return;
     editor.runQuery({ query, params, dispatch });
@@ -85,31 +76,49 @@ export function Arcade() {
 
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col">
-      <ArcadeHeader>
-        <button onClick={runQuery} disabled={!query.query}>
-          Run query
-        </button>
-        <div className="w-12" />
-        <ArcadeDatasetSelector selectDatasetPreset={setDatasetPreset} />
-        <div className="w-12" />
-        <ArcadeExampleSelector loadExample={loadExample} />
-      </ArcadeHeader>
-      <Split className="flex-1">
-        <div style={{ width: "50%" }} className="flex flex-col">
-          <ArcadeEditorTabs activeModel={activeModel} switchModel={setModel} />
-          <ArcadeEditor dispatch={dispatch} ref={editorRef} />
-          <ArcadeQueryDisplay query={query.query} />
+      <ArcadeHeader
+        selectDatasetPreset={setDatasetPreset}
+        selectExample={loadExample}
+      />
+
+      <div className="flex-1 flex items-center">
+        <div className="w-full grid grid-cols-3 gap-5 max-h-[1200px] h-full container max-w-[2400px] pb-5">
+          <ArcadeSection
+            title="Dataset"
+            subtitle="The data your query will run against."
+          >
+            <div className="h-full relative">
+              <ArcadeDatasetEditor />
+            </div>
+          </ArcadeSection>
+          <ArcadeSection
+            title="Query Code"
+            subtitle="Your code to run a GROQD query."
+          >
+            <div className="h-full flex flex-col">
+              <div className="relative flex-1">
+                <ArcadeEditor dispatch={dispatch} ref={editorRef} />
+              </div>
+              <ArcadeQueryDisplay query={query.query} />
+            </div>
+          </ArcadeSection>
+          <ArcadeSection
+            title="Query Result"
+            subtitle="The result of your GROQD query."
+          >
+            <h1>Result view</h1>
+            <div>
+              {(() => {
+                if (isExecutingQuery) return <ArcadeLoadingIndicator />;
+                if (fetchParseError || errorPaths) return <div>Uh oh...</div>;
+                if (parsedResponse)
+                  return <ArcadeSuccessView data={parsedResponse} />;
+                return null;
+              })()}
+            </div>
+          </ArcadeSection>
         </div>
-        <div style={{ width: "50%" }}>
-          {(() => {
-            if (isExecutingQuery) return <ArcadeLoadingIndicator />;
-            if (fetchParseError || errorPaths) return <div>Uh oh...</div>;
-            if (parsedResponse)
-              return <ArcadeSuccessView data={parsedResponse} />;
-            return null;
-          })()}
-        </div>
-      </Split>
+      </div>
     </div>
   );
 }
