@@ -297,6 +297,9 @@ importers:
       '@docusaurus/types':
         specifier: ^2.4.0
         version: 2.4.0(react-dom@17.0.2)(react@17.0.2)
+      '@faker-js/faker':
+        specifier: ^7.6.0
+        version: 7.6.0
       '@tsconfig/docusaurus':
         specifier: ^1.0.5
         version: 1.0.7
@@ -312,6 +315,9 @@ importers:
       monaco-editor-webpack-plugin:
         specifier: ^7.0.1
         version: 7.0.1(monaco-editor@0.37.1)(webpack@5.79.0)
+      nanoid:
+        specifier: ^3.3.6
+        version: 3.3.6
       postcss:
         specifier: ^8.4.21
         version: 8.4.21
@@ -4019,6 +4025,11 @@ packages:
   /@eslint/js@8.38.0:
     resolution: {integrity: sha512-IoD2MfUnOV58ghIHCiil01PcohxjbYR/qCxsoC+xNgUwh1EY8jOOrYmu3d3a71+tJJ23uscEV4X2HJWMsPJu4g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  /@faker-js/faker@7.6.0:
+    resolution: {integrity: sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==}
+    engines: {node: '>=14.0.0', npm: '>=6.0.0'}
+    dev: true
 
   /@floating-ui/core@1.2.6:
     resolution: {integrity: sha512-EvYTiXet5XqweYGClEmpu3BoxmsQ4hkj3QaYA6qEnigCWffTP3vNRwBReTdrwDwo7OoJ3wM8Uoe9Uk4n+d4hfg==}
