@@ -1,12 +1,14 @@
 import * as React from "react";
 import { MODELS } from "@site/src/arcade/models";
 import { BaseQuery } from "groqd";
+import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
+import { q } from "groqd";
 
-type Params = Record<string, string | number>;
+export type GroqdQueryParams = Record<string, string | number>;
 export type State = {
   activeModel: keyof typeof MODELS;
   query: BaseQuery<any>;
-  params?: Params;
+  params?: GroqdQueryParams;
   inputParseError?: Error;
   isExecutingQuery: boolean;
   rawResponse?: unknown;
@@ -15,11 +17,17 @@ export type State = {
   errorPaths?: Map<string, string>;
 };
 
+export const defaultState: State = {
+  activeModel: "ts",
+  query: q(""),
+  isExecutingQuery: false,
+};
+
 export type Action =
   | { type: "SET_ACTIVE_MODEL"; payload: keyof typeof MODELS }
   | {
       type: "INPUT_EVAL_SUCCESS";
-      payload: { query: BaseQuery<any>; params?: Params };
+      payload: { query: BaseQuery<any>; params?: GroqdQueryParams };
     }
   | {
       type: "START_QUERY_EXEC";
@@ -70,3 +78,30 @@ export const reducer = (state: State, action: Action): State => {
       return state;
   }
 };
+
+// URL helpers
+const url = new URL(window.location.href);
+const qp = url.searchParams;
+const LOCAL_STORAGE_PREFIX = "__groqd_arcade_";
+export const setStorageValue = (
+  key: ValueOf<typeof ARCADE_STORAGE_KEYS>,
+  value: string
+) => {
+  qp.set(key, value);
+  window.history.replaceState(null, "", url);
+  localStorage.setItem(LOCAL_STORAGE_PREFIX + key, value);
+};
+
+export const getStorageValue = (key: ValueOf<typeof ARCADE_STORAGE_KEYS>) => {
+  try {
+    return (
+      new URL(window.location.href).searchParams.get(key) ||
+      localStorage.getItem(LOCAL_STORAGE_PREFIX + key) ||
+      ""
+    );
+  } catch {
+    return "";
+  }
+};
+
+type ValueOf<T> = T[keyof T];

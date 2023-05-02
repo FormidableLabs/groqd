@@ -1,4 +1,3 @@
-/* eslint @typescript-eslint/no-var-requires: 0 */
 const { globSync } = require("glob");
 const path = require("node:path");
 const fs = require("node:fs/promises");
