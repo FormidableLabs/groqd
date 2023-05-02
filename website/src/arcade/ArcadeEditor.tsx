@@ -6,10 +6,14 @@ import types from "@site/src/types.json";
 import * as q from "groqd";
 import {
   ArcadeDispatch,
+  getStorageValue,
   GroqdQueryParams,
+  setStorageValue,
   State,
 } from "@site/src/arcade/state";
 import { evaluate, parse } from "groq-js";
+import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
+import lzstring from "lz-string";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -50,6 +54,12 @@ export const ArcadeEditor = React.forwardRef(
           const emitResult = await client.getEmitOutput(model.uri.toString());
           const code = emitResult.outputFiles[0].text;
 
+          // write the raw code to query params
+          setStorageValue(
+            ARCADE_STORAGE_KEYS.CODE,
+            lzstring.compressToEncodedURIComponent(model.getValue())
+          );
+
           let playgroundRunQueryCount = 0;
           const libs = {
             groqd: q,
@@ -71,7 +81,9 @@ export const ArcadeEditor = React.forwardRef(
                     if (shouldRunQueryImmediately)
                       runQuery({ query, params, dispatch });
                   }
-                } catch {}
+                } catch {
+                  // TODO: Should we handle this case? Maybe just emit a toast?
+                }
               },
             },
           };
@@ -95,6 +107,14 @@ export const ArcadeEditor = React.forwardRef(
       let editor = editorRef.current;
 
       if (!container || editor) return;
+
+      // Pull initial code
+      const storedCode = getStorageValue(ARCADE_STORAGE_KEYS.CODE);
+      if (storedCode) {
+        MODELS.ts.setValue(
+          lzstring.decompressFromEncodedURIComponent(storedCode)
+        );
+      }
 
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
         typeRoots: ["groqd", "zod"],
