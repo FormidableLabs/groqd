@@ -2,11 +2,11 @@ import * as React from "react";
 import { MODELS } from "@site/src/arcade/models";
 import { BaseQuery } from "groqd";
 
-type Params = Record<string, string | number>;
+export type GroqdQueryParams = Record<string, string | number>;
 export type State = {
   activeModel: keyof typeof MODELS;
   query: BaseQuery<any>;
-  params?: Params;
+  params?: GroqdQueryParams;
   inputParseError?: Error;
   isExecutingQuery: boolean;
   rawResponse?: unknown;
@@ -19,7 +19,7 @@ export type Action =
   | { type: "SET_ACTIVE_MODEL"; payload: keyof typeof MODELS }
   | {
       type: "INPUT_EVAL_SUCCESS";
-      payload: { query: BaseQuery<any>; params?: Params };
+      payload: { query: BaseQuery<any>; params?: GroqdQueryParams };
     }
   | {
       type: "START_QUERY_EXEC";

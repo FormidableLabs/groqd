@@ -17,6 +17,7 @@ export default function Arcade() {
     {
       activeModel,
       query,
+      params,
       isExecutingQuery,
       fetchParseError,
       parsedResponse,
@@ -40,7 +41,7 @@ export default function Arcade() {
   const runQuery = () => {
     const editor = editorRef.current;
     if (!editor) return;
-    editor.runQuery();
+    editor.runQuery({ query, params, dispatch });
   };
 
   return (
@@ -64,6 +65,7 @@ export default function Arcade() {
                   dispatch={dispatch}
                   ref={editorRef}
                   query={query}
+                  params={params}
                 />
               );
             }}

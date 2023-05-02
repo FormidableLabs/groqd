@@ -4,22 +4,27 @@ import debounce from "lodash.debounce";
 import { MODELS } from "@site/src/arcade/models";
 import types from "@site/src/types.json";
 import * as q from "groqd";
-import { ArcadeDispatch, State } from "@site/src/arcade/state";
+import {
+  ArcadeDispatch,
+  GroqdQueryParams,
+  State,
+} from "@site/src/arcade/state";
 import { evaluate, parse } from "groq-js";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
   query: State["query"];
+  params: State["params"];
 };
 
 export type ArcadeEditorHandle = {
   setModel(model: keyof typeof MODELS): void;
-  runQuery(): void;
+  runQuery(...params: Parameters<typeof runQuery>): void;
 };
 
 export const ArcadeEditor = React.forwardRef(
   (
-    { dispatch, query }: ArcadeEditorProps,
+    { dispatch, query, params }: ArcadeEditorProps,
     ref: React.Ref<ArcadeEditorHandle>
   ) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -28,57 +33,66 @@ export const ArcadeEditor = React.forwardRef(
 
     /**
      * Execute TS query code, generates a query to store in state
+     * TODO: Make sure this only runs once. Cancel previous runs if this is called again.
      */
-    const runCode = React.useCallback(async () => {
-      const editor = editorRef.current;
-      if (!editor) return;
+    const runCode = React.useRef(
+      async ({
+        shouldRunQueryImmediately = false,
+      }: { shouldRunQueryImmediately?: boolean } = {}) => {
+        const editor = editorRef.current;
+        if (!editor) return;
 
-      try {
-        const model = MODELS.ts;
-        const worker = await monaco.languages.typescript.getTypeScriptWorker();
-        const client = await worker(model.uri);
-        const emitResult = await client.getEmitOutput(model.uri.toString());
-        const code = emitResult.outputFiles[0].text;
+        try {
+          const model = MODELS.ts;
+          const worker =
+            await monaco.languages.typescript.getTypeScriptWorker();
+          const client = await worker(model.uri);
+          const emitResult = await client.getEmitOutput(model.uri.toString());
+          const code = emitResult.outputFiles[0].text;
 
-        let playgroundRunQueryCount = 0;
-        const libs = {
-          groqd: q,
-          playground: {
-            runQuery: (
-              query: q.BaseQuery<any>,
-              params?: Record<string, string | number>
-            ) => {
-              playgroundRunQueryCount++;
-              if (playgroundRunQueryCount > 1) return;
+          let playgroundRunQueryCount = 0;
+          const libs = {
+            groqd: q,
+            playground: {
+              runQuery: (
+                query: q.BaseQuery<any>,
+                params?: Record<string, string | number>
+              ) => {
+                playgroundRunQueryCount++;
+                if (playgroundRunQueryCount > 1) return;
 
-              try {
-                if (query instanceof q.BaseQuery) {
-                  dispatch({
-                    type: "INPUT_EVAL_SUCCESS",
-                    payload: { query, params },
-                  });
-                }
-              } catch {}
+                try {
+                  if (query instanceof q.BaseQuery) {
+                    dispatch({
+                      type: "INPUT_EVAL_SUCCESS",
+                      payload: { query, params },
+                    });
+
+                    if (shouldRunQueryImmediately)
+                      runQuery({ query, params, dispatch });
+                  }
+                } catch {}
+              },
             },
-          },
-        };
-        const scope = {
-          exports: {},
-          require: (name: keyof typeof libs) => libs[name],
-        };
-        const keys = Object.keys(scope);
-        new Function(...keys, code)(
-          ...keys.map((key) => scope[key as keyof typeof scope])
-        );
-      } catch {}
-    }, []);
+          };
+          const scope = {
+            exports: {},
+            require: (name: keyof typeof libs) => libs[name],
+          };
+          const keys = Object.keys(scope);
+          new Function(...keys, code)(
+            ...keys.map((key) => scope[key as keyof typeof scope])
+          );
+        } catch {}
+      }
+    );
 
     /**
      * Set up editor on mount
      */
     React.useEffect(() => {
       const container = containerRef.current;
-      const editor = editorRef.current;
+      let editor = editorRef.current;
 
       if (!container || editor) return;
 
@@ -92,7 +106,7 @@ export const ArcadeEditor = React.forwardRef(
 
       monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
 
-      const handleContentChange = debounce(runCode, 500);
+      const handleContentChange = debounce(() => runCode.current(), 500);
       const didChangeInstance =
         MODELS.ts.onDidChangeContent(handleContentChange);
 
@@ -103,55 +117,26 @@ export const ArcadeEditor = React.forwardRef(
         automaticLayout: true,
         minimap: { enabled: false },
       });
+      editor = editorRef.current;
+
+      // Cmd + Enter to run query
+      editor.addAction({
+        id: "trigger-run-query",
+        label: "Trigger Arcard query run",
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+        run() {
+          runCode.current({ shouldRunQueryImmediately: true });
+        },
+      });
 
       // Run code on start
-      runCode().catch(console.error);
+      runCode.current().catch(console.error);
 
       return () => {
         didChangeInstance.dispose();
         handleContentChange.cancel();
       };
     }, []);
-
-    /**
-     * Run the query that's in state.
-     */
-    const runQuery = React.useCallback(async () => {
-      if (!query.query) return;
-      //
-      dispatch({ type: "START_QUERY_EXEC" });
-      //
-      let json: unknown;
-      try {
-        json = JSON.parse(MODELS.json.getValue());
-      } catch {
-        console.log("error parsing JSON");
-        // TODO: alert error
-      }
-
-      const runner = q.makeSafeQueryRunner(async (query: string) => {
-        const tree = parse(query);
-        const _ = await evaluate(tree, { dataset: json });
-        const rawResponse = await _.get();
-        dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
-
-        return rawResponse;
-      });
-
-      try {
-        const data = await runner(query);
-        dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
-      } catch (err) {
-        const errorPaths = new Map(); // TODO: Generate these
-        dispatch({
-          type: "PARSE_FAILURE",
-          payload: { fetchParseError: err, errorPaths },
-        });
-        console.error(err);
-      }
-
-      console.log(query.query);
-    }, [query]);
 
     /**
      * Need a handle so that parent component can call methods here.
@@ -192,7 +177,55 @@ export const ArcadeEditor = React.forwardRef(
   }
 );
 
-// Adding in groqd types, and our custom playground.runQuery helper.
+/**
+ * Run a given query against dataset in the JSON model
+ */
+const runQuery = async ({
+  query,
+  dispatch,
+  params,
+}: {
+  query: q.BaseQuery<any>;
+  dispatch: ArcadeDispatch;
+  params: GroqdQueryParams;
+}) => {
+  if (!query.query) return;
+  dispatch({ type: "START_QUERY_EXEC" });
+  //
+  let json: unknown;
+  try {
+    json = JSON.parse(MODELS.json.getValue());
+  } catch {
+    console.log("error parsing JSON");
+    // TODO: alert error
+  }
+
+  // TODO: Handle params...
+  const runner = q.makeSafeQueryRunner(async (query: string) => {
+    const tree = parse(query);
+    const _ = await evaluate(tree, { dataset: json });
+    const rawResponse = await _.get();
+    dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
+
+    return rawResponse;
+  });
+
+  try {
+    const data = await runner(query);
+    dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
+  } catch (err) {
+    const errorPaths = new Map(); // TODO: Generate these
+    dispatch({
+      type: "PARSE_FAILURE",
+      payload: { fetchParseError: err, errorPaths },
+    });
+    console.error(err);
+  }
+};
+
+/**
+ * Adding in groqd types, and our custom playground.runQuery helper.
+ */
 const extraLibs = [
   {
     content: `declare module "groqd" {${types.groqd["index.d.ts"]}`,
