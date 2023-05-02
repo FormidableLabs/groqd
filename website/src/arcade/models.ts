@@ -6,10 +6,11 @@ import { q } from "groqd";
 
 runQuery(
   q("*")
-    .filter()
-    .slice(0, 10)
+    .filterByType("pokemon")
+    .slice(0, 5)
     .grab$({
-      _id: q.string()
+      _id: q.string(),
+      name: q.string()
     }),
 	// params (optional)
   {}

@@ -1997,7 +1997,7 @@ module.exports = () => {
     "Dark",
   ].map((t) => ({
     _id: `type.${t}`,
-    type: "poketype",
+    _type: "poketype",
     name: t,
   }));
 

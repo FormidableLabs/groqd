@@ -171,6 +171,23 @@ export const ArcadeEditor = React.forwardRef(
       [runQuery]
     );
 
+    /**
+     * TEMPORARY:
+     * Fetch pokemon dataset for example usage.
+     */
+    React.useEffect(() => {
+      const base = window.location.href.replace(
+        /(.*open-source\/groqd)\/(.*)/,
+        "$1/datasets/pokemon.json"
+      );
+
+      fetch(base)
+        .then((res) => res.json())
+        .then((json) => {
+          MODELS.json.setValue(JSON.stringify(json, null, 2));
+        });
+    }, []);
+
     return <div className="flex-1" ref={containerRef} />;
   }
 );
