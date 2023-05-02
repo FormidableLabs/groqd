@@ -15,14 +15,12 @@ export type State = {
   parsedResponse?: unknown;
   fetchParseError?: unknown;
   errorPaths?: Map<string, string>;
-  datasetPresetFetchStatus: "idle" | "fetching";
 };
 
 export const defaultState: State = {
   activeModel: "ts",
   query: q(""),
   isExecutingQuery: false,
-  datasetPresetFetchStatus: "idle",
 };
 
 export type Action =
