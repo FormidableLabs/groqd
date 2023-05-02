@@ -2,7 +2,7 @@ const { faker } = require("@faker-js/faker");
 const { nanoid } = require("nanoid");
 
 module.exports = () => {
-  const numUsers = 10;
+  const numUsers = 5;
   const data = [];
 
   for (let i = 0; i < numUsers; i++) {
@@ -14,7 +14,7 @@ module.exports = () => {
       name: faker.name.firstName(),
     });
 
-    const numItems = 5 + Math.floor(5 * Math.random());
+    const numItems = 2 + Math.floor(3 * Math.random());
     for (let j = 0; j < numItems; j++) {
       data.push({
         _id: nanoid(),
