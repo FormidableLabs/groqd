@@ -7,11 +7,18 @@ module.exports = () => {
 
   for (let i = 0; i < numUsers; i++) {
     const userId = nanoid();
-    const N = 5 + Math.floor(5 * Math.random());
-    for (let j = 0; j < N; j++) {
+
+    data.push({
+      _type: "user",
+      _id: userId,
+      name: faker.name.firstName(),
+    });
+
+    const numItems = 5 + Math.floor(5 * Math.random());
+    for (let j = 0; j < numItems; j++) {
       data.push({
-        id: nanoid(),
-        userId,
+        _id: nanoid(),
+        user: { _type: "reference", _ref: userId },
         title: faker.lorem.sentence(8),
         completed: Math.random() >= 0.5,
       });
