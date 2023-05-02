@@ -1,7 +1,11 @@
 import * as React from "react";
 import { MODELS } from "@site/src/arcade/models";
-import { defaultState, reducer } from "@site/src/arcade/state";
-import * as q from "groqd";
+import {
+  defaultState,
+  getStorageValue,
+  reducer,
+  setStorageValue,
+} from "@site/src/arcade/state";
 import { ArcadeHeader } from "@site/src/arcade/ArcadeHeader";
 import Split from "@uiw/react-split";
 import { ArcadeEditorTabs } from "@site/src/arcade/ArcadeEditorTabs";
@@ -12,6 +16,7 @@ import BrowserOnly from "@docusaurus/BrowserOnly";
 import type { ArcadeEditorType } from "@site/src/arcade/ArcadeEditor";
 import { ArcadeDatasetSelector } from "@site/src/arcade/ArcadeDatasetSelector";
 import datasets from "@site/src/datasets.json";
+import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 
 export default function Arcade() {
   const editorRef = React.useRef<React.ElementRef<ArcadeEditorType>>();
@@ -24,7 +29,6 @@ export default function Arcade() {
       fetchParseError,
       parsedResponse,
       errorPaths,
-      datasetPresetFetchStatus,
     },
     dispatch,
   ] = React.useReducer(reducer, defaultState);
@@ -43,12 +47,26 @@ export default function Arcade() {
     editor.runQuery({ query, params, dispatch });
   };
 
-  const fetchDatasetPreset = (datasetPreset: keyof typeof datasets) => {
-    const editor = editorRef.current;
-    if (!editor) return;
+  const setDatasetPreset = React.useCallback(
+    (datasetPreset: keyof typeof datasets) => {
+      const editor = editorRef.current;
+      if (!editor) return;
 
-    editor.fetchDatasetPreset({ datasetPreset, dispatch });
-  };
+      editor.setDatasetPreset(datasetPreset);
+      setStorageValue(ARCADE_STORAGE_KEYS.DATASET, datasetPreset);
+    },
+    []
+  );
+
+  React.useEffect(() => {
+    const storedDataset =
+      getStorageValue(ARCADE_STORAGE_KEYS.DATASET) || "pokemon";
+
+    if (isDatasetPresetKey(storedDataset))
+      setTimeout(() => {
+        setDatasetPreset(storedDataset);
+      });
+  }, []);
 
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col">
@@ -57,7 +75,7 @@ export default function Arcade() {
           Run query
         </button>
         <div className="w-12" />
-        <ArcadeDatasetSelector selectDatasetPreset={fetchDatasetPreset} />
+        <ArcadeDatasetSelector selectDatasetPreset={setDatasetPreset} />
       </ArcadeHeader>
       <Split className="flex-1">
         <div style={{ width: "50%" }} className="flex flex-col">
@@ -93,3 +111,6 @@ export default function Arcade() {
     </div>
   );
 }
+
+const isDatasetPresetKey = (str: string): str is keyof typeof datasets =>
+  str in datasets;

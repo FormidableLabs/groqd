@@ -25,7 +25,7 @@ export type ArcadeEditorProps = {
 export type ArcadeEditorHandle = {
   setModel(model: keyof typeof MODELS): void;
   runQuery: typeof runQuery;
-  fetchDatasetPreset: typeof fetchDatasetPreset;
+  setDatasetPreset(preset: keyof typeof datasets): void;
 };
 
 export const ArcadeEditor = React.forwardRef(
@@ -173,28 +173,15 @@ export const ArcadeEditor = React.forwardRef(
             editorRef.current?.setModel(MODELS[newModel]);
           },
           runQuery,
-          fetchDatasetPreset,
+          setDatasetPreset(preset: keyof typeof datasets) {
+            MODELS.json.setValue(
+              JSON.stringify(datasets[preset].data, null, 2)
+            );
+          },
         };
       },
       [runQuery]
     );
-
-    /**
-     * TEMPORARY:
-     * Fetch pokemon dataset for example usage.
-     */
-    React.useEffect(() => {
-      const base = window.location.href.replace(
-        /(.*open-source\/groqd)\/(.*)/,
-        "$1/datasets/pokemon.json"
-      );
-
-      fetch(base)
-        .then((res) => res.json())
-        .then((json) => {
-          MODELS.json.setValue(JSON.stringify(json, null, 2));
-        });
-    }, []);
 
     return <div className="flex-1" ref={containerRef} />;
   }
@@ -244,28 +231,6 @@ const runQuery = async ({
     });
     console.error(err);
   }
-};
-
-const fetchDatasetPreset = ({
-  datasetPreset,
-  dispatch,
-}: {
-  datasetPreset: keyof typeof datasets;
-  dispatch: ArcadeDispatch;
-}) => {
-  const base = window.location.href.replace(
-    /(.*open-source\/groqd)\/(.*)/,
-    `$1/datasets/${datasetPreset}.json`
-  );
-
-  fetch(base)
-    .then((res) => res.json())
-    .then((json) => {
-      MODELS.json.setValue(JSON.stringify(json, null, 2));
-    })
-    .finally(() => {
-      dispatch({ type: "FINISH_DATASET_FETCH" });
-    });
 };
 
 /**

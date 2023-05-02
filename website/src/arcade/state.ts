@@ -42,9 +42,7 @@ export type Action =
   | {
       type: "PARSE_FAILURE";
       payload: { fetchParseError: unknown; errorPaths?: Map<string, string> };
-    }
-  | { type: "START_DATASET_FETCH" }
-  | { type: "FINISH_DATASET_FETCH" };
+    };
 
 export type ArcadeDispatch = React.Dispatch<Action>;
 
@@ -77,16 +75,6 @@ export const reducer = (state: State, action: Action): State => {
         isExecutingQuery: false,
         fetchParseError: action.payload.fetchParseError,
         errorPaths: action.payload.errorPaths,
-      };
-    case "START_DATASET_FETCH":
-      return {
-        ...state,
-        datasetPresetFetchStatus: "fetching",
-      };
-    case "FINISH_DATASET_FETCH":
-      return {
-        ...state,
-        datasetPresetFetchStatus: "idle",
       };
     default:
       return state;
