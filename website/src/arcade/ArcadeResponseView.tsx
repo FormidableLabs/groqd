@@ -64,18 +64,22 @@ export function ArcadeResponseView({
     );
   }
 
-  // TODO: Make this not terrible
-  if (fetchParseError instanceof Error) {
-    return <pre>{fetchParseError.message}</pre>;
-  }
-
-  // TODO: Make this not terrible
   if (fetchParseError) {
-    return <div>Something went wrong...</div>;
+    return (
+      <div className="px-4 py-2">
+        <div className="font-bold text-sm text-red-700 mb-1">
+          Error running query:
+        </div>
+        <div className="font-mono text-sm text-gray-700 p-2 rounded bg-gray-50">
+          {fetchParseError instanceof Error
+            ? fetchParseError.message
+            : "Something went wrong..."}
+        </div>
+      </div>
+    );
   }
 
   if (parsedResponse) return <JSONExplorer data={parsedResponse} />;
 
-  // TODO: Make this not terrible
-  return <div>idle...</div>;
+  return null;
 }

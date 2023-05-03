@@ -214,26 +214,25 @@ const runQuery = async ({
 }) => {
   if (!query.query) return;
   dispatch({ type: "START_QUERY_EXEC" });
-  //
-  let json: unknown;
-  try {
-    json = JSON.parse(MODELS.json.getValue());
-  } catch {
-    console.error("error parsing JSON");
-    // TODO: alert error
-  }
-
-  // TODO: Handle params...
-  const runner = q.makeSafeQueryRunner(async (query: string) => {
-    const tree = parse(query);
-    const _ = await evaluate(tree, { dataset: json });
-    const rawResponse = await _.get();
-    dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
-
-    return rawResponse;
-  });
 
   try {
+    let json: unknown;
+    try {
+      json = JSON.parse(MODELS.json.getValue());
+    } catch {
+      throw new Error("Error parsing dataset JSON");
+    }
+
+    // TODO: Handle params...
+    const runner = q.makeSafeQueryRunner(async (query: string) => {
+      const tree = parse(query);
+      const _ = await evaluate(tree, { dataset: json });
+      const rawResponse = await _.get();
+      dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
+
+      return rawResponse;
+    });
+
     const data = await runner(query);
     dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
   } catch (err) {
