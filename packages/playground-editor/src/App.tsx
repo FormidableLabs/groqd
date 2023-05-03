@@ -6,7 +6,7 @@ import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
 import { emitError, emitInput, emitReady } from "./messaging";
 import { useIsDarkMode } from "./useDarkMode";
-import { createTwoslashInlayProvider } from "./twoslashInlays";
+import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import lzstring from "lz-string";
 import { z } from "zod";
 

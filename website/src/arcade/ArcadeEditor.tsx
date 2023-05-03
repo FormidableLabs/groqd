@@ -13,6 +13,7 @@ import {
 import { evaluate, parse } from "groq-js";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
+import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -59,6 +60,10 @@ export const ArcadeEditor = React.forwardRef(
       });
 
       monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
+      monaco.languages.registerInlayHintsProvider(
+        "typescript",
+        createTwoslashInlayProvider()
+      );
 
       const handleContentChange = debounce(
         () => runCode({ editor, dispatch }),
