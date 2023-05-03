@@ -1,21 +1,10 @@
 import * as React from "react";
-import { Box, Button, Stack } from "@sanity/ui";
-import {
-  CollapsibleContainer,
-  ErrorMessageText,
-  Key,
-  Label,
-  LineItem,
-  Root,
-  Value,
-} from "./JSONExplorer.styled";
-import { CopyIcon } from "@sanity/icons";
-import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 import {
   addToPath,
   formatPrimitiveData,
   isObject,
-} from "../../../../shared/util/jsonExplorerUtils";
+} from "../../../shared/util/jsonExplorerUtils";
+import clsx from "clsx";
 
 type JSONExplorerDisplayProps = {
   data: unknown;
@@ -24,43 +13,20 @@ type JSONExplorerDisplayProps = {
   currentPath?: string;
 };
 
-export const JSONExplorer = (props: JSONExplorerDisplayProps) => {
-  const copyUrl = useCopyDataAndNotify("Copied JSON to clipboard!");
-  const handleCopy = () => {
-    try {
-      copyUrl(JSON.stringify(props.data, null, 2));
-    } catch {}
-  };
-
+export function JSONExplorer(props: JSONExplorerDisplayProps) {
   return (
-    <Root flex={1}>
-      <Box
-        padding={3}
-        style={{ position: "absolute", inset: 0 }}
-        overflow="auto"
-      >
-        <JSONExplorerDisplay {...props} />
-      </Box>
-      <Box style={{ position: "absolute", bottom: 0, right: 0 }} padding={3}>
-        <Button
-          aria-label="Copy to clipboard"
-          type="button"
-          mode="ghost"
-          icon={CopyIcon}
-          text="Copy to clipboard"
-          onClick={handleCopy}
-        />
-      </Box>
-    </Root>
+    <div className="absolute inset-0 overflow-auto px-5 pb-5">
+      <JSONExplorerDisplay {...props} />
+    </div>
   );
-};
+}
 
-const JSONExplorerDisplay = ({
+function JSONExplorerDisplay({
   data,
   prefix,
   highlightedPaths,
-  currentPath = "",
-}: JSONExplorerDisplayProps) => {
+  currentPath,
+}: JSONExplorerDisplayProps) {
   const prefixDisplay = prefix !== undefined ? <Key>{prefix}: </Key> : null;
   const errorMessage = highlightedPaths && highlightedPaths.get(currentPath);
   const depth = currentPath === "" ? 0 : currentPath?.split(".").length || 0;
@@ -79,7 +45,7 @@ const JSONExplorerDisplay = ({
         errorMessage={errorMessage}
         id={`json-item-${currentPath}`}
       >
-        <Stack space={2}>
+        <Stack>
           {data.map((dat, i) => (
             <JSONExplorerDisplay
               data={dat}
@@ -110,7 +76,7 @@ const JSONExplorerDisplay = ({
         errorMessage={errorMessage}
         id={`json-item-${currentPath}`}
       >
-        <Stack space={2}>
+        <Stack>
           {Object.entries(data).map(([key, dat]) => (
             <JSONExplorerDisplay
               data={dat}
@@ -128,12 +94,11 @@ const JSONExplorerDisplay = ({
   // Primitive leafs
   return (
     <LineItem
-      paddingY={1}
       depth={depth}
       hasError={!!errorMessage}
       id={`json-item-${currentPath}`}
     >
-      <Stack space={1}>
+      <Stack>
         {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}
         <div>
           {prefixDisplay}
@@ -142,38 +107,96 @@ const JSONExplorerDisplay = ({
       </Stack>
     </LineItem>
   );
-};
+}
 
-const Collapsible = ({
+function Collapsible({
   title,
   depth,
-  children,
   errorMessage,
   id,
+  children,
 }: React.PropsWithChildren<{
   title: JSX.Element;
   depth: number;
   errorMessage?: string;
   id?: string;
-}>) => {
+}>) {
   const [isExpanded, setIsExpanded] = React.useState(true);
 
+  // TODO: work to do here
   return (
-    <CollapsibleContainer space={2} id={id} hasError={!!errorMessage}>
-      <LineItem
-        paddingY={1}
-        depth={depth}
-        onClick={() => setIsExpanded((v) => !v)}
-        pointer
-      >
-        <Stack space={1}>
-          {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}
-          <Box>{title}</Box>
-        </Stack>
+    <div>
+      <LineItem depth={depth} onClick={() => setIsExpanded((v) => !v)} pointer>
+        {title}
       </LineItem>
       <div style={{ height: isExpanded ? "auto" : 0, overflow: "hidden" }}>
         {children}
       </div>
-    </CollapsibleContainer>
+    </div>
   );
-};
+}
+
+function Key({ children }: React.PropsWithChildren) {
+  return <span>{children}</span>;
+}
+
+function Label({ children }: React.PropsWithChildren) {
+  return <span>{children}</span>;
+}
+
+function Stack({
+  children,
+  space = "0",
+}: React.PropsWithChildren<{ space?: "0" | "1" | "2" }>) {
+  return (
+    <div
+      className={clsx(
+        "grid gap-2",
+        space === "1" && "gap-2",
+        space === "2" && "gap-3"
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function LineItem({
+  children,
+  hasError,
+  depth = 0,
+  pointer,
+  ...rest
+}: React.PropsWithChildren<
+  React.HTMLProps<HTMLDivElement> & {
+    hasError?: boolean;
+    depth?: number;
+    pointer?: boolean;
+  }
+>) {
+  return (
+    <div
+      style={{ paddingLeft: depth * DEPTH_SC }}
+      className={clsx(
+        "rounded",
+        "hover:bg-gray-50",
+        hasError && ERROR_CLASS,
+        pointer && "cursor-pointer"
+      )}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ErrorMessageText({ children }: React.PropsWithChildren) {
+  return <div>{children}</div>;
+}
+
+function Value({ children }: React.PropsWithChildren) {
+  return <span>{children}</span>;
+}
+
+const DEPTH_SC = 12;
+const ERROR_CLASS = "bg-red-100";

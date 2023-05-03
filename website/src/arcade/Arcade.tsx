@@ -8,8 +8,6 @@ import {
 } from "@site/src/arcade/state";
 import { ArcadeHeader } from "@site/src/arcade/ArcadeHeader";
 import { ArcadeQueryDisplay } from "@site/src/arcade/ArcadeQueryDisplay";
-import { ArcadeLoadingIndicator } from "@site/src/arcade/ArcadeLoadingIndicator";
-import { ArcadeSuccessView } from "@site/src/arcade/ArcadeSuccessView";
 import type { ArcadeEditorType } from "@site/src/arcade/ArcadeEditor";
 import { ArcadeEditor } from "@site/src/arcade/ArcadeEditor";
 import datasets from "@site/src/datasets.json";
@@ -17,6 +15,7 @@ import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import { ExamplePayload } from "@site/src/arcade/examples";
 import { ArcadeSection } from "@site/src/arcade/ArcadeSection";
 import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
+import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
 
 export function Arcade() {
   const editorRef = React.useRef<React.ElementRef<ArcadeEditorType>>();
@@ -106,16 +105,12 @@ export function Arcade() {
             title="Query Result"
             subtitle="The result of your GROQD query."
           >
-            <h1>Result view</h1>
-            <div>
-              {(() => {
-                if (isExecutingQuery) return <ArcadeLoadingIndicator />;
-                if (fetchParseError || errorPaths) return <div>Uh oh...</div>;
-                if (parsedResponse)
-                  return <ArcadeSuccessView data={parsedResponse} />;
-                return null;
-              })()}
-            </div>
+            <ArcadeResponseView
+              isExecutingQuery={isExecutingQuery}
+              fetchParseError={fetchParseError}
+              errorPaths={errorPaths}
+              parsedResponse={parsedResponse}
+            />
           </ArcadeSection>
         </div>
       </div>

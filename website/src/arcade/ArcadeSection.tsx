@@ -18,7 +18,7 @@ export function ArcadeSection({
         </div>
         {subtitle && <div className="text-gray-800">{subtitle}</div>}
       </div>
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 relative">{children}</div>
     </div>
   );
 }
