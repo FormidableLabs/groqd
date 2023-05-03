@@ -2,7 +2,7 @@
   "name": "groqd-workspace",
   "private": "true",
   "scripts": {
-    "lint": "eslint packages --quiet",
+    "lint": "eslint packages website --quiet",
     "test": "pnpm run -r test",
     "test:watch": "pnpm run -r test:watch",
     "typecheck": "pnpm run -r typecheck",
@@ -27,6 +27,7 @@
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.4",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "monaco-editor": "^0.37.1"
   }
 }
