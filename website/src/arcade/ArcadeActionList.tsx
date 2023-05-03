@@ -24,7 +24,7 @@ export const ArcadeActionList = <T,>({
             className={clsx(
               "inline-flex w-full justify-center items-center rounded-md bg-black px-4 py-2 border-none cursor-pointer",
               "hover:bg-gray-50 transition-colors duration-150",
-              "text-lg font-bold text-gray-700",
+              "text-base font-bold text-gray-700",
               open ? "bg-gray-50" : "bg-transparent"
             )}
           >
@@ -49,7 +49,7 @@ export const ArcadeActionList = <T,>({
                       <button
                         className={clsx(
                           "w-full p-2 border-none rounded-md",
-                          "text-left text-base cursor-pointer",
+                          "text-left text-sm cursor-pointer",
                           "hover:bg-gray-50",
                           active ? "bg-gray-50" : "bg-transparent"
                         )}

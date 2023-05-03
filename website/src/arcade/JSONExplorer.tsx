@@ -1,66 +1,34 @@
 import * as React from "react";
-import { Box, Button, Stack } from "@sanity/ui";
-import {
-  CollapsibleContainer,
-  ErrorMessageText,
-  Key,
-  Label,
-  LineItem,
-  Root,
-  Value,
-} from "./JSONExplorer.styled";
-import { CopyIcon } from "@sanity/icons";
-import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 import {
   addToPath,
   formatPrimitiveData,
   isObject,
-} from "../../../../shared/util/jsonExplorerUtils";
+} from "../../../shared/util/jsonExplorerUtils";
+import clsx from "clsx";
 
 type JSONExplorerDisplayProps = {
   data: unknown;
   prefix?: string;
   highlightedPaths?: Map<string, string>;
   currentPath?: string;
+  hasParentError?: boolean;
 };
 
-export const JSONExplorer = (props: JSONExplorerDisplayProps) => {
-  const copyUrl = useCopyDataAndNotify("Copied JSON to clipboard!");
-  const handleCopy = () => {
-    try {
-      copyUrl(JSON.stringify(props.data, null, 2));
-    } catch {}
-  };
-
+export function JSONExplorer(props: JSONExplorerDisplayProps) {
   return (
-    <Root flex={1}>
-      <Box
-        padding={3}
-        style={{ position: "absolute", inset: 0 }}
-        overflow="auto"
-      >
-        <JSONExplorerDisplay {...props} />
-      </Box>
-      <Box style={{ position: "absolute", bottom: 0, right: 0 }} padding={3}>
-        <Button
-          aria-label="Copy to clipboard"
-          type="button"
-          mode="ghost"
-          icon={CopyIcon}
-          text="Copy to clipboard"
-          onClick={handleCopy}
-        />
-      </Box>
-    </Root>
+    <div className="absolute inset-0 overflow-auto px-4 pb-4 font-[Menlo,monospace] text-sm">
+      <JSONExplorerDisplay {...props} />
+    </div>
   );
-};
+}
 
-const JSONExplorerDisplay = ({
+function JSONExplorerDisplay({
   data,
   prefix,
   highlightedPaths,
-  currentPath = "",
-}: JSONExplorerDisplayProps) => {
+  currentPath,
+  hasParentError,
+}: JSONExplorerDisplayProps) {
   const prefixDisplay = prefix !== undefined ? <Key>{prefix}: </Key> : null;
   const errorMessage = highlightedPaths && highlightedPaths.get(currentPath);
   const depth = currentPath === "" ? 0 : currentPath?.split(".").length || 0;
@@ -76,10 +44,11 @@ const JSONExplorerDisplay = ({
             <Label>[...] {data.length} items</Label>
           </React.Fragment>
         }
+        hasParentError={hasParentError}
         errorMessage={errorMessage}
         id={`json-item-${currentPath}`}
       >
-        <Stack space={2}>
+        <Stack space="2">
           {data.map((dat, i) => (
             <JSONExplorerDisplay
               data={dat}
@@ -87,6 +56,7 @@ const JSONExplorerDisplay = ({
               prefix={String(i)}
               currentPath={addToPath(currentPath, String(i))}
               highlightedPaths={highlightedPaths}
+              hasParentError={!!errorMessage || hasParentError}
             />
           ))}
         </Stack>
@@ -108,9 +78,10 @@ const JSONExplorerDisplay = ({
           </React.Fragment>
         }
         errorMessage={errorMessage}
+        hasParentError={hasParentError}
         id={`json-item-${currentPath}`}
       >
-        <Stack space={2}>
+        <Stack space="1">
           {Object.entries(data).map(([key, dat]) => (
             <JSONExplorerDisplay
               data={dat}
@@ -118,6 +89,7 @@ const JSONExplorerDisplay = ({
               prefix={key}
               currentPath={addToPath(currentPath, key)}
               highlightedPaths={highlightedPaths}
+              hasParentError={!!errorMessage || hasParentError}
             />
           ))}
         </Stack>
@@ -128,12 +100,12 @@ const JSONExplorerDisplay = ({
   // Primitive leafs
   return (
     <LineItem
-      paddingY={1}
       depth={depth}
       hasError={!!errorMessage}
       id={`json-item-${currentPath}`}
+      hasParentError={hasParentError}
     >
-      <Stack space={1}>
+      <Stack>
         {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}
         <div>
           {prefixDisplay}
@@ -142,38 +114,118 @@ const JSONExplorerDisplay = ({
       </Stack>
     </LineItem>
   );
-};
+}
 
-const Collapsible = ({
+function Collapsible({
   title,
   depth,
-  children,
   errorMessage,
+  hasParentError,
   id,
+  children,
 }: React.PropsWithChildren<{
   title: JSX.Element;
   depth: number;
   errorMessage?: string;
+  hasParentError?: boolean;
   id?: string;
-}>) => {
+}>) {
   const [isExpanded, setIsExpanded] = React.useState(true);
 
   return (
-    <CollapsibleContainer space={2} id={id} hasError={!!errorMessage}>
+    <Stack
+      space="2"
+      className={clsx("rounded py-0.5", !!errorMessage && ERROR_CLASS)}
+      id={id}
+    >
       <LineItem
-        paddingY={1}
         depth={depth}
         onClick={() => setIsExpanded((v) => !v)}
         pointer
+        hasParentError={!!errorMessage || hasParentError}
       >
-        <Stack space={1}>
+        <Stack space="1">
           {errorMessage && <ErrorMessageText>{errorMessage}</ErrorMessageText>}
-          <Box>{title}</Box>
+          <div>{title}</div>
         </Stack>
       </LineItem>
       <div style={{ height: isExpanded ? "auto" : 0, overflow: "hidden" }}>
         {children}
       </div>
-    </CollapsibleContainer>
+    </Stack>
   );
-};
+}
+
+function Key({ children }: React.PropsWithChildren) {
+  return <span className="text-blue-700">{children}</span>;
+}
+
+function Label({ children }: React.PropsWithChildren) {
+  return <span className="text-fuchsia-700">{children}</span>;
+}
+
+function Value({ children }: React.PropsWithChildren) {
+  return <span className="text-yellow-800">{children}</span>;
+}
+
+function Stack({
+  children,
+  space = "0",
+  className,
+  ...rest
+}: React.PropsWithChildren<
+  React.HTMLProps<HTMLDivElement> & { space?: "0" | "1" | "2" }
+>) {
+  return (
+    <div
+      className={clsx(
+        "grid",
+        space === "1" && "gap-1",
+        space === "2" && "gap-2",
+        className
+      )}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+}
+
+function LineItem({
+  children,
+  hasError,
+  hasParentError,
+  depth = 0,
+  pointer,
+  ...rest
+}: React.PropsWithChildren<
+  React.HTMLProps<HTMLDivElement> & {
+    hasError?: boolean;
+    depth?: number;
+    pointer?: boolean;
+    hasParentError?: boolean;
+  }
+>) {
+  return (
+    <div
+      style={{ paddingLeft: depth * DEPTH_SC }}
+      className={clsx(
+        "rounded py-0.5",
+        !hasError && (!hasParentError || pointer) && "hover:bg-gray-50",
+        hasParentError && pointer && "hover:bg-opacity-50",
+        hasError && ERROR_CLASS,
+        pointer && "cursor-pointer"
+      )}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ErrorMessageText({ children }: React.PropsWithChildren) {
+  return <div className="text-sm text-gray-800">{children}</div>;
+}
+
+const DEPTH_SC = 12;
+const ERROR_CLASS = "bg-red-100";

@@ -28,7 +28,7 @@ import { useCopyDataAndNotify } from "../util/copyDataToClipboard";
 import { emitInit, emitReset } from "../util/messaging";
 import { JSONExplorer } from "./JSONExplorer";
 import { CopyQueryButton, ErrorLineItem } from "./Playground.styled";
-import { formatErrorPath } from "../util/formatErrorPath";
+import { formatErrorPath } from "../../../../shared/util/formatErrorPath";
 
 export default function GroqdPlayground({ tool }: GroqdPlaygroundProps) {
   const [

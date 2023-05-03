@@ -19,8 +19,8 @@ export function ArcadeHeader({
           className="inline-flex gap-3 items-center py-3 px-5 hover:bg-gray-50 rounded hover:no-underline transition-colors duration-150"
           href="/open-source/groqd"
         >
-          <img src="img/groqd-logo.png" width={60} />
-          <span className="text-2xl font-bold text-gray-700">GROQD</span>
+          <img src="img/groqd-logo.png" width={40} />
+          <span className="text-xl font-bold text-gray-700">GROQD</span>
         </a>
 
         <ArcadeActionList
