@@ -27,6 +27,7 @@ export function Arcade() {
       fetchParseError,
       parsedResponse,
       errorPaths,
+      rawResponse,
     },
     dispatch,
   ] = React.useReducer(reducer, defaultState);
@@ -110,6 +111,7 @@ export function Arcade() {
               fetchParseError={fetchParseError}
               errorPaths={errorPaths}
               parsedResponse={parsedResponse}
+              rawResponse={rawResponse}
             />
           </ArcadeSection>
         </div>

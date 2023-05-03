@@ -15,7 +15,7 @@ export function ArcadeDatasetEditor({}: ArcadeDatasetEditorProps) {
     editorRef.current = monaco.editor.create(container, {
       model: MODELS.json,
       language: "json",
-      fontSize: 15,
+      fontSize: 13,
       automaticLayout: true,
       minimap: { enabled: false },
     });

@@ -251,6 +251,9 @@ importers:
       '@mdx-js/react':
         specifier: ^1.6.22
         version: 1.6.22(react@17.0.2)
+      '@types/lodash.has':
+        specifier: ^4.5.7
+        version: 4.5.7
       '@uiw/react-split':
         specifier: ^5.8.10
         version: 5.8.10(react-dom@17.0.2)(react@17.0.2)
@@ -275,6 +278,9 @@ importers:
       lodash.debounce:
         specifier: ^4.0.8
         version: 4.0.8
+      lodash.has:
+        specifier: ^4.5.2
+        version: 4.5.2
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -5230,7 +5236,6 @@ packages:
     resolution: {integrity: sha512-nfbAzRbsZBdzSAkL9iiLy4SQk89uuFcXBFwZ7pf6oZhBgPvNys8BY5Twp/w8XvZKGt1o6cAa85wX4QhqO3uQ7A==}
     dependencies:
       '@types/lodash': 4.14.192
-    dev: true
 
   /@types/lodash@4.14.192:
     resolution: {integrity: sha512-km+Vyn3BYm5ytMO13k9KTp27O75rbQ0NFw+U//g+PX7VZyjCioXaRFisqSIJRECljcTv73G3i6BpglNGHgUQ5A==}
@@ -6196,7 +6201,7 @@ packages:
   /axios@0.25.0:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
     dependencies:
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.2(debug@2.6.9)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8742,7 +8747,6 @@ packages:
         optional: true
     dependencies:
       debug: 2.6.9
-    dev: true
 
   /follow-redirects@1.15.2(debug@4.3.4):
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
@@ -8754,6 +8758,7 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4(supports-color@5.5.0)
+    dev: false
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -9616,7 +9621,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.2(debug@2.6.9)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
