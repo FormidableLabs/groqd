@@ -2,7 +2,7 @@
   "name": "groqd-workspace",
   "private": "true",
   "scripts": {
-    "lint": "eslint packages website --quiet",
+    "lint": "eslint shared packages website --quiet",
     "test": "pnpm run -r test",
     "test:watch": "pnpm run -r test:watch",
     "typecheck:shared": "tsc --project tsconfig.shared.json --noEmit",
