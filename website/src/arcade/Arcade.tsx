@@ -3,6 +3,7 @@ import { MODELS } from "@site/src/arcade/models";
 import {
   defaultState,
   getStorageValue,
+  isDatasetPresetKey,
   reducer,
   setStorageValue,
 } from "@site/src/arcade/state";
@@ -16,6 +17,7 @@ import { ExamplePayload } from "@site/src/arcade/examples";
 import { ArcadeSection } from "@site/src/arcade/ArcadeSection";
 import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
+import lzstring from "lz-string";
 
 export function Arcade() {
   const editorRef = React.useRef<React.ElementRef<ArcadeEditorType>>();
@@ -42,12 +44,7 @@ export function Arcade() {
 
   const setDatasetPreset = React.useCallback(
     (datasetPreset: keyof typeof datasets) => {
-      const editor = editorRef.current;
-      if (!editor) return;
-
-      MODELS.json.setValue(
-        JSON.stringify(datasets[datasetPreset].data, null, 2)
-      );
+      MODELS.json.setValue(datasets[datasetPreset].data);
       setStorageValue(ARCADE_STORAGE_KEYS.DATASET, datasetPreset);
     },
     []
@@ -64,14 +61,27 @@ export function Arcade() {
     });
   };
 
+  /**
+   * Load in dataset
+   */
   React.useEffect(() => {
-    const storedDataset =
-      getStorageValue(ARCADE_STORAGE_KEYS.DATASET) || "pokemon";
+    const storedDataset = getStorageValue(ARCADE_STORAGE_KEYS.DATASET);
+
+    if (!storedDataset) return;
 
     if (isDatasetPresetKey(storedDataset))
       setTimeout(() => {
         setDatasetPreset(storedDataset);
       });
+    else {
+      try {
+        const d = lzstring.decompressFromEncodedURIComponent(storedDataset);
+        if (d) {
+          MODELS.json.setValue(d);
+          // TODO: format document...
+        }
+      } catch {}
+    }
   }, []);
 
   return (
@@ -119,6 +129,3 @@ export function Arcade() {
     </div>
   );
 }
-
-const isDatasetPresetKey = (str: string): str is keyof typeof datasets =>
-  str in datasets;

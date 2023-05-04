@@ -96,8 +96,8 @@ export const ArcadeEditor = React.forwardRef(
       runCode({ editor, dispatch }).catch(console.error);
 
       return () => {
-        didChangeInstance.dispose();
         handleContentChange.cancel();
+        didChangeInstance.dispose();
       };
     }, []);
 
