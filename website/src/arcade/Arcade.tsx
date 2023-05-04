@@ -32,13 +32,6 @@ export function Arcade() {
     dispatch,
   ] = React.useReducer(reducer, defaultState);
 
-  // TODO: We need a "run" button somewhere
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _runQuery = () => {
-    // if (!editor) return;
-    // editor.runQuery({ query, params, dispatch });
-  };
-
   const setDatasetPreset = React.useCallback(
     (datasetPreset: keyof typeof datasets) => {
       MODELS.json.setValue(datasets[datasetPreset].data);
@@ -71,7 +64,6 @@ export function Arcade() {
         const d = lzstring.decompressFromEncodedURIComponent(storedDataset);
         if (d) {
           MODELS.json.setValue(d);
-          // TODO: format document...
         }
       } catch {}
     }

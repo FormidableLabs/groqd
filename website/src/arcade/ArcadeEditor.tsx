@@ -76,16 +76,6 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
     });
     editor = editorRef.current;
 
-    // Cmd + Enter to run query
-    editor.addAction({
-      id: "trigger-run-query",
-      label: "Trigger Arcard query run",
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      run() {
-        runCodeEmitter.emit(true);
-      },
-    });
-
     registerEditorShortcuts(editor);
 
     // Run code on start
