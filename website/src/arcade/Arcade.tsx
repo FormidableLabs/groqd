@@ -21,6 +21,7 @@ import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { DefaultToastOptions, Toaster } from "react-hot-toast";
 import { HiPlay } from "react-icons/hi";
 import clsx from "clsx";
+import { ArcadeActionList } from "@site/src/arcade/ArcadeActionList";
 
 export function Arcade() {
   const [
@@ -90,16 +91,20 @@ export function Arcade() {
 
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col">
-      <ArcadeHeader
-        selectDatasetPreset={setDatasetPreset}
-        selectExample={loadExample}
-      />
+      <ArcadeHeader selectExample={loadExample} />
 
       <div className="flex-1 flex items-center">
         <div className="w-full grid grid-cols-3 gap-5 max-h-[1200px] h-full container max-w-[2400px] pb-5">
           <ArcadeSection
             title="Dataset"
             subtitle="The data your query will run against."
+            headerRightContent={
+              <ArcadeActionList
+                title="Dataset"
+                items={DatasetItems}
+                onSelectItem={setDatasetPreset}
+              />
+            }
           >
             <div className="h-full relative">
               <ArcadeDatasetEditor />
@@ -148,6 +153,11 @@ export function Arcade() {
     </div>
   );
 }
+
+const DatasetItems = Object.entries(datasets).map(([key, { title }]) => ({
+  title,
+  value: key,
+}));
 
 const toastOptions = {
   className: "rounded-md bg-white shadow-md",
