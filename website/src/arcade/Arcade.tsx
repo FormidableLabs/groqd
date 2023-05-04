@@ -18,6 +18,7 @@ import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
 import lzstring from "lz-string";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
+import { DefaultToastOptions, Toaster } from "react-hot-toast";
 
 export function Arcade() {
   const [
@@ -111,6 +112,21 @@ export function Arcade() {
           </ArcadeSection>
         </div>
       </div>
+
+      <Toaster toastOptions={toastOptions} />
     </div>
   );
 }
+
+const toastOptions = {
+  className: "rounded-md bg-white shadow-md",
+  position: "top-right",
+  error: {
+    className: "bg-red-100",
+    icon: null,
+  },
+  success: {
+    className: "bg-green-50",
+    icon: null,
+  },
+} satisfies DefaultToastOptions;
