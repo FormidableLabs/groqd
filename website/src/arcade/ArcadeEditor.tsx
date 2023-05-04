@@ -15,6 +15,8 @@ import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
 import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import has from "lodash.has";
+import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
+import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -88,9 +90,11 @@ export const ArcadeEditor = React.forwardRef(
         label: "Trigger Arcard query run",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
         run() {
-          runCode({ editor, dispatch, shouldRunQueryImmediately: true });
+          runCodeEmitter.emit(true);
         },
       });
+
+      registerEditorShortcuts(editor);
 
       // Run code on start
       runCode({ editor, dispatch }).catch(console.error);
@@ -98,6 +102,19 @@ export const ArcadeEditor = React.forwardRef(
       return () => {
         handleContentChange.cancel();
         didChangeInstance.dispose();
+      };
+    }, []);
+
+    React.useEffect(() => {
+      const handle = runCodeEmitter.subscribe((shouldRunQueryImmediately) => {
+        const editor = editorRef.current;
+        if (!editor) return;
+
+        return runCode({ dispatch, editor, shouldRunQueryImmediately });
+      });
+
+      return () => {
+        handle.unsubscribe();
       };
     }, []);
 

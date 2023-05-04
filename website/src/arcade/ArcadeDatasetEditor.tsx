@@ -10,6 +10,7 @@ import {
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
 import datasets from "@site/src/datasets.json";
+import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 
 type ArcadeDatasetEditorProps = {};
 
@@ -49,6 +50,8 @@ export function ArcadeDatasetEditor({}: ArcadeDatasetEditorProps) {
       minimap: { enabled: false },
       formatOnPaste: true,
     });
+
+    registerEditorShortcuts(editorRef.current);
 
     return () => {
       handleContentChange.cancel();
