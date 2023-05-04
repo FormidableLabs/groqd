@@ -4,7 +4,9 @@ export const copyToClipboard = (value: string, cb?: () => void) =>
   navigator.clipboard
     .writeText(value)
     .then(cb)
-    .catch(() => null);
+    .catch(() => {
+      toast.error("Failed to copy to clipboard.");
+    });
 
 export const copyShareUrl = () =>
   copyToClipboard(window.location.href, () => {
