@@ -152,6 +152,7 @@ function Collapsible({
           maxHeight += el.scrollHeight;
       });
 
+      // Take into account nested collapsed collapsibles so transition is always 300ms
       div.style.setProperty(
         "--duration",
         `${(maxHeight / initMaxHeight) * TRANSITION_DURATION}ms`
