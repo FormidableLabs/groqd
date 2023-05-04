@@ -19,6 +19,8 @@ import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
 import lzstring from "lz-string";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { DefaultToastOptions, Toaster } from "react-hot-toast";
+import { HiPlay } from "react-icons/hi";
+import clsx from "clsx";
 
 export function Arcade() {
   const [
@@ -45,6 +47,10 @@ export function Arcade() {
     setDatasetPreset(dataset);
     MODELS.ts.setValue(code);
 
+    runCodeEmitter.emit(true);
+  };
+
+  const handleRun = () => {
     runCodeEmitter.emit(true);
   };
 
@@ -90,6 +96,19 @@ export function Arcade() {
           <ArcadeSection
             title="Query Code"
             subtitle="Your code to run a GROQD query."
+            headerRightContent={
+              <button
+                className={clsx(
+                  "group border-none rounded-md flex items-center gap-3 px-4 py-1",
+                  "text-base font-bold cursor-pointer text-gray-700",
+                  "bg-gray-50 hover:bg-gray-200 transition-colors duration-150"
+                )}
+                onClick={handleRun}
+              >
+                <span>Run</span>
+                <HiPlay className="text-3xl opacity-90 group-hover:opacity-100 text-green-600 transition-colors transition-opacity duration-150" />
+              </button>
+            }
           >
             <div className="h-full flex flex-col">
               <div className="relative flex-1">

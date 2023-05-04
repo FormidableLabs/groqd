@@ -131,10 +131,41 @@ function Collapsible({
   id?: string;
 }>) {
   const [isExpanded, setIsExpanded] = React.useState(true);
+  const bodyWrapper = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const div = bodyWrapper.current;
+    if (!div) return;
+
+    const TRANSITION_DURATION = 300; // ms
+
+    if (isExpanded) {
+      const initMaxHeight = div.scrollHeight;
+
+      /**
+       * We might have nested collapsibles that are collapsed – we need to take those into account.
+       * Loop through and grab scrollHeight of each nested collapsed collapsible, so we can take that into account.
+       */
+      let maxHeight = initMaxHeight;
+      div.querySelectorAll("div.__collapsible_body").forEach((el) => {
+        if (el instanceof HTMLDivElement && el.style.maxHeight === "0px")
+          maxHeight += el.scrollHeight;
+      });
+
+      // Take into account nested collapsed collapsibles so transition is always 300ms
+      div.style.setProperty(
+        "--duration",
+        `${(maxHeight / initMaxHeight) * TRANSITION_DURATION}ms`
+      );
+      div.style.maxHeight = maxHeight + "px";
+    } else {
+      div.style.setProperty("--duration", `${TRANSITION_DURATION}ms`);
+      div.style.maxHeight = "0px";
+    }
+  }, [isExpanded]);
 
   return (
     <Stack
-      space="2"
       className={clsx("rounded py-0.5", !!errorMessage && ERROR_CLASS)}
       id={id}
     >
@@ -149,7 +180,11 @@ function Collapsible({
           <div>{title}</div>
         </Stack>
       </LineItem>
-      <div style={{ height: isExpanded ? "auto" : 0, overflow: "hidden" }}>
+      <div
+        ref={bodyWrapper}
+        className="overflow-hidden transition-all duration-[var(--duration)] will-change-[maxHeight] __collapsible_body"
+      >
+        <div className="h-2" />
         {children}
       </div>
     </Stack>
