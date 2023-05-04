@@ -23,3 +23,8 @@ class SimpleEventEmitter<S> {
  * Trigger code run from anywhere.
  */
 export const runCodeEmitter = new SimpleEventEmitter<boolean>();
+
+/**
+ * Trigger query run from anywhere
+ */
+export const runQueryEmitter = new SimpleEventEmitter();
