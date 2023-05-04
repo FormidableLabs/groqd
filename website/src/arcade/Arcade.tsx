@@ -96,22 +96,23 @@ export function Arcade() {
           <ArcadeSection
             title="Query Code"
             subtitle="Your code to run a GROQD query."
+            headerRightContent={
+              <button
+                className={clsx(
+                  "group border-none rounded-md flex items-center gap-3 px-4 py-1",
+                  "text-base font-bold cursor-pointer text-gray-700",
+                  "bg-gray-50 hover:bg-gray-200 transition-colors duration-150"
+                )}
+                onClick={handleRun}
+              >
+                <span>Run</span>
+                <HiPlay className="text-3xl opacity-90 group-hover:opacity-100 text-green-600 transition-colors transition-opacity duration-150" />
+              </button>
+            }
           >
             <div className="h-full flex flex-col">
               <div className="relative flex-1">
                 <ArcadeEditor dispatch={dispatch} />
-                <button
-                  className={clsx(
-                    "absolute right-8 bottom-5 inline-flex items-center px-5 py-2 gap-3",
-                    "bg-gray-50 border-none text-lg rounded shadow-sm hover:shadow-md font-bold text-gray-700",
-                    "cursor-pointer bg-gradient-to-tr from-green-200 to-green-100 hover:bg-green-200",
-                    "transition-colors transition-shadow duration-150"
-                  )}
-                  onClick={handleRun}
-                >
-                  <span>Run</span>
-                  <HiPlay className="text-2xl text-green-600" />
-                </button>
               </div>
               <ArcadeQueryDisplay query={query.query} />
             </div>
