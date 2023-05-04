@@ -12,7 +12,7 @@ import { ArcadeQueryDisplay } from "@site/src/arcade/ArcadeQueryDisplay";
 import { ArcadeEditor } from "@site/src/arcade/ArcadeEditor";
 import datasets from "@site/src/datasets.json";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
-import { ExamplePayload } from "@site/src/arcade/examples";
+import { ExamplePayload, EXAMPLES } from "@site/src/arcade/examples";
 import { ArcadeSection } from "@site/src/arcade/ArcadeSection";
 import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
@@ -53,6 +53,18 @@ export function Arcade() {
   const handleRun = () => {
     runCodeEmitter.emit(true);
   };
+
+  /**
+   * On mount, if we're missing dataset/code – load in basic example.
+   */
+  React.useEffect(() => {
+    if (
+      !getStorageValue(ARCADE_STORAGE_KEYS.DATASET) &&
+      !getStorageValue(ARCADE_STORAGE_KEYS.CODE)
+    ) {
+      loadExample(EXAMPLES["Basic Query"]);
+    }
+  }, []);
 
   /**
    * Load in dataset
