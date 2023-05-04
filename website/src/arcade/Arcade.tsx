@@ -19,6 +19,8 @@ import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
 import lzstring from "lz-string";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { DefaultToastOptions, Toaster } from "react-hot-toast";
+import { HiPlay } from "react-icons/hi";
+import clsx from "clsx";
 
 export function Arcade() {
   const [
@@ -45,6 +47,10 @@ export function Arcade() {
     setDatasetPreset(dataset);
     MODELS.ts.setValue(code);
 
+    runCodeEmitter.emit(true);
+  };
+
+  const handleRun = () => {
     runCodeEmitter.emit(true);
   };
 
@@ -94,6 +100,20 @@ export function Arcade() {
             <div className="h-full flex flex-col">
               <div className="relative flex-1">
                 <ArcadeEditor dispatch={dispatch} />
+                <div className="absolute right-0 bottom-0 p-4">
+                  <button
+                    className={clsx(
+                      "inline-flex items-center px-5 py-2 gap-3",
+                      "bg-gray-50 border-none text-xl rounded shadow-sm hover:shadow-md font-bold text-gray-700",
+                      "cursor-pointer bg-gradient-to-tr from-green-200 to-green-100 hover:bg-green-200",
+                      "transition-colors transition-shadow duration-150"
+                    )}
+                    onClick={handleRun}
+                  >
+                    <span>Run</span>
+                    <HiPlay className="text-2xl text-green-600" />
+                  </button>
+                </div>
               </div>
               <ArcadeQueryDisplay query={query.query} />
             </div>

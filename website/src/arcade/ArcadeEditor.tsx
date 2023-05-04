@@ -15,10 +15,7 @@ import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
 import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import has from "lodash.has";
-import {
-  runCodeEmitter,
-  runQueryEmitter,
-} from "@site/src/arcade/eventEmitters";
+import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import toast from "react-hot-toast";
 
@@ -97,11 +94,8 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
       }
     );
 
-    const runQueryEmitterHandle = runQueryEmitter.subscribe(runQuery);
-
     return () => {
       runCodeEmitterHandle.unsubscribe();
-      runQueryEmitterHandle.unsubscribe();
     };
   }, []);
 
