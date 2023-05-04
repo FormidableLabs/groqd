@@ -3,7 +3,7 @@ import { ArcadeActionList } from "@site/src/arcade/ArcadeActionList";
 import datasets from "@site/src/datasets.json";
 import { ExamplePayload, EXAMPLES } from "@site/src/arcade/examples";
 import clsx from "clsx";
-import { HiShare } from "react-icons/all";
+import { HiShare } from "react-icons/hi";
 import { copyShareUrl } from "@site/src/arcade/share";
 
 type ArcadeHeaderProps = {
