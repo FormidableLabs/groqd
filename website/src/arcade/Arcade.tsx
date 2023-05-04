@@ -18,7 +18,7 @@ import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
 import lzstring from "lz-string";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
-import { DefaultToastOptions, ToastBar, Toaster } from "react-hot-toast";
+import { DefaultToastOptions, Toaster } from "react-hot-toast";
 
 export function Arcade() {
   const [
