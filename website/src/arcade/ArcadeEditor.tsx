@@ -18,6 +18,7 @@ import has from "lodash.has";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import toast from "react-hot-toast";
+import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -27,6 +28,7 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
   const activeModel = "ts";
+  const prefersDark = useIsDarkMode();
 
   /**
    * Set up editor on mount
@@ -69,6 +71,7 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
       model: MODELS[activeModel],
       language: "ts",
       fontSize: 13,
+      theme: prefersDark ? "vs-dark" : "vs",
       automaticLayout: true,
       minimap: { enabled: false },
     });
