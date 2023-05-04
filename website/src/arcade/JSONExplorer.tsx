@@ -192,15 +192,19 @@ function Collapsible({
 }
 
 function Key({ children }: React.PropsWithChildren) {
-  return <span className="text-blue-700">{children}</span>;
+  return <span className="text-blue-700 dark:text-blue-300">{children}</span>;
 }
 
 function Label({ children }: React.PropsWithChildren) {
-  return <span className="text-fuchsia-700">{children}</span>;
+  return (
+    <span className="text-fuchsia-700 dark:text-fuchsia-300">{children}</span>
+  );
 }
 
 function Value({ children }: React.PropsWithChildren) {
-  return <span className="text-yellow-800">{children}</span>;
+  return (
+    <span className="text-yellow-800 dark:text-yellow-300">{children}</span>
+  );
 }
 
 function Stack({
@@ -267,4 +271,4 @@ function ErrorMessageText({ children }: React.PropsWithChildren) {
 }
 
 const DEPTH_SC = 12;
-const ERROR_CLASS = "bg-red-100";
+const ERROR_CLASS = "bg-red-100 dark:bg-red-900";

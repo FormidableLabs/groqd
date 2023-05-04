@@ -32,19 +32,17 @@ export function ArcadeResponseView({
     return (
       <div className="absolute inset-0 flex flex-col">
         <div className="max-h-[200px] overflow-hidden border-b border-transparent border-b-gray-100 border-solid flex flex-col">
-          <div className="px-4 py-2 font-bold text-sm text-red-700">
+          <div className="px-4 py-2 font-bold text-sm text-red-700 dark:text-red-400">
             Error parsing:
           </div>
           <div className="px-4 flex-1 overflow-auto">
             {[...errorPaths.entries()].map(([path, message]) => (
               <div
                 key={path}
-                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 text-sm"
+                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 text-sm text-gray-700 dark:text-gray-200 "
                 onClick={() => scrollToErr(path)}
               >
-                <span className="text-gray-700 dark:text-gray-200 font-mono">
-                  result{formatErrorPath(path)}
-                </span>
+                <span className="font-mono">result{formatErrorPath(path)}</span>
                 : {message}
               </div>
             ))}
