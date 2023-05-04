@@ -11,14 +11,12 @@ import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
 import datasets from "@site/src/datasets.json";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
-import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
 
 type ArcadeDatasetEditorProps = {};
 
 export function ArcadeDatasetEditor({}: ArcadeDatasetEditorProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-  const prefersDark = useIsDarkMode();
 
   React.useEffect(() => {
     const container = containerRef.current;
@@ -51,7 +49,6 @@ export function ArcadeDatasetEditor({}: ArcadeDatasetEditorProps) {
       automaticLayout: true,
       minimap: { enabled: false },
       formatOnPaste: true,
-      theme: prefersDark ? "vs-dark" : "vs",
     });
 
     registerEditorShortcuts(editorRef.current);

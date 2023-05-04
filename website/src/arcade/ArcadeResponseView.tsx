@@ -39,7 +39,7 @@ export function ArcadeResponseView({
             {[...errorPaths.entries()].map(([path, message]) => (
               <div
                 key={path}
-                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 text-sm text-gray-700 dark:text-gray-200 "
+                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 p-1 text-sm text-gray-700 dark:text-gray-200 "
                 onClick={() => scrollToErr(path)}
               >
                 <span className="font-mono">result{formatErrorPath(path)}</span>
@@ -68,7 +68,7 @@ export function ArcadeResponseView({
         <div className="font-bold text-sm text-red-700 dark:text-red-400 mb-1">
           Error running query:
         </div>
-        <div className="font-mono text-sm text-gray-700 dark:text-gray-200 p-2 rounded bg-gray-50 dark:bg-gray-800">
+        <div className="font-mono text-sm text-gray-700 dark:text-gray-200 p-2 rounded bg-gray-50 dark:bg-zinc-800">
           {fetchParseError instanceof Error
             ? fetchParseError.message
             : "Something went wrong..."}

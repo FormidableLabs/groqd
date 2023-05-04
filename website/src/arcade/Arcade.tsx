@@ -90,7 +90,7 @@ export function Arcade() {
   }, []);
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col bg-white dark:bg-gray-900">
+    <div className="w-full h-screen overflow-hidden flex flex-col bg-white dark:bg-zinc-900">
       <ArcadeHeader selectExample={loadExample} />
 
       <div className="flex-1 flex items-center">
@@ -118,7 +118,7 @@ export function Arcade() {
                 className={clsx(
                   "group border-none rounded-md flex items-center gap-3 px-4 py-1",
                   "text-base font-bold cursor-pointer text-gray-700 dark:text-gray-200",
-                  "bg-gray-50 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-150"
+                  "bg-gray-50 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors duration-150"
                 )}
                 onClick={handleRun}
               >
@@ -160,14 +160,15 @@ const DatasetItems = Object.entries(datasets).map(([key, { title }]) => ({
 }));
 
 const toastOptions = {
-  className: "rounded-md bg-white shadow-md",
   position: "top-right",
   error: {
-    className: "bg-red-100",
+    className:
+      "rounded-md bg-white shadow-md dark:text-gray-50 bg-red-100 dark:bg-red-900",
     icon: null,
   },
   success: {
-    className: "bg-green-50",
+    className:
+      "rounded-md bg-white shadow-md dark:text-gray-50 bg-green-50 dark:bg-green-900",
     icon: null,
   },
 } satisfies DefaultToastOptions;

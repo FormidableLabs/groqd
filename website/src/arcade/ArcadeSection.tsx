@@ -13,7 +13,7 @@ export function ArcadeSection({
   children,
 }: React.PropsWithChildren<ArcadeSectionProps>) {
   return (
-    <div className="w-full border border-solid border-gray-200 dark:border-gray-700 rounded overflow-hidden flex flex-col h-full">
+    <div className="w-full border border-solid border-gray-200 dark:border-zinc-700 rounded overflow-hidden flex flex-col h-full">
       <div className="p-4 flex items-center justify-between">
         <div>
           <div className="text-base font-bold leading-none text-gray-700 dark:text-gray-200 mb-0.5">

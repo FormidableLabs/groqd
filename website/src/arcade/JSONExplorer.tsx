@@ -252,7 +252,7 @@ function LineItem({
         "rounded py-0.5",
         !hasError &&
           (!hasParentError || pointer) &&
-          "hover:bg-gray-50 dark:hover:bg-gray-800",
+          "hover:bg-gray-50 dark:hover:bg-zinc-800",
         hasParentError && pointer && "hover:bg-opacity-50",
         hasError && ERROR_CLASS,
         pointer && "cursor-pointer"

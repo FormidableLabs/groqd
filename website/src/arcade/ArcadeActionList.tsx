@@ -23,9 +23,9 @@ export const ArcadeActionList = <T,>({
           <Menu.Button
             className={clsx(
               "inline-flex w-full justify-center items-center rounded-md bg-black px-4 py-2 border-none cursor-pointer",
-              "hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150",
+              "hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors duration-150",
               "text-base font-bold text-gray-700 dark:text-gray-200",
-              open ? "bg-gray-50 dark:bg-gray-800" : "bg-transparent"
+              open ? "bg-gray-50 dark:bg-zinc-800" : "bg-transparent"
             )}
           >
             {title}
@@ -50,7 +50,7 @@ export const ArcadeActionList = <T,>({
                         className={clsx(
                           "w-full p-2 border-none rounded-md",
                           "text-left text-sm dark:text-gray-50 cursor-pointer",
-                          "hover:bg-gray-50 dark:hover:bg-gray-800",
+                          "hover:bg-gray-50 dark:hover:bg-zinc-800",
                           active ? "bg-gray-50" : "bg-transparent"
                         )}
                         onClick={() => onSelectItem(item.value)}

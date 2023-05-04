@@ -102,6 +102,10 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
     };
   }, []);
 
+  React.useEffect(() => {
+    monaco.editor.setTheme(prefersDark ? "vs-dark" : "vs");
+  }, [prefersDark]);
+
   return <div className="absolute inset-0" ref={containerRef} />;
 };
 
