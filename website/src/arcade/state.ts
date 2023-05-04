@@ -88,7 +88,7 @@ export const setStorageValue = (
 
 export const getStorageValue = (
   key: ValueOf<typeof ARCADE_STORAGE_KEYS>,
-  qpOnly = false
+  qpOnly = true // temporarily disable localStorage. QP will be fine to start
 ) => {
   try {
     return (
