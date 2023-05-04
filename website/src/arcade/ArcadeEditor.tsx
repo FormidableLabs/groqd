@@ -15,128 +15,97 @@ import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
 import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import has from "lodash.has";
+import {
+  runCodeEmitter,
+  runQueryEmitter,
+} from "@site/src/arcade/eventEmitters";
+import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
 };
 
-export type ArcadeEditorHandle = {
-  setModel(model: keyof typeof MODELS): void;
-  runCode(
-    args: Pick<Parameters<typeof runCode>[0], "shouldRunQueryImmediately">
-  ): void;
-  runQuery: typeof runQuery;
-  formatDocument(): void;
-};
+export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
+  const activeModel = "ts";
 
-export const ArcadeEditor = React.forwardRef(
-  ({ dispatch }: ArcadeEditorProps, ref: React.Ref<ArcadeEditorHandle>) => {
-    const containerRef = React.useRef<HTMLDivElement>(null);
-    const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor>();
-    const activeModel = "ts";
+  /**
+   * Set up editor on mount
+   */
+  React.useEffect(() => {
+    const container = containerRef.current;
+    let editor = editorRef.current;
 
-    /**
-     * Set up editor on mount
-     */
-    React.useEffect(() => {
-      const container = containerRef.current;
-      let editor = editorRef.current;
+    if (!container || editor) return;
 
-      if (!container || editor) return;
-
-      // Pull initial code
-      const storedCode = getStorageValue(ARCADE_STORAGE_KEYS.CODE);
-      if (storedCode) {
-        MODELS.ts.setValue(
-          lzstring.decompressFromEncodedURIComponent(storedCode)
-        );
-      }
-
-      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-        typeRoots: ["groqd", "zod"],
-        target: monaco.languages.typescript.ScriptTarget.ES5,
-        strict: true,
-        skipLibCheck: true,
-        esModuleInterop: true,
-      });
-
-      monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
-      monaco.languages.registerInlayHintsProvider(
-        "typescript",
-        createTwoslashInlayProvider()
+    // Pull initial code
+    const storedCode = getStorageValue(ARCADE_STORAGE_KEYS.CODE);
+    if (storedCode) {
+      MODELS.ts.setValue(
+        lzstring.decompressFromEncodedURIComponent(storedCode)
       );
+    }
 
-      const handleContentChange = debounce(
-        () => runCode({ editor, dispatch }),
-        500
-      );
-      const didChangeInstance =
-        MODELS.ts.onDidChangeContent(handleContentChange);
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      typeRoots: ["groqd", "zod"],
+      target: monaco.languages.typescript.ScriptTarget.ES5,
+      strict: true,
+      skipLibCheck: true,
+      esModuleInterop: true,
+    });
 
-      editorRef.current = monaco.editor.create(container, {
-        model: MODELS[activeModel],
-        language: "ts",
-        fontSize: 13,
-        automaticLayout: true,
-        minimap: { enabled: false },
-      });
-      editor = editorRef.current;
-
-      // Cmd + Enter to run query
-      editor.addAction({
-        id: "trigger-run-query",
-        label: "Trigger Arcard query run",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-        run() {
-          runCode({ editor, dispatch, shouldRunQueryImmediately: true });
-        },
-      });
-
-      // Run code on start
-      runCode({ editor, dispatch }).catch(console.error);
-
-      return () => {
-        didChangeInstance.dispose();
-        handleContentChange.cancel();
-      };
-    }, []);
-
-    /**
-     * Need a handle so that parent component can call methods here.
-     *  A bit of an anti-pattern, but monaco-shenanigans needs to get isolated here
-     *   so that SSG doesn't choke on client-side APIs from monaco.
-     */
-    React.useImperativeHandle(
-      ref,
-      () => {
-        return {
-          setModel(newModel: keyof typeof MODELS) {
-            editorRef.current?.setModel(MODELS[newModel]);
-          },
-          runQuery,
-          runCode({ shouldRunQueryImmediately }) {
-            const editor = editorRef.current;
-            if (!editor) return;
-
-            return runCode({ dispatch, editor, shouldRunQueryImmediately });
-          },
-          formatDocument() {
-            const editor = editorRef.current;
-            if (!editor) return;
-
-            editor
-              .getAction("editor.action.formatDocument")
-              .run()
-              .catch(() => null);
-          },
-        };
-      },
-      []
+    monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
+    monaco.languages.registerInlayHintsProvider(
+      "typescript",
+      createTwoslashInlayProvider()
     );
 
-    return <div className="absolute inset-0" ref={containerRef} />;
-  }
-);
+    const handleContentChange = debounce(
+      () => runCode({ editor, dispatch }),
+      500
+    );
+    const didChangeInstance = MODELS.ts.onDidChangeContent(handleContentChange);
+
+    editorRef.current = monaco.editor.create(container, {
+      model: MODELS[activeModel],
+      language: "ts",
+      fontSize: 13,
+      automaticLayout: true,
+      minimap: { enabled: false },
+    });
+    editor = editorRef.current;
+
+    registerEditorShortcuts(editor);
+
+    // Run code on start
+    runCode({ editor, dispatch }).catch(console.error);
+
+    return () => {
+      handleContentChange.cancel();
+      didChangeInstance.dispose();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const runCodeEmitterHandle = runCodeEmitter.subscribe(
+      (shouldRunQueryImmediately) => {
+        const editor = editorRef.current;
+        if (!editor) return;
+        return runCode({ dispatch, editor, shouldRunQueryImmediately });
+      }
+    );
+
+    const runQueryEmitterHandle = runQueryEmitter.subscribe(runQuery);
+
+    return () => {
+      runCodeEmitterHandle.unsubscribe();
+      runQueryEmitterHandle.unsubscribe();
+    };
+  }, []);
+
+  return <div className="absolute inset-0" ref={containerRef} />;
+};
 
 /**
  * Execute TS query code, generates a query to store in state
@@ -295,5 +264,3 @@ for (const [filename, content] of Object.entries<string>(types.zod)) {
     filePath: monaco.Uri.file(`/node_modules/zod/${filename}`).toString(),
   });
 }
-
-export type ArcadeEditorType = typeof ArcadeEditor;

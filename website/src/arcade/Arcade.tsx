@@ -3,12 +3,12 @@ import { MODELS } from "@site/src/arcade/models";
 import {
   defaultState,
   getStorageValue,
+  isDatasetPresetKey,
   reducer,
   setStorageValue,
 } from "@site/src/arcade/state";
 import { ArcadeHeader } from "@site/src/arcade/ArcadeHeader";
 import { ArcadeQueryDisplay } from "@site/src/arcade/ArcadeQueryDisplay";
-import type { ArcadeEditorType } from "@site/src/arcade/ArcadeEditor";
 import { ArcadeEditor } from "@site/src/arcade/ArcadeEditor";
 import datasets from "@site/src/datasets.json";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
@@ -16,13 +16,13 @@ import { ExamplePayload } from "@site/src/arcade/examples";
 import { ArcadeSection } from "@site/src/arcade/ArcadeSection";
 import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
+import lzstring from "lz-string";
+import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 
 export function Arcade() {
-  const editorRef = React.useRef<React.ElementRef<ArcadeEditorType>>();
   const [
     {
       query,
-      params,
       isExecutingQuery,
       fetchParseError,
       parsedResponse,
@@ -32,22 +32,9 @@ export function Arcade() {
     dispatch,
   ] = React.useReducer(reducer, defaultState);
 
-  // TODO: We need a "run" button somewhere
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _runQuery = () => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    editor.runQuery({ query, params, dispatch });
-  };
-
   const setDatasetPreset = React.useCallback(
     (datasetPreset: keyof typeof datasets) => {
-      const editor = editorRef.current;
-      if (!editor) return;
-
-      MODELS.json.setValue(
-        JSON.stringify(datasets[datasetPreset].data, null, 2)
-      );
+      MODELS.json.setValue(datasets[datasetPreset].data);
       setStorageValue(ARCADE_STORAGE_KEYS.DATASET, datasetPreset);
     },
     []
@@ -57,21 +44,29 @@ export function Arcade() {
     setDatasetPreset(dataset);
     MODELS.ts.setValue(code);
 
-    const editor = editorRef.current;
-    if (!editor) return;
-    editorRef.current?.runCode({
-      shouldRunQueryImmediately: true,
-    });
+    runCodeEmitter.emit(true);
   };
 
+  /**
+   * Load in dataset
+   */
   React.useEffect(() => {
-    const storedDataset =
-      getStorageValue(ARCADE_STORAGE_KEYS.DATASET) || "pokemon";
+    const storedDataset = getStorageValue(ARCADE_STORAGE_KEYS.DATASET);
+
+    if (!storedDataset) return;
 
     if (isDatasetPresetKey(storedDataset))
       setTimeout(() => {
         setDatasetPreset(storedDataset);
       });
+    else {
+      try {
+        const d = lzstring.decompressFromEncodedURIComponent(storedDataset);
+        if (d) {
+          MODELS.json.setValue(d);
+        }
+      } catch {}
+    }
   }, []);
 
   return (
@@ -97,7 +92,7 @@ export function Arcade() {
           >
             <div className="h-full flex flex-col">
               <div className="relative flex-1">
-                <ArcadeEditor dispatch={dispatch} ref={editorRef} />
+                <ArcadeEditor dispatch={dispatch} />
               </div>
               <ArcadeQueryDisplay query={query.query} />
             </div>
@@ -119,6 +114,3 @@ export function Arcade() {
     </div>
   );
 }
-
-const isDatasetPresetKey = (str: string): str is keyof typeof datasets =>
-  str in datasets;

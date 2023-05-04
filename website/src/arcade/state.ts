@@ -1,7 +1,7 @@
 import * as React from "react";
-import { BaseQuery } from "groqd";
+import { BaseQuery, q } from "groqd";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
-import { q } from "groqd";
+import datasets from "@site/src/datasets.json";
 
 export type GroqdQueryParams = Record<string, string | number>;
 export type State = {
@@ -86,11 +86,14 @@ export const setStorageValue = (
   localStorage.setItem(LOCAL_STORAGE_PREFIX + key, value);
 };
 
-export const getStorageValue = (key: ValueOf<typeof ARCADE_STORAGE_KEYS>) => {
+export const getStorageValue = (
+  key: ValueOf<typeof ARCADE_STORAGE_KEYS>,
+  qpOnly = false
+) => {
   try {
     return (
-      new URL(window.location.href).searchParams.get(key) ||
-      localStorage.getItem(LOCAL_STORAGE_PREFIX + key) ||
+      qp.get(key) ||
+      (!qpOnly && localStorage.getItem(LOCAL_STORAGE_PREFIX + key)) ||
       ""
     );
   } catch {
@@ -99,3 +102,6 @@ export const getStorageValue = (key: ValueOf<typeof ARCADE_STORAGE_KEYS>) => {
 };
 
 type ValueOf<T> = T[keyof T];
+
+export const isDatasetPresetKey = (str: string): str is keyof typeof datasets =>
+  str in datasets;
