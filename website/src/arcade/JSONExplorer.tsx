@@ -246,7 +246,9 @@ function LineItem({
       style={{ paddingLeft: depth * DEPTH_SC }}
       className={clsx(
         "rounded py-0.5",
-        !hasError && (!hasParentError || pointer) && "hover:bg-gray-50",
+        !hasError &&
+          (!hasParentError || pointer) &&
+          "hover:bg-gray-50 dark:hover:bg-gray-800",
         hasParentError && pointer && "hover:bg-opacity-50",
         hasError && ERROR_CLASS,
         pointer && "cursor-pointer"
@@ -259,7 +261,9 @@ function LineItem({
 }
 
 function ErrorMessageText({ children }: React.PropsWithChildren) {
-  return <div className="text-sm text-gray-800">{children}</div>;
+  return (
+    <div className="text-sm text-gray-800 dark:text-gray-100">{children}</div>
+  );
 }
 
 const DEPTH_SC = 12;

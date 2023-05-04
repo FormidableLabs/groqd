@@ -90,7 +90,7 @@ export function Arcade() {
   }, []);
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col">
+    <div className="w-full h-screen overflow-hidden flex flex-col bg-white dark:bg-gray-900">
       <ArcadeHeader selectExample={loadExample} />
 
       <div className="flex-1 flex items-center">
@@ -117,13 +117,13 @@ export function Arcade() {
               <button
                 className={clsx(
                   "group border-none rounded-md flex items-center gap-3 px-4 py-1",
-                  "text-base font-bold cursor-pointer text-gray-700",
-                  "bg-gray-50 hover:bg-gray-200 transition-colors duration-150"
+                  "text-base font-bold cursor-pointer text-gray-700 dark:text-gray-200",
+                  "bg-gray-50 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-150"
                 )}
                 onClick={handleRun}
               >
                 <span>Run</span>
-                <HiPlay className="text-3xl opacity-90 group-hover:opacity-100 text-green-600 transition-colors transition-opacity duration-150" />
+                <HiPlay className="text-3xl opacity-90 group-hover:opacity-100 text-green-600 dark:text-green-700 transition-colors transition-opacity duration-150" />
               </button>
             }
           >
