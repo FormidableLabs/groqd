@@ -20,6 +20,7 @@ import {
   runQueryEmitter,
 } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
+import toast from "react-hot-toast";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -154,7 +155,7 @@ const runCode = async ({
                 runQuery({ query, params, dispatch });
             }
           } catch {
-            // TODO: Should we handle this case? Maybe just emit a toast?
+            toast.error("Failed to evaluate code.");
           }
         },
       },

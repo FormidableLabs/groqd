@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 export const copyToClipboard = (value: string, cb?: () => void) =>
   navigator.clipboard
     .writeText(value)
@@ -6,5 +8,5 @@ export const copyToClipboard = (value: string, cb?: () => void) =>
 
 export const copyShareUrl = () =>
   copyToClipboard(window.location.href, () => {
-    alert("Copied share URL to clipboard");
+    toast.success("Copied share URL to clipboard.");
   });
