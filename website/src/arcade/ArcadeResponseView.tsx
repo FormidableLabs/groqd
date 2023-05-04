@@ -65,10 +65,10 @@ export function ArcadeResponseView({
   if (fetchParseError) {
     return (
       <div className="px-4 py-2">
-        <div className="font-bold text-sm text-red-700 mb-1">
+        <div className="font-bold text-sm text-red-700 dark:text-red-400 mb-1">
           Error running query:
         </div>
-        <div className="font-mono text-sm text-gray-700 dark:text-gray-200 p-2 rounded bg-gray-50">
+        <div className="font-mono text-sm text-gray-700 dark:text-gray-200 p-2 rounded bg-gray-50 dark:bg-gray-800">
           {fetchParseError instanceof Error
             ? fetchParseError.message
             : "Something went wrong..."}
