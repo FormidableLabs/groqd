@@ -63,4 +63,30 @@ export const EXAMPLES = {
         })
     `),
   },
+
+  "Multiple root queries": {
+    dataset: "pokemon",
+    code: wrapStandardQuery(`
+      q("")
+        .grab({
+          allPokemonNames: q("*").filterByType("pokemon").grabOne("name", q.string()),
+          allTypeNames: q("*").filterByType("poketype").grabOne("name", q.string()),
+        })
+    `),
+  },
+
+  "Raw GROQ Functions": {
+    dataset: "pokemon",
+    code: wrapStandardQuery(`
+      q("*")
+        .filterByType("pokemon")
+        .slice(0, 8)
+        .grab({
+          name: q.string(),
+          // pass raw query and a schema 
+          numTypes: ["count(types)", q.number()],
+          foo: ["coalesce(foo, 'not there')", q.string()]
+        })
+    `),
+  },
 } satisfies Record<string, ExamplePayload>;
