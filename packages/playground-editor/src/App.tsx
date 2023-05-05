@@ -5,10 +5,12 @@ import types from "./types.json";
 import ScriptTarget = languages.typescript.ScriptTarget;
 import debounce from "lodash.debounce";
 import { emitError, emitInput, emitReady } from "./messaging";
-import { useIsDarkMode } from "./useDarkMode";
 import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import lzstring from "lz-string";
 import { z } from "zod";
+import { makeDarkModeHook } from "../../../shared/util/makeDarkModeHook";
+
+const useIsDarkMode = makeDarkModeHook(React);
 
 export function App() {
   const containerRef = React.useRef<HTMLDivElement>(null);

@@ -13,13 +13,17 @@ export function ArcadeSection({
   children,
 }: React.PropsWithChildren<ArcadeSectionProps>) {
   return (
-    <div className="w-full border border-solid border-gray-200 rounded overflow-hidden flex flex-col h-full overflow-hidden">
+    <div className="w-full border border-solid border-gray-200 dark:border-zinc-700 rounded overflow-hidden flex flex-col h-full">
       <div className="p-4 flex items-center justify-between">
         <div>
-          <div className="text-base font-bold leading-none text-gray-700 mb-0.5">
+          <div className="text-base font-bold leading-none text-gray-700 dark:text-gray-200 mb-0.5">
             {title}
           </div>
-          {subtitle && <div className="text-gray-800 text-sm">{subtitle}</div>}
+          {subtitle && (
+            <div className="text-gray-800 dark:text-gray-100 text-sm">
+              {subtitle}
+            </div>
+          )}
         </div>
         {headerRightContent}
       </div>

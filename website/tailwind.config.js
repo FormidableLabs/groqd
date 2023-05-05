@@ -5,7 +5,7 @@ module.exports = {
     preflight: false, // disable Tailwind's reset
   },
   content: ["./src/**/*.{js,jsx,ts,tsx}", "../docs/**/*.mdx"], // my markdown stuff is in ../docs, not /src
-  darkMode: ["class", '[data-theme="dark"]'], // hooks into docusaurus' dark mode settigns
+  // darkMode: ["class", '[data-theme="dark"]'], // hooks into docusaurus' dark mode settigns
   theme: {
     extend: {},
     container: {
