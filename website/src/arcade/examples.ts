@@ -119,4 +119,21 @@ export const EXAMPLES = {
         })
     `),
   },
+
+  "Using the .score method": {
+    dataset: "pokemon",
+    code: wrapStandardQuery(`
+      // Bubble Grass type pokemon to the top of the list.
+      q("*")
+        .filterByType("pokemon")
+        // score based on inclusion of grass type in pokemon's types.
+        .score("'type.Grass' in types[]._ref")
+        // then sort based on _score field
+        .order("_score desc")
+        .grab({
+          name: q.string(),
+          types: q("types").filter().deref().grabOne("name", q.string())
+        })
+    `),
+  },
 } satisfies Record<string, ExamplePayload>;
