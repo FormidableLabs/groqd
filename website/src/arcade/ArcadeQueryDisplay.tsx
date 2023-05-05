@@ -18,7 +18,7 @@ export function ArcadeQueryDisplay({ query }: ArcadeQueryDisplayProps) {
         Query
       </div>
       <div className="relative group">
-        <pre className="p-4 bg-transparent rounded-none w-full overflow-auto text-gray-700 dark:text-gray-200 mb-0">
+        <pre className="p-4 bg-transparent rounded-none w-full overflow-auto pretty-scrollbar text-gray-700 dark:text-gray-200 mb-0">
           {query || "..."}
         </pre>
         <div className="absolute right-0 inset-y-0 flex items-center pr-4">

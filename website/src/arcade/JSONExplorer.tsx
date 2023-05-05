@@ -16,7 +16,7 @@ type JSONExplorerDisplayProps = {
 
 export function JSONExplorer(props: JSONExplorerDisplayProps) {
   return (
-    <div className="absolute inset-0 overflow-auto px-4 pb-4 font-[Menlo,monospace] text-sm">
+    <div className="absolute inset-0 overflow-auto pretty-scrollbar px-4 pb-4 font-[Menlo,monospace] text-sm">
       <JSONExplorerDisplay {...props} />
     </div>
   );
