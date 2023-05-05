@@ -41,7 +41,7 @@ export const ArcadeActionList = <T,>({
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-black shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none flex flex-col gap-2 p-2 z-[2]">
+            <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-black shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none flex flex-col gap-0.5 p-2 z-[2]">
               {items.map((item) => (
                 <div className="" key={item.title}>
                   <Menu.Item>
@@ -49,7 +49,7 @@ export const ArcadeActionList = <T,>({
                       <button
                         className={clsx(
                           "w-full p-2 border-none rounded-md",
-                          "text-left text-sm dark:text-gray-50 cursor-pointer",
+                          "text-left text-sm text-gray-800 dark:text-gray-50 cursor-pointer",
                           "hover:bg-gray-50 dark:hover:bg-zinc-800",
                           active ? "bg-gray-50" : "bg-transparent"
                         )}
