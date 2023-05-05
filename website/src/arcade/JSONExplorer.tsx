@@ -16,7 +16,7 @@ type JSONExplorerDisplayProps = {
 
 export function JSONExplorer(props: JSONExplorerDisplayProps) {
   return (
-    <div className="absolute inset-0 overflow-auto px-4 pb-4 font-[Menlo,monospace] text-sm">
+    <div className="absolute inset-0 overflow-auto pretty-scrollbar px-4 pb-4 font-[Menlo,monospace] text-sm">
       <JSONExplorerDisplay {...props} />
     </div>
   );
@@ -192,15 +192,19 @@ function Collapsible({
 }
 
 function Key({ children }: React.PropsWithChildren) {
-  return <span className="text-blue-700">{children}</span>;
+  return <span className="text-blue-700 dark:text-blue-300">{children}</span>;
 }
 
 function Label({ children }: React.PropsWithChildren) {
-  return <span className="text-fuchsia-700">{children}</span>;
+  return (
+    <span className="text-fuchsia-700 dark:text-fuchsia-300">{children}</span>
+  );
 }
 
 function Value({ children }: React.PropsWithChildren) {
-  return <span className="text-yellow-800">{children}</span>;
+  return (
+    <span className="text-yellow-800 dark:text-yellow-300">{children}</span>
+  );
 }
 
 function Stack({
@@ -246,7 +250,9 @@ function LineItem({
       style={{ paddingLeft: depth * DEPTH_SC }}
       className={clsx(
         "rounded py-0.5",
-        !hasError && (!hasParentError || pointer) && "hover:bg-gray-50",
+        !hasError &&
+          (!hasParentError || pointer) &&
+          "hover:bg-gray-50 dark:hover:bg-zinc-800",
         hasParentError && pointer && "hover:bg-opacity-50",
         hasError && ERROR_CLASS,
         pointer && "cursor-pointer"
@@ -259,8 +265,10 @@ function LineItem({
 }
 
 function ErrorMessageText({ children }: React.PropsWithChildren) {
-  return <div className="text-sm text-gray-800">{children}</div>;
+  return (
+    <div className="text-sm text-gray-800 dark:text-gray-100">{children}</div>
+  );
 }
 
 const DEPTH_SC = 12;
-const ERROR_CLASS = "bg-red-100";
+const ERROR_CLASS = "bg-red-100 dark:bg-red-900";

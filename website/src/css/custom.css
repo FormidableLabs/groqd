@@ -108,3 +108,13 @@
 [data-theme='dark'] .header-formidable-link:hover::before {
   background-color: var(--ifm-color-primary);
 }
+
+.pretty-scrollbar::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+.pretty-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.pretty-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 hover:bg-gray-300 dark:bg-zinc-700 dark:hover:bg-zinc-600;
+}
