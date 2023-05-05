@@ -109,7 +109,7 @@ export const EXAMPLES = {
             name: q.literal("Charmander"),
             attack: ["base.Attack", q.number()],
           },
-          // For all other pokemon, cast them into an unsupported selection
+          // For all other pokemon, cast them into a custom "unsupported selection" type
           // while retaining useful information for run-time logging
           default: {
             _id: q.string(),
