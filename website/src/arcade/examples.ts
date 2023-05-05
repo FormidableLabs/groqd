@@ -69,7 +69,7 @@ export const EXAMPLES = {
     code: wrapStandardQuery(`
       q("")
         .grab({
-          allPokemonNames: q("*").filterByType("pokemon").grabOne("name", q.string()),
+          numPokemon: ["count(*[_type == 'pokemon'])", q.number()],
           allTypeNames: q("*").filterByType("poketype").grabOne("name", q.string()),
         })
     `),
