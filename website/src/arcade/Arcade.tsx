@@ -100,7 +100,7 @@ export function Arcade() {
             subtitle="The data your query will run against."
             headerRightContent={
               <ArcadeActionList
-                title="Dataset"
+                title="Presets"
                 items={DatasetItems}
                 onSelectItem={setDatasetPreset}
               />
