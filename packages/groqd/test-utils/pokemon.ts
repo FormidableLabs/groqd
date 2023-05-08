@@ -2026,6 +2026,14 @@ const gen1Transformed = gen1.map((mon) => {
     caption: `Artwork of ${mon.name}`,
     description: `${mon.name} has types ${mon.type.join(", ")}.`,
   };
+  const pdf = {
+    _key: `pdfkey-${mon.id}`,
+    _type: "file",
+    asset: {
+      _type: "reference",
+      _ref: `file-${mon.id}-pdf`,
+    },
+  };
 
   return <Pokemon>{
     _id: `pokemon.${mon.id}`,
@@ -2038,6 +2046,7 @@ const gen1Transformed = gen1.map((mon) => {
     })),
     images: [image],
     cover: image,
+    statsSheet: pdf,
     base: mon.base,
   };
 });
@@ -2133,6 +2142,24 @@ const gen1ImageAssets = gen1.map((mon) => ({
   url: "https://cdn.sanity.io/images/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.jpg",
 }));
 
+const gen1FileAssets = gen1.map((mon) => ({
+  _createdAt: "2022-12-12T19:45:48Z",
+  _id: `file-${mon.id}-pdf`,
+  _rev: "X6HgJNl2Cktkcl6TQwg3gv",
+  _type: "sanity.fileAsset",
+  _updatedAt: "2022-12-12T19:45:48Z",
+  assetId: "ed158069c3b44124a310d7a107998e06bf12e90e",
+  extension: "pdf",
+  metadata: null,
+  mimeType: "application/pdf",
+  originalFilename: `pokemon-${mon.id}.pdf`,
+  path: "files/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.pdf",
+  sha1hash: "ed158069c3b44124a310d7a107998e06bf12e90e",
+  size: 37594,
+  uploadId: "p9TZMfLbKWO8NPmQnqCES72QVWYlKAWp",
+  url: "https://cdn.sanity.io/files/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.pdf",
+}));
+
 const types: Type[] = [
   "Grass",
   "Poison",
@@ -2161,5 +2188,6 @@ const types: Type[] = [
 export const pokemonDataset = [
   ...gen1Transformed,
   ...gen1ImageAssets,
+  ...gen1FileAssets,
   ...types,
 ];

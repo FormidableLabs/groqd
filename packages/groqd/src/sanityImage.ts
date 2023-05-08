@@ -36,7 +36,10 @@ const refBase = {
 
 const dereffedAssetBaseFields = {
   _id: schemas.string(),
-  _type: schemas.literal("sanity.imageAsset"),
+  _type: schemas.union([
+    schemas.literal("sanity.imageAsset"),
+    schemas.literal("sanity.fileAsset"),
+  ]),
   _rev: schemas.string(),
   extension: schemas.string(),
   mimeType: schemas.string(),
