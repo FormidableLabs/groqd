@@ -202,6 +202,45 @@ describe("sanityImage", () => {
     expect(im.asset._updatedAt === "2022-12-12T19:45:48Z").toBeTruthy();
   });
 
+  it("can query fetch base file asset data", async () => {
+    const { query, data } = await runPokemonQuery(
+      q("*")
+        .filter("_type == 'pokemon'")
+        .slice(0, 1)
+        .grab({
+          name: q.string(),
+          statsSheet: sanityImage("statsSheet", {
+            withAsset: ["base"],
+          }),
+        })
+    );
+
+    expect(query).toBe(
+      `*[_type == 'pokemon'][0..1]{name, "statsSheet": statsSheet{_key, _type, "asset": asset->{_id, _type, _rev, extension, mimeType, originalFilename, path, sha1hash, size, url, _updatedAt}}}`
+    );
+    const im = data?.[0]?.statsSheet;
+    invariant(im);
+    expect(im.asset._id === "file-1-pdf").toBeTruthy();
+    expect(im.asset._type === "sanity.fileAsset").toBeTruthy();
+    expect(im.asset._rev === "X6HgJNl2Cktkcl6TQwg3gv").toBeTruthy();
+    expect(im.asset.extension === "pdf").toBeTruthy();
+    expect(im.asset.mimeType === "application/pdf").toBeTruthy();
+    expect(im.asset.originalFilename === "pokemon-1.pdf").toBeTruthy();
+    expect(
+      im.asset.path ===
+        "files/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.pdf"
+    ).toBeTruthy();
+    expect(
+      im.asset.sha1hash === "ed158069c3b44124a310d7a107998e06bf12e90e"
+    ).toBeTruthy();
+    expect(im.asset.size === 37594).toBeTruthy();
+    expect(
+      im.asset.url ===
+        "https://cdn.sanity.io/files/nfttuagc/production/ed158069c3b44124a310d7a107998e06bf12e90e-1000x500.pdf"
+    ).toBeTruthy();
+    expect(im.asset._updatedAt === "2022-12-12T19:45:48Z").toBeTruthy();
+  });
+
   it("can query fetch image asset data with dimensions metadata", async () => {
     const { query, data } = await runPokemonQuery(
       q("*")
