@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.5
+
+### Patch Changes
+
+- ability for sanityImage schema to handle file assets ([`85f0621`](https://github.com/FormidableLabs/groqd/commit/85f0621332ec7bd0803d67ad06c974d5bf8607c7))
+
 ## 0.15.4
 
 ### Patch Changes
