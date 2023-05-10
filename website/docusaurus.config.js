@@ -10,7 +10,7 @@ const config = {
   title: "GROQD",
   tagline: "Typesafe GROQ Query Builder",
   url: "https://formidable.com",
-  baseUrl: "/open-source/groqd",
+  baseUrl: process.env.VERCEL ? "/" : "/open-source/groqd",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
