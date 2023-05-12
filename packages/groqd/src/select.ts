@@ -6,9 +6,11 @@ import {
 } from "./selectionUtils";
 import { extendsBaseQuery, isQuerySchemaTuple } from "./typeGuards";
 import type { FromSelection, Selection } from "./types";
+import { nullToUndefined } from "./nullToUndefined";
 
 export const select = <Conditions extends ConditionRecord>(
-  conditionalSelections: Conditions
+  conditionalSelections: Conditions,
+  shouldCoerceNullValues = false
 ) => {
   const getProjection = (
     v: Selection | BaseQuery<any> | [string, z.ZodType]
@@ -50,9 +52,11 @@ export const select = <Conditions extends ConditionRecord>(
         return v[1] as ConditionSchema<Conditions[keyof Conditions]>;
       }
 
-      return getSchemaFromSelection(v as Selection) as ConditionSchema<
-        Conditions[keyof Conditions]
-      >;
+      return getSchemaFromSelection(
+        shouldCoerceNullValues
+          ? nullToUndefined(v as Selection)
+          : (v as Selection)
+      ) as ConditionSchema<Conditions[keyof Conditions]>;
     };
 
     const unionEls = (

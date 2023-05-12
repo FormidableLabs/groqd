@@ -46,6 +46,21 @@ export class EntityQuery<T extends z.ZodTypeAny> extends BaseQuery<T> {
     });
   }
 
+  select$<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): EntityQuery<Spread<SelectSchemaType<Conditions>>>;
+  select$<S extends ZodUnionAny>(s: BaseQuery<S>): EntityQuery<Spread<S>>;
+  select$<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): EntityQuery<Spread<SelectSchemaType<Conditions>>> {
+    const _select = extendsBaseQuery(s) ? s : select(s, true);
+
+    return new EntityQuery<Spread<SelectSchemaType<Conditions>>>({
+      query: this.query + `{...${_select.query}}`,
+      schema: spreadUnionSchema(_select.schema),
+    });
+  }
+
   grab<
     S extends Selection,
     CondSelections extends Record<string, Selection> | undefined
@@ -138,6 +153,21 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     s: Conditions
   ): ArrayQuery<Spread<SelectSchemaType<Conditions>>> {
     const _select = extendsBaseQuery(s) ? s : select(s);
+
+    return new ArrayQuery<Spread<SelectSchemaType<Conditions>>>({
+      query: this.query + `{...${_select.query}}`,
+      schema: z.array(spreadUnionSchema(_select.schema)),
+    });
+  }
+
+  select$<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): ArrayQuery<Spread<SelectSchemaType<Conditions>>>;
+  select$<S extends ZodUnionAny>(s: BaseQuery<S>): ArrayQuery<Spread<S>>;
+  select$<Conditions extends ConditionRecord>(
+    s: Conditions
+  ): ArrayQuery<Spread<SelectSchemaType<Conditions>>> {
+    const _select = extendsBaseQuery(s) ? s : select(s, true);
 
     return new ArrayQuery<Spread<SelectSchemaType<Conditions>>>({
       query: this.query + `{...${_select.query}}`,

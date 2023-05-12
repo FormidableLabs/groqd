@@ -208,6 +208,70 @@ describe("EntityQuery.select()", () => {
   });
 });
 
+describe("EntityQuery.select$()", () => {
+  it("can coerce null values to undefined", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filterByType("pokemon")
+        .slice(0)
+        .select$({
+          "name == 'Bulbasaur'": {
+            name: q.literal("Bulbasaur"),
+            foo: q.string().optional(),
+          },
+        })
+    );
+
+    invariant(data);
+    expectTypeOf(data)
+      .exclude<Record<string, never>>()
+      .toEqualTypeOf<{ name: "Bulbasaur"; foo?: string }>();
+    expect(data.name).toBe("Bulbasaur");
+    expect(data.foo).toBe(undefined);
+  });
+
+  it("can coerce null values to undefined with default value", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filterByType("pokemon")
+        .slice(0)
+        .select$({
+          "name == 'Bulbasaur'": {
+            name: q.literal("Bulbasaur"),
+            foo: q.string().optional().default("bar"),
+          },
+        })
+    );
+
+    invariant(data);
+    expectTypeOf(data)
+      .exclude<Record<string, never>>()
+      .toEqualTypeOf<{ name: "Bulbasaur"; foo: string }>();
+  });
+
+  it("can coerce null values in default selection to undefined", async () => {
+    const { data } = await runPokemonQuery(
+      q("*")
+        .filterByType("pokemon")
+        .slice(0)
+        .select$({
+          "name == 'Charmander'": {
+            name: q.literal("Charmander"),
+          },
+          default: {
+            foo: q.string().optional(),
+          },
+        })
+    );
+
+    invariant(data);
+    expectTypeOf(data).toEqualTypeOf<
+      { name: "Charmander" } | { foo?: string }
+    >();
+    if ("foo" in data) expect(data.foo).toBe(undefined);
+  });
+});
+
 describe("ArrayQuery.select()", () => {
   it("handles standalone select input", () => {
     const standaloneSelect = q.select({
