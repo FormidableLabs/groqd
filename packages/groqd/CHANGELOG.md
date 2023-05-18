@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.6
+
+### Patch Changes
+
+- Fix zod version ([#193](https://github.com/FormidableLabs/groqd/pull/193))
+
 ## 0.15.5
 
 ### Patch Changes
