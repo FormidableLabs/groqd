@@ -84,8 +84,8 @@ importers:
   packages/groqd:
     dependencies:
       zod:
-        specifier: ^3.20.2
-        version: 3.21.4
+        specifier: 3.20.2
+        version: 3.20.2
     devDependencies:
       '@sanity/client':
         specifier: ^3.4.1
@@ -15984,6 +15984,10 @@ packages:
       archiver-utils: 2.1.0
       compress-commons: 4.1.1
       readable-stream: 3.6.2
+    dev: false
+
+  /zod@3.20.2:
+    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
     dev: false
 
   /zod@3.21.4:
