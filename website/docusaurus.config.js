@@ -59,6 +59,7 @@ const config = {
       };
     },
 
+    //  @ts-expect-error Weird typing mismatch, disregard for now.
     async function monacoPlugin() {
       return {
         name: "monaco-plugin",
