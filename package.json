@@ -13,7 +13,7 @@
     "build": "pnpm run -r build",
     "changeset": "changeset",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
-    "dev:docs": "pnpm run --filter website start",
+    "dev:docs": "pnpm run --filter website dev",
     "build:docs": "pnpm run build:lib && pnpm run --filter website build",
     "build:docs:vercel": "pnpm run build:lib && pnpm run --filter website build:vercel",
     "dev:playground": "concurrently \"pnpm run --filter groqd dev\" \"pnpm run --filter groqd-playground-editor dev\" \"pnpm run --filter groqd-playground dev\" \"pnpm run --filter playground-example dev\"",
