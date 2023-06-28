@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.7
+
+### Patch Changes
+
+- update zod to 3.21.4 ([#201](https://github.com/FormidableLabs/groqd/pull/201))
+
 ## 0.15.6
 
 ### Patch Changes
