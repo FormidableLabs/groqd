@@ -171,10 +171,10 @@ Groqd provides a `.select` method to mirror this operator. This method provides 
 
 ```ts
 q('*').grab({
-  strength: q.select(
-    'base.Attack > 60': ['"strong"', q.literal('strong')]
+  strength: q.select({
+    'base.Attack > 60': ['"strong"', q.literal('strong')],
     'base.Attack <= 60': ['"weak"', q.literal('weak')]
-  )
+  })
 })
 ```
 
