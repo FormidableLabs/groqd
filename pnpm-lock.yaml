@@ -330,9 +330,6 @@ importers:
       '@types/node':
         specifier: ^18.7.5
         version: 18.15.11
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.3.1
       monaco-editor-webpack-plugin:
         specifier: ^7.0.1
         version: 7.0.1(monaco-editor@0.37.1)(webpack@5.88.0)
