@@ -43,7 +43,7 @@ const config = {
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
-        ...(process.env.VERCEL_ENV === "preview" && {
+        ...(process.env.VERCEL_ENV === "production" && {
           gtag: {
             trackingID: process.env.GTAG_TRACKING_ID,
             anonymizeIP: true,
