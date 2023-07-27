@@ -103,12 +103,8 @@ export function ArcadeSectionResizer({
 
   return (
     <div
-      style={{
-        // backgroundColor: "tomato ",
-        width: 18,
-        cursor: "col-resize",
-        ...style,
-      }}
+      className="cursor-col-resize"
+      style={style}
       onMouseDown={(e) => {
         offset.current =
           e.clientX - e.currentTarget.getBoundingClientRect().left;
