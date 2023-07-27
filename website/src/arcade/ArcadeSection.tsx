@@ -77,7 +77,16 @@ export function ArcadeSectionResizer({
   const isDragging = React.useRef(false);
   const offset = React.useRef(0);
   const mouseDragHandler = React.useRef(onMouseDrag);
+  const dragStyles = React.useRef<null>(null);
   mouseDragHandler.current = onMouseDrag;
+
+  React.useEffect(() => {
+    const styleEl = document.createElement("style");
+    styleEl.innerHTML =
+      "*{cursor: col-resize !important; user-select: none !important;}";
+    styleEl.id = "drag-style";
+    dragStyles.current = styleEl;
+  }, []);
 
   React.useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -88,7 +97,7 @@ export function ArcadeSectionResizer({
       if (!isDragging.current) return;
       offset.current = 0;
       isDragging.current = false;
-      document.body.style.userSelect = "auto";
+      document.getElementById("drag-style").remove();
     };
 
     document.addEventListener("mousemove", handleMouseMove);
@@ -108,7 +117,7 @@ export function ArcadeSectionResizer({
         offset.current =
           e.clientX - e.currentTarget.getBoundingClientRect().left;
         isDragging.current = true;
-        document.body.style.userSelect = "none";
+        document.head.appendChild(dragStyles.current);
       }}
     />
   );
