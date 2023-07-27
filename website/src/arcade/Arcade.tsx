@@ -13,7 +13,10 @@ import { ArcadeEditor } from "@site/src/arcade/ArcadeEditor";
 import datasets from "@site/src/datasets.json";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import { ExamplePayload, EXAMPLES } from "@site/src/arcade/examples";
-import { ArcadeSection } from "@site/src/arcade/ArcadeSection";
+import {
+  ArcadeSection,
+  ArcadeSectionResizer,
+} from "@site/src/arcade/ArcadeSection";
 import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
 import lzstring from "lz-string";
@@ -22,6 +25,7 @@ import { DefaultToastOptions, Toaster } from "react-hot-toast";
 import { HiPlay } from "react-icons/hi";
 import clsx from "clsx";
 import { ArcadeActionList } from "@site/src/arcade/ArcadeActionList";
+import Abacus from "@site/src/arcade/abacus";
 
 export function Arcade() {
   const [
@@ -89,12 +93,49 @@ export function Arcade() {
     }
   }, []);
 
+  const abacus = React.useMemo(() => {
+    return new Abacus({
+      dividers: 2,
+      dividerWidth: 18,
+    });
+  }, []);
+
+  React.useEffect(
+    () =>
+      abacus.onBoundChange(() => {
+        abacus.container.style.setProperty(
+          "--w-data",
+          `${abacus.getNormalizedSectionWidth(0) * 100}%`
+        );
+        abacus.container.style.setProperty(
+          "--w-query",
+          `${abacus.getNormalizedSectionWidth(1) * 100}%`
+        );
+        abacus.container.style.setProperty(
+          "--w-result",
+          `${abacus.getNormalizedSectionWidth(2) * 100}%`
+        );
+      }),
+    []
+  );
+
   return (
     <div className="w-full h-screen overflow-hidden flex flex-col bg-white dark:bg-zinc-900">
       <ArcadeHeader selectExample={loadExample} />
 
       <div className="flex-1 flex items-center">
-        <div className="w-full grid grid-cols-3 gap-5 max-h-[1200px] h-full container max-w-[2400px] pb-5">
+        <div
+          ref={abacus.setContainer}
+          className="relative w-full flex max-h-[1200px] h-full container max-w-[2400px] pb-5"
+          style={
+            {
+              "--w-resizer": `${abacus.dividerWidth}px`,
+              "--w-data": abacus.initialSectionCssWidth,
+              "--w-query": abacus.initialSectionCssWidth,
+              "--w-result": abacus.initialSectionCssWidth,
+            } as React.CSSProperties
+          }
+        >
           <ArcadeSection
             title="Dataset"
             subtitle="The data your query will run against."
@@ -105,14 +146,32 @@ export function Arcade() {
                 onSelectItem={setDatasetPreset}
               />
             }
+            onExpandSection={() => abacus.expand(0)}
+            onContractSection={abacus.reset}
+            style={{
+              width: "var(--w-data)",
+            }}
           >
             <div className="h-full relative">
               <ArcadeDatasetEditor />
             </div>
           </ArcadeSection>
+          <ArcadeSectionResizer
+            onMouseDrag={(x) => {
+              abacus.updateDivider(0, x);
+            }}
+            style={{
+              width: "var(--w-resizer)",
+            }}
+          />
           <ArcadeSection
             title="Query Code"
             subtitle="Your code to run a GROQD query."
+            onExpandSection={() => abacus.expand(1)}
+            onContractSection={abacus.reset}
+            style={{
+              width: "var(--w-query)",
+            }}
             headerRightContent={
               <button
                 className={clsx(
@@ -134,9 +193,22 @@ export function Arcade() {
               <ArcadeQueryDisplay query={query.query} />
             </div>
           </ArcadeSection>
+          <ArcadeSectionResizer
+            onMouseDrag={(x) => {
+              abacus.updateDivider(1, x);
+            }}
+            style={{
+              width: "var(--w-resizer)",
+            }}
+          />
           <ArcadeSection
             title="Query Result"
             subtitle="The result of your GROQD query."
+            onExpandSection={() => abacus.expand(2)}
+            onContractSection={abacus.reset}
+            style={{
+              width: "var(--w-result)",
+            }}
           >
             <ArcadeResponseView
               isExecutingQuery={isExecutingQuery}
