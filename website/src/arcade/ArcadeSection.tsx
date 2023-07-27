@@ -1,6 +1,5 @@
 import * as React from "react";
 import { RiExpandLeftRightFill, RiContractLeftRightFill } from "react-icons/ri";
-
 import clsx from "clsx";
 
 type ArcadeSectionProps = {
