@@ -196,7 +196,6 @@ const runQuery = async ({
     }
 
     const runner = q.makeSafeQueryRunner(async (query: string) => {
-      console.log("params", params);
       const tree = parse(query, { params });
       const _ = await evaluate(tree, { dataset: json });
       const rawResponse = await _.get();
