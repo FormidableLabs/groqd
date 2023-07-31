@@ -177,6 +177,7 @@ const runCode = async ({
  */
 const runQuery = async ({
   query,
+  params,
   dispatch,
 }: {
   query: q.BaseQuery<any>;
@@ -194,9 +195,9 @@ const runQuery = async ({
       throw new Error("Error parsing dataset JSON");
     }
 
-    // TODO: Handle params...
     const runner = q.makeSafeQueryRunner(async (query: string) => {
-      const tree = parse(query);
+      console.log("params", params);
+      const tree = parse(query, { params });
       const _ = await evaluate(tree, { dataset: json });
       const rawResponse = await _.get();
       dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
