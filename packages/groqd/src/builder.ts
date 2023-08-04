@@ -146,8 +146,10 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
   }
 
   filter(filterValue = "") {
-    this.query += `[${filterValue}]`;
-    return this;
+    return new ArrayQuery<T>({
+      ...this.value(),
+      query: this.query + `[${filterValue}]`,
+    });
   }
 
   filterByType(filterTypeValue: string) {
@@ -200,13 +202,17 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
   }
 
   order(...orderings: `${string} ${"asc" | "desc"}`[]): ArrayQuery<T> {
-    this.query += `|order(${orderings.join(", ")})`;
-    return this;
+    return new ArrayQuery<T>({
+      ...this.value(),
+      query: this.query + `|order(${orderings.join(", ")})`,
+    });
   }
 
   score(...scores: string[]): ArrayQuery<T> {
-    this.query += `|score(${scores.join(", ")})`;
-    return this;
+    return new ArrayQuery<T>({
+      ...this.value(),
+      query: this.query + `|score(${scores.join(", ")})`,
+    });
   }
 
   // Slicing
