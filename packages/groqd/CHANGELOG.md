@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.8
+
+### Patch Changes
+
+- Always return a new Class from builder methods, addresses #204. ([#211](https://github.com/FormidableLabs/groqd/pull/211))
+
 ## 0.15.7
 
 ### Patch Changes
