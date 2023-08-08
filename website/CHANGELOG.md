@@ -1,5 +1,12 @@
 # website
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`c67bd66`](https://github.com/FormidableLabs/groqd/commit/c67bd66e63b120f85d6f1007220ee56c5f98b606)]:
+  - groqd@0.15.8
+
 ## 0.0.3
 
 ### Patch Changes
