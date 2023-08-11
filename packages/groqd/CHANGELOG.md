@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.9
+
+### Patch Changes
+
+- Addresses #213, allows the .order method to take an array of strings – since order argument can be more complex than just `FIELD desc` ([#214](https://github.com/FormidableLabs/groqd/pull/214))
+
 ## 0.15.8
 
 ### Patch Changes
