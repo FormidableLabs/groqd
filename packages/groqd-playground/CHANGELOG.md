@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [[`600a5e4`](https://github.com/FormidableLabs/groqd/commit/600a5e4841a4aeaf919b392ceaad91693c663601)]:
+  - groqd@0.15.9
+
 ## 0.0.16
 
 ### Patch Changes
