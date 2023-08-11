@@ -201,7 +201,7 @@ export class ArrayQuery<T extends z.ZodTypeAny> extends BaseQuery<
     });
   }
 
-  order(...orderings: `${string} ${"asc" | "desc"}`[]): ArrayQuery<T> {
+  order(...orderings: string[]): ArrayQuery<T> {
     return new ArrayQuery<T>({
       ...this.value(),
       query: this.query + `|order(${orderings.join(", ")})`,
