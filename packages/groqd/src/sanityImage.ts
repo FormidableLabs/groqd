@@ -30,7 +30,7 @@ const hotspotFields = {
 };
 
 const refBase = {
-  _key: schemas.string().nullable(),
+  _key: schemas.string().optional(),
   _type: schemas.string(),
 } as const;
 
