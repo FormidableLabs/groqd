@@ -1,0 +1,60 @@
+{
+  "name": "groq-builder",
+  "version": "0.10.0",
+  "license": "MIT",
+  "author": {
+    "name": "Formidable",
+    "url": "https://formidable.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FormidableLabs/groqd"
+  },
+  "homepage": "https://github.com/formidablelabs/groqd",
+  "keywords": [
+    "sanity",
+    "groq",
+    "query",
+    "typescript"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": [
+      {
+        "import": "./dist/index.mjs",
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./dist/index.js"
+    ],
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test:watch": "vitest",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "dev": "pnpm run build:watch"
+  },
+  "devDependencies": {
+    "@sanity/client": "^3.4.1",
+    "groq-js": "^1.1.1",
+    "tsup": "^6.3.0",
+    "typescript": "^5.0.4",
+    "vitest": "^0.28.5"
+  },
+  "dependencies": {
+  },
+  "engines": {
+    "node": ">= 14"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}
