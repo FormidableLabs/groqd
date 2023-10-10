@@ -1,14 +1,19 @@
 // This file was copied from:
 // https://github.com/saiichihashimoto/sanity-typed/blob/main/packages/test-utils/src/index.ts
-export type IsEqual<A, B> = (<G>() => G extends A ? 1 : 2) extends <G>() => G extends B ? 1 : 2 ? true : false;
+export type IsEqual<A, B> = (<G>() => G extends A ? 1 : 2) extends <
+  G
+>() => G extends B ? 1 : 2
+  ? true
+  : false;
 
 //
 declare const RECEIVED: unique symbol;
-declare const EXPECTED: unique symbol;
 
 type Negate<Value extends boolean> = Value extends true ? false : true;
 
-type IsAssignable<Received, Expected> = [Received] extends [Expected] ? true : false;
+type IsAssignable<Received, Expected> = [Received] extends [Expected]
+  ? true
+  : false;
 
 type SimplifyDeep<Type> = Type extends Promise<infer T>
   ? Promise<SimplifyDeep<T>>
@@ -16,7 +21,10 @@ type SimplifyDeep<Type> = Type extends Promise<infer T>
   ? { [index in keyof Type]: SimplifyDeep<Type[index]> }
   : { [key in keyof Type]: SimplifyDeep<Type[key]> };
 
-type IsSimplyEqual<Received, Expected> = IsEqual<SimplifyDeep<Received>, SimplifyDeep<Expected>>;
+type IsSimplyEqual<Received, Expected> = IsEqual<
+  SimplifyDeep<Received>,
+  SimplifyDeep<Expected>
+>;
 
 declare const inverted: unique symbol;
 
@@ -92,14 +100,20 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
 
 export const expectType = <Received>() => {
   const valWithoutNot: Omit<TypeMatchers<Received>, typeof inverted | "not"> = {
-    toBeAssignableTo: () => {},
-    toEqual: () => {},
-    toStrictEqual: () => {},
+    toBeAssignableTo: () => {
+      /**/
+    },
+    toEqual: () => {
+      /**/
+    },
+    toStrictEqual: () => {
+      /**/
+    },
   };
 
   const val = valWithoutNot as TypeMatchers<Received>;
 
-  // eslint-disable-next-line fp/no-mutation -- recursion requires mutation
+  //// eslint-disable-next-line fp/no-mutation -- recursion requires mutation
   val.not = val as unknown as typeof val.not;
 
   return val;
