@@ -1,9 +1,9 @@
 import { createGroqBuilder } from "../groq-builder";
-import { expectType } from "../test-utils/expectType";
-import { _referenced } from "@sanity-typed/types";
+import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
+import { _referenced } from "../tests/schemas/nextjs-sanity-fe";
 
-type SchemaForDeref = {
+type TestSchema_For_Deref = {
   category: {
     _id: string;
     _type: "category";
@@ -21,8 +21,8 @@ type SchemaForDeref = {
 };
 
 const q = createGroqBuilder<{
-  TSchema: SchemaForDeref;
-  referenced: typeof _referenced;
+  TSchema: TestSchema_For_Deref;
+  referenceSymbol: typeof _referenced;
 }>();
 
 describe("deref", () => {
@@ -31,7 +31,7 @@ describe("deref", () => {
   it("", () => {
     const res = productRefs.deref();
     expectType<ExtractScope<typeof res>>().toStrictEqual<
-      Array<SchemaForDeref["product"]>
+      Array<TestSchema_For_Deref["product"]>
     >();
     expect(q).toMatchObject({
       query: `*[_type == 'category'].products[]->`,
@@ -40,7 +40,7 @@ describe("deref", () => {
   it("", () => {
     const res = categoryRef.deref();
     expectType<ExtractScope<typeof res>>().toStrictEqual<
-      SchemaForDeref["category"]
+      TestSchema_For_Deref["category"]
     >();
     expect(q).toMatchObject({
       query: `*[_type == 'product'].category->`,
