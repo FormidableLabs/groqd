@@ -1,4 +1,3 @@
-import { InferRawValue, DefinitionBase } from "@sanity-typed/types";
 import { Get, Simplify, TypeMismatchError, ValueOf } from "./type-utils";
 
 export type RootConfig = {
@@ -23,11 +22,3 @@ export type ExtractRefType<TScope, TRootConfig extends RootConfig> =
 export type ExtractDocumentTypes<TRootConfig extends RootConfig> = Array<
   ValueOf<TRootConfig["TSchema"]>
 >;
-
-export type InferSchemaValuesFromDocuments<
-  TDocumentTypes extends Record<string, DefinitionBase<any, any, any>>
-> = {
-  [P in keyof TDocumentTypes]: Simplify<
-    { _type: P } & Omit<InferRawValue<TDocumentTypes[P]>, "_type">
-  >;
-};

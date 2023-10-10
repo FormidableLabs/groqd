@@ -1,6 +1,6 @@
 import { createGroqBuilder } from "./groq-builder";
 import { SchemaConfig } from "../sanity-types";
-import { expectType } from "./test-utils/expectType";
+import { expectType } from "./tests/expectType";
 import { ExtractScope } from "./utils/common-types";
 
 const q = createGroqBuilder<SchemaConfig>();

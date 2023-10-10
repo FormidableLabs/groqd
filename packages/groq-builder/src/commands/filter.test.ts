@@ -1,6 +1,6 @@
 import { createGroqBuilder } from "../groq-builder";
-import { SanitySchema, SchemaConfig } from "../../sanity-types";
-import { expectType } from "../test-utils/expectType";
+import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
 
 const q = createGroqBuilder<SchemaConfig>();

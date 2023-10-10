@@ -1,0 +1,1 @@
+import "./nextjs-sanity-fe";

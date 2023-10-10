@@ -1,7 +1,7 @@
 import { aliasedType } from "@sanity-typed/types";
 import { SchemaConfig } from "../sanity-types";
 import { ExpandAliasValuesDeep } from "./schema-types";
-import { expectType } from "../test-utils/expectType";
+import { expectType } from "../tests/expectType";
 
 describe("", () => {
   type Flavour = SchemaConfig["TSchema"]["flavour"];

@@ -41,12 +41,16 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   ) {}
 
   /**
-   * This method is for chaining:
+   * Chains a new query to the existing one.
    */
   protected extend<TScopeNew>(query: string, parser: Parser<any, any> | null) {
     return new GroqBuilder<TScopeNew, TRootConfig>(this.query + query, parser);
   }
 
+  /**
+   * Temporary for debugging:
+   * @param fetchData
+   */
   public async execute(
     fetchData: (query: string) => Promise<unknown>
   ): Promise<TScope> {
