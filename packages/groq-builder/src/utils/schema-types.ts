@@ -9,10 +9,10 @@ export type RootConfig = {
    *
    * type TSchema = InferSchemaConfigValues<typeof config>;
    */
-  TSchema: unknown;
+  TSchema: object;
   /**
    * This symbol is exported by @sanity-typed/types
-   * It's used to "tag" a reference with the document type.
+   * It's used to extract document types from a reference object.
    */
   referenceSymbol: symbol;
 };

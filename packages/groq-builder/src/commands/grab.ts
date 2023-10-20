@@ -46,13 +46,11 @@ declare module "../groq-builder" {
     >;
   }
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   export type GrabFieldConfig = true | Parser<any, any> | GroqBuilder<any, any>;
 
   export type ExtractGrabResult<TScope, TGrab> = {
-    [P in keyof TGrab]: TGrab[P] extends GroqBuilder<
-      infer TValue,
-      infer TRootConfig
-    > // Extract type from GroqBuilder:
+    [P in keyof TGrab]: TGrab[P] extends GroqBuilder<infer TValue, any> // Extract type from GroqBuilder:
       ? TValue
       : /* Extract type from 'true': */
       TGrab[P] extends boolean
@@ -87,24 +85,23 @@ GroqBuilder.implement({
     return this.extend(`.${field}`, null);
   },
   grab(this: GroqBuilder<any, any>, grab) {
-    type TGrab = typeof grab;
-    type TKeys = string;
-    const keys = Object.keys(grab) as Array<TKeys>;
-    let queryFields = [] as string[];
-    let parsers = {} as { [P in TKeys]?: Parser<TGrab[P], any> };
+    const keys = Object.keys(grab) as Array<keyof typeof grab>;
+    const queryFields = [] as string[];
 
     for (const key of keys) {
-      const value = grab[key];
+      const value: unknown = grab[key];
       if (typeof value === "boolean") {
         queryFields.push(key);
       } else if (value instanceof GroqBuilder) {
         queryFields.push(key + value.query);
       } else if (
+        value &&
         typeof value === "object" &&
+        "parse" in value &&
         typeof value.parse === "function"
       ) {
         queryFields.push(key);
-        parsers[key] = value;
+        // TODO: consolidate parsers
       } else {
         throw new Error("Unexpected value" + typeof value);
       }

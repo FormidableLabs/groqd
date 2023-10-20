@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { createGroqBuilder } from "../groq-builder";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";

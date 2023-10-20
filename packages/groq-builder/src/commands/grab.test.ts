@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { createGroqBuilder } from "../groq-builder";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
@@ -9,7 +10,7 @@ const q = createGroqBuilder<SchemaConfig>();
 
 describe("grab (*)", () => {
   it("", () => {
-    const res = q.all();
+    const res = q.star;
 
     type AllDocumentTypes = ExtractDocumentTypes<SchemaConfig>;
     expectType<ExtractScope<typeof res>>().toStrictEqual<AllDocumentTypes>();

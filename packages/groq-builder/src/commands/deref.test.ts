@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { createGroqBuilder } from "../groq-builder";
 import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
