@@ -21,6 +21,6 @@ declare module "../groq-builder" {
 }
 GroqBuilder.implement({
   slice(this: GroqBuilder<any, any>, indexOrRange) {
-    return this.extend(`[${indexOrRange}]`, null);
+    return this.chain(`[${indexOrRange}]`, null);
   },
 });

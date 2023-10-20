@@ -12,6 +12,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   field(this: GroqBuilder<any, any>, fieldName: string) {
-    return this.extend(fieldName, null);
+    return this.chain(fieldName, null);
   },
 });

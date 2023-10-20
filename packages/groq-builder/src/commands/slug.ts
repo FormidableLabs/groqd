@@ -16,6 +16,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   slug(this: GroqBuilder<any, RootConfig>, fieldName) {
-    return this.extend(`${fieldName}.current`, null);
+    return this.chain(`${fieldName}.current`, null);
   },
 });

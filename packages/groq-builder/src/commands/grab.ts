@@ -82,7 +82,7 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   grabOne(this: GroqBuilder<any, any>, field) {
-    return this.extend(`.${field}`, null);
+    return this.chain(`.${field}`, null);
   },
   grab(this: GroqBuilder<any, any>, grab) {
     const keys = Object.keys(grab) as Array<keyof typeof grab>;
@@ -109,6 +109,6 @@ GroqBuilder.implement({
 
     const newQuery = `{ ${queryFields.join(", ")} }`;
     const newParser = null;
-    return this.extend(newQuery, newParser);
+    return this.chain(newQuery, newParser);
   },
 });

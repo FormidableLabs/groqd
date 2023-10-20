@@ -16,6 +16,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   order(this: GroqBuilder<any, any>, ...fields) {
-    return this.extend(`| order(${fields.join(", ")})`, null);
+    return this.chain(`| order(${fields.join(", ")})`, null);
   },
 });

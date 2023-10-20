@@ -14,6 +14,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   deref(this: GroqBuilder<any, RootConfig>): any {
-    return this.extend("->", null);
+    return this.chain("->", null);
   },
 });

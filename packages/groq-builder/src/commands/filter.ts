@@ -31,12 +31,12 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   filterBy(this: GroqBuilder<any, any>, filterString) {
-    return this.extend(`[${filterString}]`, null);
+    return this.chain(`[${filterString}]`, null);
   },
   filter(this: GroqBuilder<any, any>, filterString = "") {
-    return this.extend(`[${filterString}]`, null);
+    return this.chain(`[${filterString}]`, null);
   },
   filterByType(this: GroqBuilder<any, any>, type) {
-    return this.extend(`[_type == '${type}']`, null);
+    return this.chain(`[_type == '${type}']`, null);
   },
 });
