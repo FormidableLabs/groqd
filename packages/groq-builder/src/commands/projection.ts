@@ -85,9 +85,10 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   projection(this: GroqBuilder<any, any>, arg: string | object) {
+    type ProjectionResult = any;
     if (typeof arg === "string") {
       const fieldName = arg;
-      return this.chain(fieldName, null);
+      return this.chain<ProjectionResult>(fieldName, null);
     }
 
     const projectionMap = arg;
@@ -110,7 +111,6 @@ GroqBuilder.implement({
       }
     });
 
-    type ProjectionResult = any;
     const newQuery = `{ ${queryFields.map((q) => q.query).join(", ")} }`;
     const newParser = null;
     return this.chain<ProjectionResult>(newQuery, newParser);

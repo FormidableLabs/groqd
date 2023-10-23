@@ -7,13 +7,15 @@ declare module "../groq-builder" {
   export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
     slice(index: number): GroqBuilder<ArrayItem<TScope>, TRootConfig>;
     slice(
-      range: `${number}${Ellipsis}${number}`
+      range: `${number}${SliceEllipsis}${number}`
     ): GroqBuilder<TScope, TRootConfig>;
 
-    /** @deprecated Indexing is done via the 'slice' method */
+    /** @deprecated Use the 'slice' method */
     index: never;
+    /** @deprecated Use the 'slice' method */
+    range: never;
   }
-  type Ellipsis =
+  export type SliceEllipsis =
     /** Inclusive range */
     | ".."
     /** Exclusive range */
