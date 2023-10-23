@@ -43,7 +43,10 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   /**
    * Chains a new query to the existing one.
    */
-  protected chain<TScopeNew>(query: string, parser?: Parser<any, any> | null) {
+  protected chain<TScopeNew = TScope>(
+    query: string,
+    parser?: Parser<any, any> | null
+  ) {
     return new GroqBuilder<TScopeNew, TRootConfig>(
       this.query + query,
       parser || null

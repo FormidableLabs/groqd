@@ -6,18 +6,15 @@ import { RootConfig } from "../utils/schema-types";
 declare module "../groq-builder" {
   export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
     filterBy<
-      TKey extends keyof ArrayItem<TScope>,
-      TValue extends ArrayItem<TScope>[TKey]
+      TKey extends StringKeys<keyof ArrayItem<TScope>>,
+      TValue extends Extract<ArrayItem<TScope>[TKey], string>
     >(
-      filterString: `${StringKeys<TKey>} == "${Extract<TValue, string>}"`
+      filterString: `${TKey} == "${TValue}"`
     ): GroqBuilder<
       Array<Extract<ArrayItem<TScope>, { [P in TKey]: TValue }>>,
       TRootConfig
     >;
 
-    filter<TScopeNew extends TScope = TScope>(
-      filterString?: string
-    ): GroqBuilder<TScopeNew, TRootConfig>;
     filterByType<
       TType extends Extract<ArrayItem<TScope>, { _type: any }>["_type"]
     >(
@@ -33,10 +30,7 @@ GroqBuilder.implement({
   filterBy(this: GroqBuilder<any, any>, filterString) {
     return this.chain(`[${filterString}]`, null);
   },
-  filter(this: GroqBuilder<any, any>, filterString = "") {
-    return this.chain(`[${filterString}]`, null);
-  },
   filterByType(this: GroqBuilder<any, any>, type) {
-    return this.chain(`[_type == '${type}']`, null);
+    return this.chain(`[_type == "${type}"]`, null);
   },
 });

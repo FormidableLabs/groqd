@@ -6,19 +6,14 @@ import { ExtractScope } from "../utils/common-types";
 
 const q = createGroqBuilder<SchemaConfig>();
 
-describe("filter", () => {
+describe("filterBy", () => {
   it("", () => {
-    const res = q.filter();
-    expectType<typeof res>().toStrictEqual<typeof q>();
+    const res = q.star.filterBy<"_type", "flavour">(`_type == "flavour"`);
+    expectType<ExtractScope<typeof res>>().toStrictEqual<
+      Array<SanitySchema["flavour"]>
+    >();
     expect(q).toMatchObject({
-      query: `[]`,
-    });
-  });
-  it("", () => {
-    const res = q.filter(`_type == 'flavour'`);
-    expectType<typeof res>().toStrictEqual<typeof q>();
-    expect(q).toMatchObject({
-      query: `[_type == 'flavour']`,
+      query: `[_type == "flavour"]`,
     });
   });
 });
@@ -30,7 +25,7 @@ describe("filterByType", () => {
       Array<SanitySchema["flavour"]>
     >();
     expect(q).toMatchObject({
-      query: `*[_type == 'flavour']`,
+      query: `*[_type == "flavour"]`,
     });
   });
 });
