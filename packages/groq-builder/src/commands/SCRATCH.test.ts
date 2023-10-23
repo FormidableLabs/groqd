@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { createGroqBuilder } from "../groq-builder";
 import { SchemaConfig } from "../../sanity-types";
 
@@ -32,7 +33,7 @@ describe("", () => {
     q.compare(q.count("*"), ">=", q.count("*"));
 
     // Grab:
-    q.grab({
+    q.projection({
       flavours: q.field("*").filterByType("flavour"),
     });
 

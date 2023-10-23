@@ -35,6 +35,9 @@ export type SimplifyDeep<T> = T extends object
     : never
   : T;
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Simplify<T> = { [P in keyof T]: T[P] } & {};
+
 export type UnionToIntersection<U> = (
   U extends any ? (k: U) => void : never
 ) extends (k: infer I) => void

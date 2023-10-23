@@ -33,11 +33,11 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
     /**
      *
      */
-    protected readonly query: string,
+    public readonly query: string,
     /**
      *
      */
-    protected readonly parser: Parser<any, TScope> | null
+    public readonly parser: Parser<any, TScope> | null
   ) {}
 
   /**

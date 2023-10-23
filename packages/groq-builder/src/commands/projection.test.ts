@@ -3,28 +3,15 @@ import { createGroqBuilder } from "../groq-builder";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
-import { ExtractDocumentTypes } from "../utils/schema-types";
 import { TypeMismatchError } from "../utils/type-utils";
 
 const q = createGroqBuilder<SchemaConfig>();
 
-describe("grab (*)", () => {
-  it("", () => {
-    const res = q.star;
-
-    type AllDocumentTypes = ExtractDocumentTypes<SchemaConfig>;
-    expectType<ExtractScope<typeof res>>().toStrictEqual<AllDocumentTypes>();
-    expect(res).toMatchObject({
-      query: "*",
-    });
-  });
-});
-
 const variants = q.star.filterByType("variant");
 
-describe("grab (field)", () => {
+describe("projection (field)", () => {
   it("", () => {
-    const res = variants.grabOne("price");
+    const res = variants.projection("price");
 
     expectType<ExtractScope<typeof res>>().toStrictEqual<Array<number>>();
     expect(res).toMatchObject({
@@ -32,7 +19,7 @@ describe("grab (field)", () => {
     });
   });
   it("", () => {
-    const res = variants.grabOne("name");
+    const res = variants.projection("name");
 
     expectType<ExtractScope<typeof res>>().toStrictEqual<Array<string>>();
     expect(res).toMatchObject({
@@ -41,9 +28,9 @@ describe("grab (field)", () => {
   });
 });
 
-describe("grab (objects)", () => {
-  it("grab a single property", () => {
-    const res = variants.grab({
+describe("projection (objects)", () => {
+  it("projection a single property", () => {
+    const res = variants.projection({
       name: true,
     });
 
@@ -58,8 +45,8 @@ describe("grab (objects)", () => {
     >();
   });
 
-  it("grab multiple properties", () => {
-    const res = variants.grab({
+  it("projection multiple properties", () => {
+    const res = variants.projection({
       _id: true,
       name: true,
       price: true,
@@ -80,8 +67,8 @@ describe("grab (objects)", () => {
     >();
   });
 
-  it("cannot grab props that don't exist", () => {
-    const res = variants.grab({
+  it("cannot projection props that don't exist", () => {
+    const res = variants.projection({
       INVALID: true,
     });
 

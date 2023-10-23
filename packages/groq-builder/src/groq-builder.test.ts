@@ -11,24 +11,24 @@ describe("", () => {
     const getProductBySlug = q.star
       .filterByType("product")
       .filter("slug.current == $slug")
-      .grab((q) => ({
+      .projection((q) => ({
         _id: true,
         name: true,
-        categories: q.grabOne("categories").filter().deref().grab({
+        categories: q.projection("categories").filter().deref().projection({
           name: true,
         }),
         slug: q.slug("slug"),
         variants: q
-          .grabOne("variants")
+          .projection("variants")
           .filter()
           .deref()
-          .grab((q) => ({
+          .projection((q) => ({
             _id: true,
             name: true,
             msrp: true,
             price: true,
             slug: q.slug("slug"),
-            style: q.grabOne("style").filter().deref().grab({
+            style: q.projection("style").filter().deref().projection({
               _id: true,
               name: true,
             }),
