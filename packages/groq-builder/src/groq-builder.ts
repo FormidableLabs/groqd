@@ -54,6 +54,16 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   }
 
   /**
+   * Untyped "escape hatch" allowing you to write any query you want
+   */
+  public any<TScopeNew = TScope>(
+    query: string,
+    parser?: Parser<any, any> | null
+  ) {
+    return this.chain<TScopeNew>(query, parser);
+  }
+
+  /**
    * Temporary for debugging:
    * @param fetchData
    */

@@ -10,17 +10,16 @@ describe("", () => {
   it("getProductBySlug", () => {
     const getProductBySlug = q.star
       .filterByType("product")
-      .filter("slug.current == $slug")
+      .any("[slug.current == $slug]")
       .projection((q) => ({
         _id: true,
         name: true,
-        categories: q.projection("categories").filter().deref().projection({
+        categories: q.projection("categories[]").deref().projection({
           name: true,
         }),
         slug: q.slug("slug"),
         variants: q
-          .projection("variants")
-          .filter()
+          .projection("variants[]")
           .deref()
           .projection((q) => ({
             _id: true,
@@ -28,7 +27,7 @@ describe("", () => {
             msrp: true,
             price: true,
             slug: q.slug("slug"),
-            style: q.projection("style").filter().deref().projection({
+            style: q.projection("style[]").deref().projection({
               _id: true,
               name: true,
             }),

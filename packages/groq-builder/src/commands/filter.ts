@@ -16,7 +16,7 @@ declare module "../groq-builder" {
     >;
 
     filterByType<
-      TType extends Extract<ArrayItem<TScope>, { _type: any }>["_type"]
+      TType extends Extract<ArrayItem<TScope>, { _type: string }>["_type"]
     >(
       type: TType
     ): GroqBuilder<

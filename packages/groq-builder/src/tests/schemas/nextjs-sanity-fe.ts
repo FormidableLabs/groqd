@@ -1,6 +1,8 @@
 // Types generated from "./sanity-studio/sanity.config.ts"
+import { ExtractDocumentTypes } from "../../utils/schema-types";
+
 export type SchemaConfig = {
-  TSchema: SanitySchema;
+  documentTypes: ExtractDocumentTypes<SanitySchema>;
   referenceSymbol: typeof _referenced;
 };
 

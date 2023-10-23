@@ -8,7 +8,7 @@ declare module "../groq-builder" {
     projection<
       TProjectionString extends StringKeys<keyof MaybeArrayItem<TScope>>
     >(
-      fieldName: TProjectionString
+      fieldName: TProjectionString | `${TProjectionString}[]`
     ): GroqBuilder<
       NonNullable<
         TScope extends Array<infer TScopeItem>

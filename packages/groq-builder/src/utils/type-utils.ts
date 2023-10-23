@@ -4,10 +4,6 @@
 export type Primitive = number | string | boolean | null | undefined | symbol;
 
 /**
- * Returns all values of the object
- */
-export type ValueOf<T> = T[keyof T];
-/**
  * Extracts the key from the object type, same as TObj[TKey[
  * If the key doesn't exist, returns a TypeMismatchError
  */
