@@ -25,7 +25,7 @@ describe("GroqBuilder", () => {
         categories: q.projection("categories[]").deref().projection({
           name: true,
         }),
-        slug: q.slug("slug"),
+        slug: q.projection("slug").projection("current"),
         variants: q
           .projection("variants[]")
           .deref()
@@ -34,7 +34,7 @@ describe("GroqBuilder", () => {
             name: true,
             msrp: true,
             price: true,
-            slug: q.slug("slug"),
+            slug: q.projection("slug").projection("current"),
             style: q.projection("style[]").deref().projection({
               _id: true,
               name: true,
