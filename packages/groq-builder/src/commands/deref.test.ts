@@ -44,17 +44,17 @@ describe("deref", () => {
   it("should deref a single item", () => {
     const res = categoryRef.deref();
     expectType<ExtractScope<typeof res>>().toStrictEqual<Category>();
-    expect(q).toMatchObject({
-      query: `*[_type == "product"].category->`,
-    });
+    expect(res.query).toMatchInlineSnapshot(
+      '"*[_type == \\"product\\"][0].category->"'
+    );
   });
 
   it("should deref an array of items", () => {
     const res = productsRefs.deref();
     expectType<ExtractScope<typeof res>>().toStrictEqual<Array<Product>>();
-    expect(q).toMatchObject({
-      query: `*[_type == "category"].products[]->`,
-    });
+    expect(res.query).toMatchInlineSnapshot(
+      '"*[_type == \\"category\\"][0].products[]->"'
+    );
   });
 
   it("should be an error if the item is not a reference", () => {
