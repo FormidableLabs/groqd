@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { createGroqBuilder } from "../groq-builder";
 import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
-import { _referenced } from "../tests/schemas/nextjs-sanity-fe";
+import { ExtractDocumentTypes } from "../utils/schema-types";
+import { createGroqBuilder } from "../index";
 
+const _referenced = Symbol("_referenced");
 type TestSchema_For_Deref = {
   category: {
     _id: string;
@@ -22,17 +23,17 @@ type TestSchema_For_Deref = {
 };
 
 const q = createGroqBuilder<{
-  TSchema: TestSchema_For_Deref;
+  documentTypes: ExtractDocumentTypes<TestSchema_For_Deref>;
   referenceSymbol: typeof _referenced;
 }>();
 
 describe("deref", () => {
-  const productRefs = q.filterByType("category").field("products[]");
-  const categoryRef = q.filterByType("product").field("category");
+  const productRefs = q.star.filterByType("category").projection("products[]");
+  const categoryRef = q.star.filterByType("product").projection("category");
   it("", () => {
     const res = productRefs.deref();
     expectType<ExtractScope<typeof res>>().toStrictEqual<
-      Array<TestSchema_For_Deref["product"]>
+      Array<Array<TestSchema_For_Deref["product"]>>
     >();
     expect(q).toMatchObject({
       query: `*[_type == 'category'].products[]->`,
@@ -41,7 +42,7 @@ describe("deref", () => {
   it("", () => {
     const res = categoryRef.deref();
     expectType<ExtractScope<typeof res>>().toStrictEqual<
-      TestSchema_For_Deref["category"]
+      Array<TestSchema_For_Deref["category"]>
     >();
     expect(q).toMatchObject({
       query: `*[_type == 'product'].category->`,

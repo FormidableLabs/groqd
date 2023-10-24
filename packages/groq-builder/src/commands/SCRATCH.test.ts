@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { createGroqBuilder } from "../groq-builder";
 import { SchemaConfig } from "../../sanity-types";
+import { createGroqBuilder } from "../index";
 
 const q = createGroqBuilder<SchemaConfig>();
 

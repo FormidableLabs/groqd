@@ -96,15 +96,10 @@ GroqBuilder.implement({
     const queryFields = keys.map((key) => {
       const value: unknown = projectionMap[key as keyof typeof projectionMap];
       if (typeof value === "boolean") {
-        return { query: key };
+        return { query: key, parser: null };
       } else if (value instanceof GroqBuilder) {
         return value;
-      } else if (
-        value &&
-        typeof value === "object" &&
-        "parse" in value &&
-        typeof value.parse === "function"
-      ) {
+      } else if (isParser(value)) {
         return { query: key, parser: value };
       } else {
         throw new Error("Unexpected value" + typeof value);
@@ -116,3 +111,12 @@ GroqBuilder.implement({
     return this.chain<ProjectionResult>(newQuery, newParser);
   },
 });
+
+function isParser(value: unknown): value is Parser<unknown, unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "parse" in value &&
+    typeof value.parse === "function"
+  );
+}

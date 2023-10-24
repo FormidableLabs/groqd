@@ -61,6 +61,6 @@ export type TypeMismatchError<
   TError extends { error: string; expected: any; actual: any }
 > = {
   error: TError["error"];
-  expected: TError["expected"];
-  actual: TError["actual"];
+  expected: Simplify<TError["expected"]>;
+  actual: Simplify<TError["actual"]>;
 };
