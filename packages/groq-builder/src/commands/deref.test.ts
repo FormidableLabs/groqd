@@ -4,22 +4,25 @@ import { ExtractScope } from "../utils/common-types";
 import { ExtractDocumentTypes } from "../utils/schema-types";
 import { createGroqBuilder } from "../index";
 
-const _referenced = Symbol("_referenced");
+const _referenced: unique symbol = Symbol("_referenced");
+type Category = {
+  _id: string;
+  _type: "category";
+  products: Array<{
+    _type: "reference";
+    _ref: string;
+    [_referenced]: "product";
+  }>;
+};
+type Product = {
+  _id: string;
+  _type: "product";
+  category: { _type: "reference"; _ref: string; [_referenced]: "category" };
+  notAReference: { data: string };
+};
 type TestSchema_For_Deref = {
-  category: {
-    _id: string;
-    _type: "category";
-    products: Array<{
-      _type: "reference";
-      _ref: string;
-      [_referenced]: "product";
-    }>;
-  };
-  product: {
-    _id: string;
-    _type: "product";
-    category: { _type: "reference"; _ref: string; [_referenced]: "category" };
-  };
+  category: Category;
+  product: Product;
 };
 
 const q = createGroqBuilder<{
@@ -28,24 +31,43 @@ const q = createGroqBuilder<{
 }>();
 
 describe("deref", () => {
-  const productRefs = q.star.filterByType("category").projection("products[]");
-  const categoryRef = q.star.filterByType("product").projection("category");
-  it("", () => {
-    const res = productRefs.deref();
-    expectType<ExtractScope<typeof res>>().toStrictEqual<
-      Array<Array<TestSchema_For_Deref["product"]>>
-    >();
+  const categoryRef = q.star
+    .filterByType("product")
+    .slice(0)
+    .projection("category");
+
+  const productsRefs = q.star
+    .filterByType("category")
+    .slice(0)
+    .projection("products[]");
+
+  it("should deref a single item", () => {
+    const res = categoryRef.deref();
+    expectType<ExtractScope<typeof res>>().toStrictEqual<Category>();
     expect(q).toMatchObject({
-      query: `*[_type == 'category'].products[]->`,
+      query: `*[_type == "product"].category->`,
     });
   });
-  it("", () => {
-    const res = categoryRef.deref();
-    expectType<ExtractScope<typeof res>>().toStrictEqual<
-      Array<TestSchema_For_Deref["category"]>
-    >();
+
+  it("should deref an array of items", () => {
+    const res = productsRefs.deref();
+    expectType<ExtractScope<typeof res>>().toStrictEqual<Array<Product>>();
     expect(q).toMatchObject({
-      query: `*[_type == 'product'].category->`,
+      query: `*[_type == "category"].products[]->`,
     });
+  });
+
+  it("should be an error if the item is not a reference", () => {
+    const notAReference = q.star
+      .filterByType("product")
+      .slice(0)
+      .projection("notAReference");
+
+    const res = notAReference.deref();
+
+    type ErrorResult = ExtractScope<typeof res>;
+    expectType<
+      ErrorResult["error"]
+    >().toStrictEqual<"Expected the object to be a reference type">();
   });
 });
