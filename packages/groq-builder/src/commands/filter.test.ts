@@ -7,24 +7,44 @@ import { createGroqBuilder } from "../index";
 const q = createGroqBuilder<SchemaConfig>();
 
 describe("filterBy", () => {
-  it("", () => {
-    const res = q.star.filterBy<"_type", "flavour">(`_type == "flavour"`);
-    expectType<ExtractScope<typeof res>>().toStrictEqual<
+  const result = q.star.filterBy(`_type == "flavour"`);
+
+  it("types should be correct", () => {
+    expectType<ExtractScope<typeof result>>().toStrictEqual<
       Array<SanitySchema["flavour"]>
     >();
-    expect(q).toMatchObject({
-      query: `[_type == "flavour"]`,
+    expectType<ExtractScope<typeof result>>().not.toStrictEqual<
+      Array<SanitySchema["variant"]>
+    >();
+  });
+
+  it("invalid types should be caught", () => {
+    // @ts-expect-error ---
+    q.star.filterBy(`INVALID == "flavour"`);
+    // @ts-expect-error ---
+    q.star.filterBy(`_type == "INVALID"`);
+  });
+
+  it("query should be correct", () => {
+    expect(result).toMatchObject({
+      query: `*[_type == "flavour"]`,
     });
   });
 });
 
 describe("filterByType", () => {
-  it("", () => {
-    const res = q.star.filterByType("flavour");
-    expectType<ExtractScope<typeof res>>().toStrictEqual<
+  const result = q.star.filterByType("flavour");
+  it("types should be correct", () => {
+    expectType<ExtractScope<typeof result>>().toStrictEqual<
       Array<SanitySchema["flavour"]>
     >();
-    expect(q).toMatchObject({
+  });
+  it("invalid types should be caught", () => {
+    // @ts-expect-error ---
+    q.star.filterByType("INVALID");
+  });
+  it("query should be correct", () => {
+    expect(result).toMatchObject({
       query: `*[_type == "flavour"]`,
     });
   });
