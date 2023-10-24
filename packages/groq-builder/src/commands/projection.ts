@@ -87,8 +87,8 @@ GroqBuilder.implement({
   projection(this: GroqBuilder<any, any>, arg: string | object) {
     type ProjectionResult = any;
     if (typeof arg === "string") {
-      const fieldName = arg;
-      return this.chain<ProjectionResult>(fieldName, null);
+      const nakedProjection = `.${arg}`;
+      return this.chain<ProjectionResult>(nakedProjection, null);
     }
 
     const projectionMap = arg;
