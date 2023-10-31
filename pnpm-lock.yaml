@@ -310,8 +310,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2(ts-node@10.9.1)
       zod:
-        specifier: ^3.21.4
-        version: 3.21.4
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@algolia/client-search':
         specifier: ^4.17.0
@@ -1971,7 +1971,7 @@ packages:
       '@lezer/common': 1.0.2
     dev: false
 
-  /@codemirror/autocomplete@6.5.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3):
+  /@codemirror/autocomplete@6.5.1(@codemirror/language@6.6.0)(@codemirror/state@6.2.1)(@codemirror/view@6.9.4)(@lezer/common@1.0.3):
     resolution: {integrity: sha512-/Sv9yJmqyILbZ26U4LBHnAtbikuVxWUp+rQ8BXuRGtxZfbfKOY/WPbsUtvSP2h0ZUZMlkxV/hqbKRFzowlA6xw==}
     peerDependencies:
       '@codemirror/language': ^6.0.0
@@ -1979,9 +1979,9 @@ packages:
       '@codemirror/view': ^6.0.0
       '@lezer/common': ^1.0.0
     dependencies:
-      '@codemirror/language': 6.8.0
+      '@codemirror/language': 6.6.0
       '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.14.0
+      '@codemirror/view': 6.9.4
       '@lezer/common': 1.0.3
     dev: false
 
@@ -4805,7 +4805,7 @@ packages:
       react: ^18
       styled-components: ^5.2
     dependencies:
-      '@codemirror/autocomplete': 6.5.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3)
+      '@codemirror/autocomplete': 6.5.1(@codemirror/language@6.6.0)(@codemirror/state@6.2.1)(@codemirror/view@6.9.4)(@lezer/common@1.0.3)
       '@codemirror/commands': 6.2.2
       '@codemirror/lang-javascript': 6.1.6
       '@codemirror/language': 6.6.0
@@ -5561,7 +5561,7 @@ packages:
       '@codemirror/state': '>=6.0.0'
       '@codemirror/view': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.5.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3)
+      '@codemirror/autocomplete': 6.5.1(@codemirror/language@6.6.0)(@codemirror/state@6.2.1)(@codemirror/view@6.9.4)(@lezer/common@1.0.3)
       '@codemirror/commands': 6.2.2
       '@codemirror/language': 6.6.0
       '@codemirror/lint': 6.3.0
@@ -15967,6 +15967,10 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+    dev: false
+
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
 
   /zwitch@1.0.5:
