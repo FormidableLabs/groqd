@@ -32,11 +32,12 @@ const data = await runQuery(q("*").filter("_type == 'pokemon'"));
 
 ### Starting with an array
 
-Sometimes your base query returns an array. `groqd` has no way of knowing when this occurs, so you'll need to give it a hint by passing `isArray: true` to the second arg of `q`.
+Sometimes your base query returns an array. `groqd` has no way of knowing when this occurs, so you'll need to give it a hint by passing `isArray: true` to the second arg of `q`. The `isArray` option only changes the return type of `q()` to `ArrayQuery` so the TS types can be more accurately represented. It _does not_ change the actual output query.
 
 ```ts
 q("*[_type == 'pokemon']", { isArray: true })
   .grab$({ name: q.string() })
+// translates to: *[_type == 'pokemon']
 ```
 
 ## `.filter`
@@ -384,6 +385,37 @@ q("*")
   });
 ```
 
+:::note
+When using a subquery it can be easy to mistake using the `isArray` option for selecting the array in the GROQ query. The following subqueries produce the same output and show the correct way to dereference an array as a subquery.
+
+By using array select
+
+```ts
+hosts: q('hosts[]', { isArray: true })
+  .deref()
+  .grab({
+      _id: q.string(),
+      name: q.string(),
+  }),
+
+// translates to "hosts": hosts[]->{ _id,  name }
+```
+
+Or by using an empty `filter` method
+
+```ts
+hosts: q('hosts')
+  .filter()
+  .deref()
+  .grab({
+      _id: q.string(),
+      name: q.string(),
+  }),
+
+// translates to "hosts": hosts[]->{ _id,  name }
+```
+:::
+
 ## `.score`
 
 Used to pipe a list of results through the `score` GROQ function.
@@ -410,4 +442,3 @@ q("*")
   .grab({ name: q.string() })
   .nullable(); // 👈 we're okay with a null value here
 ```
-
