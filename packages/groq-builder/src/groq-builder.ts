@@ -30,7 +30,11 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
     /**
      *
      */
-    public readonly parser: Parser<any, TScope> | null
+    public readonly parser: null | Parser<unknown, TScope>,
+    /**
+     *
+     */
+    public readonly parent: null | GroqBuilder<unknown, TRootConfig>
   ) {}
 
   /**
@@ -39,11 +43,8 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   protected chain<TScopeNew = TScope>(
     query: string,
     parser?: Parser<any, any> | null
-  ) {
-    return new GroqBuilder<TScopeNew, TRootConfig>(
-      this.query + query,
-      parser || null
-    );
+  ): GroqBuilder<TScopeNew, TRootConfig> {
+    return new GroqBuilder(this.query + query, parser || null, this);
   }
 
   /**

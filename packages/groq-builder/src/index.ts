@@ -5,7 +5,7 @@ import "./commands";
 type RootScope = never;
 
 export function createGroqBuilder<TRootConfig extends RootConfig>() {
-  return new GroqBuilder<RootScope, TRootConfig>("", null);
+  return new GroqBuilder<RootScope, TRootConfig>("", null, null);
 }
 
 export { GroqBuilder };
