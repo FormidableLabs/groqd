@@ -84,21 +84,33 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  projection(this: GroqBuilder<any, any>, arg: string | object) {
-    type ProjectionResult = any;
+  projection(
+    this: GroqBuilder<any, any>,
+    arg: string | object | ((q: GroqBuilder<any, any>) => object)
+  ) {
     if (typeof arg === "string") {
-      const nakedProjection = `.${arg}`;
-      return this.chain<ProjectionResult>(nakedProjection, null);
+      let nakedProjection = arg;
+      if (this.parent?.query.endsWith("]")) {
+        nakedProjection = "." + arg;
+      }
+      return this.chain(nakedProjection, null);
     }
 
-    const projectionMap = arg;
+    let projectionMap: object;
+    if (typeof arg === "function") {
+      const newQ = new GroqBuilder("", null, null);
+      projectionMap = arg(newQ);
+    } else {
+      projectionMap = arg;
+    }
+
     const keys = Object.keys(projectionMap) as Array<string>;
     const queryFields = keys.map((key) => {
       const value: unknown = projectionMap[key as keyof typeof projectionMap];
-      if (typeof value === "boolean") {
-        return { query: key, parser: null };
-      } else if (value instanceof GroqBuilder) {
+      if (value instanceof GroqBuilder) {
         return value;
+      } else if (typeof value === "boolean") {
+        return { query: key, parser: null };
       } else if (isParser(value)) {
         return { query: key, parser: value };
       } else {
@@ -108,7 +120,7 @@ GroqBuilder.implement({
 
     const newQuery = `{ ${queryFields.map((q) => q.query).join(", ")} }`;
     const newParser = null;
-    return this.chain<ProjectionResult>(newQuery, newParser);
+    return this.chain(newQuery, newParser);
   },
 });
 
