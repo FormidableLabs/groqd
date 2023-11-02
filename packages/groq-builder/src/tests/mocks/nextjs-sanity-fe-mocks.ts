@@ -112,3 +112,5 @@ export class MockFactory {
     return datalake;
   }
 }
+
+export const mock = new MockFactory();

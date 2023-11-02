@@ -1,6 +1,6 @@
+import * as groqJs from "groq-js";
 import { RootConfig } from "../../utils/schema-types";
 import { GroqBuilder } from "../../groq-builder";
-import * as groqJs from "groq-js/src/1";
 
 type Dataset = Array<object>;
 

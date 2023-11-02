@@ -3,20 +3,32 @@ import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
 import { createGroqBuilder } from "../index";
+import { executeBuilder } from "../tests/mocks/executeQuery";
+import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 
 const q = createGroqBuilder<SchemaConfig>();
 
 describe("star", () => {
-  const result = q.star;
+  const star = q.star;
 
   it("should have the correct type, matching all documents", () => {
-    expectType<ExtractScope<typeof result>>().toStrictEqual<
+    expectType<ExtractScope<typeof star>>().toStrictEqual<
       Array<SchemaConfig["documentTypes"]>
     >();
   });
   it("the query should be '*'", () => {
-    expect(result).toMatchObject({
+    expect(star).toMatchObject({
       query: "*",
+    });
+  });
+
+  describe("execution", () => {
+    it("should retrieve all documents", async () => {
+      const dataset = mock.datalake();
+      const result = await executeBuilder(dataset, q.star);
+
+      // I mean, this should be sufficient, right?
+      expect(result).toEqual(dataset);
     });
   });
 });
