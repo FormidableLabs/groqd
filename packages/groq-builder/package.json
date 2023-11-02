@@ -42,10 +42,9 @@
     "build:watch": "tsup --watch",
     "dev": "pnpm run build:watch"
   },
-  "dependencies": {},
   "devDependencies": {
     "@sanity/client": "^3.4.1",
-    "groq-js": "^1.1.1",
+    "groq-js": "^1.1.9",
     "tsup": "^6.3.0",
     "typescript": "^5.0.4",
     "vitest": "^0.28.5"
