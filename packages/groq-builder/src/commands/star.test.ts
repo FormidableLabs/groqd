@@ -24,11 +24,11 @@ describe("star", () => {
 
   describe("execution", () => {
     it("should retrieve all documents", async () => {
-      const dataset = mock.datalake();
-      const result = await executeBuilder(dataset, q.star);
+      const { datalake } = mock.generateSeedData();
+      const result = await executeBuilder(datalake, q.star);
 
       // I mean, this should be sufficient, right?
-      expect(result).toEqual(dataset);
+      expect(result).toEqual(datalake);
     });
   });
 });

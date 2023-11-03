@@ -4,20 +4,20 @@ import { ExtractScope } from "../utils/common-types";
 import { ExtractDocumentTypes } from "../utils/schema-types";
 import { createGroqBuilder } from "../index";
 
-const _referenced: unique symbol = Symbol("_referenced");
+const referenced: unique symbol = Symbol("referenced");
 type Category = {
   _id: string;
   _type: "category";
   products: Array<{
     _type: "reference";
     _ref: string;
-    [_referenced]: "product";
+    [referenced]: "product";
   }>;
 };
 type Product = {
   _id: string;
   _type: "product";
-  category: { _type: "reference"; _ref: string; [_referenced]: "category" };
+  category: { _type: "reference"; _ref: string; [referenced]: "category" };
   notAReference: { data: string };
 };
 type TestSchema_For_Deref = {
@@ -27,7 +27,7 @@ type TestSchema_For_Deref = {
 
 const q = createGroqBuilder<{
   documentTypes: ExtractDocumentTypes<TestSchema_For_Deref>;
-  referenceSymbol: typeof _referenced;
+  referenceSymbol: typeof referenced;
 }>();
 
 describe("deref", () => {

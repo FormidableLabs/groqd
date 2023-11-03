@@ -1,13 +1,46 @@
 // Types generated from "./sanity-studio/sanity.config.ts"
 import { ExtractDocumentTypes } from "../../utils/schema-types";
+import { Simplify } from "../../utils/type-utils";
 
 export type SchemaConfig = {
-  documentTypes: ExtractDocumentTypes<SanitySchema>;
-  referenceSymbol: typeof _referenced;
+  documentTypes: ExtractDocumentTypes<SanitySchema.Reconstructed>;
+  referenceSymbol: typeof referenced;
 };
 
-export declare const _referenced: unique symbol;
-export type SanitySchema = {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace SanitySchema {
+  // We're going to "reconstruct" our types here,
+  // so that we get better type aliases when debugging:
+  export type Description = SanitySchemaGenerated["description"];
+  export type Style = PromoteType<SanitySchemaGenerated["style"]>;
+  export type Category = PromoteType<SanitySchemaGenerated["category"]>;
+  export type CategoryImage = PromoteType<
+    SanitySchemaGenerated["categoryImage"]
+  >;
+  export type Flavour = PromoteType<SanitySchemaGenerated["flavour"]>;
+  export type Product = PromoteType<SanitySchemaGenerated["product"]>;
+  export type ProductImage = PromoteType<SanitySchemaGenerated["productImage"]>;
+  export type Variant = PromoteType<SanitySchemaGenerated["variant"]>;
+  export type SiteSettings = PromoteType<SanitySchemaGenerated["siteSettings"]>;
+
+  type PromoteType<T extends { _type: string }> = {
+    _type: T["_type"];
+  } & Simplify<Omit<T, "_type">>;
+
+  export type Reconstructed = {
+    style: Style;
+    category: Category;
+    categoryImage: CategoryImage;
+    flavour: Flavour;
+    product: Product;
+    productImage: ProductImage;
+    variant: Variant;
+    siteSettings: SiteSettings;
+  };
+}
+
+export declare const referenced: unique symbol;
+type SanitySchemaGenerated = {
   description: {
     _type: "block";
     children: {
@@ -56,7 +89,7 @@ export type SanitySchema = {
               }
             | undefined;
           _type: "reference";
-          [_referenced]: "categoryImage";
+          [referenced]: "categoryImage";
           _key: string;
         }[]
       | undefined;
@@ -167,7 +200,7 @@ export type SanitySchema = {
               }
             | undefined;
           _type: "reference";
-          [_referenced]: "category";
+          [referenced]: "category";
           _key: string;
         }[]
       | undefined;
@@ -188,7 +221,7 @@ export type SanitySchema = {
               }
             | undefined;
           _type: "reference";
-          [_referenced]: "variant";
+          [referenced]: "variant";
           _key: string;
         }[]
       | undefined;
@@ -253,7 +286,7 @@ export type SanitySchema = {
               }
             | undefined;
           _type: "reference";
-          [_referenced]: "style";
+          [referenced]: "style";
           _key: string;
         }[]
       | undefined;
@@ -305,7 +338,7 @@ export type SanitySchema = {
               }
             | undefined;
           _type: "reference";
-          [_referenced]: "flavour";
+          [referenced]: "flavour";
           _key: string;
         }[]
       | undefined;

@@ -11,10 +11,10 @@ describe("filterBy", () => {
 
   it("types should be correct", () => {
     expectType<ExtractScope<typeof result>>().toStrictEqual<
-      Array<SanitySchema["flavour"]>
+      Array<SanitySchema.Flavour>
     >();
     expectType<ExtractScope<typeof result>>().not.toStrictEqual<
-      Array<SanitySchema["variant"]>
+      Array<SanitySchema.Variant>
     >();
   });
 
@@ -36,7 +36,7 @@ describe("filterByType", () => {
   const result = q.star.filterByType("flavour");
   it("types should be correct", () => {
     expectType<ExtractScope<typeof result>>().toStrictEqual<
-      Array<SanitySchema["flavour"]>
+      Array<SanitySchema.Flavour>
     >();
   });
   it("invalid types should be caught", () => {

@@ -1,13 +1,4 @@
-import { _referenced, SanitySchema } from "../schemas/nextjs-sanity-fe";
-
-type Category = SanitySchema["category"];
-type CategoryImage = SanitySchema["categoryImage"];
-type Flavour = SanitySchema["flavour"];
-type Product = SanitySchema["product"];
-type ProductImage = SanitySchema["productImage"];
-type SiteSettings = SanitySchema["siteSettings"];
-type Style = SanitySchema["style"];
-type Variant = SanitySchema["variant"];
+import { referenced, SanitySchema } from "../schemas/nextjs-sanity-fe";
 
 export class MockFactory {
   // Common helpers:
@@ -43,15 +34,19 @@ export class MockFactory {
       _key: this.id(`reference`),
       _ref: data._id,
       // This value is not actually needed, but it's required by TypeScript::
-      [_referenced]: null as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [referenced]: null as any,
     };
   }
 
   // Document types:
   product(
-    data: Partial<Product>,
-    references?: { categories?: Category[]; variants?: Variant[] }
-  ): Product {
+    data: Partial<SanitySchema.Product>,
+    references?: {
+      categories?: SanitySchema.Category[];
+      variants?: SanitySchema.Variant[];
+    }
+  ): SanitySchema.Product {
     return {
       ...this.common("product"),
       name: "Name",
@@ -61,9 +56,9 @@ export class MockFactory {
       images: [],
       description: [],
       ...data,
-    } satisfies Required<Product>;
+    } satisfies Required<SanitySchema.Product>;
   }
-  category(data: Partial<Category>): Category {
+  category(data: Partial<SanitySchema.Category>): SanitySchema.Category {
     return {
       ...this.common("category"),
       slug: this.slug("category"),
@@ -71,12 +66,15 @@ export class MockFactory {
       name: "Category Name",
       images: [],
       ...data,
-    } satisfies Required<Category>;
+    } satisfies Required<SanitySchema.Category>;
   }
   variant(
-    data: Partial<Variant>,
-    references?: { flavour: Flavour[]; style: Style[] }
-  ): Variant {
+    data: Partial<SanitySchema.Variant>,
+    references?: {
+      flavour: SanitySchema.Flavour[];
+      style: SanitySchema.Style[];
+    }
+  ): SanitySchema.Variant {
     const common = this.common("variant");
     return {
       ...common,
@@ -90,11 +88,11 @@ export class MockFactory {
       msrp: 0,
       style: references?.style.map((s) => this.reference(s)) ?? [],
       ...data,
-    } satisfies Required<Variant>;
+    } satisfies Required<SanitySchema.Variant>;
   }
 
   // Entire datasets:
-  datalake() {
+  generateSeedData() {
     const categories = this.array(10, (i) =>
       this.category({ name: `Category ${i}` })
     );
@@ -109,7 +107,8 @@ export class MockFactory {
     );
 
     const datalake = [...products, ...categories, ...variants];
-    return datalake;
+
+    return { products, categories, variants, datalake };
   }
 }
 
