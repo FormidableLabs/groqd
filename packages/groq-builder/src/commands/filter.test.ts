@@ -3,40 +3,49 @@ import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
 import { createGroqBuilder } from "../index";
+import { executeBuilder } from "../tests/mocks/executeQuery";
+import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 
 const q = createGroqBuilder<SchemaConfig>();
 
+const data = mock.generateSeedData({});
+
 describe("filterBy", () => {
-  const result = q.star.filterBy(`_type == "flavour"`);
+  const qProduct = q.star.filterBy(`_type == "product"`);
 
   it("types should be correct", () => {
-    expectType<ExtractScope<typeof result>>().toStrictEqual<
-      Array<SanitySchema.Flavour>
+    expectType<ExtractScope<typeof qProduct>>().toStrictEqual<
+      Array<SanitySchema.Product>
     >();
-    expectType<ExtractScope<typeof result>>().not.toStrictEqual<
+    expectType<ExtractScope<typeof qProduct>>().not.toStrictEqual<
       Array<SanitySchema.Variant>
     >();
   });
 
   it("invalid types should be caught", () => {
     // @ts-expect-error ---
-    q.star.filterBy(`INVALID == "flavour"`);
+    q.star.filterBy(`INVALID == "product"`);
     // @ts-expect-error ---
     q.star.filterBy(`_type == "INVALID"`);
   });
 
   it("query should be correct", () => {
-    expect(result).toMatchObject({
-      query: `*[_type == "flavour"]`,
+    expect(qProduct).toMatchObject({
+      query: `*[_type == "product"]`,
     });
+  });
+
+  it("should execute correctly", async () => {
+    const results = await executeBuilder(data.datalake, qProduct);
+    expect(results).toEqual(data.products);
   });
 });
 
 describe("filterByType", () => {
-  const result = q.star.filterByType("flavour");
+  const qProduct = q.star.filterByType("product");
   it("types should be correct", () => {
-    expectType<ExtractScope<typeof result>>().toStrictEqual<
-      Array<SanitySchema.Flavour>
+    expectType<ExtractScope<typeof qProduct>>().toStrictEqual<
+      Array<SanitySchema.Product>
     >();
   });
   it("invalid types should be caught", () => {
@@ -44,8 +53,13 @@ describe("filterByType", () => {
     q.star.filterByType("INVALID");
   });
   it("query should be correct", () => {
-    expect(result).toMatchObject({
-      query: `*[_type == "flavour"]`,
+    expect(qProduct).toMatchObject({
+      query: `*[_type == "product"]`,
     });
+  });
+
+  it("should execute correctly", async () => {
+    const results = await executeBuilder(data.datalake, qProduct);
+    expect(results).toEqual(data.products);
   });
 });
