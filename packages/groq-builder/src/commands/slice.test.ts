@@ -10,7 +10,7 @@ const q = createGroqBuilder<SchemaConfig>();
 
 describe("slice", () => {
   const qVariants = q.star.filterByType("variant");
-  const data = mock.generateSeedData();
+  const data = mock.generateSeedData({});
   beforeAll(async function checkRootQuery() {
     const results = await executeBuilder(data.datalake, qVariants);
     expect(results).toStrictEqual(data.variants);

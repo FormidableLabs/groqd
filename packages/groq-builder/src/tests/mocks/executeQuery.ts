@@ -2,20 +2,20 @@ import * as groqJs from "groq-js";
 import { RootConfig } from "../../utils/schema-types";
 import { GroqBuilder } from "../../groq-builder";
 
-type Dataset = Array<object>;
+type Datalake = Array<object>;
 
 export async function executeBuilder<TScope, TRootConfig extends RootConfig>(
-  dataset: Dataset,
+  datalake: Datalake,
   buider: GroqBuilder<TScope, TRootConfig>,
   params = {}
 ): Promise<TScope> {
   const query = buider.query;
-  const result = await executeQuery(dataset, query, params);
+  const result = await executeQuery(datalake, query, params);
   return result as TScope;
 }
 
 export async function executeQuery(
-  dataset: Dataset,
+  dataset: Datalake,
   query: string,
   params: Record<string, string>
 ): Promise<unknown> {

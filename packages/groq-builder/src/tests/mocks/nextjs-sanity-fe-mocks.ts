@@ -24,7 +24,7 @@ export class MockFactory {
     return new Array(length).fill(null).map((_, i) => factory(i));
   }
 
-  // Dataset helpers:
+  // Datalake helpers:
   slug(prefix: string) {
     return { _type: "slug" as const, current: this.id(prefix) };
   }
@@ -92,20 +92,22 @@ export class MockFactory {
   }
 
   // Entire datasets:
-  generateSeedData() {
-    const categories = this.array(10, (i) =>
+  generateSeedData({
+    categories = this.array(10, (i) =>
       this.category({ name: `Category ${i}` })
-    );
-    const variants = this.array(10, (i) =>
-      this.variant({ name: `Variant ${i}` })
-    );
-    const products = this.array(10, (i) =>
+    ),
+    variants = this.array(10, (i) => this.variant({ name: `Variant ${i}` })),
+    products = this.array(10, (i) =>
       this.product(
         { name: `Product ${i}` },
         { categories: categories, variants: variants }
       )
-    );
-
+    ),
+  }: {
+    categories?: SanitySchema.Category[];
+    variants?: SanitySchema.Variant[];
+    products?: SanitySchema.Product[];
+  }) {
     const datalake = [...products, ...categories, ...variants];
 
     return { products, categories, variants, datalake };

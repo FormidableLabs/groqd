@@ -10,7 +10,15 @@ const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("order", () => {
-  const data = mock.generateSeedData();
+  const data = mock.generateSeedData({
+    variants: mock.array(10, (i) =>
+      mock.variant({
+        name: `Variant ${i}`,
+        price: 100 - i,
+        msrp: i < 5 ? 500 : 600,
+      })
+    ),
+  });
   it("invalid types are caught", () => {
     // @ts-expect-error ---
     qVariants.order("INVALID");
@@ -19,26 +27,35 @@ describe("order", () => {
     // @ts-expect-error ---
     qVariants.order("INVALID desc");
   });
-  const qOrder = qVariants.order("price");
   it("result type is not changed", () => {
     expectType<ExtractScope<typeof qVariants>>().toStrictEqual<
       Array<SanitySchema.Variant>
     >();
 
+    const qOrder = qVariants.order("price");
     expectType<ExtractScope<typeof qOrder>>().toStrictEqual<
       Array<SanitySchema.Variant>
     >();
   });
   it("query is compiled correctly", () => {
+    const qOrder = qVariants.order("price");
     expect(qOrder).toMatchObject({
       query: `*[_type == "variant"] | order(price)`,
     });
   });
-  it("should execute correctly", async () => {
+
+  const priceAsc = data.variants.slice().reverse();
+  const priceDesc = data.variants.slice();
+
+  it("should execute correctly (asc)", async () => {
+    const qOrder = qVariants.order("price");
     const results = await executeBuilder(data.datalake, qOrder);
-    expect(results).toMatchObject([
-      //
-    ]);
+    expect(results).toMatchObject(priceAsc);
+  });
+  it("should execute correctly (desc)", async () => {
+    const qOrder = qVariants.order("price desc");
+    const results = await executeBuilder(data.datalake, qOrder);
+    expect(results).toMatchObject(priceDesc);
   });
 
   it("asc", () => {
@@ -78,18 +95,35 @@ describe("order", () => {
       );
     });
     it("query is built correctly", () => {
-      const qOrder = qVariants.order("price", "msrp", "name");
+      const qOrder = qVariants.order("msrp", "price", "name");
 
-      expect(qOrder).toMatchObject({
-        query: `*[_type == "variant"] | order(price, msrp, name)`,
-      });
+      expect(qOrder.query).toEqual(
+        `*[_type == "variant"] | order(msrp, price, name)`
+      );
     });
     it("asc / desc", () => {
       const qOrder = qVariants.order("price asc", "msrp desc", "name asc");
 
-      expect(qOrder).toMatchObject({
-        query: `*[_type == "variant"] | order(price asc, msrp desc, name asc)`,
-      });
+      expect(qOrder.query).toEqual(
+        `*[_type == "variant"] | order(price asc, msrp desc, name asc)`
+      );
+    });
+
+    it("should execute correctly", async () => {
+      const qOrder = qVariants.order("msrp", "price");
+      const results = await executeBuilder(data.datalake, qOrder);
+      expect(results).toMatchObject([
+        { name: `Variant 4`, msrp: 500, price: 96 },
+        { name: `Variant 3`, msrp: 500, price: 97 },
+        { name: `Variant 2`, msrp: 500, price: 98 },
+        { name: `Variant 1`, msrp: 500, price: 99 },
+        { name: `Variant 0`, msrp: 500, price: 100 },
+        { name: `Variant 9`, msrp: 600, price: 91 },
+        { name: `Variant 8`, msrp: 600, price: 92 },
+        { name: `Variant 7`, msrp: 600, price: 93 },
+        { name: `Variant 6`, msrp: 600, price: 94 },
+        { name: `Variant 5`, msrp: 600, price: 95 },
+      ]);
     });
   });
 });
