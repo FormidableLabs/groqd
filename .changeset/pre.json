@@ -1,0 +1,13 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "playground-example": "0.0.1",
+    "groq-builder": "0.1.0",
+    "groqd": "0.15.9",
+    "groqd-playground": "0.0.17",
+    "groqd-playground-editor": "0.0.5",
+    "website": "0.0.5"
+  },
+  "changesets": []
+}
