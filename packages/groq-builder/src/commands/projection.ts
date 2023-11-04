@@ -90,7 +90,7 @@ GroqBuilder.implement({
   ) {
     if (typeof arg === "string") {
       let nakedProjection = arg;
-      if (this.parent?.query.endsWith("]")) {
+      if (this.query.endsWith("]")) {
         nakedProjection = "." + arg;
       }
       return this.chain(nakedProjection, null);

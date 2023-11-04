@@ -19,16 +19,17 @@ export async function executeQuery(
   query: string,
   params: Record<string, string>
 ): Promise<unknown> {
-  const parsed = groqJs.parse(query, { params });
-  const streamResult = await groqJs.evaluate(parsed, { dataset, params });
-  const start = Date.now();
-  const result = await streamResult.get();
+  try {
+    const parsed = groqJs.parse(query, { params });
+    const streamResult = await groqJs.evaluate(parsed, { dataset, params });
+    const start = Date.now();
+    const result = await streamResult.get();
 
-  const INEFFICIENT_QUERY_THRESHOLD = 5_000;
-  const elapsed = Date.now() - start;
-  if (elapsed >= INEFFICIENT_QUERY_THRESHOLD) {
-    // Issue a warning!
-    console.warn(`
+    const INEFFICIENT_QUERY_THRESHOLD = 5_000;
+    const elapsed = Date.now() - start;
+    if (elapsed >= INEFFICIENT_QUERY_THRESHOLD) {
+      // Issue a warning!
+      console.warn(`
       [groq-handler] WARNING: this query took ${elapsed} ms to mock execute.
       This usually indicates an inefficient query, and you should consider improving it.
       ${
@@ -38,6 +39,15 @@ export async function executeQuery(
       }
       Inefficient query: \n${query}
     `);
+    }
+    return result;
+  } catch (e) {
+    const err = e as Error;
+    if (err.message.includes("Syntax error in GROQ query at position ")) {
+      throw new Error(
+        `Syntax err for query: ${JSON.stringify(query)}\n${err.message}`
+      );
+    }
+    throw err;
   }
-  return result;
 }
