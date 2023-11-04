@@ -6,12 +6,15 @@ type Datalake = Array<object>;
 
 export async function executeBuilder<TScope, TRootConfig extends RootConfig>(
   datalake: Datalake,
-  buider: GroqBuilder<TScope, TRootConfig>,
+  builder: GroqBuilder<TScope, TRootConfig>,
   params = {}
 ): Promise<TScope> {
-  const query = buider.query;
-  const result = await executeQuery(datalake, query, params);
-  return result as TScope;
+  const query = builder.query;
+  const originalResult = await executeQuery(datalake, query, params);
+  const parsedResult = builder.parser
+    ? builder.parser(originalResult)
+    : originalResult;
+  return parsedResult as TScope;
 }
 
 export async function executeQuery(

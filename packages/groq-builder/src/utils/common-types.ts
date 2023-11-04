@@ -4,7 +4,12 @@ import { GroqBuilder } from "../groq-builder";
  * A generic "parser" which can take any input and output a parsed type.
  * This signature is compatible with Zod.
  */
-export type Parser<TInput, TOutput> = { parse(input: TInput): TOutput };
+export type ParserObject<TInput, TOutput> = { parse(input: TInput): TOutput };
+
+/**
+ * A generic "parser" which takes any input and outputs a parsed type.
+ */
+export type ParserFunction<TInput, TOutput> = (input: TInput) => TOutput;
 
 /**
  * Excludes symbol and number from keys, so that you only have strings.

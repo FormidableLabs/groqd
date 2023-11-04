@@ -1,4 +1,4 @@
-import type { Parser } from "./utils/common-types";
+import type { ParserFunction } from "./utils/common-types";
 
 import type { MaybeArrayItem, SimplifyDeep } from "./utils/type-utils";
 import type { RootConfig } from "./utils/schema-types";
@@ -30,7 +30,7 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
     /**
      *
      */
-    public readonly parser: null | Parser<unknown, TScope>,
+    public readonly parser: null | ParserFunction<unknown, TScope>,
     /**
      *
      */
@@ -42,7 +42,7 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
    */
   protected chain<TScopeNew = TScope>(
     query: string,
-    parser?: Parser<any, any> | null
+    parser?: ParserFunction<any, any> | null
   ): GroqBuilder<TScopeNew, TRootConfig> {
     return new GroqBuilder(this.query + query, parser || null, this);
   }
@@ -52,7 +52,7 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
    */
   public any<TScopeNew = TScope>(
     query: string,
-    parser?: Parser<any, any> | null
+    parser?: ParserFunction<any, any> | null
   ) {
     return this.chain<TScopeNew>(query, parser);
   }
@@ -65,7 +65,7 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
     fetchData: (query: string) => Promise<unknown>
   ): Promise<TScope> {
     const rawData = await fetchData(this.query);
-    const parsed = this.parser?.parse(rawData) || (rawData as TScope);
+    const parsed = this.parser ? this.parser(rawData) : (rawData as TScope);
     return parsed;
   }
 

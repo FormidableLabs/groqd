@@ -5,8 +5,9 @@ import {
   TypeMismatchError,
 } from "../utils/type-utils";
 import { GroqBuilder } from "../groq-builder";
-import { Parser, StringKeys } from "../utils/common-types";
+import { ParserObject, StringKeys } from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
+import { isParserObject } from "./parse";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
@@ -50,7 +51,7 @@ declare module "../groq-builder" {
     // Use 'true' to include a field as-is
     | true
     // Use a parser to include a field, passing it through the parser at run-time
-    | Parser<any, any>
+    | ParserObject<any, any>
     // Use a GroqBuilder instance to create a nested projection
     | GroqBuilder<any, any>;
 
@@ -69,8 +70,8 @@ declare module "../groq-builder" {
             expected: keyof TScope;
             actual: P;
           }>
-      : /* Extract type from Parser: */
-      TProjection[P] extends Parser<infer TInput, infer TOutput>
+      : /* Extract type from ParserObject: */
+      TProjection[P] extends ParserObject<infer TInput, infer TOutput>
       ? P extends keyof TScope
         ? TInput extends TScope[P]
           ? TOutput
@@ -116,7 +117,7 @@ GroqBuilder.implement({
         return { query: `"${key}": ${value.query}`, parser: value.parser };
       } else if (typeof value === "boolean") {
         return { query: key, parser: null };
-      } else if (isParser(value)) {
+      } else if (isParserObject(value)) {
         return { query: key, parser: value };
       } else {
         throw new Error("Unexpected value" + typeof value);
@@ -128,12 +129,3 @@ GroqBuilder.implement({
     return this.chain(newQuery, newParser);
   },
 });
-
-function isParser(value: unknown): value is Parser<unknown, unknown> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "parse" in value &&
-    typeof value.parse === "function"
-  );
-}
