@@ -1,4 +1,9 @@
-import { Get, MaybeArrayItem, TypeMismatchError } from "../utils/type-utils";
+import {
+  Get,
+  MaybeArrayItem,
+  Simplify,
+  TypeMismatchError,
+} from "../utils/type-utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, StringKeys } from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
@@ -34,8 +39,8 @@ declare module "../groq-builder" {
         | ((q: GroqBuilder<MaybeArrayItem<TScope>, TRootConfig>) => TProjection)
     ): GroqBuilder<
       TScope extends Array<infer TScopeItem>
-        ? Array<ExtractProjectionResult<TScopeItem, TProjection>>
-        : ExtractProjectionResult<TScope, TProjection>,
+        ? Array<Simplify<ExtractProjectionResult<TScopeItem, TProjection>>>
+        : Simplify<ExtractProjectionResult<TScope, TProjection>>,
       TRootConfig
     >;
   }

@@ -62,46 +62,120 @@ describe("projection (field)", () => {
   });
 });
 
-describe.skip("projection (objects)", () => {
-  it("projection a single property", () => {
-    const res = qVariants.projection({
-      name: true,
-    });
-
-    expect(res).toMatchObject({
-      query: "*[_type == 'variant']{name}",
-    });
-
-    expectType<ExtractScope<typeof res>>().toStrictEqual<
-      Array<{
-        name: string;
-      }>
-    >();
+describe.only("projection (objects)", () => {
+  const data = mock.generateSeedData({
+    variants: mock.array(5, (i) =>
+      mock.variant({
+        id: `variant-${i}`,
+        name: `Variant ${i}`,
+        price: 100 * i,
+        msrp: 200 * i,
+      })
+    ),
   });
 
-  it("projection multiple properties", () => {
-    const res = qVariants.projection({
-      _id: true,
+  describe("a single plain property", () => {
+    const qName = qVariants.projection({
+      name: true,
+    });
+    it("query should be typed correctly", () => {
+      expect(qName.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"]{ name }"'
+      );
+
+      expectType<ExtractScope<typeof qName>>().toStrictEqual<
+        Array<{
+          name: string;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(data.datalake, qName);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "name": "Variant 0",
+          },
+          {
+            "name": "Variant 1",
+          },
+          {
+            "name": "Variant 2",
+          },
+          {
+            "name": "Variant 3",
+          },
+          {
+            "name": "Variant 4",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("multiple plain properties", () => {
+    const qMultipleFields = qVariants.projection({
+      id: true,
       name: true,
       price: true,
       msrp: true,
     });
+    it("query should be typed correctly", () => {
+      expect(qMultipleFields.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"]{ id, name, price, msrp }"'
+      );
 
-    expect(res).toMatchObject({
-      query: "*[_type == 'variant']{_id,name,price,msrp}",
+      expectType<ExtractScope<typeof qMultipleFields>>().toStrictEqual<
+        Array<{
+          id: string | undefined;
+          name: string;
+          price: number;
+          msrp: number;
+        }>
+      >();
     });
 
-    expectType<ExtractScope<typeof res>>().toStrictEqual<
-      Array<{
-        _id: string;
-        name: string;
-        price: number;
-        msrp: number;
-      }>
-    >();
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(data.datalake, qMultipleFields);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "id": "variant-0",
+            "msrp": 0,
+            "name": "Variant 0",
+            "price": 0,
+          },
+          {
+            "id": "variant-1",
+            "msrp": 200,
+            "name": "Variant 1",
+            "price": 100,
+          },
+          {
+            "id": "variant-2",
+            "msrp": 400,
+            "name": "Variant 2",
+            "price": 200,
+          },
+          {
+            "id": "variant-3",
+            "msrp": 600,
+            "name": "Variant 3",
+            "price": 300,
+          },
+          {
+            "id": "variant-4",
+            "msrp": 800,
+            "name": "Variant 4",
+            "price": 400,
+          },
+        ]
+      `);
+    });
   });
 
-  it("cannot projection props that don't exist", () => {
+  it.skip("cannot projection props that don't exist", () => {
     const res = qVariants.projection({
       INVALID: true,
     });
