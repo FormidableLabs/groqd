@@ -287,4 +287,68 @@ describe("projection (objects)", () => {
       `);
     });
   });
+
+  describe("mixed projections", () => {
+    const qComplex = qVariants.projection((q) => ({
+      name: true,
+      slug: q.projection("slug").projection("current"),
+      price: true,
+      IMAGES: q.projection("images[]").projection("name"),
+    }));
+
+    it("query should be correct", () => {
+      expect(qComplex.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"]{ name, \\"slug\\": slug.current, price, \\"IMAGES\\": images[].name }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<ExtractScope<typeof qComplex>>().toStrictEqual<
+        Array<{
+          name: string;
+          slug: string;
+          price: number;
+          IMAGES: Array<string>;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(data.datalake, qComplex);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "IMAGES": [],
+            "name": "Variant 0",
+            "price": 0,
+            "slug": "variant:0",
+          },
+          {
+            "IMAGES": [],
+            "name": "Variant 1",
+            "price": 100,
+            "slug": "variant:1",
+          },
+          {
+            "IMAGES": [],
+            "name": "Variant 2",
+            "price": 200,
+            "slug": "variant:2",
+          },
+          {
+            "IMAGES": [],
+            "name": "Variant 3",
+            "price": 300,
+            "slug": "variant:3",
+          },
+          {
+            "IMAGES": [],
+            "name": "Variant 4",
+            "price": 400,
+            "slug": "variant:4",
+          },
+        ]
+      `);
+    });
+  });
 });
