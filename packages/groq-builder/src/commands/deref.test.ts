@@ -1,67 +1,39 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
-import { ExtractDocumentTypes } from "../utils/schema-types";
 import { createGroqBuilder } from "../index";
+import { executeBuilder } from "../tests/mocks/executeQuery";
+import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 
-const referenced: unique symbol = Symbol("referenced");
-type Category = {
-  _id: string;
-  _type: "category";
-  products: Array<{
-    _type: "reference";
-    _ref: string;
-    [referenced]: "product";
-  }>;
-};
-type Product = {
-  _id: string;
-  _type: "product";
-  category: { _type: "reference"; _ref: string; [referenced]: "category" };
-  notAReference: { data: string };
-};
-type TestSchema_For_Deref = {
-  category: Category;
-  product: Product;
-};
-
-const q = createGroqBuilder<{
-  documentTypes: ExtractDocumentTypes<TestSchema_For_Deref>;
-  referenceSymbol: typeof referenced;
-}>();
+const q = createGroqBuilder<SchemaConfig>();
+const data = mock.generateSeedData({});
 
 describe("deref", () => {
-  const categoryRef = q.star
-    .filterByType("product")
-    .slice(0)
-    .projection("category");
-
-  const productsRefs = q.star
-    .filterByType("category")
-    .slice(0)
-    .projection("products[]");
+  const qProduct = q.star.filterByType("product").slice(0);
+  const qCategoryRef = qProduct.projection("categories[]").slice(0).deref();
+  const qVariantsRefs = qProduct.projection("variants[]").deref();
 
   it("should deref a single item", () => {
-    const res = categoryRef.deref();
-    expectType<ExtractScope<typeof res>>().toStrictEqual<Category>();
-    expect(res.query).toMatchInlineSnapshot(
-      '"*[_type == \\"product\\"][0].category->"'
+    expectType<
+      ExtractScope<typeof qCategoryRef>
+    >().toStrictEqual<SanitySchema.Category>();
+    expect(qCategoryRef.query).toMatchInlineSnapshot(
+      '"*[_type == \\"product\\"][0].categories[][0]->"'
     );
   });
 
   it("should deref an array of items", () => {
-    const res = productsRefs.deref();
-    expectType<ExtractScope<typeof res>>().toStrictEqual<Array<Product>>();
-    expect(res.query).toMatchInlineSnapshot(
-      '"*[_type == \\"category\\"][0].products[]->"'
+    expectType<ExtractScope<typeof qVariantsRefs>>().toStrictEqual<
+      Array<SanitySchema.Variant>
+    >();
+    expect(qVariantsRefs.query).toMatchInlineSnapshot(
+      '"*[_type == \\"product\\"][0].variants[]->"'
     );
   });
 
   it("should be an error if the item is not a reference", () => {
-    const notAReference = q.star
-      .filterByType("product")
-      .slice(0)
-      .projection("notAReference");
+    const notAReference = qProduct.projection("slug");
 
     const res = notAReference.deref();
 
@@ -69,5 +41,14 @@ describe("deref", () => {
     expectType<
       ErrorResult["error"]
     >().toStrictEqual<"Expected the object to be a reference type">();
+  });
+
+  it("should execute correctly (single)", async () => {
+    const results = await executeBuilder(data.datalake, qCategoryRef);
+    expect(results).toEqual(data.categories[0]);
+  });
+  it("should execute correctly (multiple)", async () => {
+    const results = await executeBuilder(data.datalake, qVariantsRefs);
+    expect(results).toEqual(data.variants);
   });
 });
