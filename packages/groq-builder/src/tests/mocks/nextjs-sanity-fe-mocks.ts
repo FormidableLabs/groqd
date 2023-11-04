@@ -25,8 +25,10 @@ export class MockFactory {
   }
 
   // Datalake helpers:
-  slug(prefix: string) {
-    return { _type: "slug" as const, current: this.id(prefix) };
+  slug(prefix: string | { current: string }) {
+    const current =
+      typeof prefix === "string" ? this.id(prefix) : prefix.current;
+    return { _type: "slug" as const, current };
   }
   reference(data: { _id: string }) {
     return {

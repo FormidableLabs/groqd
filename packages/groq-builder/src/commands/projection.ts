@@ -95,7 +95,7 @@ GroqBuilder.implement({
   ) {
     if (typeof arg === "string") {
       let nakedProjection = arg;
-      if (this.query.endsWith("]")) {
+      if (this.query) {
         nakedProjection = "." + arg;
       }
       return this.chain(nakedProjection, null);
@@ -113,7 +113,7 @@ GroqBuilder.implement({
     const queryFields = keys.map((key) => {
       const value: unknown = projectionMap[key as keyof typeof projectionMap];
       if (value instanceof GroqBuilder) {
-        return value;
+        return { query: `"${key}": ${value.query}`, parser: value.parser };
       } else if (typeof value === "boolean") {
         return { query: key, parser: null };
       } else if (isParser(value)) {

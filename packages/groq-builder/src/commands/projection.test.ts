@@ -62,7 +62,7 @@ describe("projection (field)", () => {
   });
 });
 
-describe.only("projection (objects)", () => {
+describe("projection (objects)", () => {
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -70,8 +70,21 @@ describe.only("projection (objects)", () => {
         name: `Variant ${i}`,
         price: 100 * i,
         msrp: 200 * i,
+        slug: mock.slug({ current: `variant:${i}` }),
       })
     ),
+  });
+
+  it("cannot project props that don't exist", () => {
+    const qInvalid = qVariants.projection({
+      INVALID: true,
+    });
+
+    expectType<ExtractScope<typeof qInvalid>>().toBeAssignableTo<
+      Array<{
+        INVALID: TypeMismatchError<any>;
+      }>
+    >();
   });
 
   describe("a single plain property", () => {
@@ -175,15 +188,103 @@ describe.only("projection (objects)", () => {
     });
   });
 
-  it.skip("cannot projection props that don't exist", () => {
-    const res = qVariants.projection({
-      INVALID: true,
+  describe("a single complex projection", () => {
+    const qComplex = qVariants.projection((q) => ({
+      NAME: q.projection("name"),
+    }));
+
+    it("query should be correct", () => {
+      expect(qComplex.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"]{ \\"NAME\\": name }"'
+      );
     });
 
-    expectType<ExtractScope<typeof res>>().toBeAssignableTo<
-      Array<{
-        INVALID: TypeMismatchError<any>;
-      }>
-    >();
+    it("types should be correct", () => {
+      expectType<ExtractScope<typeof qComplex>>().toStrictEqual<
+        Array<{
+          NAME: string;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(data.datalake, qComplex);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "NAME": "Variant 0",
+          },
+          {
+            "NAME": "Variant 1",
+          },
+          {
+            "NAME": "Variant 2",
+          },
+          {
+            "NAME": "Variant 3",
+          },
+          {
+            "NAME": "Variant 4",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("multiple complex projections", () => {
+    const qComplex = qVariants.projection((q) => ({
+      name: q.projection("name"),
+      slug: q.projection("slug").projection("current"),
+      images: q.projection("images[]").projection("name"),
+    }));
+
+    it("query should be correct", () => {
+      expect(qComplex.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"]{ \\"name\\": name, \\"slug\\": slug.current, \\"images\\": images[].name }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<ExtractScope<typeof qComplex>>().toStrictEqual<
+        Array<{
+          name: string;
+          slug: string;
+          images: Array<string>;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(data.datalake, qComplex);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "images": [],
+            "name": "Variant 0",
+            "slug": "variant:0",
+          },
+          {
+            "images": [],
+            "name": "Variant 1",
+            "slug": "variant:1",
+          },
+          {
+            "images": [],
+            "name": "Variant 2",
+            "slug": "variant:2",
+          },
+          {
+            "images": [],
+            "name": "Variant 3",
+            "slug": "variant:3",
+          },
+          {
+            "images": [],
+            "name": "Variant 4",
+            "slug": "variant:4",
+          },
+        ]
+      `);
+    });
   });
 });
