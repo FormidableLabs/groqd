@@ -1,7 +1,6 @@
 import type { ParserFunction } from "./utils/common-types";
-
 import type { RootConfig } from "./utils/schema-types";
-import { chainParsers } from "./commands/parse";
+import { chainParsers } from "./commands/parseUtils";
 
 export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   /**

@@ -11,7 +11,7 @@ import {
   StringKeys,
 } from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
-import { getParserFunction, isParser } from "./parse";
+import { getParserFunction, isParser } from "./parseUtils";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {

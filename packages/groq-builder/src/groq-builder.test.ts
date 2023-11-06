@@ -15,7 +15,7 @@ describe("GroqBuilder", () => {
       query: "",
     });
   });
-  it("getProductBySlug", () => {
+  describe("getProductBySlug", () => {
     const getProductBySlug = q.star
       .filterByType("product")
       .any("[slug.current == $slug]")
@@ -42,26 +42,34 @@ describe("GroqBuilder", () => {
           })),
       }));
 
-    expectType<ExtractScope<typeof getProductBySlug>>().toStrictEqual<
-      Array<{
-        _id: string;
-        name: string;
-        categories: Array<{
-          name: string;
-        }>;
-        slug: string;
-        variants: Array<{
+    it("should have correct types", () => {
+      expectType<ExtractScope<typeof getProductBySlug>>().toStrictEqual<
+        Array<{
           _id: string;
           name: string;
-          msrp: number;
-          price: number;
-          slug: string;
-          style: Array<{
-            _id: string;
-            name: string | undefined;
+          categories: Array<{
+            name: string;
           }>;
-        }>;
-      }>
-    >();
+          slug: string;
+          variants: Array<{
+            _id: string;
+            name: string;
+            msrp: number;
+            price: number;
+            slug: string;
+            style: Array<{
+              _id: string;
+              name: string | undefined;
+            }>;
+          }>;
+        }>
+      >();
+    });
+
+    it("the query should look correct", () => {
+      expect(getProductBySlug.query).toMatchInlineSnapshot(
+        '"*[_type == \\"product\\"][slug.current == $slug]{ _id, name, \\"categories\\": categories[]->{ name }, \\"slug\\": slug.current, \\"variants\\": variants[]->{ _id, name, msrp, price, \\"slug\\": slug.current, \\"style\\": style[]->{ _id, name } } }"'
+      );
+    });
   });
 });
