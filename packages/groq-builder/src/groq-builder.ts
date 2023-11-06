@@ -2,6 +2,10 @@ import type { ParserFunction } from "./utils/common-types";
 import type { RootConfig } from "./utils/schema-types";
 import { chainParsers } from "./commands/parseUtils";
 
+export type GroqBuilderOptions = {
+  indent: string;
+};
+
 export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   /**
    * Extends the GroqBuilder class by implementing methods.
@@ -25,7 +29,7 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
     protected readonly internal: {
       readonly query: string;
       readonly parser: null | ParserFunction<unknown, TScope>;
-      readonly parent: null | GroqBuilder<unknown, TRootConfig>;
+      readonly options: GroqBuilderOptions;
     }
   ) {}
 
@@ -46,7 +50,7 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
     return new GroqBuilder({
       query: this.internal.query + query,
       parser: chainParsers(this.internal.parser, parser),
-      parent: this,
+      options: this.internal.options,
     });
   }
 

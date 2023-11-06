@@ -4,7 +4,7 @@ import { expectType } from "./tests/expectType";
 import { ExtractScope } from "./utils/common-types";
 import { createGroqBuilder } from "./index";
 
-const q = createGroqBuilder<SchemaConfig>();
+const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
 describe("GroqBuilder", () => {
   it("should have a 'never' result", () => {
@@ -68,7 +68,27 @@ describe("GroqBuilder", () => {
 
     it("the query should look correct", () => {
       expect(getProductBySlug.query).toMatchInlineSnapshot(
-        '"*[_type == \\"product\\"][slug.current == $slug]{ _id, name, \\"categories\\": categories[]->{ name }, \\"slug\\": slug.current, \\"variants\\": variants[]->{ _id, name, msrp, price, \\"slug\\": slug.current, \\"style\\": style[]->{ _id, name } } }"'
+        `
+        "*[_type == \\"product\\"][slug.current == $slug] {
+            _id,
+            name,
+            \\"categories\\": categories[]-> {
+              name
+            },
+            \\"slug\\": slug.current,
+            \\"variants\\": variants[]-> {
+              _id,
+              name,
+              msrp,
+              price,
+              \\"slug\\": slug.current,
+              \\"style\\": style[]-> {
+                _id,
+                name
+              }
+            }
+          }"
+      `
       );
     });
   });

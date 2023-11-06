@@ -106,13 +106,19 @@ GroqBuilder.implement({
       return this.chain(nakedProjection, null);
     }
 
+    const indent = this.internal.options.indent;
+    const indent2 = indent ? indent + "  " : "";
+
     // Retrieve the projectionMap:
     let projectionMap: object;
     if (typeof arg === "function") {
       const newQ = new GroqBuilder({
         query: "",
         parser: null,
-        parent: null,
+        options: {
+          ...this.internal.options,
+          indent: indent2,
+        },
       });
       projectionMap = arg(newQ);
     } else {
@@ -148,7 +154,10 @@ GroqBuilder.implement({
       .filter(notNull);
 
     const queries = values.map((v) => v.query);
-    const newQuery = `{ ${queries.join(", ")} }`;
+    const newLine = indent ? "\n" : " ";
+    const newQuery = ` {${newLine}${indent2}${queries.join(
+      "," + newLine + indent2
+    )}${newLine}${indent}}`;
 
     type TScope = Record<string, unknown>;
     const parsers = values.filter((v) => v.parser);

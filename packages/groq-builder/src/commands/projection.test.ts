@@ -95,7 +95,7 @@ describe("projection (objects)", () => {
     });
     it("query should be typed correctly", () => {
       expect(qName.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"]{ name }"'
+        '"*[_type == \\"variant\\"] { name }"'
       );
 
       expectType<ExtractScope<typeof qName>>().toStrictEqual<
@@ -138,7 +138,7 @@ describe("projection (objects)", () => {
     });
     it("query should be typed correctly", () => {
       expect(qMultipleFields.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"]{ id, name, price, msrp }"'
+        '"*[_type == \\"variant\\"] { id, name, price, msrp }"'
       );
 
       expectType<ExtractScope<typeof qMultipleFields>>().toStrictEqual<
@@ -197,7 +197,7 @@ describe("projection (objects)", () => {
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"]{ \\"NAME\\": name }"'
+        '"*[_type == \\"variant\\"] { \\"NAME\\": name }"'
       );
     });
 
@@ -242,7 +242,7 @@ describe("projection (objects)", () => {
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"]{ name, \\"slug\\": slug.current, \\"images\\": images[].name }"'
+        '"*[_type == \\"variant\\"] { name, \\"slug\\": slug.current, \\"images\\": images[].name }"'
       );
     });
 
@@ -300,7 +300,7 @@ describe("projection (objects)", () => {
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"]{ name, \\"slug\\": slug.current, price, \\"IMAGES\\": images[].name }"'
+        '"*[_type == \\"variant\\"] { name, \\"slug\\": slug.current, price, \\"IMAGES\\": images[].name }"'
       );
     });
 
@@ -372,7 +372,7 @@ describe("projection (objects)", () => {
     });
     it("the query shouldn't be affected", () => {
       expect(qParser.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"]{ name, msrp, price }"'
+        '"*[_type == \\"variant\\"] { name, msrp, price }"'
       );
     });
     it("should execute correctly", async () => {
