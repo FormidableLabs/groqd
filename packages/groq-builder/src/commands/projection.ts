@@ -5,9 +5,13 @@ import {
   TypeMismatchError,
 } from "../utils/type-utils";
 import { GroqBuilder } from "../groq-builder";
-import { ParserObject, StringKeys } from "../utils/common-types";
+import {
+  ParserFunction,
+  ParserObject,
+  StringKeys,
+} from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
-import { isParserObject } from "./parse";
+import { getParserFunction, isParser } from "./parse";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
@@ -96,36 +100,78 @@ GroqBuilder.implement({
   ) {
     if (typeof arg === "string") {
       let nakedProjection = arg;
-      if (this.query) {
+      if (this.internal.query) {
         nakedProjection = "." + arg;
       }
       return this.chain(nakedProjection, null);
     }
 
+    // Retrieve the projectionMap:
     let projectionMap: object;
     if (typeof arg === "function") {
-      const newQ = new GroqBuilder("", null, null);
+      const newQ = new GroqBuilder({
+        query: "",
+        parser: null,
+        parent: null,
+      });
       projectionMap = arg(newQ);
     } else {
       projectionMap = arg;
     }
 
+    // Analyze all the projection values:
     const keys = Object.keys(projectionMap) as Array<string>;
-    const queryFields = keys.map((key) => {
-      const value: unknown = projectionMap[key as keyof typeof projectionMap];
-      if (value instanceof GroqBuilder) {
-        return { query: `"${key}": ${value.query}`, parser: value.parser };
-      } else if (typeof value === "boolean") {
-        return { query: key, parser: null };
-      } else if (isParserObject(value)) {
-        return { query: key, parser: value };
-      } else {
-        throw new Error("Unexpected value" + typeof value);
-      }
-    });
+    const values = keys
+      .map<null | {
+        key: string;
+        query: string;
+        parser: ParserFunction | null;
+      }>((key) => {
+        const value: unknown = projectionMap[key as keyof typeof projectionMap];
+        if (value instanceof GroqBuilder) {
+          return {
+            key,
+            query: key === value.query ? key : `"${key}": ${value.query}`,
+            parser: value.internal.parser,
+          };
+        } else if (typeof value === "boolean") {
+          if (value === false) return null; // 'false' will be excluded
+          return { key, query: key, parser: null };
+        } else if (isParser(value)) {
+          return { key, query: key, parser: getParserFunction(value) };
+        } else {
+          throw new Error(
+            `Unexpected value for projection key "${key}"` + typeof value
+          );
+        }
+      })
+      .filter(notNull);
 
-    const newQuery = `{ ${queryFields.map((q) => q.query).join(", ")} }`;
-    const newParser = null;
+    const queries = values.map((v) => v.query);
+    const newQuery = `{ ${queries.join(", ")} }`;
+
+    type TScope = Record<string, unknown>;
+    const parsers = values.filter((v) => v.parser);
+    const newParser = !parsers.length
+      ? null
+      : function projectionParser(input: TScope) {
+          const items = Array.isArray(input) ? input : [input];
+          const parsedResults = items.map((item) => {
+            const parsedResult = { ...item };
+            parsers.forEach(({ key, parser }) => {
+              const value = item[key];
+              const parsedValue = parser!(value);
+              parsedResult[key] = parsedValue;
+            });
+            return parsedResult;
+          });
+          return Array.isArray(items) ? parsedResults : parsedResults[0];
+        };
+
     return this.chain(newQuery, newParser);
   },
 });
+
+function notNull<T>(value: T | null): value is T {
+  return !!value;
+}

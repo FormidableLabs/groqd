@@ -1,5 +1,10 @@
 import { GroqBuilder } from "../groq-builder";
-import { ParserFunction, ParserObject } from "../utils/common-types";
+import {
+  Parser,
+  ParserFunction,
+  ParserFunctionMaybe,
+  ParserObject,
+} from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
 
 declare module "../groq-builder" {
@@ -14,18 +19,14 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   parse(this: GroqBuilder<any, any>, parser) {
-    let parserFn: ParserFunction<any, any>;
-    if (typeof parser === "function") {
-      parserFn = parser;
-    } else if (isParserObject(parser)) {
-      parserFn = (input) => parser.parse(input);
-    } else {
-      throw new TypeError(`Parser must be a function or an object`);
-    }
-    return this.chain("", parserFn);
+    return this.chain("", getParserFunction(parser));
   },
 });
 
+export function isParser(value: unknown): value is Parser<unknown, unknown> {
+  if (typeof value === "function") return true;
+  return isParserObject(value);
+}
 export function isParserObject(
   value: unknown
 ): value is ParserObject<unknown, unknown> {
@@ -35,4 +36,23 @@ export function isParserObject(
     "parse" in value &&
     typeof value.parse === "function"
   );
+}
+
+export function getParserFunction(parser: Parser): ParserFunction {
+  if (isParserObject(parser)) {
+    return (input) => parser.parse(input);
+  }
+  if (typeof parser === "function") return parser;
+
+  throw new TypeError(`Parser must be a function or an object`);
+}
+
+export function chainParsers(
+  a: ParserFunctionMaybe,
+  b: ParserFunctionMaybe
+): ParserFunctionMaybe {
+  if (a && b) {
+    return (input: any) => b(a(input));
+  }
+  return a || b || null;
 }

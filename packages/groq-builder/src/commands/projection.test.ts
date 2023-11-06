@@ -6,6 +6,7 @@ import { TypeMismatchError } from "../utils/type-utils";
 import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
+import { currencyFormat } from "../tests/utils";
 
 const q = createGroqBuilder<SchemaConfig>();
 
@@ -19,6 +20,7 @@ describe("projection (field)", () => {
       mock.variant({
         name: `Variant ${i}`,
         price: 55 + i,
+        msrp: 55 + i,
       })
     ),
   });
@@ -240,7 +242,7 @@ describe("projection (objects)", () => {
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"]{ \\"name\\": name, \\"slug\\": slug.current, \\"images\\": images[].name }"'
+        '"*[_type == \\"variant\\"]{ name, \\"slug\\": slug.current, \\"images\\": images[].name }"'
       );
     });
 
@@ -346,6 +348,61 @@ describe("projection (objects)", () => {
             "name": "Variant 4",
             "price": 400,
             "slug": "variant:4",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("parser", () => {
+    const qParser = qVariants.projection((q) => ({
+      name: true,
+      msrp: q.projection("msrp").parse((msrp) => currencyFormat(msrp)),
+      price: q.projection("price"),
+    }));
+
+    it("the types should match", () => {
+      expectType<ExtractScope<typeof qParser>>().toStrictEqual<
+        Array<{
+          name: string;
+          msrp: string;
+          price: number;
+        }>
+      >();
+    });
+    it("the query shouldn't be affected", () => {
+      expect(qParser.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"]{ name, msrp, price }"'
+      );
+    });
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(data.datalake, qParser);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "msrp": "$0.00",
+            "name": "Variant 0",
+            "price": 0,
+          },
+          {
+            "msrp": "$200.00",
+            "name": "Variant 1",
+            "price": 100,
+          },
+          {
+            "msrp": "$400.00",
+            "name": "Variant 2",
+            "price": 200,
+          },
+          {
+            "msrp": "$600.00",
+            "name": "Variant 3",
+            "price": 300,
+          },
+          {
+            "msrp": "$800.00",
+            "name": "Variant 4",
+            "price": 400,
           },
         ]
       `);

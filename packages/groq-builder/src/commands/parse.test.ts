@@ -1,10 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
-import { ExtractScope } from "../utils/common-types";
+import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { currencyFormat } from "../tests/utils";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -15,9 +14,6 @@ describe("parse", () => {
   });
   const qPrice = qVariants.slice(0).projection("price");
 
-  function currencyFormat(price: number): string {
-    return `$${price.toFixed(2)}`;
-  }
   describe("parser function", () => {
     const qPriceParse = qPrice.parse((p) => currencyFormat(p));
 
@@ -30,7 +26,7 @@ describe("parse", () => {
       expect(result).toMatchInlineSnapshot('"$99.00"');
     });
   });
-  describe("parser object", () => {
+  describe("zod-like parser object", () => {
     const qPriceParse = qPrice.parse({ parse: (p) => currencyFormat(p) });
 
     it("shouldn't affect the query at all", () => {

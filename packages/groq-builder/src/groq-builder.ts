@@ -1,7 +1,7 @@
 import type { ParserFunction } from "./utils/common-types";
 
-import type { MaybeArrayItem, SimplifyDeep } from "./utils/type-utils";
 import type { RootConfig } from "./utils/schema-types";
+import { chainParsers } from "./commands/parse";
 
 export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   /**
@@ -23,53 +23,38 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   }
 
   constructor(
-    /**
-     *
-     */
-    public readonly query: string,
-    /**
-     *
-     */
-    public readonly parser: null | ParserFunction<unknown, TScope>,
-    /**
-     *
-     */
-    public readonly parent: null | GroqBuilder<unknown, TRootConfig>
+    protected readonly internal: {
+      readonly query: string;
+      readonly parser: null | ParserFunction<unknown, TScope>;
+      readonly parent: null | GroqBuilder<unknown, TRootConfig>;
+    }
   ) {}
+
+  public get query() {
+    return this.internal.query;
+  }
+  public get parser() {
+    return this.internal.parser;
+  }
 
   /**
    * Chains a new query to the existing one.
    */
   protected chain<TScopeNew = TScope>(
     query: string,
-    parser?: ParserFunction<any, any> | null
+    parser: ParserFunction | null = null
   ): GroqBuilder<TScopeNew, TRootConfig> {
-    return new GroqBuilder(this.query + query, parser || null, this);
+    return new GroqBuilder({
+      query: this.internal.query + query,
+      parser: chainParsers(this.internal.parser, parser),
+      parent: this,
+    });
   }
 
   /**
    * Untyped "escape hatch" allowing you to write any query you want
    */
-  public any<TScopeNew = TScope>(
-    query: string,
-    parser?: ParserFunction<any, any> | null
-  ) {
-    return this.chain<TScopeNew>(query, parser);
+  public any<TScopeNew = TScope>(query: string, parse?: ParserFunction | null) {
+    return this.chain<TScopeNew>(query, parse);
   }
-
-  /**
-   * Temporary for debugging:
-   * @param fetchData
-   */
-  public async execute(
-    fetchData: (query: string) => Promise<unknown>
-  ): Promise<TScope> {
-    const rawData = await fetchData(this.query);
-    const parsed = this.parser ? this.parser(rawData) : (rawData as TScope);
-    return parsed;
-  }
-
-  // Temporary; for debugging
-  public TScope: SimplifyDeep<TScope> = null as any;
-  public TScopeItem: SimplifyDeep<MaybeArrayItem<TScope>> = null as any;
 }
