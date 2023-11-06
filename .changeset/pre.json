@@ -9,5 +9,7 @@
     "groqd-playground-editor": "0.0.5",
     "website": "0.0.5"
   },
-  "changesets": []
+  "changesets": [
+    "pink-flies-jump"
+  ]
 }
