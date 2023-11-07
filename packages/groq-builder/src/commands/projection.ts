@@ -37,6 +37,8 @@ declare module "../groq-builder" {
             [P in keyof TScope]?: ProjectionFieldConfig;
           }) & {
         [P in string]: ProjectionFieldConfig;
+      } & {
+        "..."?: true;
       }
     >(
       projectionMap:
@@ -44,8 +46,8 @@ declare module "../groq-builder" {
         | ((q: GroqBuilder<MaybeArrayItem<TScope>, TRootConfig>) => TProjection)
     ): GroqBuilder<
       TScope extends Array<infer TScopeItem>
-        ? Array<Simplify<ExtractProjectionResult<TScopeItem, TProjection>>>
-        : Simplify<ExtractProjectionResult<TScope, TProjection>>,
+        ? Array<Simplify<ExtractProjectionResult2<TScopeItem, TProjection>>>
+        : Simplify<ExtractProjectionResult2<TScope, TProjection>>,
       TRootConfig
     >;
   }
@@ -58,6 +60,11 @@ declare module "../groq-builder" {
     | ParserObject<any, any>
     // Use a GroqBuilder instance to create a nested projection
     | GroqBuilder<any, any>;
+
+  export type ExtractProjectionResult2<TScope, TProjection> =
+    TProjection extends { "...": true }
+      ? TScope & ExtractProjectionResult<TScope, Omit<TProjection, "...">>
+      : ExtractProjectionResult<TScope, TProjection>;
 
   export type ExtractProjectionResult<TScope, TProjection> = {
     [P in keyof TProjection]: TProjection[P] extends GroqBuilder<

@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { describe, expect, it } from "vitest";
+import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
 import { ExtractScope } from "../utils/common-types";
-import { TypeMismatchError } from "../utils/type-utils";
+import { Simplify, TypeMismatchError } from "../utils/type-utils";
 import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -406,6 +406,35 @@ describe("projection (objects)", () => {
           },
         ]
       `);
+    });
+  });
+
+  describe("ellipsis ... operator", () => {
+    const qEllipsis = qVariants.projection((q) => ({
+      "...": true,
+      OTHER: q.projection("name"),
+    }));
+    it("query should be correct", () => {
+      expect(qEllipsis.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { ..., \\"OTHER\\": name }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<ExtractScope<typeof qEllipsis>>().toStrictEqual<
+        Array<Simplify<SanitySchema.Variant & { OTHER: string }>>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(data.datalake, qEllipsis);
+      expect(results).toEqual(
+        data.variants.map((v) => {
+          // @ts-expect-error ---
+          v.OTHER = v.name;
+          return v;
+        })
+      );
     });
   });
 });
