@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.10
+
+### Patch Changes
+
+- Update zod to resolve security vulnerablity ([#233](https://github.com/FormidableLabs/groqd/pull/233))
+
+- Use same zod version across all packages ([#237](https://github.com/FormidableLabs/groqd/pull/237))
+
 ## 0.15.9
 
 ### Patch Changes

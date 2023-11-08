@@ -1,7 +1,7 @@
 {
   "name": "groqd-playground-editor",
   "description": "Code editor for GROQD playground. GROQD Playground will consume this via iframe.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "build/index.html",
   "license": "MIT",
   "private": false,
@@ -44,7 +44,7 @@
     "webpack-dev-server": "^4.13.2"
   },
   "dependencies": {
-    "groqd": "^0.15.3",
+    "groqd": "^0.15.10",
     "lodash.debounce": "^4.0.8",
     "lz-string": "^1.5.0",
     "monaco-editor": "^0.37.1",
