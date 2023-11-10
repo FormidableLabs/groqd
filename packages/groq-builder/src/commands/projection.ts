@@ -61,7 +61,7 @@ declare module "../groq-builder" {
     // Use a parser to include a field, passing it through the parser at run-time
     | ParserObject<any, any>
     // Use a GroqBuilder instance to create a nested projection
-    | GroqBuilder<any, any>;
+    | GroqBuilder;
 
   export type ExtractProjectionResult2<TResult, TProjection> =
     TProjection extends { "...": true }
@@ -104,8 +104,8 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   projection(
-    this: GroqBuilder<any, any>,
-    arg: string | object | ((q: GroqBuilder<any, any>) => object)
+    this: GroqBuilder,
+    arg: string | object | ((q: GroqBuilder) => object)
   ) {
     if (typeof arg === "string") {
       let nakedProjection = arg;

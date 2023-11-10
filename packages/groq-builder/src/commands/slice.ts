@@ -30,12 +30,7 @@ declare module "../groq-builder" {
   }
 }
 GroqBuilder.implement({
-  slice(
-    this: GroqBuilder<any, any>,
-    start,
-    end?,
-    inclusive?
-  ): GroqBuilder<any, any> {
+  slice(this: GroqBuilder, start, end?, inclusive?): GroqBuilder {
     if (typeof end === "number") {
       const ellipsis = inclusive ? ".." : "...";
       return this.chain(`[${start}${ellipsis}${end}]`, null);

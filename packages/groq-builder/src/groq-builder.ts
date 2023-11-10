@@ -6,18 +6,18 @@ export type GroqBuilderOptions = {
   indent: string;
 };
 
-export class GroqBuilder<TResult, TRootConfig extends RootConfig> {
+export class GroqBuilder<TResult = any, TRootConfig extends RootConfig = any> {
   /**
    * Extends the GroqBuilder class by implementing methods.
    * This allows for this class to be split across multiple files in the `./commands/` folder.
    * @internal
    */
-  static implement(methods: Partial<GroqBuilder<any, any>>) {
+  static implement(methods: Partial<GroqBuilder>) {
     Object.assign(GroqBuilder.prototype, methods);
   }
 
   static implementProperties(properties: {
-    [P in keyof GroqBuilder<any, any>]?: PropertyDescriptor;
+    [P in keyof GroqBuilder]?: PropertyDescriptor;
   }) {
     Object.defineProperties(
       GroqBuilder.prototype,

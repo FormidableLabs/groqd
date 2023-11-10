@@ -15,7 +15,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  parse(this: GroqBuilder<any, any>, parser) {
+  parse(this: GroqBuilder, parser) {
     return this.chain("", getParserFunction(parser));
   },
 });

@@ -4,14 +4,17 @@ import { RootConfig } from "../utils/schema-types";
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
-    star: GroqBuilder<Array<TRootConfig["documentTypes"]>, TRootConfig>;
+    /**
+     * Adds a raw string to the query
+     */
+    raw<TResultNew = unknown>(
+      groq: string
+    ): GroqBuilder<TResultNew, TRootConfig>;
   }
 }
 
-GroqBuilder.implementProperties({
-  star: {
-    get(this: GroqBuilder) {
-      return this.chain("*", null);
-    },
+GroqBuilder.implement({
+  raw<TResultNew = unknown>(this: GroqBuilder, groq: string) {
+    return this.chain<TResultNew>(groq);
   },
 });

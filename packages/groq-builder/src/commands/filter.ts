@@ -27,10 +27,10 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  filterBy(this: GroqBuilder<any, any>, filterString) {
+  filterBy(this: GroqBuilder, filterString) {
     return this.chain(`[${filterString}]`, null);
   },
-  filterByType(this: GroqBuilder<any, any>, type) {
+  filterByType(this: GroqBuilder, type) {
     return this.chain(`[_type == "${type}"]`, null);
   },
 });
