@@ -37,7 +37,7 @@ In the above query, ALL fields are strongly-typed, according to the Sanity schem
 
 - All strings like `'products'`, `'price desc'`, and `'images[]'` are strongly-typed, based on the matching field definitions.
 - In the projection, `name` and `price` are strongly-typed based on the fields of `product`.
-- In the projection, sub-queries are strongly typed too. 
+- In the projection, sub-queries are strongly typed too.
 
 This example generates the following GROQ query:
 ```groq
@@ -49,12 +49,16 @@ This example generates the following GROQ query:
 }
 ```
 
-And it also generates the following output type:
+
+## Query Result Types
+
+The above `productsQuery` example generates the following results type:
+
 ```ts
 import type { QueryResultType } from 'groq-builder';
-type ProductsQueryResult = QueryResultType<typeof productsQuery>;
 
-// Equivalent to:
+type ProductsQueryResult = QueryResultType<typeof productsQuery>;
+// Evaluates to:
 type ProductsQueryResult = Array<{
   name: string,
   price: number,
@@ -63,9 +67,26 @@ type ProductsQueryResult = Array<{
 }>;
 ```
 
+## Optional Runtime Validation and Custom Parsing
 
-## Query Result Types
+You can add custom runtime validation and/or parsing logic into your queries, using the `parse` method.  
 
-## Optional Runtime Validation and Custom Parsing 
+The `parse` function accepts a simple function:
+
+```ts
+const products = q.star.filterByType('products').projection(q => ({
+  name: true,
+  price: true,
+  priceFormatted: q.projection("price").parse(price => formatCurrency(price)),
+}));
+```
+
+It is also compatible with [Zod](https://zod.dev/), and can take any Zod parser or validation logic:
+```ts
+const products = q.star.filterByType('products').projection(q => ({
+  name: true,
+  price: q.projection("price").parse(z.number().nonnegative()),
+}));
+```
 
 ## Schema Configuration
