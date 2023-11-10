@@ -39,9 +39,9 @@ export type RefType<referenceSymbol extends symbol, TTypeName> = {
   [P in referenceSymbol]: TTypeName;
 };
 
-export type ExtractRefType<TScope, TRootConfig extends RootConfig> =
+export type ExtractRefType<TResult, TRootConfig extends RootConfig> =
   //
-  TScope extends RefType<TRootConfig["referenceSymbol"], infer TTypeName>
+  TResult extends RefType<TRootConfig["referenceSymbol"], infer TTypeName>
     ? Extract<TRootConfig["documentTypes"], { _type: TTypeName }>
     : TypeMismatchError<{
         error: "Expected the object to be a reference type";
@@ -49,5 +49,5 @@ export type ExtractRefType<TScope, TRootConfig extends RootConfig> =
           TRootConfig["referenceSymbol"],
           TRootConfig["documentTypes"]["_type"]
         >;
-        actual: TScope;
+        actual: TResult;
       }>;

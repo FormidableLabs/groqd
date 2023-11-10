@@ -3,7 +3,7 @@ import { RootConfig } from "../utils/schema-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
+  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
     star: GroqBuilder<Array<TRootConfig["documentTypes"]>, TRootConfig>;
   }
 }

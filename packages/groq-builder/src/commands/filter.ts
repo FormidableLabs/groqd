@@ -4,23 +4,23 @@ import { StringKeys } from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
+  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
     filterBy<
-      TKey extends StringKeys<keyof ArrayItem<TScope>>,
-      TValue extends Extract<ArrayItem<TScope>[TKey], string>
+      TKey extends StringKeys<keyof ArrayItem<TResult>>,
+      TValue extends Extract<ArrayItem<TResult>[TKey], string>
     >(
       filterString: `${TKey} == "${TValue}"`
     ): GroqBuilder<
-      Array<Extract<ArrayItem<TScope>, { [P in TKey]: TValue }>>,
+      Array<Extract<ArrayItem<TResult>, { [P in TKey]: TValue }>>,
       TRootConfig
     >;
 
     filterByType<
-      TType extends Extract<ArrayItem<TScope>, { _type: string }>["_type"]
+      TType extends Extract<ArrayItem<TResult>, { _type: string }>["_type"]
     >(
       type: TType
     ): GroqBuilder<
-      Array<Extract<ArrayItem<TScope>, { _type: TType }>>,
+      Array<Extract<ArrayItem<TResult>, { _type: TType }>>,
       TRootConfig
     >;
   }

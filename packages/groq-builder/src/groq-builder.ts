@@ -6,7 +6,7 @@ export type GroqBuilderOptions = {
   indent: string;
 };
 
-export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
+export class GroqBuilder<TResult, TRootConfig extends RootConfig> {
   /**
    * Extends the GroqBuilder class by implementing methods.
    * This allows for this class to be split across multiple files in the `./commands/` folder.
@@ -28,7 +28,7 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   constructor(
     protected readonly internal: {
       readonly query: string;
-      readonly parser: null | ParserFunction<unknown, TScope>;
+      readonly parser: null | ParserFunction<unknown, TResult>;
       readonly options: GroqBuilderOptions;
     }
   ) {}
@@ -43,10 +43,10 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   /**
    * Chains a new query to the existing one.
    */
-  protected chain<TScopeNew = TScope>(
+  protected chain<TResultNew = TResult>(
     query: string,
     parser: ParserFunction | null = null
-  ): GroqBuilder<TScopeNew, TRootConfig> {
+  ): GroqBuilder<TResultNew, TRootConfig> {
     return new GroqBuilder({
       query: this.internal.query + query,
       parser: chainParsers(this.internal.parser, parser),
@@ -57,7 +57,10 @@ export class GroqBuilder<TScope, TRootConfig extends RootConfig> {
   /**
    * Untyped "escape hatch" allowing you to write any query you want
    */
-  public any<TScopeNew = TScope>(query: string, parse?: ParserFunction | null) {
-    return this.chain<TScopeNew>(query, parse);
+  public any<TResultNew = TResult>(
+    query: string,
+    parse?: ParserFunction | null
+  ) {
+    return this.chain<TResultNew>(query, parse);
   }
 }

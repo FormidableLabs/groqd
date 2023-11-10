@@ -5,12 +5,12 @@ import { RootConfig } from "../utils/schema-types";
 import { getParserFunction } from "./parseUtils";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
-    parse<TScopeNew>(
+  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
+    parse<TResultNew>(
       parser:
-        | ParserObject<TScope, TScopeNew>
-        | ParserFunction<TScope, TScopeNew>
-    ): GroqBuilder<TScopeNew, TRootConfig>;
+        | ParserObject<TResult, TResultNew>
+        | ParserFunction<TResult, TResultNew>
+    ): GroqBuilder<TResultNew, TRootConfig>;
   }
 }
 

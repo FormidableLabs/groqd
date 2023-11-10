@@ -1,5 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export type Parser<TInput = any, TOutput = any> =
   | ParserObject<TInput, TOutput>
   | ParserFunction<TInput, TOutput>;
@@ -32,5 +34,5 @@ export type StringKeys<T> = Exclude<T, symbol | number>;
 /**
  * Extracts the "Scope" type from a GroqBuilder
  */
-export type ExtractScope<TGroqBuilder extends GroqBuilder<any, any>> =
-  TGroqBuilder extends GroqBuilder<infer TScope, any> ? TScope : never;
+export type QueryResultType<TGroqBuilder extends GroqBuilder<any, any>> =
+  TGroqBuilder extends GroqBuilder<infer TResult, any> ? TResult : never;

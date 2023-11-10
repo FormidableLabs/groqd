@@ -4,10 +4,10 @@ import { StringKeys } from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
-    order<TKeys extends StringKeys<keyof ArrayItem<TScope>>>(
+  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
+    order<TKeys extends StringKeys<keyof ArrayItem<TResult>>>(
       ...fields: Array<`${TKeys}${"" | " asc" | " desc"}`>
-    ): GroqBuilder<TScope, TRootConfig>;
+    ): GroqBuilder<TResult, TRootConfig>;
 
     /** @deprecated Sorting is done via the 'order' method */
     sort: never;

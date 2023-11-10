@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
-import { ExtractScope } from "../utils/common-types";
+import { QueryResultType } from "../utils/common-types";
 import { Simplify, TypeMismatchError } from "../utils/type-utils";
 import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -26,13 +26,15 @@ describe("projection (field)", () => {
   });
 
   it("can project a number", () => {
-    expectType<ExtractScope<typeof qPrices>>().toStrictEqual<Array<number>>();
+    expectType<QueryResultType<typeof qPrices>>().toStrictEqual<
+      Array<number>
+    >();
     expect(qPrices.query).toMatchInlineSnapshot(
       '"*[_type == \\"variant\\"].price"'
     );
   });
   it("can project a string", () => {
-    expectType<ExtractScope<typeof qNames>>().toStrictEqual<Array<string>>();
+    expectType<QueryResultType<typeof qNames>>().toStrictEqual<Array<string>>();
     expect(qNames.query).toMatchInlineSnapshot(
       '"*[_type == \\"variant\\"].name"'
     );
@@ -82,7 +84,7 @@ describe("projection (objects)", () => {
       INVALID: true,
     });
 
-    expectType<ExtractScope<typeof qInvalid>>().toBeAssignableTo<
+    expectType<QueryResultType<typeof qInvalid>>().toBeAssignableTo<
       Array<{
         INVALID: TypeMismatchError<any>;
       }>
@@ -98,7 +100,7 @@ describe("projection (objects)", () => {
         '"*[_type == \\"variant\\"] { name }"'
       );
 
-      expectType<ExtractScope<typeof qName>>().toStrictEqual<
+      expectType<QueryResultType<typeof qName>>().toStrictEqual<
         Array<{
           name: string;
         }>
@@ -141,7 +143,7 @@ describe("projection (objects)", () => {
         '"*[_type == \\"variant\\"] { id, name, price, msrp }"'
       );
 
-      expectType<ExtractScope<typeof qMultipleFields>>().toStrictEqual<
+      expectType<QueryResultType<typeof qMultipleFields>>().toStrictEqual<
         Array<{
           id: string | undefined;
           name: string;
@@ -202,7 +204,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<ExtractScope<typeof qComplex>>().toStrictEqual<
+      expectType<QueryResultType<typeof qComplex>>().toStrictEqual<
         Array<{
           NAME: string;
         }>
@@ -247,7 +249,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<ExtractScope<typeof qComplex>>().toStrictEqual<
+      expectType<QueryResultType<typeof qComplex>>().toStrictEqual<
         Array<{
           name: string;
           slug: string;
@@ -305,7 +307,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<ExtractScope<typeof qComplex>>().toStrictEqual<
+      expectType<QueryResultType<typeof qComplex>>().toStrictEqual<
         Array<{
           name: string;
           slug: string;
@@ -362,7 +364,7 @@ describe("projection (objects)", () => {
     }));
 
     it("the types should match", () => {
-      expectType<ExtractScope<typeof qParser>>().toStrictEqual<
+      expectType<QueryResultType<typeof qParser>>().toStrictEqual<
         Array<{
           name: string;
           msrp: string;
@@ -421,7 +423,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<ExtractScope<typeof qEllipsis>>().toStrictEqual<
+      expectType<QueryResultType<typeof qEllipsis>>().toStrictEqual<
         Array<Simplify<SanitySchema.Variant & { OTHER: string }>>
       >();
     });

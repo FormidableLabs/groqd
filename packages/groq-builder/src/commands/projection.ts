@@ -14,27 +14,27 @@ import { RootConfig } from "../utils/schema-types";
 import { getParserFunction, isParser } from "./parseUtils";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
+  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
     projection<
-      TProjectionString extends StringKeys<keyof MaybeArrayItem<TScope>>
+      TProjectionString extends StringKeys<keyof MaybeArrayItem<TResult>>
     >(
       fieldName: TProjectionString | `${TProjectionString}[]`
     ): GroqBuilder<
       NonNullable<
-        TScope extends Array<infer TScopeItem>
-          ? Array<Get<TScopeItem, TProjectionString>>
-          : Get<TScope, TProjectionString>
+        TResult extends Array<infer TResultItem>
+          ? Array<Get<TResultItem, TProjectionString>>
+          : Get<TResult, TProjectionString>
       >,
       TRootConfig
     >;
 
     projection<
-      TProjection extends (TScope extends Array<infer TScopeItem>
+      TProjection extends (TResult extends Array<infer TResultItem>
         ? {
-            [P in keyof TScopeItem]?: ProjectionFieldConfig;
+            [P in keyof TResultItem]?: ProjectionFieldConfig;
           }
         : {
-            [P in keyof TScope]?: ProjectionFieldConfig;
+            [P in keyof TResult]?: ProjectionFieldConfig;
           }) & {
         [P in string]: ProjectionFieldConfig;
       } & {
@@ -43,11 +43,13 @@ declare module "../groq-builder" {
     >(
       projectionMap:
         | TProjection
-        | ((q: GroqBuilder<MaybeArrayItem<TScope>, TRootConfig>) => TProjection)
+        | ((
+            q: GroqBuilder<MaybeArrayItem<TResult>, TRootConfig>
+          ) => TProjection)
     ): GroqBuilder<
-      TScope extends Array<infer TScopeItem>
-        ? Array<Simplify<ExtractProjectionResult2<TScopeItem, TProjection>>>
-        : Simplify<ExtractProjectionResult2<TScope, TProjection>>,
+      TResult extends Array<infer TResultItem>
+        ? Array<Simplify<ExtractProjectionResult2<TResultItem, TProjection>>>
+        : Simplify<ExtractProjectionResult2<TResult, TProjection>>,
       TRootConfig
     >;
   }
@@ -61,12 +63,12 @@ declare module "../groq-builder" {
     // Use a GroqBuilder instance to create a nested projection
     | GroqBuilder<any, any>;
 
-  export type ExtractProjectionResult2<TScope, TProjection> =
+  export type ExtractProjectionResult2<TResult, TProjection> =
     TProjection extends { "...": true }
-      ? TScope & ExtractProjectionResult<TScope, Omit<TProjection, "...">>
-      : ExtractProjectionResult<TScope, TProjection>;
+      ? TResult & ExtractProjectionResult<TResult, Omit<TProjection, "...">>
+      : ExtractProjectionResult<TResult, TProjection>;
 
-  export type ExtractProjectionResult<TScope, TProjection> = {
+  export type ExtractProjectionResult<TResult, TProjection> = {
     [P in keyof TProjection]: TProjection[P] extends GroqBuilder<
       infer TValue,
       any
@@ -74,26 +76,26 @@ declare module "../groq-builder" {
       ? TValue
       : /* Extract type from 'true': */
       TProjection[P] extends boolean
-      ? P extends keyof TScope
-        ? TScope[P]
+      ? P extends keyof TResult
+        ? TResult[P]
         : TypeMismatchError<{
             error: `⛔️ 'true' can only be used for known properties ⛔️`;
-            expected: keyof TScope;
+            expected: keyof TResult;
             actual: P;
           }>
       : /* Extract type from ParserObject: */
       TProjection[P] extends ParserObject<infer TInput, infer TOutput>
-      ? P extends keyof TScope
-        ? TInput extends TScope[P]
+      ? P extends keyof TResult
+        ? TInput extends TResult[P]
           ? TOutput
           : TypeMismatchError<{
               error: `⛔️ Parser expects a different input type ⛔️`;
-              expected: TScope[P];
+              expected: TResult[P];
               actual: TInput;
             }>
         : TypeMismatchError<{
             error: `⛔️ a parser can only be used for known properties ⛔️`;
-            expected: keyof TScope;
+            expected: keyof TResult;
             actual: P;
           }>
       : never;
@@ -166,11 +168,11 @@ GroqBuilder.implement({
       "," + newLine + indent2
     )}${newLine}${indent}}`;
 
-    type TScope = Record<string, unknown>;
+    type TResult = Record<string, unknown>;
     const parsers = values.filter((v) => v.parser);
     const newParser = !parsers.length
       ? null
-      : function projectionParser(input: TScope) {
+      : function projectionParser(input: TResult) {
           const items = Array.isArray(input) ? input : [input];
           const parsedResults = items.map((item) => {
             const parsedResult = { ...item };

@@ -4,17 +4,17 @@ import { GroqBuilder } from "../../groq-builder";
 
 type Datalake = Array<object>;
 
-export async function executeBuilder<TScope, TRootConfig extends RootConfig>(
+export async function executeBuilder<TResult, TRootConfig extends RootConfig>(
   datalake: Datalake,
-  builder: GroqBuilder<TScope, TRootConfig>,
+  builder: GroqBuilder<TResult, TRootConfig>,
   params = {}
-): Promise<TScope> {
+): Promise<TResult> {
   const query = builder.query;
   const originalResult = await executeQuery(datalake, query, params);
   const parsedResult = builder.parser
     ? builder.parser(originalResult)
     : originalResult;
-  return parsedResult as TScope;
+  return parsedResult as TResult;
 }
 
 export async function executeQuery(

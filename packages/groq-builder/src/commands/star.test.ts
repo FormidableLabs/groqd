@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
-import { ExtractScope } from "../utils/common-types";
+import { QueryResultType } from "../utils/common-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -12,7 +12,7 @@ describe("star", () => {
   const star = q.star;
 
   it("should have the correct type, matching all documents", () => {
-    expectType<ExtractScope<typeof star>>().toStrictEqual<
+    expectType<QueryResultType<typeof star>>().toStrictEqual<
       Array<SchemaConfig["documentTypes"]>
     >();
   });
