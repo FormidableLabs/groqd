@@ -4,25 +4,42 @@ import { ArrayItem } from "../utils/type-utils";
 import { RootConfig } from "../utils/schema-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TScope, TRootConfig extends RootConfig> {
-    slice(index: number): GroqBuilder<ArrayItem<TScope>, TRootConfig>;
+  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
+    slice(index: number): GroqBuilder<ArrayItem<TResult>, TRootConfig>;
     slice(
-      range: `${number}${SliceEllipsis}${number}`
-    ): GroqBuilder<TScope, TRootConfig>;
+      /**
+       * The first index to include in the slice
+       */
+      start: number,
+      /**
+       * The last index in the slice.
+       * This item will not be included, unless 'inclusive' is set.
+       */
+      end: number,
+      /**
+       * Whether the 'end' item should be included (via the '..' operator).
+       * @default false
+       */
+      inclusive?: boolean
+    ): GroqBuilder<TResult, TRootConfig>;
 
     /** @deprecated Use the 'slice' method */
     index: never;
     /** @deprecated Use the 'slice' method */
     range: never;
   }
-  export type SliceEllipsis =
-    /** Inclusive range */
-    | ".."
-    /** Exclusive range */
-    | "...";
 }
 GroqBuilder.implement({
-  slice(this: GroqBuilder<any, any>, indexOrRange) {
-    return this.chain(`[${indexOrRange}]`, null);
+  slice(
+    this: GroqBuilder<any, any>,
+    start,
+    end?,
+    inclusive?
+  ): GroqBuilder<any, any> {
+    if (typeof end === "number") {
+      const ellipsis = inclusive ? ".." : "...";
+      return this.chain(`[${start}${ellipsis}${end}]`, null);
+    }
+    return this.chain(`[${start}]`, null);
   },
 });

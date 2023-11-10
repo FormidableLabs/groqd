@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
-import { ExtractScope } from "../utils/common-types";
+import { QueryResultType } from "../utils/common-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -20,7 +20,7 @@ describe("slice", () => {
     const qSlice0 = qVariants.slice(0);
     it("should be typed correctly", () => {
       expectType<
-        ExtractScope<typeof qSlice0>
+        QueryResultType<typeof qSlice0>
       >().toStrictEqual<SanitySchema.Variant>();
     });
     it("query should be correct", () => {
@@ -43,19 +43,19 @@ describe("slice", () => {
       qVariants.slice("510");
     });
     it("query should be correct with inclusive ..", () => {
-      const qSlice = qVariants.slice("5..10");
+      const qSlice = qVariants.slice(5, 10, true);
       expect(qSlice.query).toMatchInlineSnapshot(
         '"*[_type == \\"variant\\"][5..10]"'
       );
     });
     it("query should be correct with exclusive ...", () => {
-      const qSlice = qVariants.slice("5...10");
+      const qSlice = qVariants.slice(5, 10);
       expect(qSlice.query).toMatchInlineSnapshot(
         '"*[_type == \\"variant\\"][5...10]"'
       );
     });
     it("should execute correctly", async () => {
-      const qSlice = qVariants.slice("5...7");
+      const qSlice = qVariants.slice(5, 7);
       const results = await executeBuilder(data.datalake, qSlice);
       expect(results).toMatchObject([
         // Triple-dots is exclusive
