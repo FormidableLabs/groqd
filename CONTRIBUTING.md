@@ -87,7 +87,7 @@ On a merge of a feature PR, the changesets GitHub action will open a new PR titl
 We're using [Docusaurus](https://docusaurus.io/) to for the scaffolding of our documentation. The docs source files live in `docs` (so they can be viewed on GitHub), but the docusaurus site is built from `website`. To run the docs locally, run the following.
 
 ```shell
-pnpm run start:docs 
+pnpm run dev:docs 
 ```
 
 To contribute to the docs, make changes within the `docs` folder.
