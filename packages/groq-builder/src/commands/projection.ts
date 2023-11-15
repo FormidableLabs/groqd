@@ -1,29 +1,24 @@
 import {
-  Get,
   MaybeArrayItem,
   Simplify,
   TypeMismatchError,
 } from "../utils/type-utils";
 import { GroqBuilder } from "../groq-builder";
-import {
-  ParserFunction,
-  ParserObject,
-  StringKeys,
-} from "../utils/common-types";
+import { ParserFunction, ParserObject } from "../utils/common-types";
 import { RootConfig } from "../utils/schema-types";
 import { getParserFunction, isParser } from "./parseUtils";
+import { Path, PathEntries, PathValue } from "../utils/type-paths";
+import { DeepRequired } from "../utils/deep-required";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
-    projection<
-      TProjectionString extends StringKeys<keyof MaybeArrayItem<TResult>>
-    >(
-      fieldName: TProjectionString | `${TProjectionString}[]`
+    projection<TProjectionKey extends ProjectionKey<MaybeArrayItem<TResult>>>(
+      fieldName: TProjectionKey
     ): GroqBuilder<
       NonNullable<
         TResult extends Array<infer TResultItem>
-          ? Array<Get<TResultItem, TProjectionString>>
-          : Get<TResult, TProjectionString>
+          ? Array<ProjectionKeyValue<TResultItem, TProjectionKey>>
+          : ProjectionKeyValue<TResult, TProjectionKey>
       >,
       TRootConfig
     >;
@@ -53,6 +48,23 @@ declare module "../groq-builder" {
       TRootConfig
     >;
   }
+
+  export type ProjectionKey<TResultItem> =
+    | Path<DeepRequired<TResultItem>>
+    | `${PathsWithArrays<DeepRequired<TResultItem>>}[]`;
+
+  export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
+    TResultItem,
+    Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
+  >;
+
+  /**
+   * Finds all paths that contain arrayss
+   */
+  type PathsWithArrays<TResultItem> = Extract<
+    PathEntries<TResultItem>,
+    [any, Array<any>]
+  >[0];
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
   export type ProjectionFieldConfig =

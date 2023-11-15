@@ -12,7 +12,7 @@ const q = createGroqBuilder<SchemaConfig>();
 
 const qVariants = q.star.filterByType("variant");
 
-describe("projection (field)", () => {
+describe("projection (naked projection)", () => {
   const qPrices = qVariants.projection("price");
   const qNames = qVariants.projection("name");
   const data = mock.generateSeedData({
@@ -63,6 +63,38 @@ describe("projection (field)", () => {
         "Variant 4",
       ]
     `);
+  });
+
+  describe("deep properties", () => {
+    it("invalid entries should have TS errors", () => {
+      // @ts-expect-error ---
+      qVariants.projection("slug[]");
+      // @ts-expect-error ---
+      qVariants.projection("slug.INVALID");
+      // @ts-expect-error ---
+      qVariants.projection("INVALID");
+      // @ts-expect-error ---
+      qVariants.projection("INVALID.current");
+    });
+
+    it("can project nested properties", () => {
+      const qSlugs = qVariants.projection("slug.current");
+      expectType<QueryResultType<typeof qSlugs>>().toStrictEqual<
+        Array<string>
+      >();
+      expect(qSlugs.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"].slug.current"'
+      );
+    });
+
+    it("can project arrays with []", () => {
+      const qImages = qVariants.projection("images[]");
+      type ResultType = QueryResultType<typeof qImages>;
+
+      expectType<ResultType>().toStrictEqual<
+        Array<SanitySchema.Variant["images"]>
+      >();
+    });
   });
 });
 
