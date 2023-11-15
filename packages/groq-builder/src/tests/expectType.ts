@@ -8,6 +8,8 @@ export type IsEqual<A, B> = (<G>() => G extends A ? 1 : 2) extends <
 
 //
 declare const RECEIVED: unique symbol;
+declare const EXPECTED: unique symbol;
+declare const ERROR: unique symbol;
 
 type Negate<Value extends boolean> = Value extends true ? false : true;
 
@@ -46,15 +48,21 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
   toBeAssignableTo: <
     Expected extends IsAssignable<Received, Expected> extends Negate<Inverted>
       ? any
-      : {
-          [RECEIVED]: Received;
+      : Received & {
+          [ERROR]: Negate<Inverted> extends true
+            ? "Types should not be assignable"
+            : "Types should be assignable";
         }
   >(
     ...args: IsAssignable<Received, Expected> extends Negate<Inverted>
       ? []
       : [
           error: {
+            [ERROR]: Negate<Inverted> extends true
+              ? "Types should not be assignable"
+              : "Types should be assignable";
             [RECEIVED]: Received;
+            [EXPECTED]: Expected;
           }
         ]
   ) => void;
@@ -66,15 +74,21 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
   toEqual: <
     Expected extends IsSimplyEqual<Received, Expected> extends Negate<Inverted>
       ? any
-      : {
-          [RECEIVED]: SimplifyDeep<Received>;
+      : SimplifyDeep<Received> & {
+          [ERROR]: Negate<Inverted> extends true
+            ? "Types should not be equal"
+            : "Types should be equal";
         }
   >(
     ...args: IsSimplyEqual<Received, Expected> extends Negate<Inverted>
       ? []
       : [
           error: {
+            [ERROR]: Negate<Inverted> extends true
+              ? "Types should not be equal"
+              : "Types should be equal";
             [RECEIVED]: SimplifyDeep<Received>;
+            [EXPECTED]: SimplifyDeep<Expected>;
           }
         ]
   ) => void;
@@ -84,15 +98,21 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
   toStrictEqual: <
     Expected extends IsEqual<Received, Expected> extends Negate<Inverted>
       ? any
-      : {
-          [RECEIVED]: Received;
+      : Received & {
+          [ERROR]: Negate<Inverted> extends true
+            ? "Types should not be strict equal"
+            : "Types should be strict equal";
         }
   >(
     ...args: IsEqual<Received, Expected> extends Negate<Inverted>
       ? []
       : [
           error: {
+            [ERROR]: Negate<Inverted> extends true
+              ? "Types should not be strict equal"
+              : "Types should be strict equal";
             [RECEIVED]: Received;
+            [EXPECTED]: Expected;
           }
         ]
   ) => void;
