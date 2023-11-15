@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { SchemaConfig } from "./tests/schemas/nextjs-sanity-fe";
 import { expectType } from "./tests/expectType";
-import { QueryResultType } from "./types/common-types";
+import { InferResultType } from "./types/public-types";
 import { createGroqBuilder } from "./index";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
 describe("GroqBuilder", () => {
   it("should have a 'never' result", () => {
-    expectType<QueryResultType<typeof q>>().toStrictEqual<never>();
+    expectType<InferResultType<typeof q>>().toStrictEqual<never>();
   });
   it("should have an empty query", () => {
     expect(q).toMatchObject({
@@ -43,7 +43,7 @@ describe("GroqBuilder", () => {
       }));
 
     it("should have correct types", () => {
-      expectType<QueryResultType<typeof getProductBySlug>>().toStrictEqual<
+      expectType<InferResultType<typeof getProductBySlug>>().toStrictEqual<
         Array<{
           _id: string;
           name: string;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { expectType } from "../tests/expectType";
-import { QueryResultType } from "../types/common-types";
+import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -16,7 +16,7 @@ describe("deref", () => {
 
   it("should deref a single item", () => {
     expectType<
-      QueryResultType<typeof qCategoryRef>
+      InferResultType<typeof qCategoryRef>
     >().toStrictEqual<SanitySchema.Category>();
     expect(qCategoryRef.query).toMatchInlineSnapshot(
       '"*[_type == \\"product\\"][0].categories[][0]->"'
@@ -24,7 +24,7 @@ describe("deref", () => {
   });
 
   it("should deref an array of items", () => {
-    expectType<QueryResultType<typeof qVariantsRefs>>().toStrictEqual<
+    expectType<InferResultType<typeof qVariantsRefs>>().toStrictEqual<
       Array<SanitySchema.Variant>
     >();
     expect(qVariantsRefs.query).toMatchInlineSnapshot(
@@ -37,7 +37,7 @@ describe("deref", () => {
 
     const res = notAReference.deref();
 
-    type ErrorResult = QueryResultType<typeof res>;
+    type ErrorResult = InferResultType<typeof res>;
     expectType<
       ErrorResult["error"]
     >().toStrictEqual<"Expected the object to be a reference type">();

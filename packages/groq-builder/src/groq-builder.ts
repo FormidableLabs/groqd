@@ -1,4 +1,4 @@
-import type { ParserFunction } from "./types/common-types";
+import type { ParserFunction } from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
 import { chainParsers } from "./commands/parseUtils";
 

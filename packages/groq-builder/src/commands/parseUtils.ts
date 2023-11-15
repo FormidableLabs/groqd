@@ -3,7 +3,7 @@ import {
   ParserFunction,
   ParserFunctionMaybe,
   ParserObject,
-} from "../types/common-types";
+} from "../types/public-types";
 
 export function chainParsers(
   a: ParserFunctionMaybe,

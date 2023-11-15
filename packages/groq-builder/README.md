@@ -55,9 +55,9 @@ This example generates the following GROQ query:
 The above `productsQuery` example generates the following results type:
 
 ```ts
-import type { QueryResultType } from 'groq-builder';
+import type { InferResultType } from 'groq-builder';
 
-type ProductsQueryResult = QueryResultType<typeof productsQuery>;
+type ProductsQueryResult = InferResultType<typeof productsQuery>;
 // Evaluates to:
 type ProductsQueryResult = Array<{
   name: string,

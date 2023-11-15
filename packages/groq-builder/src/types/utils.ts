@@ -64,3 +64,8 @@ export type TypeMismatchError<
   expected: Simplify<TError["expected"]>;
   actual: Simplify<TError["actual"]>;
 };
+
+/**
+ * Excludes symbol and number from keys, so that you only have strings.
+ */
+export type StringKeys<T> = Exclude<T, symbol | number>;

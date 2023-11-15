@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
-import { QueryResultType } from "../types/common-types";
+import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -20,7 +20,7 @@ describe("slice", () => {
     const qSlice0 = qVariants.slice(0);
     it("should be typed correctly", () => {
       expectType<
-        QueryResultType<typeof qSlice0>
+        InferResultType<typeof qSlice0>
       >().toStrictEqual<SanitySchema.Variant>();
     });
     it("query should be correct", () => {

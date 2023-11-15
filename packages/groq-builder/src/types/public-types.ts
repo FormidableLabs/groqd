@@ -27,12 +27,7 @@ export type ParserFunctionMaybe<
 > = null | ParserFunction<TInput, TOutput>;
 
 /**
- * Excludes symbol and number from keys, so that you only have strings.
- */
-export type StringKeys<T> = Exclude<T, symbol | number>;
-
-/**
  * Extracts the "Scope" type from a GroqBuilder
  */
-export type QueryResultType<TGroqBuilder extends GroqBuilder> =
+export type InferResultType<TGroqBuilder extends GroqBuilder> =
   TGroqBuilder extends GroqBuilder<infer TResult, any> ? TResult : never;

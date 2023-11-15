@@ -1,6 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ArrayItem } from "../types/utils";
-import { StringKeys } from "../types/common-types";
+import { ArrayItem, StringKeys } from "../types/utils";
 import { RootConfig } from "../types/schema-types";
 
 declare module "../groq-builder" {

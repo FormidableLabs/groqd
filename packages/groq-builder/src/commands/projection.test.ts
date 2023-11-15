@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
-import { QueryResultType } from "../types/common-types";
+import { InferResultType } from "../types/public-types";
 import { Simplify, TypeMismatchError } from "../types/utils";
 import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -26,7 +26,7 @@ describe("projection (naked projection)", () => {
   });
 
   it("can project a number", () => {
-    expectType<QueryResultType<typeof qPrices>>().toStrictEqual<
+    expectType<InferResultType<typeof qPrices>>().toStrictEqual<
       Array<number>
     >();
     expect(qPrices.query).toMatchInlineSnapshot(
@@ -34,7 +34,7 @@ describe("projection (naked projection)", () => {
     );
   });
   it("can project a string", () => {
-    expectType<QueryResultType<typeof qNames>>().toStrictEqual<Array<string>>();
+    expectType<InferResultType<typeof qNames>>().toStrictEqual<Array<string>>();
     expect(qNames.query).toMatchInlineSnapshot(
       '"*[_type == \\"variant\\"].name"'
     );
@@ -79,7 +79,7 @@ describe("projection (naked projection)", () => {
 
     it("can project nested properties", () => {
       const qSlugs = qVariants.projection("slug.current");
-      expectType<QueryResultType<typeof qSlugs>>().toStrictEqual<
+      expectType<InferResultType<typeof qSlugs>>().toStrictEqual<
         Array<string>
       >();
       expect(qSlugs.query).toMatchInlineSnapshot(
@@ -89,7 +89,7 @@ describe("projection (naked projection)", () => {
 
     it("can project arrays with []", () => {
       const qImages = qVariants.projection("images[]");
-      type ResultType = QueryResultType<typeof qImages>;
+      type ResultType = InferResultType<typeof qImages>;
 
       expectType<ResultType>().toStrictEqual<
         Array<SanitySchema.Variant["images"]>
@@ -116,7 +116,7 @@ describe("projection (objects)", () => {
       INVALID: true,
     });
 
-    expectType<QueryResultType<typeof qInvalid>>().toBeAssignableTo<
+    expectType<InferResultType<typeof qInvalid>>().toBeAssignableTo<
       Array<{
         INVALID: TypeMismatchError<any>;
       }>
@@ -132,7 +132,7 @@ describe("projection (objects)", () => {
         '"*[_type == \\"variant\\"] { name }"'
       );
 
-      expectType<QueryResultType<typeof qName>>().toStrictEqual<
+      expectType<InferResultType<typeof qName>>().toStrictEqual<
         Array<{
           name: string;
         }>
@@ -175,7 +175,7 @@ describe("projection (objects)", () => {
         '"*[_type == \\"variant\\"] { id, name, price, msrp }"'
       );
 
-      expectType<QueryResultType<typeof qMultipleFields>>().toStrictEqual<
+      expectType<InferResultType<typeof qMultipleFields>>().toStrictEqual<
         Array<{
           id: string | undefined;
           name: string;
@@ -236,7 +236,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<QueryResultType<typeof qComplex>>().toStrictEqual<
+      expectType<InferResultType<typeof qComplex>>().toStrictEqual<
         Array<{
           NAME: string;
         }>
@@ -281,7 +281,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<QueryResultType<typeof qComplex>>().toStrictEqual<
+      expectType<InferResultType<typeof qComplex>>().toStrictEqual<
         Array<{
           name: string;
           slug: string;
@@ -339,7 +339,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<QueryResultType<typeof qComplex>>().toStrictEqual<
+      expectType<InferResultType<typeof qComplex>>().toStrictEqual<
         Array<{
           name: string;
           slug: string;
@@ -396,7 +396,7 @@ describe("projection (objects)", () => {
     }));
 
     it("the types should match", () => {
-      expectType<QueryResultType<typeof qParser>>().toStrictEqual<
+      expectType<InferResultType<typeof qParser>>().toStrictEqual<
         Array<{
           name: string;
           msrp: string;
@@ -455,7 +455,7 @@ describe("projection (objects)", () => {
     });
 
     it("types should be correct", () => {
-      expectType<QueryResultType<typeof qEllipsis>>().toStrictEqual<
+      expectType<InferResultType<typeof qEllipsis>>().toStrictEqual<
         Array<Simplify<SanitySchema.Variant & { OTHER: string }>>
       >();
     });
