@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractRefType, RootConfig } from "../utils/schema-types";
+import { ExtractRefType, RootConfig } from "../types/schema-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {

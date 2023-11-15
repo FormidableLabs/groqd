@@ -1,5 +1,5 @@
 import * as groqJs from "groq-js";
-import { RootConfig } from "../../utils/schema-types";
+import { RootConfig } from "../../types/schema-types";
 import { GroqBuilder } from "../../groq-builder";
 
 type Datalake = Array<object>;

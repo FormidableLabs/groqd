@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SchemaConfig } from "./tests/schemas/nextjs-sanity-fe";
 import { expectType } from "./tests/expectType";
-import { QueryResultType } from "./utils/common-types";
+import { QueryResultType } from "./types/common-types";
 import { createGroqBuilder } from "./index";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });

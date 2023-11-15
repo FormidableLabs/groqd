@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
-import { ParserFunction, ParserObject } from "../utils/common-types";
-import { RootConfig } from "../utils/schema-types";
+import { ParserFunction, ParserObject } from "../types/common-types";
+import { RootConfig } from "../types/schema-types";
 
 import { getParserFunction } from "./parseUtils";
 

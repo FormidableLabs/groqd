@@ -1,4 +1,4 @@
-import { RootConfig } from "./utils/schema-types";
+import { RootConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
 import "./commands";
 

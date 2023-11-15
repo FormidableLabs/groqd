@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { expectType } from "../tests/expectType";
-import { QueryResultType } from "../utils/common-types";
+import { QueryResultType } from "../types/common-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";

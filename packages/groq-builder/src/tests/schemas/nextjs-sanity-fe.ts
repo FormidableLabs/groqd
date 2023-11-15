@@ -1,6 +1,6 @@
 // Types generated from "./sanity-studio/sanity.config.ts"
-import { ExtractDocumentTypes } from "../../utils/schema-types";
-import { Simplify } from "../../utils/type-utils";
+import { ExtractDocumentTypes } from "../../types/schema-types";
+import { Simplify } from "../../types/type-utils";
 
 export type SchemaConfig = {
   documentTypes: ExtractDocumentTypes<SanitySchema.Reconstructed>;

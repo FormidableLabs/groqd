@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { RootConfig } from "../utils/schema-types";
+import { RootConfig } from "../types/schema-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

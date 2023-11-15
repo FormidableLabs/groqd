@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
-import { QueryResultType } from "../utils/common-types";
-import { Simplify, TypeMismatchError } from "../utils/type-utils";
+import { QueryResultType } from "../types/common-types";
+import { Simplify, TypeMismatchError } from "../types/type-utils";
 import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";

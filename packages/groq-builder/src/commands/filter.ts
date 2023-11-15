@@ -1,7 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
-import { ArrayItem } from "../utils/type-utils";
-import { StringKeys } from "../utils/common-types";
-import { RootConfig } from "../utils/schema-types";
+import { ArrayItem } from "../types/type-utils";
+import { StringKeys } from "../types/common-types";
+import { RootConfig } from "../types/schema-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {

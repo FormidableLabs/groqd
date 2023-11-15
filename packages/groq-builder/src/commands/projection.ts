@@ -2,13 +2,13 @@ import {
   MaybeArrayItem,
   Simplify,
   TypeMismatchError,
-} from "../utils/type-utils";
+} from "../types/type-utils";
 import { GroqBuilder } from "../groq-builder";
-import { ParserFunction, ParserObject } from "../utils/common-types";
-import { RootConfig } from "../utils/schema-types";
+import { ParserFunction, ParserObject } from "../types/common-types";
+import { RootConfig } from "../types/schema-types";
 import { getParserFunction, isParser } from "./parseUtils";
-import { Path, PathEntries, PathValue } from "../utils/type-paths";
-import { DeepRequired } from "../utils/deep-required";
+import { Path, PathEntries, PathValue } from "../types/type-paths";
+import { DeepRequired } from "../types/deep-required";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {

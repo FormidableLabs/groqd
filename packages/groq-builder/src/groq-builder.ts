@@ -1,5 +1,5 @@
-import type { ParserFunction } from "./utils/common-types";
-import type { RootConfig } from "./utils/schema-types";
+import type { ParserFunction } from "./types/common-types";
+import type { RootConfig } from "./types/schema-types";
 import { chainParsers } from "./commands/parseUtils";
 
 export type GroqBuilderOptions = {
