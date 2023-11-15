@@ -1,5 +1,5 @@
 import { describe, it } from "vitest";
-import { Path, PathValue, PathEntries } from "./type-paths";
+import { Path, PathValue, PathEntries } from "./path-types";
 import { expectType } from "../tests/expectType";
 import { DeepRequired } from "./deep-required";
 

@@ -1,13 +1,9 @@
-import {
-  MaybeArrayItem,
-  Simplify,
-  TypeMismatchError,
-} from "../types/type-utils";
+import { MaybeArrayItem, Simplify, TypeMismatchError } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { ParserFunction, ParserObject } from "../types/common-types";
 import { RootConfig } from "../types/schema-types";
 import { getParserFunction, isParser } from "./parseUtils";
-import { Path, PathEntries, PathValue } from "../types/type-paths";
+import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 
 declare module "../groq-builder" {

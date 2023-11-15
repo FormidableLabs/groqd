@@ -1,4 +1,4 @@
-import { TypeMismatchError } from "./type-utils";
+import { TypeMismatchError } from "./utils";
 
 export type RootConfig = {
   /**

@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ArrayItem } from "../types/type-utils";
+import { ArrayItem } from "../types/utils";
 
 import { RootConfig } from "../types/schema-types";
 
