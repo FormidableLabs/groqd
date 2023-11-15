@@ -28,7 +28,7 @@ const productsQuery = (
    .projection(q => ({
      name: true,
      price: true,
-     slug: q.projection('slug').projection('current'),
+     slug: q.projection('slug.current'),
      imageUrls: q.projection('images[]').deref().projection('url')
    }))
 );
@@ -58,7 +58,7 @@ The above `productsQuery` example generates the following results type:
 import type { InferResultType } from 'groq-builder';
 
 type ProductsQueryResult = InferResultType<typeof productsQuery>;
-// Evaluates to:
+//   👆 Evaluates to the following:
 type ProductsQueryResult = Array<{
   name: string,
   price: number,
