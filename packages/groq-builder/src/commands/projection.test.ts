@@ -224,6 +224,30 @@ describe("projection (objects)", () => {
     });
   });
 
+  describe("a projection including naked projections", () => {
+    const qNakedProjections = qVariants.projection({
+      NAME: "name",
+      SLUG: "slug.current",
+      msrp: "msrp",
+    });
+
+    it("query should be correct", () => {
+      expect(qNakedProjections.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { \\"NAME\\": name, \\"SLUG\\": slug.current, msrp }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<InferResultType<typeof qNakedProjections>>().toStrictEqual<
+        Array<{
+          NAME: string;
+          SLUG: string;
+          msrp: number;
+        }>
+      >();
+    });
+  });
+
   describe("a single complex projection", () => {
     const qComplex = qVariants.projection((q) => ({
       NAME: q.projection("name"),

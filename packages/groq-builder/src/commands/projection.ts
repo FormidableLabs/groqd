@@ -19,10 +19,13 @@ declare module "../groq-builder" {
 
     projection<
       TProjection extends {
-        [P in keyof MaybeArrayItem<TResult>]?: ProjectionFieldConfig;
+        // This allows TypeScript to suggest known keys:
+        [P in keyof MaybeArrayItem<TResult>]?: ProjectionFieldConfig<TResult>;
       } & {
-        [P in string]: ProjectionFieldConfig;
+        // This allows any keys to be used in a projection:
+        [P in string]: ProjectionFieldConfig<TResult>;
       } & {
+        // Obviously this allows the ellipsis operator:
         "..."?: true;
       }
     >(
@@ -33,8 +36,8 @@ declare module "../groq-builder" {
           ) => TProjection)
     ): GroqBuilder<
       TResult extends Array<infer TResultItem>
-        ? Array<Simplify<ExtractProjectionResult2<TResultItem, TProjection>>>
-        : Simplify<ExtractProjectionResult2<TResult, TProjection>>,
+        ? Array<Simplify<ExtractProjectionResult<TResultItem, TProjection>>>
+        : Simplify<ExtractProjectionResult<TResult, TProjection>>,
       TRootConfig
     >;
   }
@@ -57,20 +60,22 @@ declare module "../groq-builder" {
   >[0];
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  export type ProjectionFieldConfig =
+  export type ProjectionFieldConfig<TResult> =
     // Use 'true' to include a field as-is
     | true
+    // Use a string for naked projections, like 'slug.current'
+    | ProjectionKey<MaybeArrayItem<TResult>>
     // Use a parser to include a field, passing it through the parser at run-time
-    | ParserObject<any, any>
+    | ParserObject
     // Use a GroqBuilder instance to create a nested projection
     | GroqBuilder;
 
-  export type ExtractProjectionResult2<TResult, TProjection> =
+  export type ExtractProjectionResult<TResult, TProjection> =
     TProjection extends { "...": true }
-      ? TResult & ExtractProjectionResult<TResult, Omit<TProjection, "...">>
-      : ExtractProjectionResult<TResult, TProjection>;
+      ? TResult & ExtractProjectionResultImpl<TResult, Omit<TProjection, "...">>
+      : ExtractProjectionResultImpl<TResult, TProjection>;
 
-  export type ExtractProjectionResult<TResult, TProjection> = {
+  type ExtractProjectionResultImpl<TResult, TProjection> = {
     [P in keyof TProjection]: TProjection[P] extends GroqBuilder<
       infer TValue,
       any
@@ -85,6 +90,9 @@ declare module "../groq-builder" {
             expected: keyof TResult;
             actual: P;
           }>
+      : /* Extract type from a ProjectionKey string, like 'slug.current': */
+      TProjection[P] extends ProjectionKey<TResult>
+      ? ProjectionKeyValue<TResult, TProjection[P]>
       : /* Extract type from ParserObject: */
       TProjection[P] extends ParserObject<infer TInput, infer TOutput>
       ? P extends keyof TResult
@@ -146,19 +154,19 @@ GroqBuilder.implement({
       }>((key) => {
         const value: unknown = projectionMap[key as keyof typeof projectionMap];
         if (value instanceof GroqBuilder) {
-          return {
-            key,
-            query: key === value.query ? key : `"${key}": ${value.query}`,
-            parser: value.internal.parser,
-          };
+          const query = key === value.query ? key : `"${key}": ${value.query}`;
+          return { key, query, parser: value.internal.parser };
+        } else if (typeof value === "string") {
+          const query = key === value ? value : `"${key}": ${value}`;
+          return { key, query, parser: null };
         } else if (typeof value === "boolean") {
-          if (value === false) return null; // 'false' will be excluded
+          if (value === false) return null; // 'false' will be excluded from the results
           return { key, query: key, parser: null };
         } else if (isParser(value)) {
           return { key, query: key, parser: getParserFunction(value) };
         } else {
           throw new Error(
-            `Unexpected value for projection key "${key}"` + typeof value
+            `Unexpected value for projection key "${key}": "${typeof value}"`
           );
         }
       })
