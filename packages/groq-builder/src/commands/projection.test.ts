@@ -111,19 +111,23 @@ describe("projection (objects)", () => {
     ),
   });
 
-  it("cannot project props that don't exist", () => {
-    const qInvalid = qVariants.projection({
-      INVALID: true,
+  describe("a single plain property", () => {
+    it("cannot use 'true' to project unknown properties", () => {
+      const qInvalid = qVariants.projection({
+        INVALID: true,
+      });
+
+      expectType<InferResultType<typeof qInvalid>>().toStrictEqual<
+        Array<{
+          INVALID: TypeMismatchError<{
+            error: `⛔️ 'true' can only be used for known properties ⛔️`;
+            expected: keyof SanitySchema.Variant;
+            actual: "INVALID";
+          }>;
+        }>
+      >();
     });
 
-    expectType<InferResultType<typeof qInvalid>>().toBeAssignableTo<
-      Array<{
-        INVALID: TypeMismatchError<any>;
-      }>
-    >();
-  });
-
-  describe("a single plain property", () => {
     const qName = qVariants.projection({
       name: true,
     });
@@ -224,7 +228,7 @@ describe("projection (objects)", () => {
     });
   });
 
-  describe("a projection including naked projections", () => {
+  describe("a projection with naked projections", () => {
     const qNakedProjections = qVariants.projection({
       NAME: "name",
       SLUG: "slug.current",

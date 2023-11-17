@@ -96,7 +96,6 @@ type ExtractProjectionResultImpl<TResult, TProjection> = {
       ? TResult[P]
       : TypeMismatchError<{
           error: `⛔️ 'true' can only be used for known properties ⛔️`;
-          key: P;
           expected: keyof TResult;
           actual: P;
         }>
@@ -106,7 +105,6 @@ type ExtractProjectionResultImpl<TResult, TProjection> = {
       ? ProjectionKeyValue<TResult, TProjection[P]>
       : TypeMismatchError<{
           error: `⛔️ Naked projections must be known properties ⛔️`;
-          key: P;
           expected: SimplifyDeep<ProjectionKey<TResult>>;
           actual: TProjection[P];
         }>
@@ -117,13 +115,11 @@ type ExtractProjectionResultImpl<TResult, TProjection> = {
         ? TOutput
         : TypeMismatchError<{
             error: `⛔️ Parser expects a different input type ⛔️`;
-            key: P;
             expected: TResult[P];
             actual: TInput;
           }>
       : TypeMismatchError<{
           error: `⛔️ Parser can only be used with known properties ⛔️`;
-          key: P;
           expected: keyof TResult;
           actual: P;
         }>
