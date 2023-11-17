@@ -231,6 +231,15 @@ describe("projection (objects)", () => {
       msrp: "msrp",
     });
 
+    it("invalid projections should have type errors", () => {
+      // @ts-expect-error ---
+      qVariants.projection({ NAME: "INVALID" });
+      // @ts-expect-error ---
+      qVariants.projection({ NAME: "slug.INVALID" });
+      // @ts-expect-error ---
+      qVariants.projection({ NAME: "INVALID.current" });
+    });
+
     it("query should be correct", () => {
       expect(qNakedProjections.query).toMatchInlineSnapshot(
         '"*[_type == \\"variant\\"] { \\"NAME\\": name, \\"SLUG\\": slug.current, msrp }"'

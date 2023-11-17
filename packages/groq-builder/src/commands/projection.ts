@@ -1,4 +1,9 @@
-import { MaybeArrayItem, Simplify, TypeMismatchError } from "../types/utils";
+import {
+  MaybeArrayItem,
+  Simplify,
+  SimplifyDeep,
+  TypeMismatchError,
+} from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { ParserFunction, ParserObject } from "../types/public-types";
 import { RootConfig } from "../types/schema-types";
@@ -41,76 +46,89 @@ declare module "../groq-builder" {
       TRootConfig
     >;
   }
-
-  export type ProjectionKey<TResultItem> =
-    | Path<DeepRequired<TResultItem>>
-    | `${PathsWithArrays<DeepRequired<TResultItem>>}[]`;
-
-  export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
-    TResultItem,
-    Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
-  >;
-
-  /**
-   * Finds all paths that contain arrayss
-   */
-  type PathsWithArrays<TResultItem> = Extract<
-    PathEntries<TResultItem>,
-    [any, Array<any>]
-  >[0];
-
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  export type ProjectionFieldConfig<TResult> =
-    // Use 'true' to include a field as-is
-    | true
-    // Use a string for naked projections, like 'slug.current'
-    | ProjectionKey<MaybeArrayItem<TResult>>
-    // Use a parser to include a field, passing it through the parser at run-time
-    | ParserObject
-    // Use a GroqBuilder instance to create a nested projection
-    | GroqBuilder;
-
-  export type ExtractProjectionResult<TResult, TProjection> =
-    TProjection extends { "...": true }
-      ? TResult & ExtractProjectionResultImpl<TResult, Omit<TProjection, "...">>
-      : ExtractProjectionResultImpl<TResult, TProjection>;
-
-  type ExtractProjectionResultImpl<TResult, TProjection> = {
-    [P in keyof TProjection]: TProjection[P] extends GroqBuilder<
-      infer TValue,
-      any
-    > // Extract type from GroqBuilder:
-      ? TValue
-      : /* Extract type from 'true': */
-      TProjection[P] extends boolean
-      ? P extends keyof TResult
-        ? TResult[P]
-        : TypeMismatchError<{
-            error: `⛔️ 'true' can only be used for known properties ⛔️`;
-            expected: keyof TResult;
-            actual: P;
-          }>
-      : /* Extract type from a ProjectionKey string, like 'slug.current': */
-      TProjection[P] extends ProjectionKey<TResult>
-      ? ProjectionKeyValue<TResult, TProjection[P]>
-      : /* Extract type from ParserObject: */
-      TProjection[P] extends ParserObject<infer TInput, infer TOutput>
-      ? P extends keyof TResult
-        ? TInput extends TResult[P]
-          ? TOutput
-          : TypeMismatchError<{
-              error: `⛔️ Parser expects a different input type ⛔️`;
-              expected: TResult[P];
-              actual: TInput;
-            }>
-        : TypeMismatchError<{
-            error: `⛔️ a parser can only be used for known properties ⛔️`;
-            expected: keyof TResult;
-            actual: P;
-          }>
-      : never;
-  };
 }
+
+type ProjectionKey<TResultItem> = Simplify<
+  | Path<DeepRequired<TResultItem>>
+  | `${PathsWithArrays<DeepRequired<TResultItem>>}[]`
+>;
+
+type ProjectionKeyValue<TResultItem, TKey> = PathValue<
+  TResultItem,
+  Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
+>;
+
+/**
+ * Finds all paths that contain arrayss
+ */
+type PathsWithArrays<TResultItem> = Extract<
+  PathEntries<TResultItem>,
+  [any, Array<any>]
+>[0];
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type ProjectionFieldConfig<TResult> =
+  // Use 'true' to include a field as-is
+  | true
+  // Use a string for naked projections, like 'slug.current'
+  | ProjectionKey<MaybeArrayItem<TResult>>
+  // | string
+  // Use a parser to include a field, passing it through the parser at run-time
+  | ParserObject
+  // Use a GroqBuilder instance to create a nested projection
+  | GroqBuilder;
+
+type ExtractProjectionResult<TResult, TProjection> = TProjection extends {
+  "...": true;
+}
+  ? TResult & ExtractProjectionResultImpl<TResult, Omit<TProjection, "...">>
+  : ExtractProjectionResultImpl<TResult, TProjection>;
+
+type ExtractProjectionResultImpl<TResult, TProjection> = {
+  [P in keyof TProjection]: TProjection[P] extends GroqBuilder<
+    infer TValue,
+    any
+  > // Extract type from GroqBuilder:
+    ? TValue
+    : /* Extract type from 'true': */
+    TProjection[P] extends boolean
+    ? P extends keyof TResult
+      ? TResult[P]
+      : TypeMismatchError<{
+          error: `⛔️ 'true' can only be used for known properties ⛔️`;
+          key: P;
+          expected: keyof TResult;
+          actual: P;
+        }>
+    : /* Extract type from a ProjectionKey string, like 'slug.current': */
+    TProjection[P] extends string
+    ? TProjection[P] extends ProjectionKey<TResult>
+      ? ProjectionKeyValue<TResult, TProjection[P]>
+      : TypeMismatchError<{
+          error: `⛔️ Naked projections must be known properties ⛔️`;
+          key: P;
+          expected: SimplifyDeep<ProjectionKey<TResult>>;
+          actual: TProjection[P];
+        }>
+    : /* Extract type from ParserObject: */
+    TProjection[P] extends ParserObject<infer TInput, infer TOutput>
+    ? P extends keyof TResult
+      ? TInput extends TResult[P]
+        ? TOutput
+        : TypeMismatchError<{
+            error: `⛔️ Parser expects a different input type ⛔️`;
+            key: P;
+            expected: TResult[P];
+            actual: TInput;
+          }>
+      : TypeMismatchError<{
+          error: `⛔️ Parser can only be used with known properties ⛔️`;
+          key: P;
+          expected: keyof TResult;
+          actual: P;
+        }>
+    : never;
+};
 
 GroqBuilder.implement({
   projection(
