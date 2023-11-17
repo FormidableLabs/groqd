@@ -45,7 +45,9 @@ export type Override<T, TOverrides> = Omit<T, keyof TOverrides> & TOverrides;
 /**
  * Extracts the type of an array item, if the type is indeed an array.
  */
-export type MaybeArrayItem<T> = T extends Array<infer TItem> ? TItem : T;
+export type MaybeArrayItem<T> = NonNullable<
+  T extends Array<infer TItem> ? TItem : T
+>;
 /**
  * Extracts the type of an array item; returns an error if it's not an array.
  */

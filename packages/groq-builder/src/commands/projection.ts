@@ -11,22 +11,16 @@ declare module "../groq-builder" {
     projection<TProjectionKey extends ProjectionKey<MaybeArrayItem<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
-      NonNullable<
-        TResult extends Array<infer TResultItem>
-          ? Array<ProjectionKeyValue<TResultItem, TProjectionKey>>
-          : ProjectionKeyValue<TResult, TProjectionKey>
-      >,
+      TResult extends Array<infer TResultItem>
+        ? Array<ProjectionKeyValue<TResultItem, TProjectionKey>>
+        : ProjectionKeyValue<TResult, TProjectionKey>,
       TRootConfig
     >;
 
     projection<
-      TProjection extends (TResult extends Array<infer TResultItem>
-        ? {
-            [P in keyof TResultItem]?: ProjectionFieldConfig;
-          }
-        : {
-            [P in keyof TResult]?: ProjectionFieldConfig;
-          }) & {
+      TProjection extends {
+        [P in keyof MaybeArrayItem<TResult>]?: ProjectionFieldConfig;
+      } & {
         [P in string]: ProjectionFieldConfig;
       } & {
         "..."?: true;
