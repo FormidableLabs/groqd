@@ -38,15 +38,14 @@
     "test:watch": "vitest",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "build": "tsup",
-    "build:watch": "tsup --watch",
-    "dev": "pnpm run build:watch",
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && tsc --project tsconfig.build.json",
     "prepublishOnly": "pnpm run build"
   },
   "devDependencies": {
     "@sanity/client": "^3.4.1",
     "groq-js": "^1.1.9",
-    "tsup": "^6.3.0",
+    "rimraf": "^5.0.5",
     "typescript": "^5.0.4",
     "vitest": "^0.28.5"
   },
