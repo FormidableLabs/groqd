@@ -1,11 +1,12 @@
 import { GroqBuilder } from "../groq-builder";
 import { ArrayItem } from "../types/utils";
-
 import { RootConfig } from "../types/schema-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
-    slice(index: number): GroqBuilder<ArrayItem<TResult>, TRootConfig>;
+    slice(
+      index: number
+    ): GroqBuilder<ArrayItem<NonNullable<TResult>>, TRootConfig>;
     slice(
       /**
        * The first index to include in the slice

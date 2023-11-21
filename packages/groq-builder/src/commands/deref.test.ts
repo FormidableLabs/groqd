@@ -11,32 +11,37 @@ const data = mock.generateSeedData({});
 
 describe("deref", () => {
   const qProduct = q.star.filterByType("product").slice(0);
-  const qCategoryRef = qProduct.projection("categories[]").slice(0).deref();
-  const qVariantsRefs = qProduct.projection("variants[]").deref();
+  const qCategoryRef = qProduct.projection("categories[]").slice(0);
+  const qCategory = qCategoryRef.deref();
+  const qVariantsRefs = qProduct.projection("variants[]");
+  const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
     expectType<
-      InferResultType<typeof qCategoryRef>
+      InferResultType<typeof qCategory>
     >().toStrictEqual<SanitySchema.Category>();
-    expect(qCategoryRef.query).toMatchInlineSnapshot(
+    expect(qCategory.query).toMatchInlineSnapshot(
       '"*[_type == \\"product\\"][0].categories[][0]->"'
     );
   });
 
   it("should deref an array of items", () => {
-    expectType<InferResultType<typeof qVariantsRefs>>().toStrictEqual<
+    expectType<InferResultType<typeof qVariants>>().toStrictEqual<
       Array<SanitySchema.Variant>
     >();
-    expect(qVariantsRefs.query).toMatchInlineSnapshot(
+    expect(qVariants.query).toMatchInlineSnapshot(
       '"*[_type == \\"product\\"][0].variants[]->"'
     );
   });
 
   it("should be an error if the item is not a reference", () => {
     const notAReference = qProduct.projection("slug");
+    expectType<InferResultType<typeof notAReference>>().toStrictEqual<{
+      _type: "slug";
+      current: string;
+    }>();
 
     const res = notAReference.deref();
-
     type ErrorResult = InferResultType<typeof res>;
     expectType<
       ErrorResult["error"]
@@ -44,11 +49,11 @@ describe("deref", () => {
   });
 
   it("should execute correctly (single)", async () => {
-    const results = await executeBuilder(data.datalake, qCategoryRef);
+    const results = await executeBuilder(data.datalake, qCategory);
     expect(results).toEqual(data.categories[0]);
   });
   it("should execute correctly (multiple)", async () => {
-    const results = await executeBuilder(data.datalake, qVariantsRefs);
+    const results = await executeBuilder(data.datalake, qVariants);
     expect(results).toEqual(data.variants);
   });
 });

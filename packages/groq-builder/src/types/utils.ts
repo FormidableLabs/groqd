@@ -1,6 +1,3 @@
-import { InferResultType } from "./public-types";
-import { GroqBuilder } from "../groq-builder";
-
 /**
  * All primitive types; just not objects or functions.
  */

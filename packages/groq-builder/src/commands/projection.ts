@@ -17,8 +17,8 @@ declare module "../groq-builder" {
       fieldName: TProjectionKey
     ): GroqBuilder<
       TResult extends Array<infer TResultItem>
-        ? Array<ProjectionKeyValue<TResultItem, TProjectionKey>>
-        : ProjectionKeyValue<TResult, TProjectionKey>,
+        ? Array<NonNullable<ProjectionKeyValue<TResultItem, TProjectionKey>>>
+        : NonNullable<ProjectionKeyValue<TResult, TProjectionKey>>,
       TRootConfig
     >;
 
