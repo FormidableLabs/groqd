@@ -100,8 +100,8 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
       ? any
       : Received & {
           [ERROR]: Negate<Inverted> extends true
-            ? "Types should not be strict equal"
-            : "Types should be strict equal";
+            ? "Types should be strict equal"
+            : "Types should not be strict equal";
         }
   >(
     ...args: IsEqual<Received, Expected> extends Negate<Inverted>

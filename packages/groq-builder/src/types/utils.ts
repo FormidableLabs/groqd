@@ -1,3 +1,6 @@
+import { InferResultType } from "./public-types";
+import { GroqBuilder } from "../groq-builder";
+
 /**
  * All primitive types; just not objects or functions.
  */
@@ -60,12 +63,37 @@ export type ArrayItem<T> = T extends Array<infer TItem>
     }>;
 
 export type TypeMismatchError<
-  TError extends { error: string; expected: any; actual: any }
+  TError extends { error: string; expected: any; actual: any } = any
 > = {
   error: TError["error"];
   expected: Simplify<TError["expected"]>;
   actual: Simplify<TError["actual"]>;
 };
+
+export type ExtractTypeMismatchErrors<TResult> =
+  TResult extends TypeMismatchError
+    ? TResult
+    : // Search for error values in objects, like { foo: TypeMismatchError }
+    Extract<EntriesOf<TResult>, [string, TypeMismatchError]> extends [
+        infer TKey,
+        infer TError
+      ]
+    ? TKey extends string
+      ? TypeMismatchError<{
+          error: `The following property had a nested error: ${Extract<
+            TKey,
+            string
+          >}`;
+          expected: "No nested errors";
+          actual: TError;
+        }>
+      : never
+    : never;
+
+export type ValueOf<T> = T[keyof T];
+export type EntriesOf<T> = {
+  [Key in keyof T]: [Key, T[Key]];
+}[keyof T];
 
 /**
  * Excludes symbol and number from keys, so that you only have strings.
