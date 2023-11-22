@@ -1,18 +1,13 @@
 import type { ParserFunction } from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
 import { chainParsers } from "./commands/parseUtils";
-import {
-  ResultType,
-  ResultTypeInfer,
-  ResultTypeOutput,
-} from "./types/result-types";
 
 export type GroqBuilderOptions = {
   indent: string;
 };
 
 export class GroqBuilder<
-  TResult extends ResultType = ResultType,
+  TResult = unknown,
   TRootConfig extends RootConfig = RootConfig
 > {
   /**
@@ -36,10 +31,7 @@ export class GroqBuilder<
   constructor(
     protected readonly internal: {
       readonly query: string;
-      readonly parser: null | ParserFunction<
-        unknown,
-        ResultTypeOutput<TResult>
-      >;
+      readonly parser: null | ParserFunction<unknown, TResult>;
       readonly options: GroqBuilderOptions;
     }
   ) {}
@@ -54,10 +46,10 @@ export class GroqBuilder<
   /**
    * Chains a new query to the existing one.
    */
-  protected chain<TResultNew = ResultTypeOutput<TResult>>(
+  protected chain<TResultNew = TResult>(
     query: string,
     parser: ParserFunction | null = null
-  ): GroqBuilder<ResultTypeInfer<TResultNew>, TRootConfig> {
+  ): GroqBuilder<TResultNew, TRootConfig> {
     return new GroqBuilder({
       query: this.internal.query + query,
       parser: chainParsers(this.internal.parser, parser),
@@ -68,7 +60,7 @@ export class GroqBuilder<
   /**
    * Untyped "escape hatch" allowing you to write any query you want
    */
-  public any<TResultNew = ResultTypeOutput<TResult>>(
+  public any<TResultNew = TResult>(
     query: string,
     parse?: ParserFunction | null
   ) {

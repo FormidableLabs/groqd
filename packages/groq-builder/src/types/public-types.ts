@@ -32,5 +32,5 @@ export type ParserFunctionMaybe<
  */
 export type InferResultType<TGroqBuilder extends GroqBuilder> =
   TGroqBuilder extends GroqBuilder<infer TResultType, any>
-    ? ResultTypeOutput<TResultType>
+    ? TResultType
     : never;
