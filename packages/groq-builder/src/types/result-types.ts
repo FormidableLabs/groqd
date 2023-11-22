@@ -1,11 +1,11 @@
 import { MaybeArrayItem, Simplify } from "./utils";
 
-type ResultTypeUnknown = {
+export type ResultTypeUnknown = {
   TItem: unknown;
   IsArray: boolean;
   IsNullable: boolean;
 };
-export type ResultType<T extends ResultTypeUnknown> = T;
+export type ResultType<T extends ResultTypeUnknown = ResultTypeUnknown> = T;
 
 export type ResultOverride<
   TResult extends ResultTypeUnknown,
