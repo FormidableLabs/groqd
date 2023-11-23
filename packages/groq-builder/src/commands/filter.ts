@@ -1,25 +1,28 @@
 import { GroqBuilder } from "../groq-builder";
-import { ArrayItem, StringKeys } from "../types/utils";
-import { RootConfig } from "../types/schema-types";
+import { StringKeys } from "../types/utils";
+import { ResultItem, ResultOverride } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
+  export interface GroqBuilder<TResult, TRootConfig> {
     filterBy<
-      TKey extends StringKeys<keyof ArrayItem<TResult>>,
-      TValue extends Extract<ArrayItem<TResult>[TKey], string>
+      TKey extends StringKeys<keyof ResultItem<TResult>>,
+      TValue extends Extract<ResultItem<TResult>[TKey], string>
     >(
       filterString: `${TKey} == "${TValue}"`
     ): GroqBuilder<
-      Array<Extract<ArrayItem<TResult>, { [P in TKey]: TValue }>>,
+      ResultOverride<
+        TResult,
+        Extract<ResultItem<TResult>, { [P in TKey]: TValue }>
+      >,
       TRootConfig
     >;
 
     filterByType<
-      TType extends Extract<ArrayItem<TResult>, { _type: string }>["_type"]
+      TType extends Extract<ResultItem<TResult>, { _type: string }>["_type"]
     >(
       type: TType
     ): GroqBuilder<
-      Array<Extract<ArrayItem<TResult>, { _type: TType }>>,
+      ResultOverride<TResult, Extract<ResultItem<TResult>, { _type: TType }>>,
       TRootConfig
     >;
   }

@@ -1,31 +1,27 @@
-import {
-  MaybeArrayItem,
-  Simplify,
-  SimplifyDeep,
-  TypeMismatchError,
-} from "../types/utils";
+import { Simplify, SimplifyDeep, TypeMismatchError } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { ParserFunction, ParserObject } from "../types/public-types";
-import { RootConfig } from "../types/schema-types";
 import { getParserFunction, isParser } from "./parseUtils";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
+import { ResultItem, ResultOverride } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
-    projection<TProjectionKey extends ProjectionKey<MaybeArrayItem<TResult>>>(
+  export interface GroqBuilder<TResult, TRootConfig> {
+    projection<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
-      TResult extends Array<infer TResultItem>
-        ? Array<NonNullable<ProjectionKeyValue<TResultItem, TProjectionKey>>>
-        : NonNullable<ProjectionKeyValue<TResult, TProjectionKey>>,
+      ResultOverride<
+        TResult,
+        ProjectionKeyValue<ResultItem<TResult>, TProjectionKey>
+      >,
       TRootConfig
     >;
 
     projection<
       TProjection extends {
         // This allows TypeScript to suggest known keys:
-        [P in keyof MaybeArrayItem<TResult>]?: ProjectionFieldConfig<TResult>;
+        [P in keyof ResultItem<TResult>]?: ProjectionFieldConfig<TResult>;
       } & {
         // This allows any keys to be used in a projection:
         [P in string]: ProjectionFieldConfig<TResult>;
@@ -36,13 +32,12 @@ declare module "../groq-builder" {
     >(
       projectionMap:
         | TProjection
-        | ((
-            q: GroqBuilder<MaybeArrayItem<TResult>, TRootConfig>
-          ) => TProjection)
+        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TProjection)
     ): GroqBuilder<
-      TResult extends Array<infer TResultItem>
-        ? Array<Simplify<ExtractProjectionResult<TResultItem, TProjection>>>
-        : Simplify<ExtractProjectionResult<TResult, TProjection>>,
+      ResultOverride<
+        TResult,
+        Simplify<ExtractProjectionResult<ResultItem<TResult>, TProjection>>
+      >,
       TRootConfig
     >;
   }
@@ -59,7 +54,7 @@ type ProjectionKeyValue<TResultItem, TKey> = PathValue<
 >;
 
 /**
- * Finds all paths that contain arrayss
+ * Finds all paths that contain arrays
  */
 type PathsWithArrays<TResultItem> = Extract<
   PathEntries<TResultItem>,
@@ -71,7 +66,7 @@ type ProjectionFieldConfig<TResult> =
   // Use 'true' to include a field as-is
   | true
   // Use a string for naked projections, like 'slug.current'
-  | ProjectionKey<MaybeArrayItem<TResult>>
+  | ProjectionKey<ResultItem<TResult>>
   // | string
   // Use a parser to include a field, passing it through the parser at run-time
   | ParserObject
@@ -130,7 +125,7 @@ GroqBuilder.implement({
   projection(
     this: GroqBuilder,
     arg: string | object | ((q: GroqBuilder) => object)
-  ) {
+  ): GroqBuilder<any> {
     if (typeof arg === "string") {
       let nakedProjection = arg;
       if (this.internal.query) {

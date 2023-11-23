@@ -1,5 +1,4 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultTypeOutput } from "./result-types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

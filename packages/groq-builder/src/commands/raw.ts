@@ -1,15 +1,15 @@
 import { GroqBuilder } from "../groq-builder";
-import { RootConfig } from "../types/schema-types";
+import { ResultTypeInfer } from "../types/result-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
+  export interface GroqBuilder<TResult, TRootConfig> {
     /**
      * Adds a raw string to the query
      */
     raw<TResultNew = unknown>(
       groq: string
-    ): GroqBuilder<TResultNew, TRootConfig>;
+    ): GroqBuilder<ResultTypeInfer<TResultNew>, TRootConfig>;
   }
 }
 

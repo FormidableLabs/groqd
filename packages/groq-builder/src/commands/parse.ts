@@ -1,11 +1,10 @@
 import { GroqBuilder } from "../groq-builder";
 import { ParserFunction, ParserObject } from "../types/public-types";
-import { RootConfig } from "../types/schema-types";
 
 import { getParserFunction } from "./parseUtils";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
+  export interface GroqBuilder<TResult, TRootConfig> {
     parse<TResultNew>(
       parser:
         | ParserObject<TResult, TResultNew>

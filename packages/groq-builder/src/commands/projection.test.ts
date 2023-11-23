@@ -15,6 +15,7 @@ const qVariants = q.star.filterByType("variant");
 describe("projection (naked projection)", () => {
   const qPrices = qVariants.projection("price");
   const qNames = qVariants.projection("name");
+  const qImages = qVariants.projection("images[]");
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -38,6 +39,13 @@ describe("projection (naked projection)", () => {
     expect(qNames.query).toMatchInlineSnapshot(
       '"*[_type == \\"variant\\"].name"'
     );
+  });
+  it("can project arrays with []", () => {
+    type ResultType = InferResultType<typeof qImages>;
+
+    expectType<ResultType>().toStrictEqual<
+      Array<SanitySchema.Variant["images"]>
+    >();
   });
 
   it("executes correctly (price)", async () => {
@@ -322,7 +330,7 @@ describe("projection (objects)", () => {
         Array<{
           name: string;
           slug: string;
-          images: Array<string>;
+          images: Array<string> | null;
         }>
       >();
     });

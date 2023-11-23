@@ -1,14 +1,10 @@
 import { Override, Simplify } from "./utils";
 
-export type ResultTypeUnknown = unknown;
-
 export type ResultTypeInfo = {
   TItem: unknown;
   IsArray: boolean;
   IsNullable: boolean;
 };
-
-export type ResultType<T extends ResultTypeInfo> = T;
 
 export type ResultTypeInfer<T> = {
   TItem: NonNullable<T> extends Array<infer U> ? U : NonNullable<T>;
@@ -21,21 +17,15 @@ export type ResultTypeOutput<TResult extends ResultTypeInfo> = MakeNullable<
   MakeArray<TResult["IsArray"], TResult["TItem"]>
 >;
 
-export type ResultOverrideItem<
-  TResult extends ResultTypeUnknown,
-  TOverrides extends { TItem: unknown }
-> = Simplify<
-  ResultTypeOutput<
-    Override<ResultTypeInfer<TResult>, { TItem: TOverrides["TItem"] }>
-  >
+/**
+ * Overrides the shape of the result, while preserving IsArray and IsNullable
+ */
+export type ResultOverride<TResult, TResultNew> = Simplify<
+  ResultTypeOutput<Override<ResultTypeInfer<TResult>, { TItem: TResultNew }>>
 >;
-export type ResultOverrideArray<
-  TResult extends ResultTypeUnknown,
-  TOverrides extends { IsArray: boolean }
-> = Simplify<
-  ResultTypeOutput<
-    Override<ResultTypeInfer<TResult>, { IsArray: TOverrides["IsArray"] }>
-  >
+
+export type ResultItem<TResult> = ResultTypeOutput<
+  Override<ResultTypeInfer<TResult>, { IsArray: false }>
 >;
 
 type MakeNullable<IsNullable extends boolean, T> = IsNullable extends true

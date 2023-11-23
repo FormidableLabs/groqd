@@ -1,12 +1,9 @@
 import { GroqBuilder } from "../groq-builder";
-import { ArrayItem } from "../types/utils";
-import { RootConfig } from "../types/schema-types";
+import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
-    slice(
-      index: number
-    ): GroqBuilder<ArrayItem<NonNullable<TResult>>, TRootConfig>;
+  export interface GroqBuilder<TResult, TRootConfig> {
+    slice(index: number): GroqBuilder<ResultItem<TResult>, TRootConfig>;
     slice(
       /**
        * The first index to include in the slice
@@ -31,7 +28,7 @@ declare module "../groq-builder" {
   }
 }
 GroqBuilder.implement({
-  slice(this: GroqBuilder, start, end?, inclusive?): GroqBuilder {
+  slice(this: GroqBuilder, start, end?, inclusive?): GroqBuilder<any> {
     if (typeof end === "number") {
       const ellipsis = inclusive ? ".." : "...";
       return this.chain(`[${start}${ellipsis}${end}]`, null);

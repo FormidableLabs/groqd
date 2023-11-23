@@ -1,10 +1,10 @@
 import { GroqBuilder } from "../groq-builder";
-import { ArrayItem, StringKeys } from "../types/utils";
-import { RootConfig } from "../types/schema-types";
+import { StringKeys } from "../types/utils";
+import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig extends RootConfig> {
-    order<TKeys extends StringKeys<keyof ArrayItem<TResult>>>(
+  export interface GroqBuilder<TResult, TRootConfig> {
+    order<TKeys extends StringKeys<keyof ResultItem<TResult>>>(
       ...fields: Array<`${TKeys}${"" | " asc" | " desc"}`>
     ): GroqBuilder<TResult, TRootConfig>;
 
