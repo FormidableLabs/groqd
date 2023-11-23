@@ -28,6 +28,7 @@ export namespace SanitySchema {
   } & Simplify<Omit<T, "_type">>;
 
   export type Reconstructed = {
+    description: Description;
     style: Style;
     category: Category;
     categoryImage: CategoryImage;
