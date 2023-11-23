@@ -47,17 +47,17 @@ describe("GroqBuilder", () => {
         Array<{
           _id: string;
           name: string;
-          categories: Array<{
+          categories: null | Array<{
             name: string;
           }>;
           slug: string;
-          variants: Array<{
+          variants: null | Array<{
             _id: string;
             name: string;
             msrp: number;
             price: number;
             slug: string;
-            style: Array<{
+            style: null | Array<{
               _id: string;
               name: string | undefined;
             }>;

@@ -43,9 +43,23 @@ describe("projection (naked projection)", () => {
   it("can project arrays with []", () => {
     type ResultType = InferResultType<typeof qImages>;
 
-    expectType<ResultType>().toStrictEqual<
-      Array<SanitySchema.Variant["images"]>
+    expectType<ResultType>().toStrictEqual<Array<
+      NonNullable<SanitySchema.Variant["images"]>
+    > | null>();
+  });
+  it("can chain projections", () => {
+    const qSlugCurrent = qVariants.projection("slug").projection("current");
+    expectType<InferResultType<typeof qSlugCurrent>>().toStrictEqual<
+      Array<string>
     >();
+
+    const qImageNames = qVariants
+      .slice(0)
+      .projection("images[]")
+      .projection("name");
+    expectType<
+      InferResultType<typeof qImageNames>
+    >().toStrictEqual<Array<string> | null>();
   });
 
   it("executes correctly (price)", async () => {
@@ -99,9 +113,9 @@ describe("projection (naked projection)", () => {
       const qImages = qVariants.projection("images[]");
       type ResultType = InferResultType<typeof qImages>;
 
-      expectType<ResultType>().toStrictEqual<
-        Array<SanitySchema.Variant["images"]>
-      >();
+      expectType<ResultType>().toStrictEqual<Array<
+        NonNullable<SanitySchema.Variant["images"]>
+      > | null>();
     });
   });
 });
@@ -389,7 +403,7 @@ describe("projection (objects)", () => {
           name: string;
           slug: string;
           price: number;
-          IMAGES: Array<string>;
+          IMAGES: Array<string> | null;
         }>
       >();
     });

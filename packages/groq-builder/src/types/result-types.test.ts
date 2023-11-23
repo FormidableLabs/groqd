@@ -2,6 +2,7 @@ import { describe, it } from "vitest";
 import { expectType } from "../tests/expectType";
 import {
   ResultItem,
+  ResultItemMaybe,
   ResultOverride,
   ResultTypeInfer,
   ResultTypeOutput,
@@ -21,7 +22,13 @@ describe("result-types", () => {
 
   it("ResultItem", () => {
     expectType<ResultItem<Array<Item>>>().toStrictEqual<Item>();
-    expectType<ResultItem<Array<Item> | null>>().toStrictEqual<Item | null>();
+    expectType<ResultItem<Array<Item> | null>>().toStrictEqual<Item>();
+  });
+  it("ResultItemMaybe", () => {
+    expectType<ResultItemMaybe<Array<Item>>>().toStrictEqual<Item>();
+    expectType<
+      ResultItemMaybe<Array<Item> | null>
+    >().toStrictEqual<Item | null>();
   });
 
   describe("internal types", () => {

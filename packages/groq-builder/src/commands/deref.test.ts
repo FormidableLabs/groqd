@@ -5,7 +5,6 @@ import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { Simplify } from "../types/utils";
 
 const q = createGroqBuilder<SchemaConfig>();
 const data = mock.generateSeedData({});
@@ -18,18 +17,18 @@ describe("deref", () => {
   const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
-    expectType<InferResultType<typeof qCategory>>().toStrictEqual<
-      Simplify<SanitySchema.Category>
-    >();
+    expectType<
+      InferResultType<typeof qCategory>
+    >().toEqual<SanitySchema.Category | null>();
     expect(qCategory.query).toMatchInlineSnapshot(
       '"*[_type == \\"product\\"][0].categories[][0]->"'
     );
   });
 
   it("should deref an array of items", () => {
-    expectType<InferResultType<typeof qVariants>>().toStrictEqual<
-      Array<SanitySchema.Variant>
-    >();
+    expectType<
+      InferResultType<typeof qVariants>
+    >().toStrictEqual<Array<SanitySchema.Variant> | null>();
     expect(qVariants.query).toMatchInlineSnapshot(
       '"*[_type == \\"product\\"][0].variants[]->"'
     );

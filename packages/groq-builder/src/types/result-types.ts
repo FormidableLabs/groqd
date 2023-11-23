@@ -21,10 +21,23 @@ export type ResultTypeOutput<TResult extends ResultTypeInfo> = MakeNullable<
  * Overrides the shape of the result, while preserving IsArray and IsNullable
  */
 export type ResultOverride<TResult, TResultNew> = Simplify<
-  ResultTypeOutput<Override<ResultTypeInfer<TResult>, { TItem: TResultNew }>>
+  ResultTypeOutput<
+    Override<
+      ResultTypeInfer<TResult>,
+      {
+        TItem: NonNullable<TResultNew>;
+        IsNullable: IsNullable<TResultNew> extends true
+          ? true
+          : IsNullable<TResult>;
+      }
+    >
+  >
 >;
 
 export type ResultItem<TResult> = ResultTypeOutput<
+  Override<ResultTypeInfer<TResult>, { IsArray: false; IsNullable: false }>
+>;
+export type ResultItemMaybe<TResult> = ResultTypeOutput<
   Override<ResultTypeInfer<TResult>, { IsArray: false }>
 >;
 

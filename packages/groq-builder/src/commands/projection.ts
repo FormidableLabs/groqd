@@ -43,7 +43,7 @@ declare module "../groq-builder" {
   }
 }
 
-type ProjectionKey<TResultItem> = Simplify<
+export type ProjectionKey<TResultItem> = Simplify<
   | Path<DeepRequired<TResultItem>>
   | `${PathsWithArrays<DeepRequired<TResultItem>>}[]`
 >;
