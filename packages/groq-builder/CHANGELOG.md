@@ -4,10 +4,9 @@
 
 ### Patch Changes
 
-- - Added `indent` option ([#239](https://github.com/FormidableLabs/groqd/pull/239))
-  - Fixed circular dependency build issues
-
-- Implemented core methods ([#239](https://github.com/FormidableLabs/groqd/pull/239))
+- Improved build output
+- Improved nullable type safety
+- Added `makeSafeQueryRunner` utility
 
 ## 0.1.1
 
