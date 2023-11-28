@@ -19,23 +19,23 @@ describe("GroqBuilder", () => {
     const getProductBySlug = q.star
       .filterByType("product")
       .any("[slug.current == $slug]")
-      .projection((q) => ({
+      .grab((q) => ({
         _id: true,
         name: true,
-        categories: q.projection("categories[]").deref().projection({
+        categories: q.grabOne("categories[]").deref().grab({
           name: true,
         }),
-        slug: q.projection("slug").projection("current"),
+        slug: q.grabOne("slug").grabOne("current"),
         variants: q
-          .projection("variants[]")
+          .grabOne("variants[]")
           .deref()
-          .projection((q) => ({
+          .grab((q) => ({
             _id: true,
             name: true,
             msrp: true,
             price: true,
-            slug: q.projection("slug").projection("current"),
-            style: q.projection("style[]").deref().projection({
+            slug: q.grabOne("slug").grabOne("current"),
+            style: q.grabOne("style[]").deref().grab({
               _id: true,
               name: true,
             }),

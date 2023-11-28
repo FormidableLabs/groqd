@@ -12,7 +12,7 @@ describe("parse", () => {
   const data = mock.generateSeedData({
     variants: [mock.variant({ price: 99 })],
   });
-  const qPrice = qVariants.slice(0).projection("price");
+  const qPrice = qVariants.slice(0).grabOne("price");
 
   describe("parser function", () => {
     const qPriceParse = qPrice.parse((p) => currencyFormat(p));

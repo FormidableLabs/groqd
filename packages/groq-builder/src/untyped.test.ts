@@ -23,12 +23,12 @@ describe("untyped", () => {
       InferResultType<typeof qDeref>
     >().toStrictEqual<Array<any> | null>();
   });
+  it("grab", () => {
+    // todo
+  });
   it("order", () => {
     const qOrder = q.star.order("ANYTHING");
     expectType<InferResultType<typeof qOrder>>().toStrictEqual<Array<any>>();
-  });
-  it("projection", () => {
-    // todo
   });
   it("slice(0)", () => {
     const qSlice = q.star.slice(0);

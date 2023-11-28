@@ -11,9 +11,9 @@ const data = mock.generateSeedData({});
 
 describe("deref", () => {
   const qProduct = q.star.filterByType("product").slice(0);
-  const qCategoryRef = qProduct.projection("categories[]").slice(0);
+  const qCategoryRef = qProduct.grabOne("categories[]").slice(0);
   const qCategory = qCategoryRef.deref();
-  const qVariantsRefs = qProduct.projection("variants[]");
+  const qVariantsRefs = qProduct.grabOne("variants[]");
   const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
@@ -35,7 +35,7 @@ describe("deref", () => {
   });
 
   it("should be an error if the item is not a reference", () => {
-    const notAReference = qProduct.projection("slug");
+    const notAReference = qProduct.grabOne("slug");
     expectType<InferResultType<typeof notAReference>>().toStrictEqual<{
       _type: "slug";
       current: string;

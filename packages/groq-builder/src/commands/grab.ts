@@ -8,7 +8,7 @@ import { ResultItem, ResultOverride } from "../types/result-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
-    projection<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
+    grabOne<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
       ResultOverride<
@@ -18,7 +18,7 @@ declare module "../groq-builder" {
       TRootConfig
     >;
 
-    projection<
+    grab<
       TProjection extends {
         // This allows TypeScript to suggest known keys:
         [P in keyof ResultItem<TResult>]?: ProjectionFieldConfig<TResult>;
@@ -122,18 +122,17 @@ type ExtractProjectionResultImpl<TResult, TProjection> = {
 };
 
 GroqBuilder.implement({
-  projection(
-    this: GroqBuilder,
-    arg: string | object | ((q: GroqBuilder) => object)
-  ): GroqBuilder<any> {
-    if (typeof arg === "string") {
-      let nakedProjection = arg;
-      if (this.internal.query) {
-        nakedProjection = "." + arg;
-      }
-      return this.chain(nakedProjection, null);
+  grabOne(this: GroqBuilder, arg: string): GroqBuilder<any> {
+    let nakedProjection = arg;
+    if (this.internal.query) {
+      nakedProjection = "." + arg;
     }
-
+    return this.chain<any>(nakedProjection, null);
+  },
+  grab(
+    this: GroqBuilder,
+    arg: object | ((q: GroqBuilder) => object)
+  ): GroqBuilder<any> {
     const indent = this.internal.options.indent;
     const indent2 = indent ? indent + "  " : "";
 

@@ -25,11 +25,11 @@ const productsQuery = (
    .filterByType('products')
    .order('price desc')
    .slice(0, 10)
-   .projection(q => ({
+   .grab(q => ({
      name: true,
      price: true,
-     slug: q.projection('slug.current'),
-     imageUrls: q.projection('images[]').deref().projection('url')
+     slug: q.grabOne("slug.current"),
+     imageUrls: q.grabOne("images[]").deref().grabOne("url")
    }))
 );
 ```
@@ -74,18 +74,18 @@ You can add custom runtime validation and/or parsing logic into your queries, us
 The `parse` function accepts a simple function:
 
 ```ts
-const products = q.star.filterByType('products').projection(q => ({
+const products = q.star.filterByType('products').grab(q => ({
   name: true,
   price: true,
-  priceFormatted: q.projection("price").parse(price => formatCurrency(price)),
+  priceFormatted: q.grabOne("price").parse(price => formatCurrency(price)),
 }));
 ```
 
 It is also compatible with [Zod](https://zod.dev/), and can take any Zod parser or validation logic:
 ```ts
-const products = q.star.filterByType('products').projection(q => ({
+const products = q.star.filterByType('products').grab(q => ({
   name: true,
-  price: q.projection("price").parse(z.number().nonnegative()),
+  price: q.grabOne("price").parse(z.number().nonnegative()),
 }));
 ```
 
