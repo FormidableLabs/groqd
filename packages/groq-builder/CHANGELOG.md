@@ -1,5 +1,13 @@
 # groq-builder
 
+## 0.1.3
+
+### Patch Changes
+
+- Improved build output
+- Improved nullable type safety
+- Added `makeSafeQueryRunner` utility
+
 ## 0.1.1
 
 ### Patch Changes
