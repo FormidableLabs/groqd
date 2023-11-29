@@ -60,7 +60,7 @@ describe("projection (naked projection)", () => {
   });
 
   it("executes correctly (price)", async () => {
-    const results = await executeBuilder(data.datalake, qPrices);
+    const results = await executeBuilder(qPrices, data.datalake);
     expect(results).toMatchInlineSnapshot(`
       [
         55,
@@ -72,7 +72,7 @@ describe("projection (naked projection)", () => {
     `);
   });
   it("executes correctly (name)", async () => {
-    const results = await executeBuilder(data.datalake, qNames);
+    const results = await executeBuilder(qNames, data.datalake);
     expect(results).toMatchInlineSnapshot(`
       [
         "Variant 0",
@@ -163,7 +163,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qName);
+      const results = await executeBuilder(qName, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -209,7 +209,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qMultipleFields);
+      const results = await executeBuilder(qMultipleFields, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -300,7 +300,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qComplex);
+      const results = await executeBuilder(qComplex, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -347,7 +347,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qComplex);
+      const results = await executeBuilder(qComplex, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -406,7 +406,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qComplex);
+      const results = await executeBuilder(qComplex, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -447,7 +447,7 @@ describe("projection (objects)", () => {
   describe("parser", () => {
     const qParser = qVariants.grab((q) => ({
       name: true,
-      msrp: q.grabOne("msrp").parse((msrp) => currencyFormat(msrp)),
+      msrp: q.grabOne("msrp").parser((msrp) => currencyFormat(msrp)),
       price: q.grabOne("price"),
     }));
 
@@ -466,7 +466,7 @@ describe("projection (objects)", () => {
       );
     });
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qParser);
+      const results = await executeBuilder(qParser, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -517,7 +517,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qEllipsis);
+      const results = await executeBuilder(qEllipsis, data.datalake);
       expect(results).toEqual(
         data.variants.map((v) => {
           // @ts-expect-error ---

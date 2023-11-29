@@ -49,11 +49,11 @@ describe("deref", () => {
   });
 
   it("should execute correctly (single)", async () => {
-    const results = await executeBuilder(data.datalake, qCategory);
+    const results = await executeBuilder(qCategory, data.datalake);
     expect(results).toEqual(data.categories[0]);
   });
   it("should execute correctly (multiple)", async () => {
-    const results = await executeBuilder(data.datalake, qVariants);
+    const results = await executeBuilder(qVariants, data.datalake);
     expect(results).toEqual(data.variants);
   });
 });
