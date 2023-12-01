@@ -511,7 +511,7 @@ describe("projection (objects)", () => {
       await expect(() => executeBuilder(qParser, invalidData)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
         "1 Parsing Error:
-        result[5].price Expected a number, but got \\"INVALID\\""
+        result[5].price: Expected number, received \\"INVALID\\""
       `);
     });
   });

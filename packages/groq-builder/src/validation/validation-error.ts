@@ -29,7 +29,7 @@ export class ValidationErrors extends TypeError {
     const l = this.errors.length;
     return new ValidationErrors(
       `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this.errors
-        .map((e) => `${joinPath(path, e.path)} ${e.error.message}`)
+        .map((e) => `${joinPath(path, e.path)}: ${e.error.message}`)
         .join("\n")}`
     );
   }

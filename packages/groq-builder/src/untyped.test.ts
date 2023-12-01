@@ -62,7 +62,7 @@ describe("untyped", () => {
       expect(str("FOO")).toEqual("FOO");
       // @ts-expect-error ---
       expect(() => str(111)).toThrowErrorMatchingInlineSnapshot(
-        '"Expected a string, but got 111"'
+        '"Expected string, received 111"'
       );
     });
   });

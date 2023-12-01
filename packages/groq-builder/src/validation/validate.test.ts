@@ -12,23 +12,23 @@ describe("validate", () => {
 
     // @ts-expect-error ---
     expect(() => str(undefined)).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got undefined"'
+      '"Expected string, received undefined"'
     );
     // @ts-expect-error ---
     expect(() => str(null)).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got null"'
+      '"Expected string, received null"'
     );
     // @ts-expect-error ---
     expect(() => str(123)).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got 123"'
+      '"Expected string, received 123"'
     );
     // @ts-expect-error ---
     expect(() => str({})).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got an object"'
+      '"Expected string, received an object"'
     );
     // @ts-expect-error ---
     expect(() => str([])).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got an Array"'
+      '"Expected string, received an Array"'
     );
   });
   it("string.optional", () => {
@@ -40,15 +40,15 @@ describe("validate", () => {
 
     // @ts-expect-error ---
     expect(() => str(123)).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got 123"'
+      '"Expected string, received 123"'
     );
     // @ts-expect-error ---
     expect(() => str({})).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got an object"'
+      '"Expected string, received an object"'
     );
     // @ts-expect-error ---
     expect(() => str([])).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a string, but got an Array"'
+      '"Expected string, received an Array"'
     );
   });
   it("number", () => {
@@ -58,15 +58,15 @@ describe("validate", () => {
 
     // @ts-expect-error ---
     expect(() => num("123")).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a number, but got \\"123\\""'
+      '"Expected number, received \\"123\\""'
     );
     // @ts-expect-error ---
     expect(() => num([])).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a number, but got an Array"'
+      '"Expected number, received an Array"'
     );
     // @ts-expect-error ---
     expect(() => num({})).toThrowErrorMatchingInlineSnapshot(
-      '"Expected a number, but got an object"'
+      '"Expected number, received an object"'
     );
   });
 });

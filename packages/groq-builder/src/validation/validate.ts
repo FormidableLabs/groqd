@@ -43,7 +43,7 @@ export const validate = {
         return input;
       }
       throw new TypeError(
-        `Expected ${inspect(literal)}, but got ${inspect(input)}`
+        `Expected ${inspect(literal)}, received ${inspect(input)}`
       );
     });
   },
@@ -55,7 +55,7 @@ export const validate = {
           return date;
         }
       }
-      throw new TypeError(`Expected a date, but got ${inspect(input)}`);
+      throw new TypeError(`Expected date, received ${inspect(input)}`);
     })
   ),
 
@@ -80,6 +80,6 @@ function typeValidator<TypeName extends keyof TypeValidators>(
     if (typeof input === type) {
       return input;
     }
-    throw new TypeError(`Expected a ${type}, but got ${inspect(input)}`);
+    throw new TypeError(`Expected ${type}, received ${inspect(input)}`);
   };
 }
