@@ -2,7 +2,6 @@ import type { RootConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
 
 import "./commands";
-import { InferResultType } from "./types/public-types";
 
 // Export all our public types:
 export * from "./types/public-types";

@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
 import { expectType } from "./tests/expectType";
 import { InferResultType } from "./types/public-types";
 
@@ -44,5 +44,26 @@ describe("untyped", () => {
   it("star", () => {
     const qStar = q.star;
     expectType<InferResultType<typeof qStar>>().toStrictEqual<Array<any>>();
+  });
+
+  describe("it contains all 'validate' methods too", () => {
+    it("should contain all methods", () => {
+      expect(q.string()).toBeTypeOf("function");
+      expect(q.number()).toBeTypeOf("function");
+      expect(q.boolean()).toBeTypeOf("function");
+      expect(q.bigint()).toBeTypeOf("function");
+      expect(q.undefined()).toBeTypeOf("function");
+      expect(q.date()).toBeTypeOf("function");
+      expect(q.literal("LITERAL")).toBeTypeOf("function");
+    });
+    it('"q.string()" should work', () => {
+      const str = q.string();
+      expect(str).toBeTypeOf("function");
+      expect(str("FOO")).toEqual("FOO");
+      // @ts-expect-error ---
+      expect(() => str(111)).toThrowErrorMatchingInlineSnapshot(
+        '"Expected a string, but got 111"'
+      );
+    });
   });
 });
