@@ -4,7 +4,8 @@ export class ValidationError extends TypeError {
     public readonly value: unknown,
     public readonly error: Error
   ) {
-    super("Validation Error");
+    super("");
+    this.name = "ValidationError";
   }
 }
 
