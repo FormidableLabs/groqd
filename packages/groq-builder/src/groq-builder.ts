@@ -1,6 +1,7 @@
 import type { ParserFunction } from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
 import { chainParsers } from "./commands/validate-utils";
+import { ValidationErrors } from "./validation/validation-error";
 
 export type GroqBuilderOptions = {
   indent: string;
@@ -41,7 +42,17 @@ export class GroqBuilder<
   }
   public parse(data: unknown): TResult {
     const parser = this.internal.parser;
-    return parser ? parser(data) : (data as TResult);
+    if (parser) {
+      try {
+        return parser(data);
+      } catch (err) {
+        if (err instanceof ValidationErrors) {
+          throw err.withMessage("result");
+        }
+        throw err;
+      }
+    }
+    return data as TResult;
   }
 
   /**

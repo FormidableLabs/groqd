@@ -7,6 +7,7 @@ import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
+import { validate } from "../validation/validate";
 
 const q = createGroqBuilder<SchemaConfig>();
 
@@ -448,7 +449,7 @@ describe("projection (objects)", () => {
     const qParser = qVariants.grab((q) => ({
       name: true,
       msrp: q.grabOne("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.grabOne("price"),
+      price: q.grabOne("price").validate(validate.number()),
     }));
 
     it("the types should match", () => {
@@ -495,6 +496,22 @@ describe("projection (objects)", () => {
             "price": 400,
           },
         ]
+      `);
+    });
+
+    it("should throw when the data doesn't match", async () => {
+      const invalidData = [
+        ...data.datalake,
+        mock.variant({
+          // @ts-expect-error ---
+          price: "INVALID",
+        }),
+      ];
+
+      await expect(() => executeBuilder(qParser, invalidData)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        "1 Parsing Error:
+        result[5].price Expected a number, but got \\"INVALID\\""
       `);
     });
   });

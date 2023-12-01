@@ -5,6 +5,7 @@ import { normalizeValidationFunction, isParser } from "./validate-utils";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { ResultItem, ResultOverride } from "../types/result-types";
+import { ValidationErrors } from "../validation/validation-error";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
@@ -197,15 +198,29 @@ GroqBuilder.implement({
       : function projectionParser(input: TResult) {
           const isArray = Array.isArray(input);
           const items = isArray ? input : [input];
-          const parsedResults = items.map((item) => {
+          const validationErrors = new ValidationErrors();
+
+          const parsedResults = items.map((item, i) => {
             const parsedResult = { ...item };
-            parsers.forEach(({ key, parser }) => {
+
+            for (const { key, parser } of parsers) {
               const value = item[key];
-              const parsedValue = parser!(value);
-              parsedResult[key] = parsedValue;
-            });
+              try {
+                const parsedValue = parser!(value);
+                parsedResult[key] = parsedValue;
+              } catch (err) {
+                const path = isArray ? `[${i}].${key}` : key;
+                validationErrors.add(path, value, err as Error);
+              }
+            }
+
             return parsedResult;
           });
+
+          if (validationErrors.errors.length) {
+            throw validationErrors;
+          }
+
           return isArray ? parsedResults : parsedResults[0];
         };
 
