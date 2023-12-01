@@ -1,11 +1,11 @@
 import { GroqBuilder } from "../groq-builder";
 import { ParserFunction, ParserObject } from "../types/public-types";
 
-import { getParserFunction } from "./parseUtils";
+import { normalizeValidationFunction } from "./validate-utils";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
-    parse<TResultNew>(
+    validate<TResultNew>(
       parser:
         | ParserObject<TResult, TResultNew>
         | ParserFunction<TResult, TResultNew>
@@ -14,7 +14,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  parse(this: GroqBuilder, parser) {
-    return this.chain("", getParserFunction(parser));
+  validate(this: GroqBuilder, parser) {
+    return this.chain("", normalizeValidationFunction(parser));
   },
 });

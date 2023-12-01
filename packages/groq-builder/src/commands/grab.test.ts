@@ -444,10 +444,10 @@ describe("projection (objects)", () => {
     });
   });
 
-  describe("parser", () => {
+  describe("validate", () => {
     const qParser = qVariants.grab((q) => ({
       name: true,
-      msrp: q.grabOne("msrp").parser((msrp) => currencyFormat(msrp)),
+      msrp: q.grabOne("msrp").validate((msrp) => currencyFormat(msrp)),
       price: q.grabOne("price"),
     }));
 

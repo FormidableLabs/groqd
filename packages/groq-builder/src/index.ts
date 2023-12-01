@@ -27,12 +27,13 @@ export function createGroqBuilder<TRootConfig extends RootConfig>(
 export function makeSafeQueryRunner<
   FunnerFn extends (query: string, ...parameters: any[]) => Promise<any>
 >(fn: FunnerFn) {
-  return async function queryRunner<TBuilder extends GroqBuilder>(
-    builder: TBuilder,
+  return async function queryRunner<TResult>(
+    builder: GroqBuilder<TResult>,
     ...parameters: ButFirst<Parameters<FunnerFn>>
-  ): Promise<InferResultType<TBuilder>> {
+  ): Promise<TResult> {
     const data = await fn(builder.query, ...parameters);
-    const parsed = builder.parser ? builder.parser(data) : data;
+
+    const parsed = builder.parse(data);
     return parsed;
   };
 }

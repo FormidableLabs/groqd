@@ -1,7 +1,7 @@
 import { Simplify, SimplifyDeep, TypeMismatchError } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { ParserFunction, ParserObject } from "../types/public-types";
-import { getParserFunction, isParser } from "./parseUtils";
+import { normalizeValidationFunction, isParser } from "./validate-utils";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { ResultItem, ResultOverride } from "../types/result-types";
@@ -171,7 +171,11 @@ GroqBuilder.implement({
           if (value === false) return null; // 'false' will be excluded from the results
           return { key, query: key, parser: null };
         } else if (isParser(value)) {
-          return { key, query: key, parser: getParserFunction(value) };
+          return {
+            key,
+            query: key,
+            parser: normalizeValidationFunction(value),
+          };
         } else {
           throw new Error(
             `Unexpected value for projection key "${key}": "${typeof value}"`
@@ -191,7 +195,8 @@ GroqBuilder.implement({
     const newParser = !parsers.length
       ? null
       : function projectionParser(input: TResult) {
-          const items = Array.isArray(input) ? input : [input];
+          const isArray = Array.isArray(input);
+          const items = isArray ? input : [input];
           const parsedResults = items.map((item) => {
             const parsedResult = { ...item };
             parsers.forEach(({ key, parser }) => {
@@ -201,7 +206,7 @@ GroqBuilder.implement({
             });
             return parsedResult;
           });
-          return Array.isArray(items) ? parsedResults : parsedResults[0];
+          return isArray ? parsedResults : parsedResults[0];
         };
 
     return this.chain(newQuery, newParser);

@@ -11,7 +11,7 @@ export type Parser<TInput = any, TOutput = any> =
  * This signature is compatible with Zod.
  */
 export type ParserObject<TInput = any, TOutput = any> = {
-  parse(input: TInput): TOutput;
+  parse: ParserFunction<TInput, TOutput>;
 };
 
 /**

@@ -1,6 +1,6 @@
 import type { ParserFunction } from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
-import { chainParsers } from "./commands/parseUtils";
+import { chainParsers } from "./commands/validate-utils";
 
 export type GroqBuilderOptions = {
   indent: string;
@@ -39,8 +39,9 @@ export class GroqBuilder<
   public get query() {
     return this.internal.query;
   }
-  public get parser() {
-    return this.internal.parser;
+  public parse(data: unknown): TResult {
+    const parser = this.internal.parser;
+    return parser ? parser(data) : (data as TResult);
   }
 
   /**
