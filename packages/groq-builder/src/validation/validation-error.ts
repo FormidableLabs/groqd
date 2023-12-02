@@ -10,11 +10,13 @@ export class ValidationError extends TypeError {
 }
 
 export class ValidationErrors extends TypeError {
-  constructor(message = "Validation Errors") {
+  constructor(
+    message = "Validation Errors",
+    public errors: ValidationError[] = []
+  ) {
     super(message);
     this.name = "ValidationErrors";
   }
-  public errors: ValidationError[] = [];
 
   public add(path: string, value: unknown, error: Error) {
     if (error instanceof ValidationErrors) {
@@ -26,13 +28,16 @@ export class ValidationErrors extends TypeError {
       this.errors.push(new ValidationError(path, value, error));
     }
   }
-  withMessage(path: string) {
+
+  /**
+   * Returns a new error with an updated message (since an Error message is read-only)
+   */
+  withMessage() {
     const l = this.errors.length;
-    return new ValidationErrors(
-      `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this.errors
-        .map((e) => `${joinPath(path, e.path)}: ${e.error.message}`)
-        .join("\n")}`
-    );
+    const message = `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this.errors
+      .map((e) => `${joinPath("result", e.path)}: ${e.error.message}`)
+      .join("\n")}`;
+    return new ValidationErrors(message, this.errors);
   }
 }
 

@@ -47,7 +47,7 @@ export class GroqBuilder<
         return parser(data);
       } catch (err) {
         if (err instanceof ValidationErrors) {
-          throw err.withMessage("result");
+          throw err.withMessage();
         }
         throw err;
       }
