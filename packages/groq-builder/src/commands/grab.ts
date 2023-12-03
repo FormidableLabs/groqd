@@ -5,7 +5,7 @@ import { normalizeValidationFunction, isParser } from "./validate-utils";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { ResultItem, ResultOverride } from "../types/result-types";
-import { ValidationErrors } from "../validation/validation-error";
+import { ValidationErrors } from "../validation/validation-errors";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {

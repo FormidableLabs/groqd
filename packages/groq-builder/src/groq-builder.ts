@@ -1,7 +1,7 @@
 import type { ParserFunction } from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
 import { chainParsers } from "./commands/validate-utils";
-import { ValidationErrors } from "./validation/validation-error";
+import { ValidationErrors } from "./validation/validation-errors";
 
 export type GroqBuilderOptions = {
   indent: string;

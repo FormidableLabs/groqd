@@ -1,18 +1,13 @@
-export class ValidationError extends TypeError {
-  constructor(
-    public path: string,
-    public readonly value: unknown,
-    public readonly error: Error
-  ) {
-    super("");
-    this.name = "ValidationError";
-  }
-}
+export type ErrorDetails = {
+  path: string;
+  readonly value: unknown;
+  readonly error: Error;
+};
 
 export class ValidationErrors extends TypeError {
   constructor(
     message = "Validation Errors",
-    public errors: ValidationError[] = []
+    public errors: ErrorDetails[] = []
   ) {
     super(message);
     this.name = "ValidationErrors";
@@ -25,7 +20,7 @@ export class ValidationErrors extends TypeError {
       });
       this.errors.push(...error.errors);
     } else {
-      this.errors.push(new ValidationError(path, value, error));
+      this.errors.push({ path, value, error });
     }
   }
 
