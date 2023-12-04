@@ -380,6 +380,87 @@ describe("projection (objects)", () => {
       `);
     });
   });
+  describe("nested projections", () => {
+    const { datalake: dataWithImages } = mock.generateSeedData({
+      variants: [
+        mock.variant({ images: [mock.keyed(mock.image({}))] }),
+        mock.variant({ images: [mock.keyed(mock.image({}))] }),
+      ],
+    });
+    const qNested = qVariants.grab((variant) => ({
+      name: variant.grabOne("name"),
+      images: variant.grabOne("images[]").grab((image) => ({
+        name: true,
+        description: image
+          .grabOne("description")
+          .validate(validate.string().optional()),
+      })),
+    }));
+
+    it("query should be correct", () => {
+      expect(qNested.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { name, \\"images\\": images[] { name, description } }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<InferResultType<typeof qNested>>().toStrictEqual<
+        Array<{
+          name: string;
+          images: Array<{
+            name: string;
+            description: string | undefined | null;
+          }> | null;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qNested, dataWithImages);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "images": [
+              {
+                "description": "Product Image",
+                "name": "ProductImage",
+              },
+            ],
+            "name": "Variant Name",
+          },
+          {
+            "images": [
+              {
+                "description": "Product Image",
+                "name": "ProductImage",
+              },
+            ],
+            "name": "Variant Name",
+          },
+        ]
+      `);
+    });
+
+    it("nested objects should be validated", async () => {
+      const dataWithInvalidData = [
+        mock.variant({
+          images: [
+            mock.keyed(
+              mock.image({
+                // @ts-expect-error ---
+                description: 1234,
+              })
+            ),
+          ],
+        }),
+      ];
+      await expect(() => executeBuilder(qNested, dataWithInvalidData)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        "1 Parsing Error:
+        result[0].images[0].description: Expected string, received 1234"
+      `);
+    });
+  });
 
   describe("mixed projections", () => {
     const qComplex = qVariants.grab((q) => ({

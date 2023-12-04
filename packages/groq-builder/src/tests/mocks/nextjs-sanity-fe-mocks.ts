@@ -93,6 +93,23 @@ export class MockFactory {
     } satisfies Required<SanitySchema.Variant>;
   }
 
+  image(data: Partial<SanitySchema.ProductImage>): SanitySchema.ProductImage {
+    return {
+      ...this.common("productImage"),
+      name: "ProductImage",
+      description: "Product Image",
+      asset: this.reference({ _id: "mock-image-id" }),
+      ...data,
+    } satisfies Required<SanitySchema.ProductImage>;
+  }
+
+  keyed<T>(data: T): T & { _key: string } {
+    return {
+      _key: "",
+      ...data,
+    };
+  }
+
   // Entire datasets:
   generateSeedData({
     categories = this.array(10, (i) =>
