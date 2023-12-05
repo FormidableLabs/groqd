@@ -13,10 +13,10 @@ const q = createGroqBuilder<SchemaConfig>();
 
 const qVariants = q.star.filterByType("variant");
 
-describe("projection (naked projection)", () => {
-  const qPrices = qVariants.grabOne("price");
-  const qNames = qVariants.grabOne("name");
-  const qImages = qVariants.grabOne("images[]");
+describe("project (naked project)", () => {
+  const qPrices = qVariants.project("price");
+  const qNames = qVariants.project("name");
+  const qImages = qVariants.project("images[]");
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -49,12 +49,12 @@ describe("projection (naked projection)", () => {
     > | null>();
   });
   it("can chain projections", () => {
-    const qSlugCurrent = qVariants.grabOne("slug").grabOne("current");
+    const qSlugCurrent = qVariants.project("slug").project("current");
     expectType<InferResultType<typeof qSlugCurrent>>().toStrictEqual<
       Array<string>
     >();
 
-    const qImageNames = qVariants.slice(0).grabOne("images[]").grabOne("name");
+    const qImageNames = qVariants.slice(0).project("images[]").project("name");
     expectType<
       InferResultType<typeof qImageNames>
     >().toStrictEqual<Array<string> | null>();
@@ -88,17 +88,17 @@ describe("projection (naked projection)", () => {
   describe("deep properties", () => {
     it("invalid entries should have TS errors", () => {
       // @ts-expect-error ---
-      qVariants.grabOne("slug[]");
+      qVariants.project("slug[]");
       // @ts-expect-error ---
-      qVariants.grabOne("slug.INVALID");
+      qVariants.project("slug.INVALID");
       // @ts-expect-error ---
-      qVariants.grabOne("INVALID");
+      qVariants.project("INVALID");
       // @ts-expect-error ---
-      qVariants.grabOne("INVALID.current");
+      qVariants.project("INVALID.current");
     });
 
     it("can project nested properties", () => {
-      const qSlugs = qVariants.grabOne("slug.current");
+      const qSlugs = qVariants.project("slug.current");
       expectType<InferResultType<typeof qSlugs>>().toStrictEqual<
         Array<string>
       >();
@@ -108,7 +108,7 @@ describe("projection (naked projection)", () => {
     });
 
     it("can project arrays with []", () => {
-      const qImages = qVariants.grabOne("images[]");
+      const qImages = qVariants.project("images[]");
       type ResultType = InferResultType<typeof qImages>;
 
       expectType<ResultType>().toStrictEqual<Array<
@@ -118,7 +118,7 @@ describe("projection (naked projection)", () => {
   });
 });
 
-describe("projection (objects)", () => {
+describe("project (objects)", () => {
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -133,7 +133,7 @@ describe("projection (objects)", () => {
 
   describe("a single plain property", () => {
     it("cannot use 'true' to project unknown properties", () => {
-      const qInvalid = qVariants.grab({
+      const qInvalid = qVariants.project({
         INVALID: true,
       });
 
@@ -148,7 +148,7 @@ describe("projection (objects)", () => {
       >();
     });
 
-    const qName = qVariants.grab({
+    const qName = qVariants.project({
       name: true,
     });
     it("query should be typed correctly", () => {
@@ -188,7 +188,7 @@ describe("projection (objects)", () => {
   });
 
   describe("multiple plain properties", () => {
-    const qMultipleFields = qVariants.grab({
+    const qMultipleFields = qVariants.project({
       id: true,
       name: true,
       price: true,
@@ -248,8 +248,8 @@ describe("projection (objects)", () => {
     });
   });
 
-  describe("a projection with naked projections", () => {
-    const qNakedProjections = qVariants.grab({
+  describe("a project with naked projections", () => {
+    const qNakedProjections = qVariants.project({
       NAME: "name",
       SLUG: "slug.current",
       msrp: "msrp",
@@ -257,11 +257,11 @@ describe("projection (objects)", () => {
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.grab({ NAME: "INVALID" });
+      qVariants.project({ NAME: "INVALID" });
       // @ts-expect-error ---
-      qVariants.grab({ NAME: "slug.INVALID" });
+      qVariants.project({ NAME: "slug.INVALID" });
       // @ts-expect-error ---
-      qVariants.grab({ NAME: "INVALID.current" });
+      qVariants.project({ NAME: "INVALID.current" });
     });
 
     it("query should be correct", () => {
@@ -281,9 +281,9 @@ describe("projection (objects)", () => {
     });
   });
 
-  describe("a single complex projection", () => {
-    const qComplex = qVariants.grab((q) => ({
-      NAME: q.grabOne("name"),
+  describe("a single complex project", () => {
+    const qComplex = qVariants.project((q) => ({
+      NAME: q.project("name"),
     }));
 
     it("query should be correct", () => {
@@ -325,10 +325,10 @@ describe("projection (objects)", () => {
   });
 
   describe("multiple complex projections", () => {
-    const qComplex = qVariants.grab((q) => ({
-      name: q.grabOne("name"),
-      slug: q.grabOne("slug").grabOne("current"),
-      images: q.grabOne("images[]").grabOne("name"),
+    const qComplex = qVariants.project((q) => ({
+      name: q.project("name"),
+      slug: q.project("slug").project("current"),
+      images: q.project("images[]").project("name"),
     }));
 
     it("query should be correct", () => {
@@ -387,12 +387,12 @@ describe("projection (objects)", () => {
         mock.variant({ images: [mock.keyed(mock.image({}))] }),
       ],
     });
-    const qNested = qVariants.grab((variant) => ({
-      name: variant.grabOne("name"),
-      images: variant.grabOne("images[]").grab((image) => ({
+    const qNested = qVariants.project((variant) => ({
+      name: variant.project("name"),
+      images: variant.project("images[]").project((image) => ({
         name: true,
         description: image
-          .grabOne("description")
+          .project("description")
           .validate(validate.string().optional()),
       })),
     }));
@@ -463,11 +463,11 @@ describe("projection (objects)", () => {
   });
 
   describe("mixed projections", () => {
-    const qComplex = qVariants.grab((q) => ({
+    const qComplex = qVariants.project((q) => ({
       name: true,
-      slug: q.grabOne("slug").grabOne("current"),
+      slug: q.project("slug").project("current"),
       price: true,
-      IMAGES: q.grabOne("images[]").grabOne("name"),
+      IMAGES: q.project("images[]").project("name"),
     }));
 
     it("query should be correct", () => {
@@ -527,10 +527,10 @@ describe("projection (objects)", () => {
   });
 
   describe("validate", () => {
-    const qParser = qVariants.grab((q) => ({
+    const qParser = qVariants.project((q) => ({
       name: true,
-      msrp: q.grabOne("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.grabOne("price").validate(validate.number()),
+      msrp: q.project("msrp").validate((msrp) => currencyFormat(msrp)),
+      price: q.project("price").validate(validate.number()),
     }));
 
     it("the types should match", () => {
@@ -598,9 +598,9 @@ describe("projection (objects)", () => {
   });
 
   describe("ellipsis ... operator", () => {
-    const qEllipsis = qVariants.grab((q) => ({
+    const qEllipsis = qVariants.project((q) => ({
       "...": true,
-      OTHER: q.grabOne("name"),
+      OTHER: q.project("name"),
     }));
     it("query should be correct", () => {
       expect(qEllipsis.query).toMatchInlineSnapshot(

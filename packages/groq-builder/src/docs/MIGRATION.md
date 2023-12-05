@@ -47,14 +47,14 @@ const q = createGroqBuilder<MySanityConfig>();
 
 const productQuery = q.star
   .filterByType("product")
-  .projection({
+  .project({
     name: true,
     price: true,
     slug: "slug.current",
   });
 ```
 Note the following changes:
-1. `grab` was renamed to `projection`
+1. `grab` was renamed to `project`
 2. We do not need to explicitly specify the types for `name`, `price`, or `slug.current`; these are all inferred from the Sanity Schema.
 
 The output type is exactly

@@ -9,7 +9,11 @@ import { ValidationErrors } from "../validation/validation-errors";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
-    grabOne<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
+    /**
+     * Performs a "naked projection", returning just the values of the field specified.
+     * @param fieldName
+     */
+    project<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
       ResultOverride<
@@ -19,7 +23,11 @@ declare module "../groq-builder" {
       TRootConfig
     >;
 
-    grab<
+    /**
+     * Performs an "object projection", returning an object with the fields specified.
+     * @param projectionMap
+     */
+    project<
       TProjection extends {
         // This allows TypeScript to suggest known keys:
         [P in keyof ResultItem<TResult>]?: ProjectionFieldConfig<TResult>;
@@ -123,17 +131,18 @@ type ExtractProjectionResultImpl<TResult, TProjection> = {
 };
 
 GroqBuilder.implement({
-  grabOne(this: GroqBuilder, arg: string): GroqBuilder<any> {
-    let nakedProjection = arg;
-    if (this.internal.query) {
-      nakedProjection = "." + arg;
-    }
-    return this.chain<any>(nakedProjection, null);
-  },
-  grab(
+  project(
     this: GroqBuilder,
-    arg: object | ((q: GroqBuilder) => object)
+    arg: string | object | ((q: GroqBuilder) => object)
   ): GroqBuilder<any> {
+    if (typeof arg === "string") {
+      let nakedProjection = arg;
+      if (this.internal.query) {
+        nakedProjection = "." + arg;
+      }
+      return this.chain<any>(nakedProjection, null);
+    }
+
     const indent = this.internal.options.indent;
     const indent2 = indent ? indent + "  " : "";
 
@@ -230,4 +239,68 @@ GroqBuilder.implement({
 
 function notNull<T>(value: T | null): value is T {
   return !!value;
+}
+
+/*
+ * For backwards compatibility, we'll keep `grab` and `grabOne` as deprecated aliases:
+ */
+declare module "../groq-builder" {
+  export interface GroqBuilder<TResult, TRootConfig> {
+    /**
+     * This method has been renamed to 'project' and will be removed in a future version.
+     * @deprecated
+     * */
+    grab: GroqBuilder<TResult, TRootConfig>["project"];
+    /**
+     * This method has been renamed to 'project' and will be removed in a future version.
+     * @deprecated
+     * */
+    grab$: GroqBuilder<TResult, TRootConfig>["project"];
+    /**
+     * This method has been renamed to 'project' and will be removed in a future version.
+     * @deprecated
+     * */
+    grabOne: GroqBuilder<TResult, TRootConfig>["project"];
+    /**
+     * This method has been renamed to 'project' and will be removed in a future version.
+     * @deprecated
+     * */
+    grabOne$: GroqBuilder<TResult, TRootConfig>["project"];
+  }
+}
+GroqBuilder.implement({
+  grab: deprecated<any>(GroqBuilder.prototype.project, () => {
+    console.warn(
+      "'grab' has been renamed to 'project' and will be removed in a future version"
+    );
+  }),
+  grab$: deprecated<any>(GroqBuilder.prototype.project, () => {
+    console.warn(
+      "'grab$' has been renamed to 'project' and will be removed in a future version"
+    );
+  }),
+  grabOne: deprecated<any>(GroqBuilder.prototype.project, () => {
+    console.warn(
+      "'grabOne' has been renamed to 'project' and will be removed in a future version"
+    );
+  }),
+  grabOne$: deprecated<any>(GroqBuilder.prototype.project, () => {
+    console.warn(
+      "'grabOne$' has been renamed to 'project' and will be removed in a future version"
+    );
+  }),
+});
+
+function deprecated<TMethod extends (...args: any[]) => any>(
+  method: TMethod,
+  logWarning: () => void
+): TMethod {
+  let logOnce = logWarning as null | typeof logWarning;
+  return function (this: GroqBuilder, ...args) {
+    if (logOnce) {
+      logOnce();
+      logOnce = null;
+    }
+    return method.apply(this, args);
+  } as TMethod;
 }

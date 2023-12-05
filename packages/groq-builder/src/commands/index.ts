@@ -1,7 +1,7 @@
 import "./deref";
 import "./filter";
 import "./order";
-import "./grab";
+import "./project";
 import "./slice";
 import "./star";
 import "./validate";
