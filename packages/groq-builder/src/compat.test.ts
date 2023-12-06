@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { expectType } from "./tests/expectType";
 import { InferResultType } from "./types/public-types";
 
-import { q } from "./untyped";
+import { q } from "./compat";
 
 describe("untyped", () => {
   it("filterByType", () => {
