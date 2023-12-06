@@ -27,18 +27,7 @@ declare module "../groq-builder" {
      * Performs an "object projection", returning an object with the fields specified.
      * @param projectionMap
      */
-    project<
-      TProjection extends {
-        // This allows TypeScript to suggest known keys:
-        [P in keyof ResultItem<TResult>]?: ProjectionFieldConfig<TResult>;
-      } & {
-        // This allows any keys to be used in a projection:
-        [P in string]: ProjectionFieldConfig<TResult>;
-      } & {
-        // Obviously this allows the ellipsis operator:
-        "..."?: true;
-      }
-    >(
+    project<TProjection extends ProjectionMap<ResultItem<TResult>>>(
       projectionMap:
         | TProjection
         | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TProjection)
@@ -52,6 +41,14 @@ declare module "../groq-builder" {
   }
 }
 
+/**
+ * Finds all paths that contain arrays
+ */
+type PathsWithArrays<TResultItem> = Extract<
+  PathEntries<TResultItem>,
+  [any, Array<any>]
+>[0];
+
 export type ProjectionKey<TResultItem> = Simplify<
   | Path<DeepRequired<TResultItem>>
   | `${PathsWithArrays<DeepRequired<TResultItem>>}[]`
@@ -62,40 +59,41 @@ type ProjectionKeyValue<TResultItem, TKey> = PathValue<
   Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
 >;
 
-/**
- * Finds all paths that contain arrays
- */
-type PathsWithArrays<TResultItem> = Extract<
-  PathEntries<TResultItem>,
-  [any, Array<any>]
->[0];
+export type ProjectionMap<TResultItem> = {
+  // This allows TypeScript to suggest known keys:
+  [P in keyof TResultItem]?: ProjectionFieldConfig<TResultItem>;
+} & {
+  // This allows any keys to be used in a projection:
+  [P in string]: ProjectionFieldConfig<TResultItem>;
+} & {
+  // Obviously this allows the ellipsis operator:
+  "..."?: true;
+};
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type ProjectionFieldConfig<TResult> =
+type ProjectionFieldConfig<TResultItem> =
   // Use 'true' to include a field as-is
   | true
   // Use a string for naked projections, like 'slug.current'
-  | ProjectionKey<ResultItem<TResult>>
-  // | string
+  | ProjectionKey<TResultItem>
   // Use a parser to include a field, passing it through the parser at run-time
   | ParserObject
   // Use a GroqBuilder instance to create a nested projection
   | GroqBuilder;
 
-type ExtractProjectionResult<TResult, TProjection> = TProjection extends {
+type ExtractProjectionResult<TResult, TProjectionMap> = TProjectionMap extends {
   "...": true;
 }
-  ? TResult & ExtractProjectionResultImpl<TResult, Omit<TProjection, "...">>
-  : ExtractProjectionResultImpl<TResult, TProjection>;
+  ? TResult & ExtractProjectionResultImpl<TResult, Omit<TProjectionMap, "...">>
+  : ExtractProjectionResultImpl<TResult, TProjectionMap>;
 
-type ExtractProjectionResultImpl<TResult, TProjection> = {
-  [P in keyof TProjection]: TProjection[P] extends GroqBuilder<
+type ExtractProjectionResultImpl<TResult, TProjectionMap> = {
+  [P in keyof TProjectionMap]: TProjectionMap[P] extends GroqBuilder<
     infer TValue,
     any
   > // Extract type from GroqBuilder:
     ? TValue
     : /* Extract type from 'true': */
-    TProjection[P] extends boolean
+    TProjectionMap[P] extends boolean
     ? P extends keyof TResult
       ? TResult[P]
       : TypeMismatchError<{
@@ -104,16 +102,16 @@ type ExtractProjectionResultImpl<TResult, TProjection> = {
           actual: P;
         }>
     : /* Extract type from a ProjectionKey string, like 'slug.current': */
-    TProjection[P] extends string
-    ? TProjection[P] extends ProjectionKey<TResult>
-      ? ProjectionKeyValue<TResult, TProjection[P]>
+    TProjectionMap[P] extends string
+    ? TProjectionMap[P] extends ProjectionKey<TResult>
+      ? ProjectionKeyValue<TResult, TProjectionMap[P]>
       : TypeMismatchError<{
           error: `⛔️ Naked projections must be known properties ⛔️`;
           expected: SimplifyDeep<ProjectionKey<TResult>>;
-          actual: TProjection[P];
+          actual: TProjectionMap[P];
         }>
     : /* Extract type from ParserObject: */
-    TProjection[P] extends ParserObject<infer TInput, infer TOutput>
+    TProjectionMap[P] extends ParserObject<infer TInput, infer TOutput>
     ? P extends keyof TResult
       ? TInput extends TResult[P]
         ? TOutput
