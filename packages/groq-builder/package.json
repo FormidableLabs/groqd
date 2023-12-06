@@ -29,6 +29,14 @@
       },
       "./dist/index.js"
     ],
+    "./compat": [
+      {
+        "import": "./dist/compat.mjs",
+        "types": "./dist/compat.d.ts",
+        "default": "./dist/compat.js"
+      },
+      "./dist/compat.js"
+    ],
     "./package.json": "./package.json"
   },
   "files": [
