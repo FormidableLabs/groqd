@@ -11,9 +11,9 @@ const data = mock.generateSeedData({});
 
 describe("deref", () => {
   const qProduct = q.star.filterByType("product").slice(0);
-  const qCategoryRef = qProduct.grabOne("categories[]").slice(0);
+  const qCategoryRef = qProduct.projectField("categories[]").slice(0);
   const qCategory = qCategoryRef.deref();
-  const qVariantsRefs = qProduct.grabOne("variants[]");
+  const qVariantsRefs = qProduct.projectField("variants[]");
   const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
@@ -35,7 +35,7 @@ describe("deref", () => {
   });
 
   it("should be an error if the item is not a reference", () => {
-    const notAReference = qProduct.grabOne("slug");
+    const notAReference = qProduct.projectField("slug");
     expectType<InferResultType<typeof notAReference>>().toStrictEqual<{
       _type: "slug";
       current: string;
@@ -45,7 +45,7 @@ describe("deref", () => {
     type ErrorResult = InferResultType<typeof res>;
     expectType<
       ErrorResult["error"]
-    >().toStrictEqual<"Expected the object to be a reference type">();
+    >().toStrictEqual<"⛔️ Expected the object to be a reference type ⛔️">();
   });
 
   it("should execute correctly (single)", async () => {

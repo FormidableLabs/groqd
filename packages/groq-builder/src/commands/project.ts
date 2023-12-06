@@ -1,6 +1,6 @@
 import { Simplify, SimplifyDeep, TypeMismatchError } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
-import { ParserFunction, ParserObject } from "../types/public-types";
+import { Parser, ParserFunction, ParserObject } from "../types/public-types";
 import { normalizeValidationFunction, isParser } from "./validate-utils";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
@@ -13,7 +13,7 @@ declare module "../groq-builder" {
      * Performs a "naked projection", returning just the values of the field specified.
      * @param fieldName
      */
-    project<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
+    projectField<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
       ResultOverride<
@@ -77,6 +77,8 @@ type ProjectionFieldConfig<TResultItem> =
   | ProjectionKey<TResultItem>
   // Use a parser to include a field, passing it through the parser at run-time
   | ParserObject
+  // Use a tuple for naked projections with a parser
+  | [ProjectionKey<TResultItem>, Parser]
   // Use a GroqBuilder instance to create a nested projection
   | GroqBuilder;
 
@@ -110,6 +112,27 @@ type ExtractProjectionResultImpl<TResult, TProjectionMap> = {
           expected: SimplifyDeep<ProjectionKey<TResult>>;
           actual: TProjectionMap[P];
         }>
+    : /* */
+    TProjectionMap[P] extends [infer TKey, infer TParser]
+    ? TKey extends ProjectionKey<TResult>
+      ? TParser extends Parser<infer TInput, infer TOutput>
+        ? TInput extends ProjectionKeyValue<TResult, TKey>
+          ? TOutput
+          : TypeMismatchError<{
+              error: `⛔️ The value of the projection is not compatible with this parser ⛔️`;
+              expected: Parser<ProjectionKeyValue<TResult, TKey>, TOutput>;
+              actual: TParser;
+            }>
+        : TypeMismatchError<{
+            error: `⛔️ Naked projections must be known properties ⛔️`;
+            expected: SimplifyDeep<ProjectionKey<TResult>>;
+            actual: TKey;
+          }>
+      : TypeMismatchError<{
+          error: `⛔️ Naked projections must be known properties ⛔️`;
+          expected: SimplifyDeep<ProjectionKey<TResult>>;
+          actual: TKey;
+        }>
     : /* Extract type from ParserObject: */
     TProjectionMap[P] extends ParserObject<infer TInput, infer TOutput>
     ? P extends keyof TResult
@@ -129,24 +152,24 @@ type ExtractProjectionResultImpl<TResult, TProjectionMap> = {
 };
 
 GroqBuilder.implement({
+  projectField(this: GroqBuilder, fieldName: string) {
+    if (this.internal.query) {
+      fieldName = "." + fieldName;
+    }
+    return this.chain<any>(fieldName, null);
+  },
+
   project(
     this: GroqBuilder,
-    arg: string | object | ((q: GroqBuilder) => object)
+    projectionMapArg: object | ((q: GroqBuilder) => object)
   ): GroqBuilder<any> {
-    if (typeof arg === "string") {
-      let nakedProjection = arg;
-      if (this.internal.query) {
-        nakedProjection = "." + arg;
-      }
-      return this.chain<any>(nakedProjection, null);
-    }
-
+    // Make the query pretty, if needed:
     const indent = this.internal.options.indent;
     const indent2 = indent ? indent + "  " : "";
 
     // Retrieve the projectionMap:
     let projectionMap: object;
-    if (typeof arg === "function") {
+    if (typeof projectionMapArg === "function") {
       const newQ = new GroqBuilder({
         query: "",
         parser: null,
@@ -155,9 +178,9 @@ GroqBuilder.implement({
           indent: indent2,
         },
       });
-      projectionMap = arg(newQ);
+      projectionMap = projectionMapArg(newQ);
     } else {
-      projectionMap = arg;
+      projectionMap = projectionMapArg;
     }
 
     // Analyze all the projection values:
@@ -178,6 +201,13 @@ GroqBuilder.implement({
         } else if (typeof value === "boolean") {
           if (value === false) return null; // 'false' will be excluded from the results
           return { key, query: key, parser: null };
+        } else if (Array.isArray(value)) {
+          const [query, parser] = value as [string, Parser];
+          return {
+            key,
+            query,
+            parser: normalizeValidationFunction(parser),
+          };
         } else if (isParser(value)) {
           return {
             key,
@@ -255,15 +285,15 @@ declare module "../groq-builder" {
      * */
     grab$: GroqBuilder<TResult, TRootConfig>["project"];
     /**
-     * This method has been renamed to 'project' and will be removed in a future version.
+     * This method has been renamed to 'projectField' and will be removed in a future version.
      * @deprecated
      * */
-    grabOne: GroqBuilder<TResult, TRootConfig>["project"];
+    grabOne: GroqBuilder<TResult, TRootConfig>["projectField"];
     /**
-     * This method has been renamed to 'project' and will be removed in a future version.
+     * This method has been renamed to 'projectField' and will be removed in a future version.
      * @deprecated
      * */
-    grabOne$: GroqBuilder<TResult, TRootConfig>["project"];
+    grabOne$: GroqBuilder<TResult, TRootConfig>["projectField"];
   }
 }
 GroqBuilder.implement({
@@ -277,14 +307,14 @@ GroqBuilder.implement({
       "'grab$' has been renamed to 'project' and will be removed in a future version"
     );
   }),
-  grabOne: deprecated<any>(GroqBuilder.prototype.project, () => {
+  grabOne: deprecated<any>(GroqBuilder.prototype.projectField, () => {
     console.warn(
-      "'grabOne' has been renamed to 'project' and will be removed in a future version"
+      "'grabOne' has been renamed to 'projectField' and will be removed in a future version"
     );
   }),
-  grabOne$: deprecated<any>(GroqBuilder.prototype.project, () => {
+  grabOne$: deprecated<any>(GroqBuilder.prototype.projectField, () => {
     console.warn(
-      "'grabOne$' has been renamed to 'project' and will be removed in a future version"
+      "'grabOne$' has been renamed to 'projectField' and will be removed in a future version"
     );
   }),
 });

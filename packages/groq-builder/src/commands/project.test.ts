@@ -13,10 +13,10 @@ const q = createGroqBuilder<SchemaConfig>();
 
 const qVariants = q.star.filterByType("variant");
 
-describe("project (naked project)", () => {
-  const qPrices = qVariants.project("price");
-  const qNames = qVariants.project("name");
-  const qImages = qVariants.project("images[]");
+describe("projectField (naked projections)", () => {
+  const qPrices = qVariants.projectField("price");
+  const qNames = qVariants.projectField("name");
+  const qImages = qVariants.projectField("images[]");
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -49,12 +49,15 @@ describe("project (naked project)", () => {
     > | null>();
   });
   it("can chain projections", () => {
-    const qSlugCurrent = qVariants.project("slug").project("current");
+    const qSlugCurrent = qVariants.projectField("slug").projectField("current");
     expectType<InferResultType<typeof qSlugCurrent>>().toStrictEqual<
       Array<string>
     >();
 
-    const qImageNames = qVariants.slice(0).project("images[]").project("name");
+    const qImageNames = qVariants
+      .slice(0)
+      .projectField("images[]")
+      .projectField("name");
     expectType<
       InferResultType<typeof qImageNames>
     >().toStrictEqual<Array<string> | null>();
@@ -88,17 +91,17 @@ describe("project (naked project)", () => {
   describe("deep properties", () => {
     it("invalid entries should have TS errors", () => {
       // @ts-expect-error ---
-      qVariants.project("slug[]");
+      qVariants.projectField("slug[]");
       // @ts-expect-error ---
-      qVariants.project("slug.INVALID");
+      qVariants.projectField("slug.INVALID");
       // @ts-expect-error ---
-      qVariants.project("INVALID");
+      qVariants.projectField("INVALID");
       // @ts-expect-error ---
-      qVariants.project("INVALID.current");
+      qVariants.projectField("INVALID.current");
     });
 
     it("can project nested properties", () => {
-      const qSlugs = qVariants.project("slug.current");
+      const qSlugs = qVariants.projectField("slug.current");
       expectType<InferResultType<typeof qSlugs>>().toStrictEqual<
         Array<string>
       >();
@@ -108,7 +111,7 @@ describe("project (naked project)", () => {
     });
 
     it("can project arrays with []", () => {
-      const qImages = qVariants.project("images[]");
+      const qImages = qVariants.projectField("images[]");
       type ResultType = InferResultType<typeof qImages>;
 
       expectType<ResultType>().toStrictEqual<Array<
@@ -118,7 +121,7 @@ describe("project (naked project)", () => {
   });
 });
 
-describe("project (objects)", () => {
+describe("project (object projections)", () => {
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -248,7 +251,7 @@ describe("project (objects)", () => {
     });
   });
 
-  describe("a project with naked projections", () => {
+  describe("a projection with naked projections", () => {
     const qNakedProjections = qVariants.project({
       NAME: "name",
       SLUG: "slug.current",
@@ -257,11 +260,44 @@ describe("project (objects)", () => {
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.project({ NAME: "INVALID" });
+      qVariants.project({ FIELD: "INVALID" });
       // @ts-expect-error ---
-      qVariants.project({ NAME: "slug.INVALID" });
+      qVariants.project({ FIELD: "slug.INVALID" });
       // @ts-expect-error ---
-      qVariants.project({ NAME: "INVALID.current" });
+      qVariants.project({ FIELD: "INVALID.current" });
+    });
+
+    it("query should be correct", () => {
+      expect(qNakedProjections.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { \\"NAME\\": name, \\"SLUG\\": slug.current, msrp }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<InferResultType<typeof qNakedProjections>>().toStrictEqual<
+        Array<{
+          NAME: string;
+          SLUG: string;
+          msrp: number;
+        }>
+      >();
+    });
+  });
+
+  describe("a projection with naked, validated projections", () => {
+    const qNakedProjections = qVariants.project({
+      NAME: ["name", validate.string()],
+      SLUG: ["slug.current", validate.string()],
+      msrp: ["msrp", validate.number()],
+    });
+
+    it("invalid projections should have type errors", () => {
+      // @ts-expect-error ---
+      qVariants.project({ NAME: ["INVALID", validate.number()] });
+      // @ts-expect-error ---
+      qVariants.project({ NAME: ["slug.INVALID", validate.string()] });
+      // @ts-expect-error ---
+      qVariants.project({ NAME: ["INVALID.current", validate.string()] });
     });
 
     it("query should be correct", () => {
@@ -283,7 +319,7 @@ describe("project (objects)", () => {
 
   describe("a single complex project", () => {
     const qComplex = qVariants.project((q) => ({
-      NAME: q.project("name"),
+      NAME: q.projectField("name"),
     }));
 
     it("query should be correct", () => {
@@ -326,9 +362,9 @@ describe("project (objects)", () => {
 
   describe("multiple complex projections", () => {
     const qComplex = qVariants.project((q) => ({
-      name: q.project("name"),
-      slug: q.project("slug").project("current"),
-      images: q.project("images[]").project("name"),
+      name: q.projectField("name"),
+      slug: q.projectField("slug").projectField("current"),
+      images: q.projectField("images[]").projectField("name"),
     }));
 
     it("query should be correct", () => {
@@ -380,6 +416,7 @@ describe("project (objects)", () => {
       `);
     });
   });
+
   describe("nested projections", () => {
     const { datalake: dataWithImages } = mock.generateSeedData({
       variants: [
@@ -388,11 +425,11 @@ describe("project (objects)", () => {
       ],
     });
     const qNested = qVariants.project((variant) => ({
-      name: variant.project("name"),
-      images: variant.project("images[]").project((image) => ({
+      name: variant.projectField("name"),
+      images: variant.projectField("images[]").project((image) => ({
         name: true,
         description: image
-          .project("description")
+          .projectField("description")
           .validate(validate.string().optional()),
       })),
     }));
@@ -465,9 +502,9 @@ describe("project (objects)", () => {
   describe("mixed projections", () => {
     const qComplex = qVariants.project((q) => ({
       name: true,
-      slug: q.project("slug").project("current"),
+      slug: q.projectField("slug").projectField("current"),
       price: true,
-      IMAGES: q.project("images[]").project("name"),
+      IMAGES: q.projectField("images[]").projectField("name"),
     }));
 
     it("query should be correct", () => {
@@ -529,8 +566,8 @@ describe("project (objects)", () => {
   describe("validate", () => {
     const qParser = qVariants.project((q) => ({
       name: true,
-      msrp: q.project("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.project("price").validate(validate.number()),
+      msrp: q.projectField("msrp").validate((msrp) => currencyFormat(msrp)),
+      price: q.projectField("price").validate(validate.number()),
     }));
 
     it("the types should match", () => {
@@ -600,7 +637,7 @@ describe("project (objects)", () => {
   describe("ellipsis ... operator", () => {
     const qEllipsis = qVariants.project((q) => ({
       "...": true,
-      OTHER: q.project("name"),
+      OTHER: q.projectField("name"),
     }));
     it("query should be correct", () => {
       expect(qEllipsis.query).toMatchInlineSnapshot(
@@ -624,5 +661,33 @@ describe("project (objects)", () => {
         })
       );
     });
+  });
+});
+
+describe("grab (backwards compatibility)", () => {
+  it("should be defined", () => {
+    expect(q.grab).toBeTypeOf("function");
+    expect(q.grab$).toBeTypeOf("function");
+    expect(q.grabOne).toBeTypeOf("function");
+    expect(q.grabOne$).toBeTypeOf("function");
+  });
+
+  it("should be type-safe", () => {
+    const qVariants = q.star.filterByType("variant");
+    const qGrab = qVariants.grab((q) => ({
+      name: true,
+      slug: "slug.current",
+      msrp: ["msrp", validate.number()],
+      styles: q.grabOne("style[]").deref().grabOne("name"),
+    }));
+
+    expectType<InferResultType<typeof qGrab>>().toStrictEqual<
+      Array<{
+        name: string;
+        slug: string;
+        msrp: number;
+        styles: Array<string> | null;
+      }>
+    >();
   });
 });
