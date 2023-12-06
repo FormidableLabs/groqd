@@ -1,20 +1,23 @@
 import { GroqBuilder } from "../groq-builder";
-import { Simplify, SimplifyDeep, TypeMismatchError } from "../types/utils";
+import {
+  Simplify,
+  SimplifyDeep,
+  StringKeys,
+  TypeMismatchError,
+  ValueOf,
+} from "../types/utils";
 import { Parser, ParserObject } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 
-/**
- * Finds all paths that contain arrays
- */
-type PathsWithArrays<TResultItem> = Extract<
-  PathEntries<TResultItem>,
-  [any, Array<any>]
->[0];
-export type ProjectionKey<TResultItem> = Simplify<
-  | Path<DeepRequired<TResultItem>>
-  | `${PathsWithArrays<DeepRequired<TResultItem>>}[]`
+export type ProjectionKey<TResultItem> = ProjectionKeyImpl<
+  Simplify<PathEntries<DeepRequired<TResultItem>>>
 >;
+type ProjectionKeyImpl<Entries> = ValueOf<{
+  [Key in keyof Entries]: Entries[Key] extends Array<any>
+    ? `${StringKeys<Key>}[]` | Key
+    : Key;
+}>;
 
 export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
   TResultItem,

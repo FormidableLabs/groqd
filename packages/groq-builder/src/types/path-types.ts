@@ -35,12 +35,14 @@ export type PathValue<
   ? T[P]
   : never;
 
-export type PathEntries<
-  TResultItem,
-  Paths extends Path<TResultItem> = Path<TResultItem>
-> = {
-  [P in Paths]: [P, PathValue<TResultItem, P>];
-}[Paths];
+/**
+ * Returns a deeply-flattened type
+ * @example
+ * PathEntries<{ a: { b: "C" } }> === { a: { b: "C" }, "a.b": "C" }
+ */
+export type PathEntries<TResultItem> = {
+  [P in Path<TResultItem>]: PathValue<TResultItem, P>;
+};
 
 type IsAny<T> = unknown extends T
   ? [keyof T] extends [never]
