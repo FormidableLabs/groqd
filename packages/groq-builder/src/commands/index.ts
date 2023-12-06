@@ -1,7 +1,9 @@
 import "./deref";
 import "./filter";
+import "./grab-deprecated";
 import "./order";
 import "./project";
+import "./projectField";
 import "./slice";
 import "./star";
 import "./validate";
