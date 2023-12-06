@@ -1,6 +1,7 @@
 import { describe, it } from "vitest";
-import { ProjectionKey } from "./projection-types";
+import { ProjectionKey, ProjectionKeyValue } from "./projection-types";
 import { expectType } from "../tests/expectType";
+
 describe("projection-types", () => {
   describe("Projection Keys (naked projections)", () => {
     type Item = {
@@ -63,6 +64,39 @@ describe("projection-types", () => {
           | "optional"
           | "optional.str"
         >();
+      });
+    });
+
+    describe("ProjectionKeyValue", () => {
+      it("should extract the correct types for each projection", () => {
+        expectType<ProjectionKeyValue<Item, "str">>().toStrictEqual<string>();
+        expectType<ProjectionKeyValue<Item, "num">>().toStrictEqual<
+          number | undefined
+        >();
+        expectType<ProjectionKeyValue<Item, "arr">>().toStrictEqual<
+          Array<string>
+        >();
+        expectType<ProjectionKeyValue<Item, "arr[]">>().toStrictEqual<
+          Array<string>
+        >();
+        expectType<ProjectionKeyValue<Item, "nested">>().toStrictEqual<
+          Item["nested"]
+        >();
+        expectType<ProjectionKeyValue<Item, "nested.str">>().toStrictEqual<
+          string | undefined
+        >();
+        expectType<
+          ProjectionKeyValue<Item, "nested.bool">
+        >().toStrictEqual<true>();
+        expectType<ProjectionKeyValue<Item, "nested.arr">>().toStrictEqual<
+          Array<number>
+        >();
+        expectType<ProjectionKeyValue<Item, "nested.arr[]">>().toStrictEqual<
+          Array<number>
+        >();
+        // expectType<ProjectionKeyValue<Item, "optional.str">>().toStrictEqual<
+        //   string | undefined
+        // >();
       });
     });
   });
