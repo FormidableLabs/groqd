@@ -1,3 +1,6 @@
+// Ensure these files are imported first, so we can use their implementations:
+import "./project";
+import "./projectField";
 /*
  * For backwards compatibility, we'll keep `grab` and `grabOne` as deprecated aliases:
  */
