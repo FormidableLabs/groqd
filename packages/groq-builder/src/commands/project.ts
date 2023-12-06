@@ -196,13 +196,16 @@ GroqBuilder.implement({
           const query = key === value.query ? key : `"${key}": ${value.query}`;
           return { key, query, parser: value.internal.parser };
         } else if (typeof value === "string") {
-          const query = key === value ? value : `"${key}": ${value}`;
+          const query = key === value ? key : `"${key}": ${value}`;
           return { key, query, parser: null };
         } else if (typeof value === "boolean") {
           if (value === false) return null; // 'false' will be excluded from the results
           return { key, query: key, parser: null };
         } else if (Array.isArray(value)) {
-          const [query, parser] = value as [string, Parser];
+          const [projectionKey, parser] = value as [string, Parser];
+          const query =
+            key === projectionKey ? key : `"${key}": ${projectionKey}`;
+
           return {
             key,
             query,
