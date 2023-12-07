@@ -23,7 +23,6 @@
   "exports": {
     ".": [
       {
-        "import": "./dist/index.mjs",
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },
@@ -31,7 +30,6 @@
     ],
     "./compat": [
       {
-        "import": "./dist/compat.mjs",
         "types": "./dist/compat.d.ts",
         "default": "./dist/compat.js"
       },
