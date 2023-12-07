@@ -10,37 +10,6 @@ const q = createGroqBuilder<SchemaConfig>();
 
 const data = mock.generateSeedData({});
 
-describe("filterBy", () => {
-  const qProduct = q.star.filterBy(`_type == "product"`);
-
-  it("types should be correct", () => {
-    expectType<InferResultType<typeof qProduct>>().toStrictEqual<
-      Array<SanitySchema.Product>
-    >();
-    expectType<InferResultType<typeof qProduct>>().not.toStrictEqual<
-      Array<SanitySchema.Variant>
-    >();
-  });
-
-  it("invalid types should be caught", () => {
-    // @ts-expect-error ---
-    q.star.filterBy(`INVALID == "product"`);
-    // @ts-expect-error ---
-    q.star.filterBy(`_type == "INVALID"`);
-  });
-
-  it("query should be correct", () => {
-    expect(qProduct).toMatchObject({
-      query: `*[_type == "product"]`,
-    });
-  });
-
-  it("should execute correctly", async () => {
-    const results = await executeBuilder(qProduct, data.datalake);
-    expect(results).toEqual(data.products);
-  });
-});
-
 describe("filterByType", () => {
   const qProduct = q.star.filterByType("product");
   it("types should be correct", () => {
