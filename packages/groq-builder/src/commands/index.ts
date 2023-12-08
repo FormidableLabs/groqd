@@ -1,4 +1,5 @@
 import "./deref";
+import "./filter";
 import "./filterByType";
 import "./grab-deprecated";
 import "./order";
