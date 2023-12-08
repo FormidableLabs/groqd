@@ -28,17 +28,18 @@
       },
       "./dist/index.js"
     ],
-    "./compat": [
+    "./validation": [
       {
-        "types": "./dist/compat.d.ts",
-        "default": "./dist/compat.js"
+        "types": "./dist/validation/index.d.ts",
+        "default": "./dist/validation/index.js"
       },
-      "./dist/compat.js"
+      "./dist/validation/index.js"
     ],
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "validation"
   ],
   "scripts": {
     "test:watch": "vitest",
@@ -60,5 +61,8 @@
   },
   "publishConfig": {
     "provenance": true
+  },
+  "dependencies": {
+    "groq-builder": "^0.1.2"
   }
 }

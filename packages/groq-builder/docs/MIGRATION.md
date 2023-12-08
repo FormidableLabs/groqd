@@ -20,7 +20,7 @@ const productQuery = q("*")
 
 #### After
 ```ts
-import { q } from "groq-builder/compat";
+import { q } from "groq-builder/validation";
 
 const productQuery = q.star
   .filterByType("product")

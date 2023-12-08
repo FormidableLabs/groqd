@@ -6,7 +6,7 @@ import "./commands";
 // Export all our public types:
 export * from "./types/public-types";
 export * from "./types/schema-types";
-export { GroqBuilder } from "./groq-builder";
+export { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
 
 type RootResult = never;
 

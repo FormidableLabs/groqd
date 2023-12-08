@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { expectType } from "./tests/expectType";
-import { InferResultType } from "./types/public-types";
+import { expectType } from "../tests/expectType";
+import { InferResultType } from "../types/public-types";
 
-import { q } from "./compat";
+import { createGroqBuilderWithValidation } from "./index";
 
-describe("untyped", () => {
+const q = createGroqBuilderWithValidation<any>();
+
+describe("validation (schema-less)", () => {
   it("filterByType", () => {
     const qFilterByType = q.star.filterByType("ANYTHING");
     expectType<
@@ -12,7 +14,10 @@ describe("untyped", () => {
     >().toStrictEqual<Array<any> | null>();
   });
   it("filterBy", () => {
-    const qFilterBy = q.star.filterBy('key == "value"');
+    const qFilterBy = q.star.filter('key == "value"');
+    const qFilterBy = q.star.filter((q) =>
+      q.field("key").eq(q.literal("value"))
+    );
     expectType<
       InferResultType<typeof qFilterBy>
     >().toStrictEqual<Array<any> | null>();
