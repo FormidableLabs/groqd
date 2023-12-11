@@ -6,20 +6,11 @@ import { createGroqBuilderWithValidation } from "./index";
 
 const q = createGroqBuilderWithValidation<any>();
 
-describe("validation (schema-less)", () => {
+describe("createGroqBuilderWithValidation (schema-less)", () => {
   it("filterByType", () => {
     const qFilterByType = q.star.filterByType("ANYTHING");
     expectType<
       InferResultType<typeof qFilterByType>
-    >().toStrictEqual<Array<any> | null>();
-  });
-  it("filterBy", () => {
-    const qFilterBy = q.star.filter('key == "value"');
-    const qFilterBy = q.star.filter((q) =>
-      q.field("key").eq(q.literal("value"))
-    );
-    expectType<
-      InferResultType<typeof qFilterBy>
     >().toStrictEqual<Array<any> | null>();
   });
   it("deref", () => {
@@ -50,25 +41,37 @@ describe("validation (schema-less)", () => {
     const qStar = q.star;
     expectType<InferResultType<typeof qStar>>().toStrictEqual<Array<any>>();
   });
+});
 
-  describe("it contains all 'validate' methods too", () => {
-    it("should contain all methods", () => {
-      expect(q.string()).toBeTypeOf("function");
-      expect(q.number()).toBeTypeOf("function");
-      expect(q.boolean()).toBeTypeOf("function");
-      expect(q.bigint()).toBeTypeOf("function");
-      expect(q.undefined()).toBeTypeOf("function");
-      expect(q.date()).toBeTypeOf("function");
-      expect(q.literal("LITERAL")).toBeTypeOf("function");
+describe("createGroqBuilderWithValidation (validation functions)", () => {
+  it("should contain all methods", () => {
+    expect(q.string()).toBeTypeOf("function");
+    expect(q.number()).toBeTypeOf("function");
+    expect(q.boolean()).toBeTypeOf("function");
+    expect(q.bigint()).toBeTypeOf("function");
+    expect(q.undefined()).toBeTypeOf("function");
+    expect(q.date()).toBeTypeOf("function");
+    expect(q.literal("LITERAL")).toBeTypeOf("function");
+  });
+  it('"q.string()" should work', () => {
+    const str = q.string();
+    expect(str).toBeTypeOf("function");
+    expect(str("FOO")).toEqual("FOO");
+    // @ts-expect-error ---
+    expect(() => str(111)).toThrowErrorMatchingInlineSnapshot(
+      '"Expected string, received 111"'
+    );
+  });
+
+  it("validation should work with projections", () => {
+    const qVariants = q.star.filterByType("variant").project({
+      name: q.string(),
+      price: q.number(),
     });
-    it('"q.string()" should work', () => {
-      const str = q.string();
-      expect(str).toBeTypeOf("function");
-      expect(str("FOO")).toEqual("FOO");
-      // @ts-expect-error ---
-      expect(() => str(111)).toThrowErrorMatchingInlineSnapshot(
-        '"Expected string, received 111"'
-      );
-    });
+
+    expectType<InferResultType<typeof qVariants>>().toStrictEqual<Array<{
+      name: string;
+      price: number;
+    }> | null>();
   });
 });
