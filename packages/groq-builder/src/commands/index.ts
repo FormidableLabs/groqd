@@ -6,5 +6,6 @@ import "./order";
 import "./project";
 import "./projectField";
 import "./slice";
+import "./slug";
 import "./star";
 import "./validate";

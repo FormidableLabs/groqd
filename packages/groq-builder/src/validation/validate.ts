@@ -37,16 +37,15 @@ export function createOptionalParser<TInput, TOutput>(
 }
 
 export const validate = {
-  literal<T>(literal: T) {
-    return createOptionalParser<T, T>((input) => {
+  literal: <T>(literal: T) =>
+    createOptionalParser<T, T>((input) => {
       if (input === literal) {
         return input;
       }
       throw new TypeError(
         `Expected ${inspect(literal)}, received ${inspect(input)}`
       );
-    });
-  },
+    }),
   date: memo(() =>
     createOptionalParser<string, Date>((input) => {
       if (typeof input === "string") {
