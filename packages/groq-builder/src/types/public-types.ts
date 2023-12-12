@@ -6,6 +6,18 @@ export type Parser<TInput = any, TOutput = any> =
   | ParserObject<TInput, TOutput>
   | ParserFunction<TInput, TOutput>;
 
+export type InferParserInput<TParser extends Parser> = TParser extends Parser<
+  infer TInput
+>
+  ? TInput
+  : never;
+export type InferParserOutput<TParser extends Parser> = TParser extends Parser<
+  any,
+  infer TOutput
+>
+  ? TOutput
+  : never;
+
 /**
  * A generic "parser" which can take any input and output a parsed type.
  * This signature is compatible with Zod.

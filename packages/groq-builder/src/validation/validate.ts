@@ -1,4 +1,11 @@
-import { ParserFunction } from "../types/public-types";
+import {
+  InferParserInput,
+  InferParserOutput,
+  Parser,
+  ParserFunction,
+} from "../types/public-types";
+import { normalizeValidationFunction } from "../commands/validate-utils";
+import { ValidationErrors } from "./validation-errors";
 
 function memo<T extends () => any>(fn: T): T {
   let result: ReturnType<T>;
@@ -57,6 +64,70 @@ export const validate = {
       throw new TypeError(`Expected date, received ${inspect(input)}`);
     })
   ),
+
+  object: <TMap extends Record<string, Parser>>(map: TMap) => {
+    const keys = Object.keys(map) as Array<any>;
+    const normalized = keys.map((key) => [
+      key,
+      normalizeValidationFunction(map[key]),
+    ]);
+
+    type ObjectInput = {
+      [P in keyof TMap]: InferParserInput<TMap[P]>;
+    };
+    type ObjectOutput = {
+      [P in keyof TMap]: InferParserOutput<TMap[P]>;
+    };
+
+    return createOptionalParser<ObjectInput, ObjectOutput>((input) => {
+      if (input === null || typeof input !== "object") {
+        throw new TypeError(`Expected an object, received ${inspect(input)}`);
+      }
+
+      const validationErrors = new ValidationErrors();
+
+      const result: any = {};
+      for (const [key, parse] of normalized) {
+        const value = input[key];
+        try {
+          result[key] = parse(value);
+        } catch (err) {
+          validationErrors.add(key, value, err as Error);
+        }
+      }
+
+      if (validationErrors.length) throw validationErrors;
+      return result;
+    });
+  },
+
+  array: <TParser extends Parser>(
+    itemParser: TParser
+  ): ParserFunction<
+    Array<InferParserInput<TParser>>,
+    Array<InferParserOutput<TParser>>
+  > => {
+    const normalizer = normalizeValidationFunction(itemParser);
+    return createOptionalParser((input) => {
+      if (!Array.isArray(input)) {
+        throw new TypeError(`Expected array, received ${inspect(input)}`);
+      }
+
+      const validationErrors = new ValidationErrors();
+      const results = input.map((value, i) => {
+        try {
+          return normalizer(value);
+        } catch (err) {
+          validationErrors.add(`[${i}]`, value, err as Error);
+          return null;
+        }
+      });
+
+      if (validationErrors.length) throw validationErrors;
+
+      return results;
+    });
+  },
 
   string: memo(() => createOptionalParser(typeValidator("string"))),
   boolean: memo(() => createOptionalParser(typeValidator("boolean"))),

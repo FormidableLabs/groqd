@@ -125,7 +125,7 @@ GroqBuilder.implement({
             return parsedResult;
           });
 
-          if (validationErrors.errors.length) {
+          if (validationErrors.length) {
             throw validationErrors;
           }
 

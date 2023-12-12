@@ -7,7 +7,7 @@ export type ErrorDetails = {
 export class ValidationErrors extends TypeError {
   constructor(
     message = "Validation Errors",
-    public errors: ErrorDetails[] = []
+    protected errors: ErrorDetails[] = []
   ) {
     super(message);
     this.name = "ValidationErrors";
@@ -22,6 +22,10 @@ export class ValidationErrors extends TypeError {
     } else {
       this.errors.push({ path, value, error });
     }
+  }
+
+  public get length() {
+    return this.errors.length;
   }
 
   /**
