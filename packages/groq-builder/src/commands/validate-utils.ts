@@ -32,10 +32,10 @@ export function isParserObject(
 }
 
 export function normalizeValidationFunction(parser: Parser): ParserFunction {
+  if (typeof parser === "function") return parser;
   if (isParserObject(parser)) {
     return (input) => parser.parse(input);
   }
-  if (typeof parser === "function") return parser;
 
   throw new TypeError(`Parser must be a function or an object`);
 }

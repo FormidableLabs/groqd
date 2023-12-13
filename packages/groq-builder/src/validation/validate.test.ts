@@ -73,158 +73,102 @@ describe("validate", () => {
   });
 
   describe("object", () => {
-    const objParser = validate.object({
-      str: validate.string(),
-      strOpt: validate.string().optional(),
-      num: validate.number(),
-      nested: validate.object({
-        bool: validate.boolean(),
-      }),
-    });
-
-    type Expected = {
-      str: string;
-      strOpt: string | null | undefined;
-      num: number;
-      nested: {
-        bool: boolean;
-      };
+    type ExpectedType = {
+      foo: "FOO";
     };
+
+    const objParser = validate.object<ExpectedType>();
 
     it("should have the correct type", () => {
       expectType<
         InferParserInput<typeof objParser>
-      >().toStrictEqual<Expected>();
+      >().toStrictEqual<ExpectedType>();
       expectType<
         InferParserOutput<typeof objParser>
-      >().toStrictEqual<Expected>();
+      >().toStrictEqual<ExpectedType>();
 
       const opt = objParser.optional();
       expectType<InferParserInput<typeof opt>>().toStrictEqual<
-        Expected | undefined | null
+        ExpectedType | undefined | null
       >();
       expectType<InferParserOutput<typeof opt>>().toStrictEqual<
-        Expected | undefined | null
+        ExpectedType | undefined | null
       >();
     });
 
     it("should successfully pass valid input", () => {
-      const valid: Expected = {
-        str: "string",
-        strOpt: null,
-        num: 5,
-        nested: { bool: true },
-      };
+      const valid: ExpectedType = { foo: "FOO" };
       expect(objParser(valid)).toEqual(valid);
-      expect(objParser(valid)).not.toBe(valid);
+      expect(objParser(valid)).toBe(valid);
     });
 
-    it("should throw errors for invalid data", () => {
-      const invalid = {
-        str: null,
-        strOpt: 999,
-        num: "hey",
-        nested: { foo: true },
-      };
-
+    it("should pass-through any object", () => {
+      const invalidObject = { INVALID: true };
       expect(
         // @ts-expect-error ---
-        improveErrorMessage(() => objParser(invalid))
-      ).toThrowErrorMatchingInlineSnapshot(`
-        "4 Parsing Errors:
-        result.str: Expected string, received null
-        result.strOpt: Expected string, received 999
-        result.num: Expected number, received \\"hey\\"
-        result.nested.bool: Expected boolean, received undefined"
-      `);
+        objParser(invalidObject)
+      ).toEqual(invalidObject);
+    });
 
+    it("should throw errors for non-objects", () => {
+      expect(
+        // @ts-expect-error ---
+        improveErrorMessage(() => objParser(null))
+      ).toThrowErrorMatchingInlineSnapshot(
+        '"Expected an object, received null"'
+      );
       expect(
         // @ts-expect-error ---
         improveErrorMessage(() => objParser(123))
       ).toThrowErrorMatchingInlineSnapshot(
         '"Expected an object, received 123"'
       );
-    });
-
-    describe("with different inputs and outputs", () => {
-      const mapper = validate.object({
-        stringToNumber: (input: string) => Number(input),
-        numberToString: (input: number) => String(input),
-        stringToLiteral: (input: string) => input as "LITERAL",
-      });
-      type ExpectedInput = {
-        stringToNumber: string;
-        numberToString: number;
-        stringToLiteral: string;
-      };
-      type ExpectedOutput = {
-        stringToNumber: number;
-        numberToString: string;
-        stringToLiteral: "LITERAL";
-      };
-
-      it("types should be correct", () => {
-        expectType<
-          InferParserInput<typeof mapper>
-        >().toStrictEqual<ExpectedInput>();
-        expectType<
-          InferParserOutput<typeof mapper>
-        >().toStrictEqual<ExpectedOutput>();
-      });
-
-      it("should map data correctly", () => {
-        expect(
-          mapper({
-            stringToNumber: "123",
-            numberToString: 456,
-            stringToLiteral: "FOO",
-          })
-        ).toEqual({
-          stringToNumber: 123,
-          numberToString: "456",
-          stringToLiteral: "FOO",
-        });
-      });
+      expect(
+        // @ts-expect-error ---
+        improveErrorMessage(() => objParser("string"))
+      ).toThrowErrorMatchingInlineSnapshot(
+        '"Expected an object, received \\"string\\""'
+      );
     });
   });
 
   describe("array", () => {
-    const arrParser = validate.array(validate.number());
+    const arrParser = validate.array<number[]>();
 
     it("should ensure the input was an array", () => {
       expect(
         // @ts-expect-error ---
         improveErrorMessage(() => arrParser({}))
       ).toThrowErrorMatchingInlineSnapshot(
-        '"Expected array, received an object"'
+        '"Expected an array, received an object"'
       );
       expect(
         // @ts-expect-error ---
         improveErrorMessage(() => arrParser(null))
-      ).toThrowErrorMatchingInlineSnapshot('"Expected array, received null"');
+      ).toThrowErrorMatchingInlineSnapshot(
+        '"Expected an array, received null"'
+      );
     });
 
-    it("should ensure all items are valid", () => {
+    it("returns valid input", () => {
       const numbers = [1, 2, 3];
+
       expect(arrParser(numbers)).toEqual(numbers);
-      expect(arrParser(numbers)).not.toBe(numbers);
     });
 
-    it("should fail for invalid items", () => {
+    it("does not check invalid items", () => {
       const invalid = [1, "2", "3"];
       expect(
-        // @ts-expect-error ---
-        improveErrorMessage(() => arrParser(invalid))
-      ).toThrowErrorMatchingInlineSnapshot(`
-        "2 Parsing Errors:
-        result[1]: Expected number, received \\"2\\"
-        result[2]: Expected number, received \\"3\\""
-      `);
+        arrParser(
+          // @ts-expect-error ---
+          invalid
+        )
+      ).toEqual(invalid);
     });
   });
 });
 
-function improveErrorMessage(cb: () => void) {
+export function improveErrorMessage(cb: () => void) {
   return () => {
     try {
       cb();
