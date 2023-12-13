@@ -4,8 +4,11 @@ import {
   RootConfig,
   GroqBuilderOptions,
 } from "../index";
+import { sanityValidators } from "./content-block";
 
 export * from "../index";
+export { primitives } from "./primitives";
+export { sanityValidators } from "./content-block";
 
 export function createGroqBuilderWithValidation<TRootConfig extends RootConfig>(
   options?: GroqBuilderOptions
@@ -15,4 +18,5 @@ export function createGroqBuilderWithValidation<TRootConfig extends RootConfig>(
 
 export const validate = {
   ...primitives,
+  ...sanityValidators,
 };

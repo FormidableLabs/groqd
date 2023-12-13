@@ -52,6 +52,10 @@ describe("createGroqBuilderWithValidation (validation functions)", () => {
     expect(q.undefined()).toBeTypeOf("function");
     expect(q.date()).toBeTypeOf("function");
     expect(q.literal("LITERAL")).toBeTypeOf("function");
+    expect(q.object()).toBeTypeOf("function");
+    expect(q.array()).toBeTypeOf("function");
+    expect(q.contentBlock()).toBeTypeOf("function");
+    expect(q.contentBlocks()).toBeTypeOf("function");
   });
   it('"q.string()" should work', () => {
     const str = q.string();

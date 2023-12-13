@@ -110,6 +110,17 @@ export class MockFactory {
     };
   }
 
+  contentBlock(
+    data: Partial<SanitySchema.ContentBlock>
+  ): SanitySchema.ContentBlock {
+    return {
+      _type: "block",
+      _key: "",
+      children: [{ _type: "span", _key: "", text: "", marks: [] }],
+      ...data,
+    };
+  }
+
   // Entire datasets:
   generateSeedData({
     categories = this.array(10, (i) =>

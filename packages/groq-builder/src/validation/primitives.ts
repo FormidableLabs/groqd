@@ -52,7 +52,7 @@ export const primitives = {
  * Super-simple function memoizer; does not support args
  * @param fn
  */
-function memo<T extends () => any>(fn: T): T {
+export function memo<T extends () => any>(fn: T): T {
   let result: ReturnType<T>;
   return (() => result || (result = fn())) as T;
 }

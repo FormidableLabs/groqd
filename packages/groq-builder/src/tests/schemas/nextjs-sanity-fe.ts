@@ -23,6 +23,8 @@ export namespace SanitySchema {
   export type Variant = PromoteType<SanitySchemaGenerated["variant"]>;
   export type SiteSettings = PromoteType<SanitySchemaGenerated["siteSettings"]>;
 
+  export type ContentBlock = NonNullable<Variant["description"]>[0];
+
   type PromoteType<T extends { _type: string }> = {
     _type: T["_type"];
   } & Simplify<Omit<T, "_type">>;
