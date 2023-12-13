@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validate } from "../validation/validate";
+import { validate } from "../validation";
 import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";

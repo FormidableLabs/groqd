@@ -1,6 +1,6 @@
 import { ParserFunction } from "../types/public-types";
 
-export const validate = {
+export const primitives = {
   string: memo(() => createTypeValidator("string")),
   boolean: memo(() => createTypeValidator("boolean")),
   number: memo(() => createTypeValidator("number")),
@@ -31,25 +31,27 @@ export const validate = {
     })
   ),
 
-  object: memo(<TObject extends object>() =>
+  object: <TObject extends object>() =>
     createOptionalParser<TObject, TObject>((input) => {
       if (typeof input !== "object" || input === null) {
         throw new TypeError(`Expected an object, received ${inspect(input)}`);
       }
       return input;
-    })
-  ),
+    }),
 
-  array: memo(<TArray extends Array<any>>() =>
+  array: <TArray extends Array<any>>() =>
     createOptionalParser<TArray, TArray>((input) => {
       if (!Array.isArray(input)) {
         throw new TypeError(`Expected an array, received ${inspect(input)}`);
       }
       return input;
-    })
-  ),
+    }),
 };
 
+/**
+ * Super-simple function memoizer; does not support args
+ * @param fn
+ */
 function memo<T extends () => any>(fn: T): T {
   let result: ReturnType<T>;
   return (() => result || (result = fn())) as T;

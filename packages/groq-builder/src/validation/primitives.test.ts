@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { validate } from "./validate";
+import { validate } from "./index";
 import { expectType } from "../tests/expectType";
 import { InferParserInput, InferParserOutput } from "../types/public-types";
 import { ValidationErrors } from "./validation-errors";
 
-describe("validate", () => {
+describe("primitives", () => {
   it("string", () => {
     const str = validate.string();
 
