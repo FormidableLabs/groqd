@@ -49,7 +49,7 @@ export const primitives = {
 };
 
 /**
- * Super-simple function memoizer; does not support args
+ * Simple function memoizer; does not support args, must return truthy
  * @param fn
  */
 export function memo<T extends () => any>(fn: T): T {
@@ -57,14 +57,21 @@ export function memo<T extends () => any>(fn: T): T {
   return (() => result || (result = fn())) as T;
 }
 
+/**
+ * Pretty-prints the value
+ */
 export function inspect(value: unknown): string {
   if (value) {
-    if (Array.isArray(value)) return "an Array";
+    if (Array.isArray(value)) return "an array";
     if (typeof value === "object") return "an object";
   }
   return JSON.stringify(value);
 }
 
+/**
+ * Extends the parsing function with an `.optional()` extension,
+ * which allows null/undefined values.
+ */
 export function createOptionalParser<TInput, TOutput>(
   check: ParserFunction<TInput, TOutput>
 ): OptionalParser<TInput, TOutput> {

@@ -1,5 +1,6 @@
 import type { RootConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
+import { ButFirst } from "./types/utils";
 
 import "./commands";
 
@@ -36,10 +37,3 @@ export function makeSafeQueryRunner<
     return parsed;
   };
 }
-
-/**
- * Excludes the first item in a tuple
- */
-type ButFirst<T extends Array<any>> = T extends [any, ...infer Rest]
-  ? Rest
-  : never;

@@ -96,3 +96,10 @@ export type EntriesOf<T> = {
  * Excludes symbol and number from keys, so that you only have strings.
  */
 export type StringKeys<T> = Exclude<T, symbol | number>;
+
+/**
+ * Excludes the first item in a tuple
+ */
+export type ButFirst<T extends Array<any>> = T extends [any, ...infer Rest]
+  ? Rest
+  : never;
