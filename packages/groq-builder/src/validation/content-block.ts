@@ -1,5 +1,15 @@
 import { memo, primitives } from "./primitives";
 
+export const sanityValidators = {
+  contentBlock: memo(<
+    TConfig extends ContentBlockConfig = ContentBlockConfig
+  >() => primitives.object<ContentBlock<TConfig>>()),
+
+  contentBlocks: memo(<
+    TConfig extends ContentBlockConfig = ContentBlockConfig
+  >() => primitives.array<Array<ContentBlock<TConfig>>>()),
+};
+
 export type ContentBlocks<
   TConfig extends ContentBlockConfig = ContentBlockConfig
 > = Array<ContentBlock<TConfig>>;
@@ -20,14 +30,4 @@ export type ContentBlock<
 } & TConfig;
 export type ContentBlockConfig = {
   markDefs?: Array<{ _type: string; _key: string }>;
-};
-
-export const sanityValidators = {
-  contentBlock: memo(<
-    TConfig extends ContentBlockConfig = ContentBlockConfig
-  >() => primitives.object<ContentBlock<TConfig>>()),
-
-  contentBlocks: memo(<
-    TConfig extends ContentBlockConfig = ContentBlockConfig
-  >() => primitives.array<Array<ContentBlock<TConfig>>>()),
 };

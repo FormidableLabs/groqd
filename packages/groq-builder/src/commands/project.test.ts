@@ -210,7 +210,7 @@ describe("project (object projections)", () => {
 
   describe("a single complex project", () => {
     const qComplex = qVariants.project((q) => ({
-      NAME: q.projectField("name"),
+      NAME: q.field("name"),
     }));
 
     it("query should be correct", () => {
@@ -253,9 +253,9 @@ describe("project (object projections)", () => {
 
   describe("multiple complex projections", () => {
     const qComplex = qVariants.project((q) => ({
-      name: q.projectField("name"),
-      slug: q.projectField("slug").projectField("current"),
-      images: q.projectField("images[]").projectField("name"),
+      name: q.field("name"),
+      slug: q.field("slug").field("current"),
+      images: q.field("images[]").field("name"),
     }));
 
     it("query should be correct", () => {
@@ -316,8 +316,8 @@ describe("project (object projections)", () => {
       ],
     });
     const qNested = qVariants.project((variant) => ({
-      name: variant.projectField("name"),
-      images: variant.projectField("images[]").project((image) => ({
+      name: variant.field("name"),
+      images: variant.field("images[]").project((image) => ({
         name: true,
         description: image
           .projectField("description")
@@ -393,9 +393,9 @@ describe("project (object projections)", () => {
   describe("mixed projections", () => {
     const qComplex = qVariants.project((q) => ({
       name: true,
-      slug: q.projectField("slug").projectField("current"),
+      slug: q.field("slug").field("current"),
       price: true,
-      IMAGES: q.projectField("images[]").projectField("name"),
+      IMAGES: q.field("images[]").field("name"),
     }));
 
     it("query should be correct", () => {
@@ -457,8 +457,8 @@ describe("project (object projections)", () => {
   describe("validate", () => {
     const qParser = qVariants.project((q) => ({
       name: true,
-      msrp: q.projectField("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.projectField("price").validate(validate.number()),
+      msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
+      price: q.field("price").validate(validate.number()),
     }));
 
     it("the types should match", () => {
@@ -528,7 +528,7 @@ describe("project (object projections)", () => {
   describe("ellipsis ... operator", () => {
     const qEllipsis = qVariants.project((q) => ({
       "...": true,
-      OTHER: q.projectField("name"),
+      OTHER: q.field("name"),
     }));
     it("query should be correct", () => {
       expect(qEllipsis.query).toMatchInlineSnapshot(

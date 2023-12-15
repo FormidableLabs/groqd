@@ -8,7 +8,7 @@ declare module "../groq-builder" {
      * Performs a "naked projection", returning just the values of the field specified.
      * @param fieldName
      */
-    projectField<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
+    field<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
       ResultOverride<
@@ -17,11 +17,16 @@ declare module "../groq-builder" {
       >,
       TRootConfig
     >;
+
+    /** @deprecated Please use the 'field' method for naked projections */
+    projectField: never;
+    /** @deprecated Please use the 'field' method for naked projections */
+    projectNaked: never;
   }
 }
 
 GroqBuilder.implement({
-  projectField(this: GroqBuilder, fieldName: string) {
+  field(this: GroqBuilder, fieldName: string) {
     if (this.internal.query) {
       fieldName = "." + fieldName;
     }

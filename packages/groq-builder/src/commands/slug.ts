@@ -12,15 +12,13 @@ declare module "../groq-builder" {
 }
 GroqBuilder.implement({
   slug(this: GroqBuilder, fieldName) {
-    return this.projectField(`${fieldName}.current` as never).validate(
-      (input) => {
-        if (typeof input !== "string")
-          throw new TypeError(
-            `Expected a string for '${fieldName}.current' but got ${input}`
-          );
-        return input;
-      }
-    );
+    return this.field(`${fieldName}.current` as never).validate((input) => {
+      if (typeof input !== "string")
+        throw new TypeError(
+          `Expected a string for '${fieldName}.current' but got ${input}`
+        );
+      return input;
+    });
   },
 });
 

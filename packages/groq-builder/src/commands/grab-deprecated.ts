@@ -19,15 +19,15 @@ declare module "../groq-builder" {
      * */
     grab$: GroqBuilder<TResult, TRootConfig>["project"];
     /**
-     * This method has been renamed to 'projectField' and will be removed in a future version.
+     * This method has been renamed to 'field' and will be removed in a future version.
      * @deprecated
      * */
-    grabOne: GroqBuilder<TResult, TRootConfig>["projectField"];
+    grabOne: GroqBuilder<TResult, TRootConfig>["field"];
     /**
-     * This method has been renamed to 'projectField' and will be removed in a future version.
+     * This method has been renamed to 'field' and will be removed in a future version.
      * @deprecated
      * */
-    grabOne$: GroqBuilder<TResult, TRootConfig>["projectField"];
+    grabOne$: GroqBuilder<TResult, TRootConfig>["field"];
   }
 }
 GroqBuilder.implement({
@@ -41,14 +41,14 @@ GroqBuilder.implement({
       "'grab$' has been renamed to 'project' and will be removed in a future version"
     );
   }),
-  grabOne: deprecated<any>(GroqBuilder.prototype.projectField, () => {
+  grabOne: deprecated<any>(GroqBuilder.prototype.field, () => {
     console.warn(
-      "'grabOne' has been renamed to 'projectField' and will be removed in a future version"
+      "'grabOne' has been renamed to 'field' and will be removed in a future version"
     );
   }),
-  grabOne$: deprecated<any>(GroqBuilder.prototype.projectField, () => {
+  grabOne$: deprecated<any>(GroqBuilder.prototype.field, () => {
     console.warn(
-      "'grabOne$' has been renamed to 'projectField' and will be removed in a future version"
+      "'grabOne$' has been renamed to 'field' and will be removed in a future version"
     );
   }),
 });

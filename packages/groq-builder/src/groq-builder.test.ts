@@ -22,20 +22,20 @@ describe("GroqBuilder", () => {
       .grab((q) => ({
         _id: true,
         name: true,
-        categories: q.projectField("categories[]").deref().grab({
+        categories: q.field("categories[]").deref().grab({
           name: true,
         }),
-        slug: q.projectField("slug").projectField("current"),
+        slug: q.field("slug").field("current"),
         variants: q
-          .projectField("variants[]")
+          .field("variants[]")
           .deref()
           .grab((q) => ({
             _id: true,
             name: true,
             msrp: true,
             price: true,
-            slug: q.projectField("slug").projectField("current"),
-            style: q.projectField("style[]").deref().grab({
+            slug: q.field("slug").field("current"),
+            style: q.field("style[]").deref().grab({
               _id: true,
               name: true,
             }),
