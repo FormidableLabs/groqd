@@ -61,8 +61,5 @@
   },
   "publishConfig": {
     "provenance": true
-  },
-  "dependencies": {
-    "groq-builder": "^0.1.2"
   }
 }
