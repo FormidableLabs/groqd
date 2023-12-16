@@ -1,26 +1,25 @@
-
 # Migrating from GroqD v0.x to Groq-Builder v0.x 
+<!-- TODO: rename `Groq-Builder v0.x` to `groqd v1` throughout this document -->
 
-## Fundamental differences
+## Minimal Migration Example
 
-With `GroqD v0.x`, we use Zod to validate our queries at runtime.
-
-With `groq-builder`, <!-- TODO: replace this with `groqd v1` -->
-by adding a strongly-typed Sanity schema, we can validate our queries at compile-time.  Runtime validation is now optional, and we no longer bundle Zod.
-
-## Simple migration example
+Migrating from `groqd` to `groq-builder` is straightforward, since there are few API changes.
+Here's an example of a simple `groqd` query, and the **minimum** changes required to migrate to `groq-builder`:
 
 #### Before, with `groqd`
 
 ```ts
 import { q } from "groqd";
 
-const productQuery = q("*")
+const productsQuery = q("*")
   .filterByType("product")
+  .order('price asc')
+  .slice(0, 10)
   .grab({
     name: q.string(),
     price: q.number(),
-    slug: ["slug.current", q.string().optional()]
+    slug: ["slug.current", q.string().optional()],
+    image: q("image").deref(),
   });
 ```
 
@@ -30,31 +29,114 @@ const productQuery = q("*")
 import { createGroqBuilderWithValidation } from "groq-builder/validation";
 const q = createGroqBuilderWithValidation<any>(); // Using 'any' makes the query schema-unaware 
 
-const productQuery = q.star
+const productsQuery = q.star
   .filterByType("product")
+  .order('price asc')
+  .slice(0, 10)
   .grab({
     name: q.string(),
     price: q.number(),
-    slug: [ "slug.current", q.string().optional() ],
+    slug: ["slug.current", q.string().optional()],
+    image: q.field("image").deref(),
   });
 ```
 
-To make migration as easy as possible, the `groq-builder/validation` path includes simple Zod-like validation methods, like `q.string()`.
+In this minimal example, we made 3 changes:
+1. We created the root `q` object, binding it to a schema (or `any` to keep it schema-unaware).
+2. We changed `q("*")` to `q.star`
+3. We changed `q("image")` to `q.field("image")`
 
-In this simple example, migration only required 2 changes:
-1. Create the root `q`, setting the schema to `any`
-2. Change `q("*")` to `q.star`
+Keep reading for a deeper explanation of these changes.
 
-## Important differences
+## Step 1: Creating the root `q` object
 
-### `q("...")`
-In GroqD, `q` is a function that accepts any Groq query.  
-In `groq-builder`, `q` must be chained to form a query.
+```ts
+// src/queries/q.ts
+import { createGroqBuilder } from 'groq-builder';
+type SchemaConfig = any;
+export const q = createGroqBuilder<SchemaConfig>();
+```
 
-These are the most common changes needed:
-- `q("*")` becomes `q.star`
-- `q("fieldName")` becomes `q.field("fieldName")`
+By creating the root `q` this way, we're able to bind it to our `SchemaConfig`.  
+By using `any` for now, our `q` will be schema-unaware (same as `groqd`).  
+Later, we'll show you how to change this to a strongly-typed schema.
 
+
+## Step 2: Replacing the `q("...")` method
+
+This is the biggest API change. 
+With `groqd`, the root `q` was a function that allowed any Groq string to be passed.
+With `groq-builder`, all queries must be chained, using the type-safe methods.
+
+The 2 most common changes needed will be changing all `q("*")` into `q.star`, and changing projections from `q("name")` to `q.field("name")`.
+
+For example:
+```ts
+// Before:
+q("*").grab({
+  imageUrl: q("image"),
+});
+
+// After:
+q.star.grab({
+  imageUrl: q.field("image"),
+})
+```
+
+If you do have more complex query logic inside a `q("...")` function, you should refactor to use chainable methods.  
+However, if you cannot refactor at this time, you can use the `chain` method instead:
+
+## Step 3. An escape hatch: the `chain` method
+
+Not all Groq queries can be strongly-typed. Sometimes you need an escape hatch; a way to write a query, and manually specify the result type.
+The `chain` method does this by accepting any `groq` string, and requiring you to specify the result type.  For example:
+
+```ts
+q.chain<{ itemCount: number }>(`
+  { 
+    "itemCount": count(*[_type === "item"])
+  }
+`);
+```
+
+Ideally, you could refactor this to be strongly-typed, but you might use the escape hatch for unsupported features, or for difficult-to-type queries.
+
+
+## Adding a Strongly Typed Schema
+
+With `GroqD v0.x`, we use Zod to define the shape of our queries, and validate this shape at runtime.
+
+With `groq-builder`, by [adding a strongly-typed Sanity schema](./README.md#schema-configuration), we can validate our queries at compile-time too. This makes our queries:
+
+- Easier to write (provides auto-complete)
+- Safer to write (all commands are type-checked, all fields are verified)
+- Faster to execute (because runtime validation is now optional)
+
+For example, by passing `true` in place of our validation methods, we skip the runtime validation checks:
+```ts
+const productsQuery = q.star
+  .filterByType("product")
+  .project({
+    name: true,
+    price: true,
+    slug: "slug.current",
+  });
+```
+
+Since `q` is bound to our Sanity schema, it knows the types of the product's `name`, `price`, and `slug`, so it outputs a strongly-typed result.  And since we trust our Sanity schema, we can skip the overhead of runtime checks.
+
+
+
+
+## Additional Improvements
+
+### Migrating from `grab -> project` and `grabOne-> field`
+
+First off, Sanity's documentation uses the word "projection" to refer to grabbing specific fields, so we have renamed the `grab` method to `project` (pronounced pruh-JEKT, if that helps). It also uses the phrase "naked projection" to refer to grabbing a single field, but to keep things terse, we've renamed `grabOne` to `field`.  So we recommend migrating from `grab` to `project`, and from `grabOne` to `field`.
+
+Regarding `grab$` and `grabOne$`, these 2 variants were needed to improve compatibility with Zod's `.optional()` utility. But the `project` and `field` methods work just fine with the built-in validation functions (like `q.string().optional()`).
+
+The `grab`, `grabOne`, `grab$`, and `grabOne$` methods still exist, but have been deprecated, and should be replaced with the `project` and `field` methods. 
 
 ### `q.select(...)`
 This is not yet supported by `groq-builder`.  
@@ -63,25 +145,5 @@ This is not yet supported by `groq-builder`.
 
 Most validation methods, like `q.string()` or `q.number()`, are no longer powered by Zod, but they work just the same.  Use Zod if you want to have extra validation logic, like email validation, ranges etc.
 
-Some validation methods, like `q.object()` and `q.array()`, are much simpler than the Zod version.  These check that the data is an `object` or an `Array`, but do NOT check the shape of the data.  Use Zod to validate an object's shape, or the items inside an Array.
+Some validation methods, like `q.object()` and `q.array()`, are much simpler than the Zod version.  These check that the data is an `object` or an `array`, but do NOT check the shape of the data.  Use Zod to validate an object's shape, or the items inside an Array.
 
-
-### Upgrading to use a strongly-typed schema 
-```ts
-import { createGroqBuilder } from "groq-builder";
-import { MySanityConfig } from "./my-sanity-config";
-const q = createGroqBuilder<MySanityConfig>();
-
-const productQuery = q.star
-  .filterByType("product")
-  .project({
-    name: true,
-    price: true,
-    slug: "slug.current",
-  });
-```
-Note the following changes:
-1. `grab` was renamed to `project`
-2. We do not need to explicitly specify the types for `name`, `price`, or `slug.current`; these are all inferred from the Sanity Schema.
-
-The output type is exactly the same as before.  However, we no longer have runtime validation; we now rely on the schema configuration during compile time.
