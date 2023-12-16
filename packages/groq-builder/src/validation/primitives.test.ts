@@ -4,7 +4,7 @@ import { expectType } from "../tests/expectType";
 import { InferParserInput, InferParserOutput } from "../types/public-types";
 import { ValidationErrors } from "./validation-errors";
 
-describe("primitives", () => {
+describe("primitiveValidators", () => {
   it("string", () => {
     const str = validate.string();
 

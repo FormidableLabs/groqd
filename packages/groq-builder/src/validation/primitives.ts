@@ -1,6 +1,6 @@
 import { ParserFunction } from "../types/public-types";
 
-export const primitives = {
+export const primitiveValidators = {
   string: memo(() => createTypeValidator("string")),
   boolean: memo(() => createTypeValidator("boolean")),
   number: memo(() => createTypeValidator("number")),

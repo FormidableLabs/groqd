@@ -1,22 +1,14 @@
-import { primitives } from "./primitives";
-import {
-  createGroqBuilder as _createGroqBuilder,
-  RootConfig,
-  GroqBuilderOptions,
-} from "../index";
-import { sanityValidators } from "./content-block";
+import { primitiveValidators } from "./primitives";
+import { createGroqBuilder, RootConfig, GroqBuilderOptions } from "../index";
+import { sanityValidators } from "./sanity";
 
-export * from "../index";
-export { primitives } from "./primitives";
-export { sanityValidators } from "./content-block";
+export const validate = {
+  ...primitiveValidators,
+  ...sanityValidators,
+};
 
 export function createGroqBuilderWithValidation<TRootConfig extends RootConfig>(
   options?: GroqBuilderOptions
 ) {
-  return Object.assign(_createGroqBuilder<TRootConfig>(options), validate);
+  return Object.assign(createGroqBuilder<TRootConfig>(options), validate);
 }
-
-export const validate = {
-  ...primitives,
-  ...sanityValidators,
-};

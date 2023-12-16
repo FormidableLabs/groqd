@@ -1,16 +1,26 @@
-import type { RootConfig } from "./types/schema-types";
+// Be sure to keep these 2 imports in the correct order:
 import { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
-import { ButFirst } from "./types/utils";
-
 import "./commands";
+
+import type { RootConfig } from "./types/schema-types";
+import type { ButFirst } from "./types/utils";
 
 // Export all our public types:
 export * from "./types/public-types";
 export * from "./types/schema-types";
 export { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
+export { validate, createGroqBuilderWithValidation } from "./validation";
 
 type RootResult = never;
 
+/**
+ * Creates the root `q` query builder.
+ *
+ * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
+ * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
+ *
+ * @param options - Allows you to specify if you want indentation added to the final query. Useful for debugging.  Defaults to none.
+ */
 export function createGroqBuilder<TRootConfig extends RootConfig>(
   options: GroqBuilderOptions = { indent: "" }
 ) {

@@ -26,7 +26,7 @@ const productsQuery = q("*")
 #### After, with `groq-builder`
 
 ```ts
-import { createGroqBuilderWithValidation } from "groq-builder/validation";
+import { createGroqBuilderWithValidation } from "groq-builder";
 const q = createGroqBuilderWithValidation<any>(); // Using 'any' makes the query schema-unaware 
 
 const productsQuery = q.star

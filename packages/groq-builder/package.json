@@ -31,18 +31,10 @@
       },
       "./dist/index.js"
     ],
-    "./validation": [
-      {
-        "types": "./dist/validation/index.d.ts",
-        "default": "./dist/validation/index.js"
-      },
-      "./dist/validation/index.js"
-    ],
     "./package.json": "./package.json"
   },
   "files": [
-    "dist",
-    "validation"
+    "dist"
   ],
   "scripts": {
     "test:watch": "vitest",
