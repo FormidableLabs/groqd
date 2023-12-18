@@ -1,4 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
+import { ResultItem } from "./result-types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -39,9 +40,16 @@ export type ParserFunctionMaybe<
 > = null | ParserFunction<TInput, TOutput>;
 
 /**
- * Extracts the Result type from a GroqBuilder
+ * Extracts the Result type from a GroqBuilder query
  */
 export type InferResultType<TGroqBuilder extends GroqBuilder> =
   TGroqBuilder extends GroqBuilder<infer TResultType, any>
     ? TResultType
     : never;
+
+/**
+ * Extracts the Result type for a single item from a GroqBuilder query
+ */
+export type InferResultItem<TGroqBuilder extends GroqBuilder> = ResultItem<
+  InferResultType<TGroqBuilder>
+>;
