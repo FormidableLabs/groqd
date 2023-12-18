@@ -18,7 +18,7 @@ describe("GroqBuilder", () => {
   describe("getProductBySlug", () => {
     const getProductBySlug = q.star
       .filterByType("product")
-      .any("[slug.current == $slug]")
+      .filter("slug.current == $slug")
       .grab((q) => ({
         _id: true,
         name: true,

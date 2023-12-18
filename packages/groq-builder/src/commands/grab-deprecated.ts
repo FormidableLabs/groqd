@@ -9,24 +9,20 @@ import { GroqBuilder } from "../groq-builder";
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     /**
-     * This method has been renamed to 'project' and will be removed in a future version.
-     * @deprecated
-     * */
+     * @deprecated This method has been renamed to 'project' and will be removed in a future version.
+     */
     grab: GroqBuilder<TResult, TRootConfig>["project"];
     /**
-     * This method has been renamed to 'project' and will be removed in a future version.
-     * @deprecated
-     * */
+     * @deprecated This method has been renamed to 'project' and will be removed in a future version.
+     */
     grab$: GroqBuilder<TResult, TRootConfig>["project"];
     /**
-     * This method has been renamed to 'field' and will be removed in a future version.
-     * @deprecated
-     * */
+     * @deprecated This method has been renamed to 'field' and will be removed in a future version.
+     */
     grabOne: GroqBuilder<TResult, TRootConfig>["field"];
     /**
-     * This method has been renamed to 'field' and will be removed in a future version.
-     * @deprecated
-     * */
+     * @deprecated This method has been renamed to 'field' and will be removed in a future version.
+     */
     grabOne$: GroqBuilder<TResult, TRootConfig>["field"];
   }
 }
