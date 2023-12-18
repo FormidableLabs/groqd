@@ -84,15 +84,15 @@ q.star.grab({
 ```
 
 If you do have more complex query logic inside a `q("...")` function, you should refactor to use chainable methods.  
-However, if you cannot refactor at this time, you can use the `chain` method instead:
+However, if you cannot refactor at this time, you can use the `raw` method instead:
 
-## Step 3. An escape hatch: the `chain` method
+## Step 3. An escape hatch: the `raw` method
 
 Not all Groq queries can be strongly-typed. Sometimes you need an escape hatch; a way to write a query, and manually specify the result type.
-The `chain` method does this by accepting any `groq` string, and requiring you to specify the result type.  For example:
+The `raw` method does this by accepting any Groq string. It requires you to specify the result type.  For example:
 
 ```ts
-q.chain<{ itemCount: number }>(`
+q.raw<{ itemCount: number }>(`
   { 
     "itemCount": count(*[_type === "item"])
   }

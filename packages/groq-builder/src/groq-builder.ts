@@ -74,10 +74,11 @@ export class GroqBuilder<
   }
 
   /**
-   * An "escape hatch" allowing you to write any groq query you want.
-   * You must specify a type parameter for the new results.
+   * Returns a new GroqBuilder, extending the current one.
+   *
+   * For internal use.
    */
-  public chain<TResultNew = never>(
+  protected chain<TResultNew = never>(
     query: string,
     parser: Parser | null = null
   ): GroqBuilder<TResultNew, TRootConfig> {
