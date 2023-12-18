@@ -22,23 +22,23 @@ From https://www.sanity.io/docs/groq:
 
 ```ts
 import { createGroqBuilder } from 'groq-builder';
-import type { MySchemaConfig } from './my-schema-config';
+import type { SchemaConfig } from './schema-config';
 //            ☝️ Note:
 // Please see the "Schema Configuration" docs 
 // for an overview of this SchemaConfig type 
 
-const q = createGroqBuilder<MySchemaConfig>()
+const q = createGroqBuilder<SchemaConfig>()
 
 const productsQuery = (
   q.star
    .filterByType('products')
    .order('price desc')
    .slice(0, 10)
-   .grab(q => ({
+   .project(q => ({
      name: true,
      price: true,
-     slug: q.grabOne("slug.current"),
-     imageUrls: q.grabOne("images[]").deref().grabOne("url")
+     slug: q.field("slug.current"),
+     imageUrls: q.field("images[]").deref().field("url")
    }))
 );
 ```
@@ -78,23 +78,23 @@ type ProductsQueryResult = Array<{
 
 ## Optional Runtime Validation and Custom Parsing
 
-You can add custom runtime validation and/or parsing logic into your queries, using the `parse` method.  
+You can add custom runtime validation and/or parsing logic into your queries, using the `validate` method.  
 
-The `parse` function accepts a simple function:
+The `validate` function accepts a simple function:
 
 ```ts
-const products = q.star.filterByType('products').grab(q => ({
+const products = q.star.filterByType('products').project(q => ({
   name: true,
   price: true,
-  priceFormatted: q.grabOne("price").parse(price => formatCurrency(price)),
+  priceFormatted: q.field("price").validate(price => formatCurrency(price)),
 }));
 ```
 
 It is also compatible with [Zod](https://zod.dev/), and can take any Zod parser or validation logic:
 ```ts
-const products = q.star.filterByType('products').grab(q => ({
+const products = q.star.filterByType('products').project(q => ({
   name: true,
-  price: q.grabOne("price").parse(z.number().nonnegative()),
+  price: q.field("price").validate(z.number().nonnegative()),
 }));
 ```
 
