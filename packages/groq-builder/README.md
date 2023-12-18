@@ -93,7 +93,8 @@ const products = q.star.filterByType('products').project(q => ({
 It is also compatible with [Zod](https://zod.dev/), and can take any Zod parser or validation logic:
 ```ts
 const products = q.star.filterByType('products').project(q => ({
-  name: true,
+  name: z.string(),
+  slug: ["slug.current", z.string().optional()],
   price: q.field("price").validate(z.number().nonnegative()),
 }));
 ```

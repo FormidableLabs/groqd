@@ -92,11 +92,9 @@ Not all Groq queries can be strongly-typed. Sometimes you need an escape hatch; 
 The `raw` method does this by accepting any Groq string. It requires you to specify the result type.  For example:
 
 ```ts
-q.raw<{ itemCount: number }>(`
-  { 
-    "itemCount": count(*[_type === "item"])
-  }
-`);
+q.project({
+  itemCount: q.raw<number>(`count(*[_type === "item")`)
+});
 ```
 
 Ideally, you could refactor this to be strongly-typed, but you might use the escape hatch for unsupported features, or for difficult-to-type queries.
@@ -110,22 +108,20 @@ With `groq-builder`, by [adding a strongly-typed Sanity schema](./README.md#sche
 
 - Easier to write (provides auto-complete)
 - Safer to write (all commands are type-checked, all fields are verified)
-- Faster to execute (because runtime validation is now optional)
+- Faster to execute (because runtime validation can be skipped)
 
-For example, by passing `true` in place of our validation methods, we skip the runtime validation checks:
+In a projection, we can skip runtime validation by simply using `true` instead of a validation method (like `q.string()`).  For example:
 ```ts
 const productsQuery = q.star
   .filterByType("product")
   .project({
-    name: true,
-    price: true,
-    slug: "slug.current",
+    name: true, // 👈 'true' will bypass runtime validation
+    price: true, // 👈 and we still get strong result types from our schema
+    slug: "slug.current", // 👈 a naked projection string works too!
   });
 ```
 
-Since `q` is bound to our Sanity schema, it knows the types of the product's `name`, `price`, and `slug`, so it outputs a strongly-typed result.  And since we trust our Sanity schema, we can skip the overhead of runtime checks.
-
-
+Since `q` is strongly-typed to our Sanity schema, it knows the types of the product's `name`, `price`, and `slug`, so it outputs a strongly-typed result.  And assuming we trust our Sanity schema, we can skip the overhead of runtime checks.
 
 
 ## Additional Improvements
@@ -144,7 +140,20 @@ This is not yet supported by `groq-builder`.
 
 ### Validation methods
 
-Most validation methods, like `q.string()` or `q.number()`, are no longer powered by Zod, but they work just the same.  Use Zod if you want to have extra validation logic, like email validation, ranges etc.
+Most validation methods, like `q.string()` or `q.number()`, are built-in now, and are no longer powered by Zod. These validation methods work mostly the same, but are simplified and more specialized to work with a strongly-typed schema.
 
-Some validation methods, like `q.object()` and `q.array()`, are much simpler than the Zod version.  These check that the data is an `object` or an `array`, but do NOT check the shape of the data.  Use Zod to validate an object's shape, or the items inside an Array.
+Some of the built-in validation methods, like `q.object()` and `q.array()`, are much simpler than the previous Zod version.  
+These check that the data is an `object` or an `array`, but do NOT check the shape of the data. 
+
+Please use Zod if you need to validate an object's shape, validate items inside an Array, or you'd like more powerful runtime validation logic. For example:
+
+```ts
+import { z } from 'zod';
+
+q.star.filterByType("user").project({
+  email: z.coerce.string().email().min(5),
+  createdAt: z.string().datetime().optional(),
+});
+```
+
 
