@@ -132,11 +132,12 @@ Since `q` is bound to our Sanity schema, it knows the types of the product's `na
 
 ### Migrating from `grab -> project` and `grabOne-> field`
 
-First off, Sanity's documentation uses the word "projection" to refer to grabbing specific fields, so we have renamed the `grab` method to `project` (pronounced pruh-JEKT, if that helps). It also uses the phrase "naked projection" to refer to grabbing a single field, but to keep things terse, we've renamed `grabOne` to `field`.  So we recommend migrating from `grab` to `project`, and from `grabOne` to `field`.
+The `grab`, `grabOne`, `grab$`, and `grabOne$` methods still exist, but have been deprecated, and should be replaced with the `project` and `field` methods.
+
+Sanity's documentation uses the word "projection" to refer to grabbing specific fields, so we have renamed the `grab` method to `project` (pronounced pruh-JEKT, if that helps). It also uses the phrase "naked projection" to refer to grabbing a single field, but to keep things terse, we've renamed `grabOne` to `field`.  So we recommend migrating from `grab` to `project`, and from `grabOne` to `field`.
 
 Regarding `grab$` and `grabOne$`, these 2 variants were needed to improve compatibility with Zod's `.optional()` utility. But the `project` and `field` methods work just fine with the built-in validation functions (like `q.string().optional()`).
 
-The `grab`, `grabOne`, `grab$`, and `grabOne$` methods still exist, but have been deprecated, and should be replaced with the `project` and `field` methods. 
 
 ### `q.select(...)`
 This is not yet supported by `groq-builder`.  
