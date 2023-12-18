@@ -320,7 +320,7 @@ describe("project (object projections)", () => {
       images: variant.field("images[]").project((image) => ({
         name: true,
         description: image
-          .projectField("description")
+          .field("description")
           .validate(validate.string().optional()),
       })),
     }));
