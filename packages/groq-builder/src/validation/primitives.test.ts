@@ -30,7 +30,7 @@ describe("primitiveValidators", () => {
     );
     // @ts-expect-error ---
     expect(() => str([])).toThrowErrorMatchingInlineSnapshot(
-      '"Expected string, received an Array"'
+      '"Expected string, received an array"'
     );
   });
   it("string.optional", () => {
@@ -50,7 +50,7 @@ describe("primitiveValidators", () => {
     );
     // @ts-expect-error ---
     expect(() => str([])).toThrowErrorMatchingInlineSnapshot(
-      '"Expected string, received an Array"'
+      '"Expected string, received an array"'
     );
   });
   it("number", () => {
@@ -64,7 +64,7 @@ describe("primitiveValidators", () => {
     );
     // @ts-expect-error ---
     expect(() => num([])).toThrowErrorMatchingInlineSnapshot(
-      '"Expected number, received an Array"'
+      '"Expected number, received an array"'
     );
     // @ts-expect-error ---
     expect(() => num({})).toThrowErrorMatchingInlineSnapshot(
