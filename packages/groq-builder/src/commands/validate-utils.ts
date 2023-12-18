@@ -31,8 +31,10 @@ export function isParserObject(
   );
 }
 
-export function normalizeValidationFunction(parser: Parser): ParserFunction {
-  if (typeof parser === "function") return parser;
+export function normalizeValidationFunction(
+  parser: Parser | null
+): ParserFunction | null {
+  if (parser === null || typeof parser === "function") return parser;
   if (isParserObject(parser)) {
     return (input) => parser.parse(input);
   }

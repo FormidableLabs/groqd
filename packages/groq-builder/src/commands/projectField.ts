@@ -30,6 +30,6 @@ GroqBuilder.implement({
     if (this.internal.query) {
       fieldName = "." + fieldName;
     }
-    return this.chain<any>(fieldName, null);
+    return this.chain(fieldName, null);
   },
 });

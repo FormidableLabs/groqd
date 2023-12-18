@@ -4,6 +4,9 @@ import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
+    /**
+     * Orders the results by the keys specified
+     */
     order<TKeys extends StringKeys<keyof ResultItem<TResult>>>(
       ...fields: Array<`${TKeys}${"" | " asc" | " desc"}`>
     ): GroqBuilder<TResult, TRootConfig>;
