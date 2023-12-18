@@ -6,7 +6,7 @@ import {
   TypeMismatchError,
   ValueOf,
 } from "../types/utils";
-import { Parser, ParserObject } from "../types/public-types";
+import { Parser } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 
