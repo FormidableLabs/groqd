@@ -17,13 +17,15 @@
     "query",
     "typescript"
   ],
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
+  "sideEffects": [
+    "./dist/commands/**"
+  ],
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": [
       {
-        "import": "./dist/index.mjs",
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },

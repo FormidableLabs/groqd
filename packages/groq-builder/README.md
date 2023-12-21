@@ -1,7 +1,16 @@
+# WARNING: this package is in "beta" state; feel free to use at your own risk
+
+> If you're looking for a feature-complete, strongly-typed Groq utility, please use [GroqD](https://formidable.com/open-source/groqd/).
+> This package aims to be a successor to GroqD, but is not yet feature-complete.  Please use at your own risk.
+
 # `groq-builder`
 
 A **schema-aware**, strongly-typed GROQ query builder.  
-It enables you to use **auto-completion** and **type-checking** for your GROQ queries. 
+It enables you to use **auto-completion** and **type-checking** for your GROQ queries.
+
+### In case you're wondering "What is GROQ?" 
+From https://www.sanity.io/docs/groq:
+> "GROQ is Sanity's open-source query language. It's a powerful and intuitive language that's easy to learn. With GROQ you can describe exactly what information your application needs, join information from several sets of documents, and stitch together a very specific response with only the exact fields you need."
 
 ## Features
 
@@ -13,23 +22,23 @@ It enables you to use **auto-completion** and **type-checking** for your GROQ qu
 
 ```ts
 import { createGroqBuilder } from 'groq-builder';
-import type { MySchemaConfig } from './my-schema-config';
+import type { SchemaConfig } from './schema-config';
 //            ☝️ Note:
 // Please see the "Schema Configuration" docs 
 // for an overview of this SchemaConfig type 
 
-const q = createGroqBuilder<MySchemaConfig>()
+const q = createGroqBuilder<SchemaConfig>()
 
 const productsQuery = (
   q.star
    .filterByType('products')
    .order('price desc')
    .slice(0, 10)
-   .projection(q => ({
+   .project(q => ({
      name: true,
      price: true,
-     slug: q.projection('slug.current'),
-     imageUrls: q.projection('images[]').deref().projection('url')
+     slug: q.field("slug.current"),
+     imageUrls: q.field("images[]").deref().field("url")
    }))
 );
 ```
@@ -69,23 +78,24 @@ type ProductsQueryResult = Array<{
 
 ## Optional Runtime Validation and Custom Parsing
 
-You can add custom runtime validation and/or parsing logic into your queries, using the `parse` method.  
+You can add custom runtime validation and/or parsing logic into your queries, using the `validate` method.  
 
-The `parse` function accepts a simple function:
+The `validate` function accepts a simple function:
 
 ```ts
-const products = q.star.filterByType('products').projection(q => ({
+const products = q.star.filterByType('products').project(q => ({
   name: true,
   price: true,
-  priceFormatted: q.projection("price").parse(price => formatCurrency(price)),
+  priceFormatted: q.field("price").validate(price => formatCurrency(price)),
 }));
 ```
 
 It is also compatible with [Zod](https://zod.dev/), and can take any Zod parser or validation logic:
 ```ts
-const products = q.star.filterByType('products').projection(q => ({
-  name: true,
-  price: q.projection("price").parse(z.number().nonnegative()),
+const products = q.star.filterByType('products').project(q => ({
+  name: z.string(),
+  slug: ["slug.current", z.string().optional()],
+  price: q.field("price").validate(z.number().nonnegative()),
 }));
 ```
 

@@ -7,120 +7,12 @@ import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
+import { validate } from "../validation";
 
 const q = createGroqBuilder<SchemaConfig>();
-
 const qVariants = q.star.filterByType("variant");
 
-describe("projection (naked projection)", () => {
-  const qPrices = qVariants.projection("price");
-  const qNames = qVariants.projection("name");
-  const qImages = qVariants.projection("images[]");
-  const data = mock.generateSeedData({
-    variants: mock.array(5, (i) =>
-      mock.variant({
-        name: `Variant ${i}`,
-        price: 55 + i,
-        msrp: 55 + i,
-      })
-    ),
-  });
-
-  it("can project a number", () => {
-    expectType<InferResultType<typeof qPrices>>().toStrictEqual<
-      Array<number>
-    >();
-    expect(qPrices.query).toMatchInlineSnapshot(
-      '"*[_type == \\"variant\\"].price"'
-    );
-  });
-  it("can project a string", () => {
-    expectType<InferResultType<typeof qNames>>().toStrictEqual<Array<string>>();
-    expect(qNames.query).toMatchInlineSnapshot(
-      '"*[_type == \\"variant\\"].name"'
-    );
-  });
-  it("can project arrays with []", () => {
-    type ResultType = InferResultType<typeof qImages>;
-
-    expectType<ResultType>().toStrictEqual<Array<
-      NonNullable<SanitySchema.Variant["images"]>
-    > | null>();
-  });
-  it("can chain projections", () => {
-    const qSlugCurrent = qVariants.projection("slug").projection("current");
-    expectType<InferResultType<typeof qSlugCurrent>>().toStrictEqual<
-      Array<string>
-    >();
-
-    const qImageNames = qVariants
-      .slice(0)
-      .projection("images[]")
-      .projection("name");
-    expectType<
-      InferResultType<typeof qImageNames>
-    >().toStrictEqual<Array<string> | null>();
-  });
-
-  it("executes correctly (price)", async () => {
-    const results = await executeBuilder(data.datalake, qPrices);
-    expect(results).toMatchInlineSnapshot(`
-      [
-        55,
-        56,
-        57,
-        58,
-        59,
-      ]
-    `);
-  });
-  it("executes correctly (name)", async () => {
-    const results = await executeBuilder(data.datalake, qNames);
-    expect(results).toMatchInlineSnapshot(`
-      [
-        "Variant 0",
-        "Variant 1",
-        "Variant 2",
-        "Variant 3",
-        "Variant 4",
-      ]
-    `);
-  });
-
-  describe("deep properties", () => {
-    it("invalid entries should have TS errors", () => {
-      // @ts-expect-error ---
-      qVariants.projection("slug[]");
-      // @ts-expect-error ---
-      qVariants.projection("slug.INVALID");
-      // @ts-expect-error ---
-      qVariants.projection("INVALID");
-      // @ts-expect-error ---
-      qVariants.projection("INVALID.current");
-    });
-
-    it("can project nested properties", () => {
-      const qSlugs = qVariants.projection("slug.current");
-      expectType<InferResultType<typeof qSlugs>>().toStrictEqual<
-        Array<string>
-      >();
-      expect(qSlugs.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"].slug.current"'
-      );
-    });
-
-    it("can project arrays with []", () => {
-      const qImages = qVariants.projection("images[]");
-      type ResultType = InferResultType<typeof qImages>;
-
-      expectType<ResultType>().toStrictEqual<Array<
-        NonNullable<SanitySchema.Variant["images"]>
-      > | null>();
-    });
-  });
-});
-
-describe("projection (objects)", () => {
+describe("project (object projections)", () => {
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -135,7 +27,7 @@ describe("projection (objects)", () => {
 
   describe("a single plain property", () => {
     it("cannot use 'true' to project unknown properties", () => {
-      const qInvalid = qVariants.projection({
+      const qInvalid = qVariants.project({
         INVALID: true,
       });
 
@@ -150,7 +42,7 @@ describe("projection (objects)", () => {
       >();
     });
 
-    const qName = qVariants.projection({
+    const qName = qVariants.project({
       name: true,
     });
     it("query should be typed correctly", () => {
@@ -166,7 +58,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qName);
+      const results = await executeBuilder(qName, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -190,7 +82,7 @@ describe("projection (objects)", () => {
   });
 
   describe("multiple plain properties", () => {
-    const qMultipleFields = qVariants.projection({
+    const qMultipleFields = qVariants.project({
       id: true,
       name: true,
       price: true,
@@ -212,7 +104,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qMultipleFields);
+      const results = await executeBuilder(qMultipleFields, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -251,7 +143,7 @@ describe("projection (objects)", () => {
   });
 
   describe("a projection with naked projections", () => {
-    const qNakedProjections = qVariants.projection({
+    const qNakedProjections = qVariants.project({
       NAME: "name",
       SLUG: "slug.current",
       msrp: "msrp",
@@ -259,11 +151,11 @@ describe("projection (objects)", () => {
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.projection({ NAME: "INVALID" });
+      qVariants.project({ FIELD: "INVALID" });
       // @ts-expect-error ---
-      qVariants.projection({ NAME: "slug.INVALID" });
+      qVariants.project({ FIELD: "slug.INVALID" });
       // @ts-expect-error ---
-      qVariants.projection({ NAME: "INVALID.current" });
+      qVariants.project({ FIELD: "INVALID.current" });
     });
 
     it("query should be correct", () => {
@@ -283,9 +175,42 @@ describe("projection (objects)", () => {
     });
   });
 
-  describe("a single complex projection", () => {
-    const qComplex = qVariants.projection((q) => ({
-      NAME: q.projection("name"),
+  describe("a projection with naked, validated projections", () => {
+    const qNakedProjections = qVariants.project({
+      NAME: ["name", validate.string()],
+      SLUG: ["slug.current", validate.string()],
+      msrp: ["msrp", validate.number()],
+    });
+
+    it("invalid projections should have type errors", () => {
+      // @ts-expect-error ---
+      qVariants.project({ NAME: ["INVALID", validate.number()] });
+      // @ts-expect-error ---
+      qVariants.project({ NAME: ["slug.INVALID", validate.string()] });
+      // @ts-expect-error ---
+      qVariants.project({ NAME: ["INVALID.current", validate.string()] });
+    });
+
+    it("query should be correct", () => {
+      expect(qNakedProjections.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { \\"NAME\\": name, \\"SLUG\\": slug.current, msrp }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<InferResultType<typeof qNakedProjections>>().toStrictEqual<
+        Array<{
+          NAME: string;
+          SLUG: string;
+          msrp: number;
+        }>
+      >();
+    });
+  });
+
+  describe("a single complex project", () => {
+    const qComplex = qVariants.project((q) => ({
+      NAME: q.field("name"),
     }));
 
     it("query should be correct", () => {
@@ -303,7 +228,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qComplex);
+      const results = await executeBuilder(qComplex, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -327,10 +252,10 @@ describe("projection (objects)", () => {
   });
 
   describe("multiple complex projections", () => {
-    const qComplex = qVariants.projection((q) => ({
-      name: q.projection("name"),
-      slug: q.projection("slug").projection("current"),
-      images: q.projection("images[]").projection("name"),
+    const qComplex = qVariants.project((q) => ({
+      name: q.field("name"),
+      slug: q.field("slug").field("current"),
+      images: q.field("images[]").field("name"),
     }));
 
     it("query should be correct", () => {
@@ -350,7 +275,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qComplex);
+      const results = await executeBuilder(qComplex, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -383,12 +308,94 @@ describe("projection (objects)", () => {
     });
   });
 
+  describe("nested projections", () => {
+    const { datalake: dataWithImages } = mock.generateSeedData({
+      variants: [
+        mock.variant({ images: [mock.keyed(mock.image({}))] }),
+        mock.variant({ images: [mock.keyed(mock.image({}))] }),
+      ],
+    });
+    const qNested = qVariants.project((variant) => ({
+      name: variant.field("name"),
+      images: variant.field("images[]").project((image) => ({
+        name: true,
+        description: image
+          .field("description")
+          .validate(validate.string().optional()),
+      })),
+    }));
+
+    it("query should be correct", () => {
+      expect(qNested.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { name, \\"images\\": images[] { name, description } }"'
+      );
+    });
+
+    it("types should be correct", () => {
+      expectType<InferResultType<typeof qNested>>().toStrictEqual<
+        Array<{
+          name: string;
+          images: Array<{
+            name: string;
+            description: string | undefined | null;
+          }> | null;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qNested, dataWithImages);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "images": [
+              {
+                "description": "Product Image",
+                "name": "ProductImage",
+              },
+            ],
+            "name": "Variant Name",
+          },
+          {
+            "images": [
+              {
+                "description": "Product Image",
+                "name": "ProductImage",
+              },
+            ],
+            "name": "Variant Name",
+          },
+        ]
+      `);
+    });
+
+    it("nested objects should be validated", async () => {
+      const dataWithInvalidData = [
+        mock.variant({
+          images: [
+            mock.keyed(
+              mock.image({
+                // @ts-expect-error ---
+                description: 1234,
+              })
+            ),
+          ],
+        }),
+      ];
+      await expect(() => executeBuilder(qNested, dataWithInvalidData)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        "1 Parsing Error:
+        result[0].images[0].description: Expected string, received 1234"
+      `);
+    });
+  });
+
   describe("mixed projections", () => {
-    const qComplex = qVariants.projection((q) => ({
+    const qComplex = qVariants.project((q) => ({
       name: true,
-      slug: q.projection("slug").projection("current"),
+      slug: q.field("slug").field("current"),
       price: true,
-      IMAGES: q.projection("images[]").projection("name"),
+      IMAGES: q.field("images[]").field("name"),
     }));
 
     it("query should be correct", () => {
@@ -409,7 +416,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qComplex);
+      const results = await executeBuilder(qComplex, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -447,11 +454,11 @@ describe("projection (objects)", () => {
     });
   });
 
-  describe("parser", () => {
-    const qParser = qVariants.projection((q) => ({
+  describe("validate", () => {
+    const qParser = qVariants.project((q) => ({
       name: true,
-      msrp: q.projection("msrp").parse((msrp) => currencyFormat(msrp)),
-      price: q.projection("price"),
+      msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
+      price: q.field("price").validate(validate.number()),
     }));
 
     it("the types should match", () => {
@@ -469,7 +476,7 @@ describe("projection (objects)", () => {
       );
     });
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qParser);
+      const results = await executeBuilder(qParser, data.datalake);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -500,12 +507,28 @@ describe("projection (objects)", () => {
         ]
       `);
     });
+
+    it("should throw when the data doesn't match", async () => {
+      const invalidData = [
+        ...data.datalake,
+        mock.variant({
+          // @ts-expect-error ---
+          price: "INVALID",
+        }),
+      ];
+
+      await expect(() => executeBuilder(qParser, invalidData)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        "1 Parsing Error:
+        result[5].price: Expected number, received \\"INVALID\\""
+      `);
+    });
   });
 
   describe("ellipsis ... operator", () => {
-    const qEllipsis = qVariants.projection((q) => ({
+    const qEllipsis = qVariants.project((q) => ({
       "...": true,
-      OTHER: q.projection("name"),
+      OTHER: q.field("name"),
     }));
     it("query should be correct", () => {
       expect(qEllipsis.query).toMatchInlineSnapshot(
@@ -520,7 +543,7 @@ describe("projection (objects)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(data.datalake, qEllipsis);
+      const results = await executeBuilder(qEllipsis, data.datalake);
       expect(results).toEqual(
         data.variants.map((v) => {
           // @ts-expect-error ---

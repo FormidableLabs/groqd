@@ -31,11 +31,13 @@ export function isParserObject(
   );
 }
 
-export function getParserFunction(parser: Parser): ParserFunction {
+export function normalizeValidationFunction(
+  parser: Parser | null
+): ParserFunction | null {
+  if (parser === null || typeof parser === "function") return parser;
   if (isParserObject(parser)) {
     return (input) => parser.parse(input);
   }
-  if (typeof parser === "function") return parser;
 
   throw new TypeError(`Parser must be a function or an object`);
 }

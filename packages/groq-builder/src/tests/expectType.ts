@@ -50,8 +50,8 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
       ? any
       : Received & {
           [ERROR]: Negate<Inverted> extends true
-            ? "Types should not be assignable"
-            : "Types should be assignable";
+            ? "Types should be assignable"
+            : "Types should not be assignable";
         }
   >(
     ...args: IsAssignable<Received, Expected> extends Negate<Inverted>
@@ -59,8 +59,8 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
       : [
           error: {
             [ERROR]: Negate<Inverted> extends true
-              ? "Types should not be assignable"
-              : "Types should be assignable";
+              ? "Types should be assignable"
+              : "Types should not be assignable";
             [RECEIVED]: Received;
             [EXPECTED]: Expected;
           }
@@ -76,8 +76,8 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
       ? any
       : SimplifyDeep<Received> & {
           [ERROR]: Negate<Inverted> extends true
-            ? "Types should not be equal"
-            : "Types should be equal";
+            ? "Types should be equal"
+            : "Types should not be equal";
         }
   >(
     ...args: IsSimplyEqual<Received, Expected> extends Negate<Inverted>
@@ -85,8 +85,8 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
       : [
           error: {
             [ERROR]: Negate<Inverted> extends true
-              ? "Types should not be equal"
-              : "Types should be equal";
+              ? "Types should be equal"
+              : "Types should not be equal";
             [RECEIVED]: SimplifyDeep<Received>;
             [EXPECTED]: SimplifyDeep<Expected>;
           }
@@ -109,8 +109,8 @@ type TypeMatchers<Received, Inverted extends boolean = false> = {
       : [
           error: {
             [ERROR]: Negate<Inverted> extends true
-              ? "Types should not be strict equal"
-              : "Types should be strict equal";
+              ? "Types should be strict equal"
+              : "Types should not be strict equal";
             [RECEIVED]: Received;
             [EXPECTED]: Expected;
           }

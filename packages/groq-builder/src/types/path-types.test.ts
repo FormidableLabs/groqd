@@ -49,18 +49,18 @@ describe("type-paths", () => {
   describe("'PathEntries'", () => {
     it("should extract all entries", () => {
       type Entries = PathEntries<TestObject>;
-      expectType<Entries>().toStrictEqual<
-        | ["a", "A"]
-        | ["b", { c: "C" }]
-        | ["b.c", "C"]
-        | ["d", { e: { f: 0 } }]
-        | ["d.e", { f: 0 }]
-        | ["d.e.f", 0]
-        | ["g", {}]
-        | ["h", []]
-        | ["i", Array<{ j: "J" }>]
-        | ["j", undefined | { k?: "K" }]
-      >();
+      expectType<Entries>().toStrictEqual<{
+        a: "A";
+        b: { c: "C" };
+        "b.c": "C";
+        d: { e: { f: 0 } };
+        "d.e": { f: 0 };
+        "d.e.f": 0;
+        g: {};
+        h: [];
+        i: Array<{ j: "J" }>;
+        j: undefined | { k?: "K" };
+      }>();
     });
   });
 });

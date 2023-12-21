@@ -93,6 +93,34 @@ export class MockFactory {
     } satisfies Required<SanitySchema.Variant>;
   }
 
+  image(data: Partial<SanitySchema.ProductImage>): SanitySchema.ProductImage {
+    return {
+      ...this.common("productImage"),
+      name: "ProductImage",
+      description: "Product Image",
+      asset: this.reference({ _id: "mock-image-id" }),
+      ...data,
+    } satisfies Required<SanitySchema.ProductImage>;
+  }
+
+  keyed<T>(data: T): T & { _key: string } {
+    return {
+      _key: "",
+      ...data,
+    };
+  }
+
+  contentBlock(
+    data: Partial<SanitySchema.ContentBlock>
+  ): SanitySchema.ContentBlock {
+    return {
+      _type: "block",
+      _key: "",
+      children: [{ _type: "span", _key: "", text: "", marks: [] }],
+      ...data,
+    };
+  }
+
   // Entire datasets:
   generateSeedData({
     categories = this.array(10, (i) =>

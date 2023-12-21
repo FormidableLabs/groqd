@@ -1,16 +1,26 @@
-import type { RootConfig } from "./types/schema-types";
+// Be sure to keep these 2 imports in the correct order:
 import { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
-
 import "./commands";
-import { InferResultType } from "./types/public-types";
+
+import type { RootConfig } from "./types/schema-types";
+import type { ButFirst } from "./types/utils";
 
 // Export all our public types:
 export * from "./types/public-types";
 export * from "./types/schema-types";
-export { GroqBuilder } from "./groq-builder";
+export { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
+export { validate, createGroqBuilderWithValidation } from "./validation";
 
 type RootResult = never;
 
+/**
+ * Creates the root `q` query builder.
+ *
+ * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
+ * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
+ *
+ * @param options - Allows you to specify if you want indentation added to the final query. Useful for debugging.  Defaults to none.
+ */
 export function createGroqBuilder<TRootConfig extends RootConfig>(
   options: GroqBuilderOptions = { indent: "" }
 ) {
@@ -27,19 +37,13 @@ export function createGroqBuilder<TRootConfig extends RootConfig>(
 export function makeSafeQueryRunner<
   FunnerFn extends (query: string, ...parameters: any[]) => Promise<any>
 >(fn: FunnerFn) {
-  return async function queryRunner<TBuilder extends GroqBuilder>(
-    builder: TBuilder,
+  return async function queryRunner<TResult>(
+    builder: GroqBuilder<TResult>,
     ...parameters: ButFirst<Parameters<FunnerFn>>
-  ): Promise<InferResultType<TBuilder>> {
+  ): Promise<TResult> {
     const data = await fn(builder.query, ...parameters);
-    const parsed = builder.parser ? builder.parser(data) : data;
+
+    const parsed = builder.parse(data);
     return parsed;
   };
 }
-
-/**
- * Excludes the first item in a tuple
- */
-type ButFirst<T extends Array<any>> = T extends [any, ...infer Rest]
-  ? Rest
-  : never;

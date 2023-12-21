@@ -1,8 +1,15 @@
-import type { ParserFunction } from "./types/public-types";
+import type { Parser, ParserFunction } from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
-import { chainParsers } from "./commands/parseUtils";
+import {
+  chainParsers,
+  normalizeValidationFunction,
+} from "./commands/validate-utils";
+import { ValidationErrors } from "./validation/validation-errors";
 
 export type GroqBuilderOptions = {
+  /**
+   * Enables "pretty printing" for the compiled GROQ string. Useful for debugging
+   */
   indent: string;
 };
 
@@ -19,6 +26,11 @@ export class GroqBuilder<
     Object.assign(GroqBuilder.prototype, methods);
   }
 
+  /**
+   * Extends the GroqBuilder class by implementing properties.
+   * This allows for this class to be split across multiple files in the `./commands/` folder.
+   * @internal
+   */
   static implementProperties(properties: {
     [P in keyof GroqBuilder]?: PropertyDescriptor;
   }) {
@@ -36,34 +48,47 @@ export class GroqBuilder<
     }
   ) {}
 
+  /**
+   * The GROQ query as a string
+   */
   public get query() {
     return this.internal.query;
   }
-  public get parser() {
-    return this.internal.parser;
+
+  /**
+   * Parses and validates the query results, passing all data through the parsers.
+   */
+  public parse(data: unknown): TResult {
+    const parser = this.internal.parser;
+    if (parser) {
+      try {
+        return parser(data);
+      } catch (err) {
+        if (err instanceof ValidationErrors) {
+          throw err.withMessage();
+        }
+        throw err;
+      }
+    }
+    return data as TResult;
   }
 
   /**
-   * Chains a new query to the existing one.
+   * Returns a new GroqBuilder, extending the current one.
+   *
+   * For internal use.
    */
-  protected chain<TResultNew = TResult>(
+  protected chain<TResultNew = never>(
     query: string,
-    parser: ParserFunction | null = null
+    parser: Parser | null = null
   ): GroqBuilder<TResultNew, TRootConfig> {
     return new GroqBuilder({
       query: this.internal.query + query,
-      parser: chainParsers(this.internal.parser, parser),
+      parser: chainParsers(
+        this.internal.parser,
+        normalizeValidationFunction(parser)
+      ),
       options: this.internal.options,
     });
-  }
-
-  /**
-   * Untyped "escape hatch" allowing you to write any query you want
-   */
-  public any<TResultNew = TResult>(
-    query: string,
-    parse?: ParserFunction | null
-  ) {
-    return this.chain<TResultNew>(query, parse);
   }
 }

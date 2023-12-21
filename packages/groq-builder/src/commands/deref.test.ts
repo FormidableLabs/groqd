@@ -11,9 +11,9 @@ const data = mock.generateSeedData({});
 
 describe("deref", () => {
   const qProduct = q.star.filterByType("product").slice(0);
-  const qCategoryRef = qProduct.projection("categories[]").slice(0);
+  const qCategoryRef = qProduct.field("categories[]").slice(0);
   const qCategory = qCategoryRef.deref();
-  const qVariantsRefs = qProduct.projection("variants[]");
+  const qVariantsRefs = qProduct.field("variants[]");
   const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
@@ -35,7 +35,7 @@ describe("deref", () => {
   });
 
   it("should be an error if the item is not a reference", () => {
-    const notAReference = qProduct.projection("slug");
+    const notAReference = qProduct.field("slug");
     expectType<InferResultType<typeof notAReference>>().toStrictEqual<{
       _type: "slug";
       current: string;
@@ -45,15 +45,15 @@ describe("deref", () => {
     type ErrorResult = InferResultType<typeof res>;
     expectType<
       ErrorResult["error"]
-    >().toStrictEqual<"Expected the object to be a reference type">();
+    >().toStrictEqual<"⛔️ Expected the object to be a reference type ⛔️">();
   });
 
   it("should execute correctly (single)", async () => {
-    const results = await executeBuilder(data.datalake, qCategory);
+    const results = await executeBuilder(qCategory, data.datalake);
     expect(results).toEqual(data.categories[0]);
   });
   it("should execute correctly (multiple)", async () => {
-    const results = await executeBuilder(data.datalake, qVariants);
+    const results = await executeBuilder(qVariants, data.datalake);
     expect(results).toEqual(data.variants);
   });
 });

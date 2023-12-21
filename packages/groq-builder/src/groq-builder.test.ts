@@ -18,24 +18,24 @@ describe("GroqBuilder", () => {
   describe("getProductBySlug", () => {
     const getProductBySlug = q.star
       .filterByType("product")
-      .any("[slug.current == $slug]")
-      .projection((q) => ({
+      .filter("slug.current == $slug")
+      .grab((q) => ({
         _id: true,
         name: true,
-        categories: q.projection("categories[]").deref().projection({
+        categories: q.field("categories[]").deref().grab({
           name: true,
         }),
-        slug: q.projection("slug").projection("current"),
+        slug: q.field("slug").field("current"),
         variants: q
-          .projection("variants[]")
+          .field("variants[]")
           .deref()
-          .projection((q) => ({
+          .grab((q) => ({
             _id: true,
             name: true,
             msrp: true,
             price: true,
-            slug: q.projection("slug").projection("current"),
-            style: q.projection("style[]").deref().projection({
+            slug: q.field("slug").field("current"),
+            style: q.field("style[]").deref().grab({
               _id: true,
               name: true,
             }),
