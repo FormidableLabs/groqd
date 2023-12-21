@@ -1,5 +1,14 @@
 # groq-builder
 
+## 0.2.0
+
+### Minor Changes
+
+- - Added backwards compatibility with GroqD v0.x ([#248](https://github.com/FormidableLabs/groqd/pull/248))
+  - Implemented validation methods like `q.string()`
+  - Renamed `grab -> project`, `grabOne -> field`
+  - Fixed build issues and deployment files
+
 ## 0.1.3
 
 ### Patch Changes
