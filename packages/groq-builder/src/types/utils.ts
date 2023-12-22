@@ -103,3 +103,22 @@ export type StringKeys<T> = Exclude<T, symbol | number>;
 export type ButFirst<T extends Array<any>> = T extends [any, ...infer Rest]
   ? Rest
   : never;
+
+/**
+ * Extends a base type with extra type information.
+ *
+ * (also known as "opaque", "branding", or "flavoring")
+ * @example
+ * const id: Tagged<string, "UserId"> = "hello";
+ *
+ */
+export type Tagged<TActual, TTag> = TActual & { readonly [Tag]?: TTag };
+export type TaggedUnwrap<TTagged> = Omit<TTagged, typeof Tag>;
+export type TaggedType<TTagged extends Tagged<any, any>> =
+  TTagged extends Tagged<unknown, infer TTag> ? TTag : never;
+declare const Tag: unique symbol;
+
+/**
+ * A completely empty object.
+ */
+export type Empty = Record<never, never>;

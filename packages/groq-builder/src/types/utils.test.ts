@@ -1,6 +1,12 @@
 import { describe, it } from "vitest";
 import { expectType } from "../tests/expectType";
-import { ExtractTypeMismatchErrors, TypeMismatchError } from "./utils";
+import {
+  ExtractTypeMismatchErrors,
+  Tagged,
+  TypeMismatchError,
+  TaggedUnwrap,
+  TaggedType,
+} from "./utils";
 
 describe("ExtractTypeMismatchErrors", () => {
   type TME<ErrorMessage extends string> = TypeMismatchError<{
@@ -40,5 +46,29 @@ describe("ExtractTypeMismatchErrors", () => {
     expectType<ExtractTypeMismatchErrors<Valid>>().toStrictEqual<never>();
     expectType<ExtractTypeMismatchErrors<undefined>>().toStrictEqual<never>();
     expectType<ExtractTypeMismatchErrors<null>>().toStrictEqual<never>();
+  });
+});
+
+describe("Tagged", () => {
+  type Base = {
+    name: string;
+  };
+  type TagInfo = {
+    tagInfo: string;
+  };
+  type BaseWithTag = Tagged<Base, TagInfo>;
+
+  it("should be assignable to the base type", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const baseTagged: BaseWithTag = { name: "hey" };
+  });
+  it("should not be equal to the base type, because of the tag", () => {
+    expectType<BaseWithTag>().not.toStrictEqual<Base>();
+  });
+  it("should be able to unwrap the tag", () => {
+    expectType<TaggedUnwrap<BaseWithTag>>().toStrictEqual<Base>();
+  });
+  it("should be able to extract the tag info", () => {
+    expectType<TaggedType<BaseWithTag>>().toStrictEqual<TagInfo>();
   });
 });

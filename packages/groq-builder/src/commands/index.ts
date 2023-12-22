@@ -1,6 +1,7 @@
 import "./deref";
 import "./filter";
 import "./filterByType";
+import "./fragment";
 import "./grab-deprecated";
 import "./order";
 import "./project";
