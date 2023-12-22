@@ -9,7 +9,7 @@ import type { ButFirst } from "./types/utils";
 export * from "./types/public-types";
 export * from "./types/schema-types";
 export { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
-export { validate } from "./validation";
+export { validation } from "./validation";
 
 type RootResult = never;
 

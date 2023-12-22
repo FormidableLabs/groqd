@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validate } from "../validation";
+import { validation } from "../validation";
 import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
@@ -20,7 +20,7 @@ describe("grab (backwards compatibility)", () => {
     const qGrab = qVariants.grab((q) => ({
       name: true,
       slug: "slug.current",
-      msrp: ["msrp", validate.number()],
+      msrp: ["msrp", validation.number()],
       styles: q.grabOne("style[]").deref().grabOne("name"),
     }));
 

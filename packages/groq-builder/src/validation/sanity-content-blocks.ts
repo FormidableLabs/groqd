@@ -1,13 +1,13 @@
-import { memo, primitiveValidators } from "./primitives";
+import { memo, primitiveValidation } from "./primitives";
 
-export const sanityValidators = {
+export const sanityValidation = {
   contentBlock: memo(<
     TConfig extends ContentBlockConfig = ContentBlockConfig
-  >() => primitiveValidators.object<ContentBlock<TConfig>>()),
+  >() => primitiveValidation.object<ContentBlock<TConfig>>()),
 
   contentBlocks: memo(<
     TConfig extends ContentBlockConfig = ContentBlockConfig
-  >() => primitiveValidators.array<Array<ContentBlock<TConfig>>>()),
+  >() => primitiveValidation.array<Array<ContentBlock<TConfig>>>()),
 };
 
 export type ContentBlocks<

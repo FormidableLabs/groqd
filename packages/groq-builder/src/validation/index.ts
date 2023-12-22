@@ -1,7 +1,7 @@
-import { primitiveValidators } from "./primitives";
-import { sanityValidators } from "./sanity-content-blocks";
+import { primitiveValidation } from "./primitives";
+import { sanityValidation } from "./sanity-content-blocks";
 
-export const validate = {
-  ...primitiveValidators,
-  ...sanityValidators,
+export const validation = {
+  ...primitiveValidation,
+  ...sanityValidation,
 };

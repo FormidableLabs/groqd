@@ -7,7 +7,7 @@ import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
-import { validate } from "../validation";
+import { validation } from "../validation";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -177,18 +177,18 @@ describe("project (object projections)", () => {
 
   describe("a projection with naked, validated projections", () => {
     const qNakedProjections = qVariants.project({
-      NAME: ["name", validate.string()],
-      SLUG: ["slug.current", validate.string()],
-      msrp: ["msrp", validate.number()],
+      NAME: ["name", validation.string()],
+      SLUG: ["slug.current", validation.string()],
+      msrp: ["msrp", validation.number()],
     });
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID", validate.number()] });
+      qVariants.project({ NAME: ["INVALID", validation.number()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["slug.INVALID", validate.string()] });
+      qVariants.project({ NAME: ["slug.INVALID", validation.string()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID.current", validate.string()] });
+      qVariants.project({ NAME: ["INVALID.current", validation.string()] });
     });
 
     it("query should be correct", () => {
@@ -321,7 +321,7 @@ describe("project (object projections)", () => {
         name: true,
         description: image
           .field("description")
-          .validate(validate.string().optional()),
+          .validate(validation.string().optional()),
       })),
     }));
 
@@ -454,11 +454,11 @@ describe("project (object projections)", () => {
     });
   });
 
-  describe("validate", () => {
+  describe("validation", () => {
     const qParser = qVariants.project((q) => ({
       name: true,
       msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.field("price").validate(validate.number()),
+      price: q.field("price").validate(validation.number()),
     }));
 
     it("the types should match", () => {

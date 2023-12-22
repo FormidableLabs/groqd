@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { validate } from "./index";
+import { validation } from "./index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 
 describe("contentBlock", () => {
-  const parseBlock = validate.contentBlock();
+  const parseBlock = validation.contentBlock();
 
   const contentBlock = mock.contentBlock({
     children: [{ _type: "span", _key: "", text: "lorem ipsum" }],
@@ -50,7 +50,7 @@ describe("contentBlock", () => {
 });
 
 describe("contentBlocks", () => {
-  const parseBlocks = validate.contentBlocks();
+  const parseBlocks = validation.contentBlocks();
   const contentBlocks = mock.array(5, () => mock.contentBlock({}));
   it("should work with valid data", () => {
     expect(parseBlocks(contentBlocks)).toEqual(contentBlocks);
