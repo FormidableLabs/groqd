@@ -57,7 +57,9 @@ describe("fragment", () => {
       Array<VariantFragment>
     >();
 
-    expect(qVariants.query).toMatchInlineSnapshot();
+    expect(qVariants.query).toMatchInlineSnapshot(
+      '"*[_type == \\"variant\\"] { name, price, \\"slug\\": slug.current }"'
+    );
   });
   it("fragments can be spread in a query", () => {
     const qVariantsPlus = q.star.filterByType("variant").project({
@@ -67,6 +69,10 @@ describe("fragment", () => {
     expectType<InferResultType<typeof qVariantsPlus>>().toStrictEqual<
       Array<{ name: string; price: number; slug: string; msrp: number }>
     >();
+
+    expect(qVariantsPlus.query).toMatchInlineSnapshot(
+      '"*[_type == \\"variant\\"] { name, price, \\"slug\\": slug.current, msrp }"'
+    );
   });
 
   it("should have errors if the variant is used incorrectly", () => {
