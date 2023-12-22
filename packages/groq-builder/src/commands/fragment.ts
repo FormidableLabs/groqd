@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractProjectionResult, ProjectionMap } from "./projection-types";
-import { Simplify, Tagged } from "../types/utils";
+import { ProjectionMap } from "./projection-types";
+import { Fragment } from "../types/public-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -14,16 +14,6 @@ declare module "../groq-builder" {
     };
   }
 }
-
-export type Fragment<
-  TProjectionMap,
-  TFragmentInput // This is used to capture the type, to be extracted by `InferFragmentType`
-> = Tagged<TProjectionMap, TFragmentInput>;
-
-export type InferFragmentType<TFragment extends Fragment<any, any>> =
-  TFragment extends Fragment<infer TProjectionMap, infer TFragmentInput>
-    ? Simplify<ExtractProjectionResult<TFragmentInput, TProjectionMap>>
-    : never;
 
 GroqBuilder.implement({
   fragment(this: GroqBuilder<any>) {
