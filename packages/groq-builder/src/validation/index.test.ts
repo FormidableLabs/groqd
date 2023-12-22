@@ -1,11 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { expectType } from "./tests/expectType";
-import { InferResultType } from "./types/public-types";
-import { createGroqBuilder, validation } from "./index";
+import { expectType } from "../tests/expectType";
+import { InferResultItem, InferResultType } from "../types/public-types";
+import { createGroqBuilder, validation } from "../index";
+import { TypeMismatchError } from "../types/utils";
+import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 
-const q = createGroqBuilder<any>().include(validation);
+describe("createGroqBuilder<any>() (schema-less)", () => {
+  const q = createGroqBuilder<any>();
 
-describe("createGroqBuilder (schema-less)", () => {
   it("filterByType", () => {
     const qFilterByType = q.star.filterByType("ANYTHING");
     expectType<
@@ -42,7 +44,9 @@ describe("createGroqBuilder (schema-less)", () => {
   });
 });
 
-describe("createGroqBuilder.include (validation functions)", () => {
+describe("createGroqBuilder().include(validation)", () => {
+  const q = createGroqBuilder<any>().include(validation);
+
   it("should contain all methods", () => {
     expect(q.string()).toBeTypeOf("function");
     expect(q.number()).toBeTypeOf("function");
@@ -56,6 +60,7 @@ describe("createGroqBuilder.include (validation functions)", () => {
     expect(q.contentBlock()).toBeTypeOf("function");
     expect(q.contentBlocks()).toBeTypeOf("function");
   });
+
   it('"q.string()" should work', () => {
     const str = q.string();
     expect(str).toBeTypeOf("function");
@@ -77,16 +82,46 @@ describe("createGroqBuilder.include (validation functions)", () => {
       price: number;
     }> | null>();
   });
-  it.skip("improper validation should fail at compile time", () => {
+});
+
+describe("strongly-typed schema, with runtime validation", () => {
+  const q = createGroqBuilder<SchemaConfig>().include(validation);
+
+  it("validation should work with projections", () => {
     const qVariants = q.star.filterByType("variant").project({
-      name: q.number(),
-      price: q.string(),
+      name: q.string(),
+      price: q.number(),
     });
 
-    // @ts-expect-error --- TODO: THIS ISN'T WORKING, fix it!
-    expectType<InferResultType<typeof qVariants>>().not.toStrictEqual<Array<{
-      name: number;
-      price: string;
-    }> | null>();
+    expectType<InferResultType<typeof qVariants>>().toStrictEqual<
+      Array<{
+        name: string;
+        price: number;
+      }>
+    >();
+  });
+
+  it("improper validation usage should be caught at compile time", () => {
+    q.star.filterByType("variant").project({
+      // @ts-expect-error --- number is not assignable to string
+      price: q.string(),
+      // @ts-expect-error --- string is not assignable to number
+      name: q.number(),
+    });
+
+    const qUnknownFieldName = q.star.filterByType("variant").project({
+      INVALID: q.string(),
+    });
+
+    type ResultItem = InferResultItem<typeof qUnknownFieldName>;
+
+    expectType<ResultItem["INVALID"]>().not.toStrictEqual<string>();
+    expectType<ResultItem["INVALID"]>().toStrictEqual<
+      TypeMismatchError<{
+        error: "⛔️ Parser can only be used with known properties ⛔️";
+        expected: keyof SanitySchema.Variant;
+        actual: "INVALID";
+      }>
+    >();
   });
 });

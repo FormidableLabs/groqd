@@ -1,6 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
 import {
   Empty,
+  IsAny,
   Simplify,
   SimplifyDeep,
   StringKeys,
@@ -27,38 +28,38 @@ export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
 >;
 export type ProjectionMap<TResultItem> = {
   // This allows TypeScript to suggest known keys:
-  [P in keyof TResultItem]?: ProjectionFieldConfig<TResultItem>;
+  [P in keyof TResultItem]?: ProjectionFieldConfig<TResultItem, TResultItem[P]>;
 } & {
   // This allows any keys to be used in a projection:
-  [P in string]: ProjectionFieldConfig<TResultItem>;
+  [P in string]: ProjectionFieldConfig<TResultItem, never>;
 } & {
   // Obviously this allows the ellipsis operator:
   "..."?: true;
 };
 
-type ProjectionFieldConfig<TResultItem> =
+type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use 'true' to include a field as-is
   | true
   // Use a string for naked projections, like 'slug.current'
   | ProjectionKey<TResultItem>
   // Use a parser to include a field, passing it through the parser at run-time
-  | Parser
+  | Parser<TFieldType>
   // Use a tuple for naked projections with a parser
-  | [ProjectionKey<TResultItem>, Parser]
+  | [ProjectionKey<TResultItem>, Parser<TFieldType>]
   // Use a GroqBuilder instance to create a nested projection
   | GroqBuilder;
 
-export type ExtractProjectionResult<TResult, TProjectionMap> =
-  (TProjectionMap extends { "...": true } ? TResult : Empty) &
+export type ExtractProjectionResult<TResultItem, TProjectionMap> =
+  (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
     ExtractProjectionResultImpl<
-      TResult,
+      TResultItem,
       Omit<
         TaggedUnwrap<TProjectionMap>, // Ensure we unwrap any tags (used by Fragments)
         "..."
       >
     >;
 
-type ExtractProjectionResultImpl<TResult, TProjectionMap> = {
+type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
   [P in keyof TProjectionMap]: TProjectionMap[P] extends GroqBuilder<
     infer TValue,
     any
@@ -66,56 +67,58 @@ type ExtractProjectionResultImpl<TResult, TProjectionMap> = {
     ? TValue
     : /* Extract type from 'true': */
     TProjectionMap[P] extends boolean
-    ? P extends keyof TResult
-      ? TResult[P]
+    ? P extends keyof TResultItem
+      ? TResultItem[P]
       : TypeMismatchError<{
           error: `⛔️ 'true' can only be used for known properties ⛔️`;
-          expected: keyof TResult;
+          expected: keyof TResultItem;
           actual: P;
         }>
     : /* Extract type from a ProjectionKey string, like 'slug.current': */
     TProjectionMap[P] extends string
-    ? TProjectionMap[P] extends ProjectionKey<TResult>
-      ? ProjectionKeyValue<TResult, TProjectionMap[P]>
+    ? TProjectionMap[P] extends ProjectionKey<TResultItem>
+      ? ProjectionKeyValue<TResultItem, TProjectionMap[P]>
       : TypeMismatchError<{
           error: `⛔️ Naked projections must be known properties ⛔️`;
-          expected: SimplifyDeep<ProjectionKey<TResult>>;
+          expected: SimplifyDeep<ProjectionKey<TResultItem>>;
           actual: TProjectionMap[P];
         }>
     : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', q.string() ] */
     TProjectionMap[P] extends [infer TKey, infer TParser]
-    ? TKey extends ProjectionKey<TResult>
+    ? TKey extends ProjectionKey<TResultItem>
       ? TParser extends Parser<infer TInput, infer TOutput>
-        ? TInput extends ProjectionKeyValue<TResult, TKey>
+        ? TInput extends ProjectionKeyValue<TResultItem, TKey>
           ? TOutput
           : TypeMismatchError<{
               error: `⛔️ The value of the projection is not compatible with this parser ⛔️`;
-              expected: Parser<ProjectionKeyValue<TResult, TKey>, TOutput>;
+              expected: Parser<ProjectionKeyValue<TResultItem, TKey>, TOutput>;
               actual: TParser;
             }>
         : TypeMismatchError<{
             error: `⛔️ Naked projections must be known properties ⛔️`;
-            expected: SimplifyDeep<ProjectionKey<TResult>>;
+            expected: SimplifyDeep<ProjectionKey<TResultItem>>;
             actual: TKey;
           }>
       : TypeMismatchError<{
           error: `⛔️ Naked projections must be known properties ⛔️`;
-          expected: SimplifyDeep<ProjectionKey<TResult>>;
+          expected: SimplifyDeep<ProjectionKey<TResultItem>>;
           actual: TKey;
         }>
     : /* Extract type from Parser: */
-    TProjectionMap[P] extends Parser<infer TInput, infer TOutput>
-    ? P extends keyof TResult
-      ? TInput extends TResult[P]
+    TProjectionMap[P] extends Parser<infer TExpectedInput, infer TOutput>
+    ? P extends keyof TResultItem
+      ? TResultItem[P] extends TExpectedInput
+        ? TOutput
+        : IsAny<TResultItem[P]> extends true // When using <any> for the schema
         ? TOutput
         : TypeMismatchError<{
             error: `⛔️ Parser expects a different input type ⛔️`;
-            expected: TResult[P];
-            actual: TInput;
+            expected: TExpectedInput;
+            actual: TResultItem[P];
           }>
       : TypeMismatchError<{
           error: `⛔️ Parser can only be used with known properties ⛔️`;
-          expected: keyof TResult;
+          expected: keyof TResultItem;
           actual: P;
         }>
     : never;
