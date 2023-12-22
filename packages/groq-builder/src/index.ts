@@ -9,7 +9,7 @@ import type { ButFirst } from "./types/utils";
 export * from "./types/public-types";
 export * from "./types/schema-types";
 export { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
-export { validate, createGroqBuilderWithValidation } from "./validation";
+export { validate } from "./validation";
 
 type RootResult = never;
 
@@ -24,10 +24,26 @@ type RootResult = never;
 export function createGroqBuilder<TRootConfig extends RootConfig>(
   options: GroqBuilderOptions = { indent: "" }
 ) {
-  return new GroqBuilder<RootResult, TRootConfig>({
+  const root = new GroqBuilder<RootResult, TRootConfig>({
     query: "",
     parser: null,
     options,
+  });
+
+  return Object.assign(root, {
+    /**
+     * Returns the root query object, extended with extra methods.
+     * Useful for making validation utilities.
+     *
+     * @example
+     * const q = createGroqBuilder().include(validation);
+     *
+     * // Now we have access to validation methods directly on `q`, like:
+     * q.string()
+     */
+    include<TExtensions>(extensions: TExtensions) {
+      return Object.assign(root, extensions);
+    },
   });
 }
 

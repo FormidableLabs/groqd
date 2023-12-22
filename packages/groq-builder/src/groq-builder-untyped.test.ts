@@ -1,12 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { expectType } from "../tests/expectType";
-import { InferResultType } from "../types/public-types";
+import { expectType } from "./tests/expectType";
+import { InferResultType } from "./types/public-types";
+import { createGroqBuilder, validate } from "./index";
 
-import { createGroqBuilderWithValidation } from "./index";
+const q = createGroqBuilder<any>().include(validate);
 
-const q = createGroqBuilderWithValidation<any>();
-
-describe("createGroqBuilderWithValidation (schema-less)", () => {
+describe("createGroqBuilder (schema-less)", () => {
   it("filterByType", () => {
     const qFilterByType = q.star.filterByType("ANYTHING");
     expectType<
@@ -43,7 +42,7 @@ describe("createGroqBuilderWithValidation (schema-less)", () => {
   });
 });
 
-describe("createGroqBuilderWithValidation (validation functions)", () => {
+describe("createGroqBuilder.include (validation functions)", () => {
   it("should contain all methods", () => {
     expect(q.string()).toBeTypeOf("function");
     expect(q.number()).toBeTypeOf("function");
@@ -76,6 +75,17 @@ describe("createGroqBuilderWithValidation (validation functions)", () => {
     expectType<InferResultType<typeof qVariants>>().toStrictEqual<Array<{
       name: string;
       price: number;
+    }> | null>();
+  });
+  it("improper validation should fail at compile time", () => {
+    const qVariants = q.star.filterByType("variant").project({
+      name: q.number(),
+      price: q.string(),
+    });
+
+    expectType<InferResultType<typeof qVariants>>().not.toStrictEqual<Array<{
+      name: number;
+      price: string;
     }> | null>();
   });
 });
