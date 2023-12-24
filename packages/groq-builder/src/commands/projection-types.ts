@@ -12,10 +12,11 @@ import {
 import { Parser } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
+import { RootConfig } from "../types/schema-types";
 
-export type ProjectionKey<TResultItem> = ProjectionKeyImpl<
-  Simplify<PathEntries<DeepRequired<TResultItem>>>
->;
+export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
+  ? string
+  : ProjectionKeyImpl<Simplify<PathEntries<DeepRequired<TResultItem>>>>;
 type ProjectionKeyImpl<Entries> = ValueOf<{
   [Key in keyof Entries]: Entries[Key] extends Array<any>
     ? `${StringKeys<Key>}[]` | Key
@@ -26,16 +27,24 @@ export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
   TResultItem,
   Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
 >;
+
 export type ProjectionMap<TResultItem> = {
   // This allows TypeScript to suggest known keys:
   [P in keyof TResultItem]?: ProjectionFieldConfig<TResultItem, TResultItem[P]>;
 } & {
   // This allows any keys to be used in a projection:
-  [P in string]: ProjectionFieldConfig<TResultItem, never>;
+  [P in string]: ProjectionFieldConfig<TResultItem, unknown>;
 } & {
   // Obviously this allows the ellipsis operator:
   "..."?: true;
 };
+
+export type ProjectionMapOrCallback<
+  TResultItem,
+  TRootConfig extends RootConfig
+> =
+  | ProjectionMap<TResultItem>
+  | ((q: GroqBuilder<TResultItem, TRootConfig>) => ProjectionMap<TResultItem>);
 
 type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use 'true' to include a field as-is

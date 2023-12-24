@@ -37,26 +37,29 @@ export type ConditionalByTypeProjections<
   TResultItem,
   TRootConfig extends RootConfig
 > = {
-  [_type in ExtractTypeNames<TResultItem>]: ProjectionMapOrCallback<
-    TResultItem,
+  [_type in ExtractTypeNames<TResultItem>]?: ProjectionMapOrCallback<
+    Extract<TResultItem, { _type: _type }>,
     TRootConfig
   >;
 };
 
-export type ExtractConditionalByTypeProjectionResults<
+export type WrapConditionalByTypeProjectionResults<
+  TResultItem,
   TConditionalProjections extends ConditionalByTypeProjections<any, any>
-> = TConditionalProjections extends ConditionalByTypeProjections<
-  infer TResultItem,
-  any
->
-  ? ConditionalProjectionResultWrapper<
-      ValueOf<{
-        [_type in keyof TConditionalProjections]: TConditionalProjections[_type] extends ProjectionMapOrCallback<
-          infer TProjectionMap,
-          any
-        >
-          ? ExtractProjectionResult<TResultItem, TProjectionMap>
-          : never;
-      }>
-    >
-  : never;
+> = ConditionalProjectionResultWrapper<
+  Simplify<
+    ValueOf<{
+      [_type in keyof TConditionalProjections]: TConditionalProjections[_type] extends (
+        q: any
+      ) => infer TProjectionMap
+        ? ExtractProjectionResult<
+            Extract<TResultItem, { _type: _type }>,
+            TProjectionMap
+          >
+        : ExtractProjectionResult<
+            Extract<TResultItem, { _type: _type }>,
+            TConditionalProjections[_type]
+          >;
+    }>
+  >
+>;

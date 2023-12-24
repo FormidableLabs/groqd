@@ -125,3 +125,7 @@ export type Empty = Record<never, never>;
 
 /** Taken from type-fest; checks if a type is any */
 export type IsAny<T> = 0 extends 1 & T ? true : false;
+
+export function keys<T extends object>(obj: T) {
+  return Object.keys(obj) as Array<Extract<keyof T, string>>;
+}
