@@ -13,19 +13,15 @@ export type ConditionalProjections<TResultItem> = {
 export type ConditionalExpression<TResultItem> = Tagged<string, TResultItem>;
 
 export type WrapConditionalProjectionResults<
+  TResultItem,
   TConditionalProjections extends ConditionalProjections<any>
-> = TConditionalProjections extends ConditionalProjections<infer TResultItem>
-  ? ConditionalProjectionResultWrapper<
-      ValueOf<{
-        [Condition in keyof TConditionalProjections]: Simplify<
-          ExtractProjectionResult<
-            TResultItem,
-            TConditionalProjections[Condition]
-          >
-        >;
-      }>
-    >
-  : never;
+> = ConditionalProjectionResultWrapper<
+  ValueOf<{
+    [Condition in keyof TConditionalProjections]: Simplify<
+      ExtractProjectionResult<TResultItem, TConditionalProjections[Condition]>
+    >;
+  }>
+>;
 
 declare const ConditionalProjectionResultTypes: unique symbol;
 export type ConditionalProjectionResultWrapper<TResultTypes> = {
