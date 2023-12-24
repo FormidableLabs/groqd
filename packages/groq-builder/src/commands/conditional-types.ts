@@ -23,7 +23,7 @@ export type WrapConditionalProjectionResults<
   }>
 >;
 
-declare const ConditionalProjectionResultTypes: unique symbol;
+export declare const ConditionalProjectionResultTypes: unique symbol;
 export type ConditionalProjectionResultWrapper<TResultTypes> = {
   [ConditionalProjectionResultTypes]: TResultTypes;
 };
@@ -48,18 +48,19 @@ export type WrapConditionalByTypeProjectionResults<
   TConditionalProjections extends ConditionalByTypeProjections<any, any>
 > = ConditionalProjectionResultWrapper<
   Simplify<
-    ValueOf<{
-      [_type in keyof TConditionalProjections]: TConditionalProjections[_type] extends (
-        q: any
-      ) => infer TProjectionMap
-        ? ExtractProjectionResult<
-            Extract<TResultItem, { _type: _type }>,
-            TProjectionMap
-          >
-        : ExtractProjectionResult<
-            Extract<TResultItem, { _type: _type }>,
-            TConditionalProjections[_type]
-          >;
-    }>
+    | Empty
+    | ValueOf<{
+        [_type in keyof TConditionalProjections]: TConditionalProjections[_type] extends (
+          q: any
+        ) => infer TProjectionMap
+          ? ExtractProjectionResult<
+              Extract<TResultItem, { _type: _type }>,
+              TProjectionMap
+            >
+          : ExtractProjectionResult<
+              Extract<TResultItem, { _type: _type }>,
+              TConditionalProjections[_type]
+            >;
+      }>
   >
 >;

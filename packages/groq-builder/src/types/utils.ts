@@ -116,7 +116,7 @@ export type Tagged<TActual, TTag> = TActual & { readonly [Tag]?: TTag };
 export type TaggedUnwrap<TTagged> = Omit<TTagged, typeof Tag>;
 export type TaggedType<TTagged extends Tagged<any, any>> =
   TTagged extends Tagged<unknown, infer TTag> ? TTag : never;
-declare const Tag: unique symbol;
+export declare const Tag: unique symbol;
 
 /**
  * A completely empty object.

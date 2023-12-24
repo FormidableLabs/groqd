@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 import { createGroqBuilder, InferResultType } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
@@ -31,6 +31,7 @@ describe("conditionalByType", () => {
     >;
 
     expectType<ConditionalResults>().toStrictEqual<
+      | {}
       | { _type: "variant"; name: string; price: number }
       | { _type: "style"; name: string | undefined; slug: string }
       | { _type: "category"; name: string; slug: string }
@@ -38,16 +39,32 @@ describe("conditionalByType", () => {
   });
 
   it("a projection should return the correct types", () => {
-    const qAll = q.star.project({
+    const qAll = q.star.project((qA) => ({
       _type: true,
-      ...q.conditionalByType({
-        style: { name: true, color: true },
+      ...qA.conditionalByType({
+        style: { name: true, slug: "slug.current" },
         variant: { name: true, price: true },
       }),
-    });
+    }));
 
     type QueryResult = InferResultType<typeof qAll>;
 
-    expectType<QueryResult>().toStrictEqual<>();
+    expectType<QueryResult>().toStrictEqual<
+      Array<
+        | {
+            _type: SchemaConfig["documentTypes"]["_type"];
+          }
+        | {
+            _type: SchemaConfig["documentTypes"]["_type"];
+            name: string | undefined;
+            slug: string;
+          }
+        | {
+            _type: SchemaConfig["documentTypes"]["_type"];
+            name: string;
+            price: number;
+          }
+      >
+    >();
   });
 });

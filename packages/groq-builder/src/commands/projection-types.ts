@@ -5,7 +5,7 @@ import {
   Simplify,
   SimplifyDeep,
   StringKeys,
-  TaggedUnwrap,
+  Tag,
   TypeMismatchError,
   ValueOf,
 } from "../types/utils";
@@ -13,6 +13,10 @@ import { Parser } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { RootConfig } from "../types/schema-types";
+import {
+  ConditionalProjectionResultTypes,
+  ConditionalProjectionResultWrapper,
+} from "./conditional-types";
 
 export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
   ? string
@@ -60,11 +64,17 @@ type ProjectionFieldConfig<TResultItem, TFieldType> =
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> =
   (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
+    (TProjectionMap extends ConditionalProjectionResultWrapper<
+      infer TConditionalTypes
+    >
+      ? TConditionalTypes
+      : Empty) &
     ExtractProjectionResultImpl<
       TResultItem,
       Omit<
-        TaggedUnwrap<TProjectionMap>, // Ensure we unwrap any tags (used by Fragments)
-        "..."
+        TProjectionMap,
+        // Ensure we remove any "tags" that we don't want in the mapped type:
+        "..." | typeof ConditionalProjectionResultTypes | typeof Tag
       >
     >;
 
