@@ -31,22 +31,10 @@ GroqBuilder.implement({
     this: GroqBuilder,
     projectionMapArg: object | ((q: GroqBuilder) => object)
   ): GroqBuilder<any> {
-    // Make the query pretty, if needed:
-    const indent = this.internal.options.indent;
-    const indent2 = indent ? indent + "  " : "";
-
     // Retrieve the projectionMap:
     let projectionMap: object;
     if (typeof projectionMapArg === "function") {
-      const newQ = new GroqBuilder({
-        query: "",
-        parser: null,
-        options: {
-          ...this.internal.options,
-          indent: indent2,
-        },
-      });
-      projectionMap = projectionMapArg(newQ);
+      projectionMap = projectionMapArg(this.root);
     } else {
       projectionMap = projectionMapArg;
     }
@@ -94,10 +82,12 @@ GroqBuilder.implement({
       .filter(notNull);
 
     const queries = values.map((v) => v.query);
-    const newLine = indent ? "\n" : " ";
-    const newQuery = ` {${newLine}${indent2}${queries.join(
-      "," + newLine + indent2
-    )}${newLine}${indent}}`;
+
+    const { newLine, space } = this.indentation;
+
+    const newQuery = ` {${newLine}${space}${queries.join(
+      `,${newLine}${space}`
+    )}${newLine}}`;
 
     type TResult = Record<string, unknown>;
     const parsers = values.filter((v) => v.parser);

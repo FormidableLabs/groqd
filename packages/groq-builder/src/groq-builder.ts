@@ -6,6 +6,8 @@ import {
 } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 
+export type RootResult = never;
+
 export type GroqBuilderOptions = {
   /**
    * Enables "pretty printing" for the compiled GROQ string. Useful for debugging
@@ -90,5 +92,30 @@ export class GroqBuilder<
       ),
       options: this.internal.options,
     });
+  }
+
+  /**
+   * Returns an empty GroqBuilder
+   */
+  public get root() {
+    let options = this.internal.options;
+    // Make the query pretty, if needed:
+    if (options.indent) {
+      options = { ...options, indent: options.indent + "  " };
+    }
+
+    return new GroqBuilder<RootResult, TRootConfig>({
+      query: "",
+      parser: null,
+      options: options,
+    });
+  }
+
+  public get indentation() {
+    const indent = this.internal.options.indent;
+    return {
+      newLine: indent ? `\n${indent}` : " ",
+      space: indent ? "  " : "",
+    };
   }
 }

@@ -37,7 +37,7 @@ export type ExtractDocumentTypes<TInferredSchemaConfigValues> = Extract<
 
 export type ExtractTypeNames<TResultItem> = Extract<
   TResultItem,
-  { _type: any }
+  { _type: string }
 >["_type"];
 
 export type RefType<referenceSymbol extends symbol, TTypeName> = {
