@@ -5,16 +5,15 @@ import {
   Simplify,
   SimplifyDeep,
   StringKeys,
-  Tag,
   TypeMismatchError,
   ValueOf,
 } from "../types/utils";
-import { Parser } from "../types/public-types";
+import { FragmentInputTypeTag, Parser } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { RootConfig } from "../types/schema-types";
 import {
-  ConditionalProjectionResultTypes,
+  ConditionalProjectionResultTypesTag,
   ConditionalProjectionResultWrapper,
 } from "./conditional-types";
 
@@ -74,7 +73,9 @@ export type ExtractProjectionResult<TResultItem, TProjectionMap> =
       Omit<
         TProjectionMap,
         // Ensure we remove any "tags" that we don't want in the mapped type:
-        "..." | typeof ConditionalProjectionResultTypes | typeof Tag
+        | "..."
+        | typeof ConditionalProjectionResultTypesTag
+        | typeof FragmentInputTypeTag
       >
     >;
 

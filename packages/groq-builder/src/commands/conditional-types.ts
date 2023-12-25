@@ -23,9 +23,9 @@ export type WrapConditionalProjectionResults<
   }>
 >;
 
-export declare const ConditionalProjectionResultTypes: unique symbol;
+export declare const ConditionalProjectionResultTypesTag: unique symbol;
 export type ConditionalProjectionResultWrapper<TResultTypes> = {
-  [ConditionalProjectionResultTypes]: TResultTypes;
+  readonly [ConditionalProjectionResultTypesTag]?: TResultTypes;
 };
 
 export type ExtractConditionalProjectionTypes<TResultItem> =

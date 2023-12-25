@@ -56,10 +56,11 @@ export type InferResultItem<TGroqBuilder extends GroqBuilder> = ResultItem<
   InferResultType<TGroqBuilder>
 >;
 
+export declare const FragmentInputTypeTag: unique symbol;
 export type Fragment<
   TProjectionMap,
   TFragmentInput // This is used to capture the type, to be extracted by `InferFragmentType`
-> = Tagged<TProjectionMap, TFragmentInput>;
+> = TProjectionMap & { readonly [FragmentInputTypeTag]?: TFragmentInput };
 
 export type InferFragmentType<TFragment extends Fragment<any, any>> =
   TFragment extends Fragment<infer TProjectionMap, infer TFragmentInput>
