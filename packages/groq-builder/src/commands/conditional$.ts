@@ -10,7 +10,8 @@ declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     conditional$<
       TConditionalProjections extends ConditionalProjections<
-        ResultItem<TResult>
+        ResultItem<TResult>,
+        TRootConfig
       >
     >(
       conditionalProjections: TConditionalProjections
@@ -23,9 +24,24 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   conditional$(this: GroqBuilder, conditionalProjections): any {
-    // Just pass the object back as-is.
-    // The `project` method will turn it into a query.
-    // This utility is all about the TypeScript.
-    return conditionalProjections;
+    // Return an object; the `project` method will turn it into a query.
+    return Object.fromEntries(
+      Object.entries(conditionalProjections).map(
+        ([condition, projectionMap]) => {
+          if (typeof projectionMap === "function") {
+            projectionMap = projectionMap(this.root);
+          }
+
+          const projection = this.root
+            .chain(`${condition} => `)
+            .project(projectionMap);
+
+          // By returning a key that's equal to the query,
+          // this will instruct `project` to output the entry without ":"
+          const newKey = projection.query;
+          return [newKey, projection];
+        }
+      )
+    );
   },
 });

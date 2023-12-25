@@ -29,17 +29,9 @@ GroqBuilder.implement({
     this: GroqBuilder<any, RootConfig>,
     conditionalProjections
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const rootQ = this;
-    const conditions: ConditionalProjections<any> = {};
+    const conditions: ConditionalProjections<any, RootConfig> = {};
     for (const _type of keys(conditionalProjections)) {
-      let projectionMap = conditionalProjections[_type];
-      if (typeof projectionMap === "function") {
-        projectionMap = projectionMap(rootQ);
-      }
-
-      const condition = `_type == "${_type}"`;
-      conditions[condition] = projectionMap as any;
+      conditions[`_type == "${_type}"`] = conditionalProjections[_type] as any;
     }
     return this.conditional$(conditions) as any;
   },
