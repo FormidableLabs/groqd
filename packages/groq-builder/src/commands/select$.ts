@@ -1,7 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultItem, ResultOverride } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 import { ExtractSelectResult, SelectProjections } from "./select-types";
-import { notNull, Simplify, SimplifyDeep } from "../types/utils";
+import { notNull } from "../types/utils";
 import { InferResultType, ParserFunction } from "../types/public-types";
 
 declare module "../groq-builder" {
@@ -13,42 +13,19 @@ declare module "../groq-builder" {
       >,
       TDefault extends null | GroqBuilder = null
     >(
-      selections:
-        | TSelectProjections
-        | ((
-            q: GroqBuilder<ResultItem<TResult>, TRootConfig>
-          ) => TSelectProjections),
-      defaultSelection?:
-        | TDefault
-        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TDefault)
+      selections: TSelectProjections,
+      defaultSelection?: TDefault
     ): GroqBuilder<
-      ResultOverride<
-        TResult,
-        | ExtractSelectResult<TSelectProjections>
-        | (TDefault extends null
-            ? null
-            : InferResultType<NonNullable<TDefault>>)
-      >,
+      | ExtractSelectResult<TSelectProjections>
+      | (TDefault extends null | undefined
+          ? null
+          : InferResultType<NonNullable<TDefault>>),
       TRootConfig
     >;
   }
 }
 GroqBuilder.implement({
-  select$(
-    this: GroqBuilder,
-    selectionsArg,
-    defaultSelectionArg
-  ): GroqBuilder<any> {
-    const selections =
-      typeof selectionsArg === "function"
-        ? selectionsArg(this.root)
-        : selectionsArg;
-
-    const defaultSelection =
-      typeof defaultSelectionArg === "function"
-        ? defaultSelectionArg(this.root)
-        : defaultSelectionArg;
-
+  select$(this: GroqBuilder, selections, defaultSelection): GroqBuilder<any> {
     const conditions = Object.keys(selections);
 
     const queries = conditions.map((condition) => {
