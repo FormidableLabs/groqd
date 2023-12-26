@@ -10,6 +10,48 @@ const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 describe("select$", () => {
   const qBase = q.star.filterByType("variant", "product", "category");
 
+  describe("without a default value", () => {
+    describe("should infer the correct type", () => {
+      it("with a single condition", () => {
+        const qSel = q.select$({
+          '_type == "variant"': q.value("VARIANT"),
+        });
+        expectType<InferResultType<typeof qSel>>().toStrictEqual<
+          "VARIANT" | null
+        >();
+      });
+      it("with multiple selections", () => {
+        const qSelMultiple = q.select$({
+          '_type == "variant"': q.value("VARIANT"),
+          '_type == "product"': q.value("PRODUCT"),
+          '_type == "category"': q.value("CATEGORY"),
+        });
+        expectType<InferResultType<typeof qSelMultiple>>().toStrictEqual<
+          "VARIANT" | "PRODUCT" | "CATEGORY" | null
+        >();
+      });
+
+      it("with complex mixed selections", () => {
+        const qSelMultiple = q.select$({
+          '_type == "variant"': q.value("VARIANT"),
+          '_type == "nested"': q.project({ nested: q.value("NESTED") }),
+          '_type == "deeper"': q.project({
+            nested: q.project({ deep: q.value("DEEP") }),
+          }),
+        });
+
+        expectType<InferResultType<typeof qSelMultiple>>().toStrictEqual<
+          | "VARIANT"
+          | { nested: "NESTED" }
+          | {
+              nested: { deep: "DEEP" };
+            }
+          | null
+        >();
+      });
+    });
+  });
+
   describe("with a default value", () => {
     const qSelect = qBase.project({
       selected: q.select$(
