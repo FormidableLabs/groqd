@@ -25,6 +25,46 @@ describe("project (object projections)", () => {
     ),
   });
 
+  describe("root projections", () => {
+    const qRoot = q.project({
+      productNames: q.star.filterByType("product").field("name"),
+      categoryNames: q.star.filterByType("category").field("name"),
+    });
+    it("should have the correct type", () => {
+      expectType<InferResultType<typeof qRoot>>().toStrictEqual<{
+        productNames: string[];
+        categoryNames: string[];
+      }>();
+    });
+
+    it("should have the correct query", () => {
+      expect(qRoot.query).toMatchInlineSnapshot(
+        '" { \\"productNames\\": *[_type == \\"product\\"].name, \\"categoryNames\\": *[_type == \\"category\\"].name }"'
+      );
+    });
+
+    it("should execute correctly", async () => {
+      const data = mock.generateSeedData({
+        products: mock.array(2, () => mock.product({})),
+        categories: mock.array(3, () => mock.category({})),
+      });
+      const results = await executeBuilder(qRoot, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        {
+          "categoryNames": [
+            "Category Name",
+            "Category Name",
+            "Category Name",
+          ],
+          "productNames": [
+            "Name",
+            "Name",
+          ],
+        }
+      `);
+    });
+  });
+
   describe("a single plain property", () => {
     it("cannot use 'true' to project unknown properties", () => {
       const qInvalid = qVariants.project({
