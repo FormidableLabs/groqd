@@ -1,4 +1,4 @@
-import { Simplify } from "../types/utils";
+import { notNull, Simplify } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
@@ -125,7 +125,3 @@ GroqBuilder.implement({
     return this.chain(newQuery, newParser);
   },
 });
-
-function notNull<T>(value: T | null): value is T {
-  return !!value;
-}

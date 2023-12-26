@@ -129,3 +129,7 @@ export type IsAny<T> = 0 extends 1 & T ? true : false;
 export function keys<T extends object>(obj: T) {
   return Object.keys(obj) as Array<Extract<keyof T, string>>;
 }
+
+export function notNull<T>(value: T | null): value is T {
+  return !!value;
+}

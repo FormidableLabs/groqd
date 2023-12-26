@@ -13,3 +13,5 @@ import "./slice";
 import "./slug";
 import "./star";
 import "./validate";
+
+import "./functions/value";

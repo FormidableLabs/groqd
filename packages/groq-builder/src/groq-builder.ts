@@ -111,7 +111,7 @@ export class GroqBuilder<
     });
   }
 
-  public get indentation() {
+  protected get indentation() {
     const indent = this.internal.options.indent;
     return {
       newLine: indent ? `\n${indent}` : " ",
