@@ -89,7 +89,7 @@ function createConditionalParser(
     }
 
     throw new TypeError(
-      `Conditional parsing failed; all ${parsers.length} conditions failed trying to parse ${input}`
+      `Conditional parsing failed; all ${parsers.length} conditions failed`
     );
   };
 }

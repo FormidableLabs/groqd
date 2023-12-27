@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createGroqBuilder, InferResultType } from "../index";
+import { createGroqBuilder, InferResultType, validation } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -121,6 +121,75 @@ describe("select$", () => {
             "selected": "VARIANT",
           },
         ]
+      `);
+    });
+  });
+
+  describe("with validation", () => {
+    const qSelect = qBase.project((q) => ({
+      selected: q.select$({
+        '_type == "product"': q.project({
+          _type: validation.literal("product"),
+          name: validation.string(),
+        }),
+        '_type == "variant"': q.project({
+          _type: validation.literal("variant"),
+          name: validation.string(),
+          price: validation.number(),
+        }),
+      }),
+    }));
+
+    const data = mock.generateSeedData({
+      products: [mock.product({})],
+      variants: [mock.variant({})],
+      categories: [mock.category({})],
+    });
+    const invalidData = mock.generateSeedData({
+      products: [
+        mock.product({
+          // @ts-expect-error ---
+          name: 999,
+        }),
+      ],
+      variants: [
+        mock.variant({
+          // @ts-expect-error ---
+          price: "EXPENSIVE",
+        }),
+      ],
+      categories: [mock.category({})],
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qSelect, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "selected": {
+              "_type": "product",
+              "name": "Name",
+            },
+          },
+          {
+            "selected": null,
+          },
+          {
+            "selected": {
+              "_type": "variant",
+              "name": "Variant Name",
+              "price": 0,
+            },
+          },
+        ]
+      `);
+    });
+    it("should fail with invalid data", async () => {
+      await expect(() => executeBuilder(qSelect, invalidData.datalake)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        "2 Parsing Errors:
+        result[0].selected: Conditional parsing failed; all 2 conditions failed
+        result[2].selected: Conditional parsing failed; all 2 conditions failed"
       `);
     });
   });

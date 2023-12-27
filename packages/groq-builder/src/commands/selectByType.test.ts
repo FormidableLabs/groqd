@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { expectType } from "../tests/expectType";
-import { createGroqBuilder, InferResultType } from "../index";
+import { createGroqBuilder, InferResultType, validation } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -163,6 +163,79 @@ describe("selectByType", () => {
             "selected": 0,
           },
         ]
+      `);
+    });
+  });
+
+  describe("with validation", () => {
+    const qSelect = q.star
+      .filterByType("product", "variant", "category")
+      .project((q) => ({
+        selected: q.selectByType({
+          product: (q) =>
+            q.project({
+              _type: validation.literal("product"),
+              name: validation.string(),
+            }),
+          variant: (q) =>
+            q.project({
+              _type: validation.literal("variant"),
+              name: validation.string(),
+              price: validation.number(),
+            }),
+        }),
+      }));
+
+    const data = mock.generateSeedData({
+      products: [mock.product({})],
+      variants: [mock.variant({})],
+      categories: [mock.category({})],
+    });
+    const invalidData = mock.generateSeedData({
+      products: [
+        mock.product({
+          // @ts-expect-error ---
+          name: 999,
+        }),
+      ],
+      variants: [
+        mock.variant({
+          // @ts-expect-error ---
+          price: "EXPENSIVE",
+        }),
+      ],
+      categories: [mock.category({})],
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qSelect, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "selected": {
+              "_type": "product",
+              "name": "Name",
+            },
+          },
+          {
+            "selected": null,
+          },
+          {
+            "selected": {
+              "_type": "variant",
+              "name": "Variant Name",
+              "price": 0,
+            },
+          },
+        ]
+      `);
+    });
+    it("should fail with invalid data", async () => {
+      await expect(() => executeBuilder(qSelect, invalidData.datalake)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        "2 Parsing Errors:
+        result[0].selected: Conditional parsing failed; all 2 conditions failed
+        result[2].selected: Conditional parsing failed; all 2 conditions failed"
       `);
     });
   });
