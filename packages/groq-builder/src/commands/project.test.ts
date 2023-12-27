@@ -182,6 +182,53 @@ describe("project (object projections)", () => {
     });
   });
 
+  describe("projection with validation", () => {
+    const qValidation = qVariants.project({
+      name: validation.string(),
+      price: validation.number(),
+    });
+    it("query should be typed correctly", () => {
+      expect(qValidation.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { name, price }"'
+      );
+
+      expectType<InferResultType<typeof qValidation>>().toStrictEqual<
+        Array<{
+          name: string;
+          price: number;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qValidation, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "name": "Variant 0",
+            "price": 0,
+          },
+          {
+            "name": "Variant 1",
+            "price": 100,
+          },
+          {
+            "name": "Variant 2",
+            "price": 200,
+          },
+          {
+            "name": "Variant 3",
+            "price": 300,
+          },
+          {
+            "name": "Variant 4",
+            "price": 400,
+          },
+        ]
+      `);
+    });
+  });
+
   describe("a projection with naked projections", () => {
     const qNakedProjections = qVariants.project({
       NAME: "name",
