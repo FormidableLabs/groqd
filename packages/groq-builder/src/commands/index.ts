@@ -11,7 +11,7 @@ import "./projectField";
 import "./raw";
 // import "./sanity-image";
 import "./select$";
-// import "./selectByType";
+import "./selectByType";
 import "./slice";
 import "./slug";
 import "./star";
