@@ -6,6 +6,7 @@ import {
   SelectByTypeProjections,
   SelectProjections,
 } from "./select-types";
+import { InferResultType } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
@@ -13,21 +14,23 @@ declare module "../groq-builder" {
       TSelectByTypeProjections extends SelectByTypeProjections<
         ResultItem<TResult>,
         TRootConfig
-      >
-    >(
-      typeQueries: TSelectByTypeProjections
-    ): GroqBuilder<
-      ResultOverride<
-        TResult,
-        Simplify<ExtractSelectByTypeResult<TSelectByTypeProjections>>
       >,
+      TDefaultSelection extends GroqBuilder | null = null
+    >(
+      typeQueries: TSelectByTypeProjections,
+      defaultSelection?: TDefaultSelection
+    ): GroqBuilder<
+      | Simplify<ExtractSelectByTypeResult<TSelectByTypeProjections>>
+      | (TDefaultSelection extends null | undefined
+          ? null
+          : InferResultType<NonNullable<TDefaultSelection>>),
       TRootConfig
     >;
   }
 }
 
 GroqBuilder.implement({
-  selectByType(this: GroqBuilder, typeQueries) {
+  selectByType(this: GroqBuilder, typeQueries, defaultSelection) {
     const mapped: SelectProjections<any, any> = {};
     const root = this.root;
     for (const key of keys(typeQueries)) {
@@ -35,6 +38,6 @@ GroqBuilder.implement({
       const queryFn = typeQueries[key] as (q: GroqBuilder) => GroqBuilder;
       mapped[condition] = queryFn(root);
     }
-    return this.select$(mapped) as any;
+    return this.select$(mapped, defaultSelection) as any;
   },
 });
