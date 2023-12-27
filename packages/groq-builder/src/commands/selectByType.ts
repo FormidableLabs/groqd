@@ -10,16 +10,16 @@ import {
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     selectByType<
-      TSelectProjections extends SelectByTypeProjections<
+      TSelectByTypeProjections extends SelectByTypeProjections<
         ResultItem<TResult>,
         TRootConfig
       >
     >(
-      typeProjections: TSelectProjections
+      typeQueries: TSelectByTypeProjections
     ): GroqBuilder<
       ResultOverride<
         TResult,
-        Simplify<ExtractSelectByTypeResult<TSelectProjections>>
+        Simplify<ExtractSelectByTypeResult<TSelectByTypeProjections>>
       >,
       TRootConfig
     >;
@@ -27,15 +27,14 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  selectByType(this: GroqBuilder, typeProjections) {
+  selectByType(this: GroqBuilder, typeQueries) {
     const mapped: SelectProjections<any, any> = {};
     const root = this.root;
-    for (const key of keys(typeProjections)) {
+    for (const key of keys(typeQueries)) {
       const condition = `_type == "${key}"`;
-      const selectFn = typeProjections[key];
-      mapped[condition] = selectFn(root);
+      const queryFn = typeQueries[key] as (q: GroqBuilder) => GroqBuilder;
+      mapped[condition] = queryFn(root);
     }
-    console.log({ mapped });
-    return this.select$(mapped);
+    return this.select$(mapped) as any;
   },
 });
