@@ -3,12 +3,13 @@ import { SchemaConfig } from "./tests/schemas/nextjs-sanity-fe";
 import { expectType } from "./tests/expectType";
 import { InferResultType } from "./types/public-types";
 import { createGroqBuilder } from "./index";
+import { Empty } from "./types/utils";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
 describe("GroqBuilder", () => {
-  it("should have a 'never' result", () => {
-    expectType<InferResultType<typeof q>>().toStrictEqual<never>();
+  it("root should have an Empty result", () => {
+    expectType<InferResultType<typeof q>>().toStrictEqual<Empty>();
   });
   it("should have an empty query", () => {
     expect(q).toMatchObject({

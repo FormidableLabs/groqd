@@ -5,8 +5,9 @@ import {
   normalizeValidationFunction,
 } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
+import { Empty } from "./types/utils";
 
-export type RootResult = never;
+export type RootResult = Empty;
 
 export type GroqBuilderOptions = {
   /**

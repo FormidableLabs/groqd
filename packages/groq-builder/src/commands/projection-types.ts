@@ -36,7 +36,7 @@ export type ProjectionMap<TResultItem> = {
   [P in keyof TResultItem]?: ProjectionFieldConfig<TResultItem, TResultItem[P]>;
 } & {
   // This allows any keys to be used in a projection:
-  [P in string]: ProjectionFieldConfig<TResultItem, unknown>;
+  [P in string]: ProjectionFieldConfig<TResultItem, never>;
 } & {
   // Obviously this allows the ellipsis operator:
   "..."?: true;
