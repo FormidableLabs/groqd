@@ -25,14 +25,15 @@ declare module "../groq-builder" {
 GroqBuilder.implement({
   conditional$(this: GroqBuilder, conditionalProjections): any {
     // Return an object; the `project` method will turn it into a query.
+    const root = this.root;
     return Object.fromEntries(
       Object.entries(conditionalProjections).map(
         ([condition, projectionMap]) => {
           if (typeof projectionMap === "function") {
-            projectionMap = projectionMap(this.root);
+            projectionMap = projectionMap(root);
           }
 
-          const projection = this.root
+          const projection = root
             .chain(`${condition} => `)
             .project(projectionMap);
 

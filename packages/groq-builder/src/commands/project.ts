@@ -1,25 +1,41 @@
-import { notNull, Simplify } from "../types/utils";
+import { Empty, notNull, Simplify } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
 import { ResultItem, ResultOverride } from "../types/result-types";
 import { ValidationErrors } from "../validation/validation-errors";
 import { ExtractProjectionResult, ProjectionMap } from "./projection-types";
+import {
+  ConditionalProjectionResultWrapper,
+  ExtractConditionalProjectionTypes,
+} from "./conditional-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     /**
      * Performs an "object projection", returning an object with the fields specified.
-     * @param projectionMap
      */
-    project<TProjection extends ProjectionMap<ResultItem<TResult>>>(
+    project<
+      TProjection extends ProjectionMap<ResultItem<TResult>>,
+      TConditionals extends
+        | ConditionalProjectionResultWrapper<any>
+        | undefined = undefined
+    >(
       projectionMap:
         | TProjection
-        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TProjection)
+        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TProjection),
+      conditionalProjections?:
+        | TConditionals
+        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TConditionals)
     ): GroqBuilder<
       ResultOverride<
         TResult,
-        Simplify<ExtractProjectionResult<ResultItem<TResult>, TProjection>>
+        Simplify<
+          ExtractProjectionResult<ResultItem<TResult>, TProjection> &
+            (TConditionals extends undefined
+              ? Empty
+              : ExtractConditionalProjectionTypes<TConditionals>)
+        >
       >,
       TRootConfig
     >;
@@ -29,7 +45,8 @@ declare module "../groq-builder" {
 GroqBuilder.implement({
   project(
     this: GroqBuilder,
-    projectionMapArg: object | ((q: GroqBuilder) => object)
+    projectionMapArg: object | ((q: any) => object),
+    conditionalProjections?: object | ((q: any) => object)
   ): GroqBuilder<any> {
     // Retrieve the projectionMap:
     let projectionMap: object;
@@ -37,6 +54,13 @@ GroqBuilder.implement({
       projectionMap = projectionMapArg(this.root);
     } else {
       projectionMap = projectionMapArg;
+    }
+    if (conditionalProjections) {
+      if (typeof conditionalProjections === "function") {
+        conditionalProjections = conditionalProjections(this.root);
+      }
+      // Just push the conditions into the `projectionMap` since the logic is the same
+      Object.assign(projectionMap, conditionalProjections);
     }
 
     // Analyze all the projection values:

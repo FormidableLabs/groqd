@@ -24,13 +24,16 @@ describe("conditionalByType", () => {
     }),
   });
 
-  const qAll = q.star.project((qA) => ({
-    _type: true,
-    ...qA.conditionalByType({
-      product: { name: true, slug: "slug.current" },
-      variant: { name: true, price: true },
-    }),
-  }));
+  const qAll = q.star.project(
+    {
+      _type: true,
+    },
+    (qA) =>
+      qA.conditionalByType({
+        product: { name: true, slug: "slug.current" },
+        variant: { name: true, price: true },
+      })
+  );
 
   it("we should be able to extract the return types", () => {
     type ConditionalResults = ExtractConditionalProjectionTypes<

@@ -12,10 +12,6 @@ import { FragmentInputTypeTag, Parser } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { RootConfig } from "../types/schema-types";
-import {
-  ConditionalProjectionResultTypesTag,
-  ConditionalProjectionResultWrapper,
-} from "./conditional-types";
 
 export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
   ? string
@@ -63,19 +59,12 @@ type ProjectionFieldConfig<TResultItem, TFieldType> =
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> =
   (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
-    (TProjectionMap extends ConditionalProjectionResultWrapper<
-      infer TConditionalTypes
-    >
-      ? TConditionalTypes
-      : Empty) &
     ExtractProjectionResultImpl<
       TResultItem,
       Omit<
         TProjectionMap,
         // Ensure we remove any "tags" that we don't want in the mapped type:
-        | "..."
-        | typeof ConditionalProjectionResultTypesTag
-        | typeof FragmentInputTypeTag
+        "..." | typeof FragmentInputTypeTag
       >
     >;
 
