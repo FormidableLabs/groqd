@@ -21,15 +21,21 @@ export type SelectByTypeProjections<
   TResultItem,
   TRootConfig extends RootConfig
 > = {
-  [_type in ExtractTypeNames<TResultItem>]?: (
-    q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TRootConfig>
-  ) => GroqBuilder;
+  [_type in ExtractTypeNames<TResultItem>]?:
+    | GroqBuilder
+    | ((
+        q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TRootConfig>
+      ) => GroqBuilder);
 };
 
 export type ExtractSelectByTypeResult<
   TSelectProjections extends SelectByTypeProjections<any, any>
 > = ValueOf<{
-  [_type in keyof TSelectProjections]: InferResultType<
-    ReturnType<NonNullable<TSelectProjections[_type]>>
-  >;
+  [_type in keyof TSelectProjections]: TSelectProjections[_type] extends GroqBuilder<
+    infer TResult
+  >
+    ? TResult
+    : TSelectProjections[_type] extends (q: any) => GroqBuilder<infer TResult>
+    ? TResult
+    : never;
 }>;

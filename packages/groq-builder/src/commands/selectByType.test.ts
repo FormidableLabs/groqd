@@ -7,6 +7,7 @@ import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 
 describe("selectByType", () => {
   const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
+  const qBase = q.star.filterByType("product", "variant", "category");
 
   const data = mock.generateSeedData({
     categories: mock.array(1, () => mock.category({})),
@@ -14,24 +15,51 @@ describe("selectByType", () => {
     variants: mock.array(3, () => mock.variant({})),
   });
 
+  it("can be used with or without callback functions", () => {
+    const qWithCb = qBase.project((q) => ({
+      selected: q.selectByType({
+        product: (q) => q.value("PRODUCT"), // <-- uses the callback API
+      }),
+    }));
+    const qWithoutCb = qBase.project((q) => ({
+      selected: q.selectByType({
+        product: q.value("PRODUCT"), // <-- no callback
+      }),
+    }));
+
+    expectType<InferResultType<typeof qWithCb>>().toStrictEqual<
+      Array<{ selected: "PRODUCT" | null }>
+    >();
+    expectType<InferResultType<typeof qWithoutCb>>().toStrictEqual<
+      Array<{ selected: "PRODUCT" | null }>
+    >();
+
+    expect(qWithCb.query).toEqual(qWithoutCb.query);
+    expect(qWithCb.query).toMatchInlineSnapshot(`
+      "*[_type == \\"product\\" || _type == \\"variant\\" || _type == \\"category\\"] {
+          \\"selected\\": select(
+            _type == \\"product\\" => \\"PRODUCT\\"
+          )
+        }"
+    `);
+  });
+
   describe("without a default param", () => {
-    const qSelect = q.star
-      .filterByType("product", "variant", "category")
-      .project((q) => ({
-        selected: q.selectByType({
-          product: (q) =>
-            q.project({
-              _type: true,
-              name: true,
-            }),
-          variant: (q) =>
-            q.project({
-              _type: true,
-              name: true,
-              price: true,
-            }),
-        }),
-      }));
+    const qSelect = qBase.project((q) => ({
+      selected: q.selectByType({
+        product: (q) =>
+          q.project({
+            _type: true,
+            name: true,
+          }),
+        variant: (q) =>
+          q.project({
+            _type: true,
+            name: true,
+            price: true,
+          }),
+      }),
+    }));
 
     it("should infer the correct types", () => {
       type TSelect = InferResultType<typeof qSelect>;
@@ -43,6 +71,11 @@ describe("selectByType", () => {
             | null;
         }>
       >();
+    });
+
+    it("no runtime validation is used", () => {
+      // @ts-expect-error ---
+      expect(qSelect.internal.parser).toBe(null);
     });
 
     it("the query should be correct", () => {
@@ -109,17 +142,15 @@ describe("selectByType", () => {
   });
 
   describe("with default param", () => {
-    const qSelect = q.star
-      .filterByType("product", "variant", "category")
-      .project((q) => ({
-        selected: q.selectByType(
-          {
-            product: (q) => q.field("name"),
-            variant: (q) => q.field("price"),
-          },
-          q.value("UNKNOWN")
-        ),
-      }));
+    const qSelect = qBase.project((q) => ({
+      selected: q.selectByType(
+        {
+          product: (q) => q.field("name"),
+          variant: (q) => q.field("price"),
+        },
+        q.value("UNKNOWN")
+      ),
+    }));
 
     it("should infer the correct type", () => {
       expectType<InferResultType<typeof qSelect>>().toStrictEqual<
@@ -128,6 +159,7 @@ describe("selectByType", () => {
         }>
       >();
     });
+
     it("the query should be correct", () => {
       expect(qSelect.query).toMatchInlineSnapshot(`
         "*[_type == \\"product\\" || _type == \\"variant\\" || _type == \\"category\\"] {
@@ -139,6 +171,12 @@ describe("selectByType", () => {
           }"
       `);
     });
+
+    it("no runtime validation is used", () => {
+      // @ts-expect-error ---
+      expect(qSelect.internal.parser).toBe(null);
+    });
+
     it("should execute correctly", async () => {
       const results = await executeBuilder(qSelect, data.datalake);
 
@@ -168,23 +206,21 @@ describe("selectByType", () => {
   });
 
   describe("with validation", () => {
-    const qSelect = q.star
-      .filterByType("product", "variant", "category")
-      .project((q) => ({
-        selected: q.selectByType({
-          product: (q) =>
-            q.project({
-              _type: validation.literal("product"),
-              name: validation.string(),
-            }),
-          variant: (q) =>
-            q.project({
-              _type: validation.literal("variant"),
-              name: validation.string(),
-              price: validation.number(),
-            }),
-        }),
-      }));
+    const qSelect = qBase.project((q) => ({
+      selected: q.selectByType({
+        product: (q) =>
+          q.project({
+            _type: validation.literal("product"),
+            name: validation.string(),
+          }),
+        variant: (q) =>
+          q.project({
+            _type: validation.literal("variant"),
+            name: validation.string(),
+            price: validation.number(),
+          }),
+      }),
+    }));
 
     const data = mock.generateSeedData({
       products: [mock.product({})],

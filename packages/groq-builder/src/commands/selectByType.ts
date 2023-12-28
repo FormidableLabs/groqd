@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultItem, ResultOverride } from "../types/result-types";
-import { keys, Simplify, ValueOf } from "../types/utils";
+import { ResultItem } from "../types/result-types";
+import { keys, Simplify } from "../types/utils";
 import {
   ExtractSelectByTypeResult,
   SelectByTypeProjections,
@@ -35,8 +35,11 @@ GroqBuilder.implement({
     const root = this.root;
     for (const key of keys(typeQueries)) {
       const condition = `_type == "${key}"`;
-      const queryFn = typeQueries[key] as (q: GroqBuilder) => GroqBuilder;
-      mapped[condition] = queryFn(root);
+
+      const queryFn = typeQueries[key];
+      const query = typeof queryFn === "function" ? queryFn(root) : queryFn;
+
+      mapped[condition] = query;
     }
     return this.select$(mapped, defaultSelection) as any;
   },
