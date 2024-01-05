@@ -45,7 +45,7 @@ export type ProjectionMapOrCallback<
   | ProjectionMap<TResultItem>
   | ((q: GroqBuilder<TResultItem, TRootConfig>) => ProjectionMap<TResultItem>);
 
-type ProjectionFieldConfig<TResultItem, TFieldType> =
+export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use 'true' to include a field as-is
   | true
   // Use a string for naked projections, like 'slug.current'
