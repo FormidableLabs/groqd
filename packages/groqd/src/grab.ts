@@ -52,9 +52,14 @@ export const grab = <
     ) as Selection[];
 
     const baseSchema = getSchemaFromSelection(selection);
-    const conditionalFieldSchemas = conditionalFields.map((field) =>
-      baseSchema.merge(getSchemaFromSelection(field))
-    );
+
+    const conditionalFieldSchemas = conditionalFields.map((s) => {
+      const conditionalSchema = getSchemaFromSelection(s);
+      return z.object({
+        ...baseSchema.shape,
+        ...conditionalSchema.shape,
+      });
+    });
 
     const unionEls = [...conditionalFieldSchemas, baseSchema];
     const s =
