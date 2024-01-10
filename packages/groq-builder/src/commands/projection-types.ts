@@ -1,8 +1,10 @@
 import { GroqBuilder } from "../groq-builder";
 import {
+  Empty,
   Simplify,
   SimplifyDeep,
   StringKeys,
+  TaggedUnwrap,
   TypeMismatchError,
   ValueOf,
 } from "../types/utils";
@@ -47,12 +49,14 @@ type ProjectionFieldConfig<TResultItem> =
   | GroqBuilder;
 
 export type ExtractProjectionResult<TResult, TProjectionMap> =
-  TProjectionMap extends {
-    "...": true;
-  }
-    ? TResult &
-        ExtractProjectionResultImpl<TResult, Omit<TProjectionMap, "...">>
-    : ExtractProjectionResultImpl<TResult, TProjectionMap>;
+  (TProjectionMap extends { "...": true } ? TResult : Empty) &
+    ExtractProjectionResultImpl<
+      TResult,
+      Omit<
+        TaggedUnwrap<TProjectionMap>, // Ensure we unwrap any tags (used by Fragments)
+        "..."
+      >
+    >;
 
 type ExtractProjectionResultImpl<TResult, TProjectionMap> = {
   [P in keyof TProjectionMap]: TProjectionMap[P] extends GroqBuilder<
