@@ -88,9 +88,9 @@ export type ExtractTypeMismatchErrors<TResult> =
     : never;
 
 export type ValueOf<T> = T[keyof T];
-export type EntriesOf<T> = {
-  [Key in keyof T]: [Key, T[Key]];
-}[keyof T];
+export type EntriesOf<T> = ValueOf<{
+  [Key in StringKeys<keyof T>]: readonly [Key, T[Key]];
+}>;
 
 /**
  * Excludes symbol and number from keys, so that you only have strings.
