@@ -1,4 +1,8 @@
-import type { Parser, ParserFunction } from "./types/public-types";
+import type {
+  IGroqBuilder,
+  Parser,
+  ParserFunction,
+} from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
 import {
   chainParsers,
@@ -6,6 +10,7 @@ import {
 } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import { Empty } from "./types/utils";
+import { GroqBuilderResultType } from "./types/public-types";
 
 export type RootResult = Empty;
 
@@ -19,7 +24,11 @@ export type GroqBuilderOptions = {
 export class GroqBuilder<
   TResult = unknown,
   TRootConfig extends RootConfig = RootConfig
-> {
+> implements IGroqBuilder<TResult>
+{
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  readonly [GroqBuilderResultType]: TResult;
+
   /**
    * Extends the GroqBuilder class by implementing methods.
    * This allows for this class to be split across multiple files in the `./commands/` folder.
@@ -56,6 +65,13 @@ export class GroqBuilder<
    */
   public get query() {
     return this.internal.query;
+  }
+
+  /**
+   * The parser function that should be used to parse result data
+   */
+  public get parser() {
+    return this.internal.parser;
   }
 
   /**
