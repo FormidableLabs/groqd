@@ -6,8 +6,9 @@ import {
 import { Empty, Simplify, Tagged, ValueOf } from "../types/utils";
 import { ExtractTypeNames, RootConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
+import { IGroqBuilder, InferResultType } from "../types/public-types";
 
-export type ConditionalProjections<
+export type ConditionalProjectionMap<
   TResultItem,
   TRootConfig extends RootConfig
 > = {
@@ -20,28 +21,44 @@ export type ConditionalProjections<
 
 export type ConditionalExpression<TResultItem> = Tagged<string, TResultItem>;
 
-export type WrapConditionalProjectionResults<
+export type ExtractConditionalProjectionResults<
   TResultItem,
-  TConditionalProjections extends ConditionalProjections<any, any>
-> = ConditionalProjectionResultWrapper<
-  ValueOf<{
-    [Condition in keyof TConditionalProjections]: Simplify<
-      ExtractProjectionResult<TResultItem, TConditionalProjections[Condition]>
-    >;
-  }>
+  TConditionalProjectionMap extends ConditionalProjectionMap<any, any>,
+  TKey extends string
+> = SpreadableConditionals<
+  TKey,
+  | Empty
+  | ValueOf<{
+      [P in keyof TConditionalProjectionMap]: ExtractProjectionResult<
+        TResultItem,
+        TConditionalProjectionMap[P]
+      >;
+    }>
 >;
 
-export declare const ConditionalProjectionResultTypesTag: unique symbol;
-export type ConditionalProjectionResultWrapper<TResultTypes> = {
-  readonly [ConditionalProjectionResultTypesTag]?: TResultTypes;
+// {
+// [Condition in StringKeys<
+//   keyof TConditionalProjectionMap
+// >]: Simplify<
+//   ExtractProjectionResult<TResultItem, TConditionalProjectionMap[Condition]>
+// >;
+// };
+
+export type OmitConditionalProjections<TResultItem> = {
+  [P in Exclude<keyof TResultItem, ConditionalKey<string>>]: TResultItem[P];
 };
 
-export type ExtractConditionalProjectionTypes<TResultItem> =
-  TResultItem extends ConditionalProjectionResultWrapper<infer TResultTypes>
-    ? TResultTypes
-    : Empty;
+export type ExtractConditionalProjectionTypes<TProjectionMap> = Simplify<
+  | Empty
+  | ValueOf<{
+      [P in Extract<
+        keyof TProjectionMap,
+        ConditionalKey<string>
+      >]: InferResultType<Extract<TProjectionMap[P], IGroqBuilder>>;
+    }>
+>;
 
-export type ConditionalByTypeProjections<
+export type ConditionalByTypeProjectionMap<
   TResultItem,
   TRootConfig extends RootConfig
 > = {
@@ -51,24 +68,34 @@ export type ConditionalByTypeProjections<
   >;
 };
 
-export type WrapConditionalByTypeProjectionResults<
+export type ExtractConditionalByTypeProjectionResults<
   TResultItem,
-  TConditionalProjections extends ConditionalByTypeProjections<any, any>
-> = ConditionalProjectionResultWrapper<
-  Simplify<
-    | Empty
-    | ValueOf<{
-        [_type in keyof TConditionalProjections]: TConditionalProjections[_type] extends (
-          q: any
-        ) => infer TProjectionMap
-          ? ExtractProjectionResult<
-              Extract<TResultItem, { _type: _type }>,
-              TProjectionMap
-            >
-          : ExtractProjectionResult<
-              Extract<TResultItem, { _type: _type }>,
-              TConditionalProjections[_type]
-            >;
-      }>
-  >
+  TConditionalByTypeProjectionMap extends ConditionalByTypeProjectionMap<
+    any,
+    any
+  >,
+  TKey extends string
+> = SpreadableConditionals<
+  TKey,
+  ValueOf<{
+    [_type in keyof TConditionalByTypeProjectionMap]: ExtractProjectionResult<
+      Extract<TResultItem, { _type: _type }>,
+      TConditionalByTypeProjectionMap[_type] extends (
+        q: any
+      ) => infer TProjectionMap
+        ? TProjectionMap
+        : TConditionalByTypeProjectionMap[_type]
+    >;
+  }>
 >;
+
+export type ConditionalKey<TKey extends string> = `[Conditional] ${TKey}`;
+export function isConditional(key: string): key is ConditionalKey<string> {
+  return key.startsWith("[Conditional] ");
+}
+export type SpreadableConditionals<
+  TKey extends string,
+  ConditionalResultType
+> = {
+  [UniqueConditionalKey in ConditionalKey<TKey>]: IGroqBuilder<ConditionalResultType>;
+};

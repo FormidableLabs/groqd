@@ -8,10 +8,18 @@ import {
   TypeMismatchError,
   ValueOf,
 } from "../types/utils";
-import { FragmentInputTypeTag, Parser } from "../types/public-types";
+import {
+  FragmentInputTypeTag,
+  IGroqBuilder,
+  Parser,
+} from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { RootConfig } from "../types/schema-types";
+import {
+  ExtractConditionalProjectionTypes,
+  OmitConditionalProjections,
+} from "./conditional-types";
 
 export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
   ? string
@@ -55,23 +63,23 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use a tuple for naked projections with a parser
   | [ProjectionKey<TResultItem>, Parser<TFieldType>]
   // Use a GroqBuilder instance to create a nested projection
-  | GroqBuilder;
+  | IGroqBuilder;
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> =
   (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
     ExtractProjectionResultImpl<
       TResultItem,
       Omit<
-        TProjectionMap,
+        OmitConditionalProjections<TProjectionMap>,
         // Ensure we remove any "tags" that we don't want in the mapped type:
         "..." | typeof FragmentInputTypeTag
       >
-    >;
+    > &
+    ExtractConditionalProjectionTypes<TProjectionMap>;
 
 type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
-  [P in keyof TProjectionMap]: TProjectionMap[P] extends GroqBuilder<
-    infer TValue,
-    any
+  [P in keyof TProjectionMap]: TProjectionMap[P] extends IGroqBuilder<
+    infer TValue
   > // Extract type from GroqBuilder:
     ? TValue
     : /* Extract type from 'true': */

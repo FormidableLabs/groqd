@@ -1,4 +1,4 @@
-import { Empty, notNull, Simplify } from "../types/utils";
+import { notNull, Simplify } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
@@ -8,42 +8,23 @@ import {
   ProjectionFieldConfig,
   ProjectionMap,
 } from "./projection-types";
-import {
-  ConditionalProjectionResultWrapper,
-  ExtractConditionalProjectionTypes,
-} from "./conditional-types";
-import {
-  objectValidation,
-  ObjectValidationMap,
-} from "../validation/object-shape";
+import { objectValidation } from "../validation/object-shape";
 import { arrayValidation } from "../validation/array-shape";
+import { isConditional } from "./conditional-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     /**
      * Performs an "object projection", returning an object with the fields specified.
      */
-    project<
-      TProjection extends ProjectionMap<ResultItem<TResult>>,
-      TConditionals extends
-        | ConditionalProjectionResultWrapper<any>
-        | undefined = undefined
-    >(
+    project<TProjection extends ProjectionMap<ResultItem<TResult>>>(
       projectionMap:
         | TProjection
-        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TProjection),
-      conditionalProjections?:
-        | TConditionals
-        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TConditionals)
+        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TProjection)
     ): GroqBuilder<
       ResultOverride<
         TResult,
-        Simplify<
-          ExtractProjectionResult<ResultItem<TResult>, TProjection> &
-            (TConditionals extends undefined
-              ? Empty
-              : ExtractConditionalProjectionTypes<TConditionals>)
-        >
+        Simplify<ExtractProjectionResult<ResultItem<TResult>, TProjection>>
       >,
       TRootConfig
     >;
@@ -53,8 +34,7 @@ declare module "../groq-builder" {
 GroqBuilder.implement({
   project(
     this: GroqBuilder,
-    projectionMapArg: object | ((q: any) => object),
-    conditionalProjectionsArg?
+    projectionMapArg: object | ((q: any) => object)
   ): GroqBuilder<any> {
     // Retrieve the projectionMap:
     let projectionMap: object;
@@ -62,15 +42,6 @@ GroqBuilder.implement({
       projectionMap = projectionMapArg(this.root);
     } else {
       projectionMap = projectionMapArg;
-    }
-
-    let conditionalProjections:
-      | ConditionalProjectionResultWrapper<any>
-      | undefined;
-    if (typeof conditionalProjectionsArg === "function") {
-      conditionalProjections = conditionalProjectionsArg(this.root);
-    } else {
-      conditionalProjections = conditionalProjectionsArg;
     }
 
     // Compile query from projection values:
@@ -83,32 +54,13 @@ GroqBuilder.implement({
       .filter(notNull);
 
     const queries = fields.map((v) => v.query);
-
-    if (conditionalProjections) {
-      queries.push(conditionalProjections.query);
-    }
-
     const { newLine, space } = this.indentation;
     const newQuery = ` {${newLine}${space}${queries.join(
       `,${newLine}${space}`
     )}${newLine}}`;
 
     // Create a combined parser:
-    let projectionParser: ParserFunction | null = null;
-    if (fields.some((f) => f.parser)) {
-      const objectShape = Object.fromEntries(
-        fields.map((f) => [f.key, f.parser])
-      );
-      projectionParser = createProjectionParser(objectShape);
-    }
-
-    const conditionalParser = conditionalProjections?.parser;
-    if (conditionalParser) {
-      projectionParser = objectValidation.union(
-        projectionParser || objectValidation.object(),
-        conditionalParser
-      );
-    }
+    const projectionParser = createProjectionParser(fields);
 
     return this.chain(newQuery, projectionParser);
   },
@@ -117,11 +69,15 @@ GroqBuilder.implement({
 function normalizeProjectionField(
   key: string,
   fieldConfig: ProjectionFieldConfig<any, any>
-): null | { key: string; query: string; parser: ParserFunction | null } {
+): null | NormalizedProjectionField {
   // Analyze the field configuration:
   const value: unknown = fieldConfig;
   if (value instanceof GroqBuilder) {
-    const query = key === value.query ? key : `"${key}": ${value.query}`;
+    const query = isConditional(key) // Conditionals can ignore the key
+      ? value.query
+      : key === value.query // Use shorthand syntax
+      ? key
+      : `"${key}": ${value.query}`;
     return { key, query, parser: value.parser };
   } else if (typeof value === "string") {
     const query = key === value ? key : `"${key}": ${value}`;
@@ -153,16 +109,52 @@ function normalizeProjectionField(
 
 type UnknownObject = Record<string, unknown>;
 
-function createProjectionParser(parsers: ObjectValidationMap): ParserFunction {
-  const objectParser = objectValidation.object(parsers);
-  const arrayParser = arrayValidation.array(objectParser);
+type NormalizedProjectionField = {
+  key: string;
+  query: string;
+  parser: ParserFunction | null;
+};
 
+function createProjectionParser(
+  fields: NormalizedProjectionField[]
+): ParserFunction | null {
+  if (!fields.some((f) => f.parser)) {
+    // No nested parsers!
+    return null;
+  }
+
+  // Parse all normal fields:
+  const normalFields = fields.filter((f) => !isConditional(f.key));
+  const objectShape = Object.fromEntries(
+    normalFields.map((f) => [f.key, f.parser])
+  );
+  const objectParser = objectValidation.object(objectShape);
+
+  // Parse all conditional fields:
+  const conditionalFields = fields.filter((f) => isConditional(f.key));
+  const conditionalParsers = conditionalFields
+    .map((f) => f.parser)
+    .filter(notNull);
+
+  // Combine normal and conditional parsers:
+  const combinedParsers = [objectParser, ...conditionalParsers];
+  const combinedParser = (input: Record<string, unknown>) => {
+    const result = {};
+    for (const p of combinedParsers) {
+      const parsed = p(input);
+      Object.assign(result, parsed);
+    }
+    return result;
+  };
+
+  // Finally, transparently handle arrays or objects:
+  const arrayParser = arrayValidation.array(combinedParser);
   return function projectionParser(
     input: UnknownObject | Array<UnknownObject>
   ) {
     // Operates against either an array or a single item:
     if (!Array.isArray(input)) {
-      return objectParser(input);
+      return combinedParser(input);
     }
 
     return arrayParser(input);
