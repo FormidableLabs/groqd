@@ -1,48 +1,83 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import {
-  ConditionalProjections,
-  WrapConditionalProjectionResults,
+  ConditionalKey,
+  ConditionalProjectionMap,
+  ExtractConditionalProjectionResults,
+  SpreadableConditionals,
 } from "./conditional-types";
+import { notNull } from "../types/utils";
+import { ParserFunction } from "../types/public-types";
+import { ProjectionMap } from "./projection-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilder<TResult, TRootConfig> {
     conditional$<
-      TConditionalProjections extends ConditionalProjections<
+      TConditionalProjections extends ConditionalProjectionMap<
         ResultItem<TResult>,
         TRootConfig
-      >
+      >,
+      TKey extends string = "[$]"
     >(
-      conditionalProjections: TConditionalProjections
-    ): WrapConditionalProjectionResults<
+      conditionalProjections: TConditionalProjections,
+      conditionalKey?: TKey
+    ): ExtractConditionalProjectionResults<
       ResultItem<TResult>,
-      TConditionalProjections
+      TConditionalProjections,
+      TKey
     >;
   }
 }
 
 GroqBuilder.implement({
-  conditional$(this: GroqBuilder, conditionalProjections): any {
-    // Return an object; the `project` method will turn it into a query.
+  conditional$<TCP extends object, TKey extends string>(
+    this: GroqBuilder,
+    conditionalProjections: TCP,
+    conditionalKey = "[$]" as TKey
+  ) {
     const root = this.root;
-    return Object.fromEntries(
-      Object.entries(conditionalProjections).map(
-        ([condition, projectionMap]) => {
-          if (typeof projectionMap === "function") {
-            projectionMap = projectionMap(root);
-          }
+    const allConditionalProjections = Object.entries(
+      conditionalProjections
+    ).map(([condition, projectionMap]) => {
+      const conditionalProjection = root
+        .chain(`${condition} =>`)
+        .project(projectionMap as ProjectionMap<unknown>);
 
-          const projection = root
-            .chain(`${condition} => `)
-            .project(projectionMap);
+      return conditionalProjection;
+    });
 
-          // By returning a key that's equal to the query,
-          // this will instruct `project` to output the entry without ":"
-          const newKey = projection.query;
-          return [newKey, projection];
-        }
-      )
-    );
+    const { newLine } = this.indentation;
+    const query = allConditionalProjections
+      .map((q) => q.query)
+      .join(`,${newLine}`);
+
+    const parsers = allConditionalProjections
+      .map((q) => q.internal.parser)
+      .filter(notNull);
+    const conditionalParser = !parsers.length
+      ? null
+      : createConditionalParserUnion(parsers);
+
+    const conditionalQuery = root.chain(query, conditionalParser);
+    const uniqueKey: ConditionalKey<TKey> = `[Conditional] ${conditionalKey}`;
+
+    return {
+      [uniqueKey]: conditionalQuery,
+    } as unknown as SpreadableConditionals<TKey, any>;
   },
 });
+function createConditionalParserUnion(parsers: ParserFunction[]) {
+  return function parserUnion(input: unknown) {
+    for (const parser of parsers) {
+      try {
+        return parser(input);
+      } catch (err) {
+        // All errors are ignored,
+        // since we never know if it errored due to invalid data,
+        // or if it errored due to not meeting the conditional check.
+      }
+    }
+    return {};
+  };
+}

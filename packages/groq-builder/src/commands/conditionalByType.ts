@@ -5,6 +5,7 @@ import {
   ExtractConditionalByTypeProjectionResults,
   ConditionalByTypeProjectionMap,
   ConditionalKey,
+  SpreadableConditionals,
 } from "./conditional-types";
 import { ProjectionMap } from "./projection-types";
 
@@ -28,12 +29,15 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  conditionalByType<TConditionalProjections, TKey>(
+  conditionalByType<
+    TConditionalProjections extends object,
+    TKey extends string
+  >(
     this: GroqBuilder<any, RootConfig>,
     conditionalProjections: TConditionalProjections,
     conditionalKey = "[ByType]" as TKey
   ) {
-    const typeNames = Object.keys(conditionalProjections as object);
+    const typeNames = Object.keys(conditionalProjections);
 
     const root = this.root;
     const conditions = typeNames.map((_type) => {
@@ -50,22 +54,21 @@ GroqBuilder.implement({
     const { newLine } = this.indentation;
     const query = conditions.map((c) => c.query).join(`,${newLine}`);
 
-    const parser = !conditions.some((c) => c.parser)
+    const conditionalParser = !conditions.some((c) => c.parser)
       ? null
       : function conditionalByTypeParser(input: { _type: string }) {
           // find the right conditional parser
-          const conditionalParser = conditions.find(
-            (c) => c._type === input._type
-          );
-          if (conditionalParser?.parser) {
-            return conditionalParser.parser(input);
+          const typeParser = conditions.find((c) => c._type === input._type);
+          if (typeParser?.parser) {
+            return typeParser.parser(input);
           }
           return {};
         };
 
+    const conditionalQuery = this.root.chain(query, conditionalParser);
     const uniqueKey: ConditionalKey<string> = `[Conditional] ${conditionalKey}`;
     return {
-      [uniqueKey]: this.root.chain(query, parser),
-    } as any;
+      [uniqueKey]: conditionalQuery,
+    } as unknown as SpreadableConditionals<TKey, any>;
   },
 });
