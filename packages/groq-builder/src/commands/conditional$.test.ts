@@ -3,7 +3,7 @@ import { createGroqBuilder, GroqBuilder, InferResultType } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { expectType } from "../tests/expectType";
-import { Simplify } from "../types/utils";
+import { Empty, Simplify } from "../types/utils";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const qBase = q.star.filterByType("variant");
@@ -24,7 +24,9 @@ describe("conditional$", () => {
       expectType<
         Simplify<ExtractConditionalProjectionTypes<typeof conditionalResult>>
       >().toStrictEqual<
-        {} | { onSale: false } | { onSale: true; price: number; msrp: number }
+        | Empty
+        | { onSale: false }
+        | { onSale: true; price: number; msrp: number }
       >();
     });
     it("should return a spreadable object", () => {

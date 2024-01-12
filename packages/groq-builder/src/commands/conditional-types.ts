@@ -3,7 +3,13 @@ import {
   ProjectionMap,
   ProjectionMapOrCallback,
 } from "./projection-types";
-import { Empty, Simplify, Tagged, ValueOf } from "../types/utils";
+import {
+  Empty,
+  IntersectionOfValues,
+  Simplify,
+  Tagged,
+  ValueOf,
+} from "../types/utils";
 import { ExtractTypeNames, RootConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
@@ -36,21 +42,13 @@ export type ExtractConditionalProjectionResults<
     }>
 >;
 
-// {
-// [Condition in StringKeys<
-//   keyof TConditionalProjectionMap
-// >]: Simplify<
-//   ExtractProjectionResult<TResultItem, TConditionalProjectionMap[Condition]>
-// >;
-// };
-
 export type OmitConditionalProjections<TResultItem> = {
   [P in Exclude<keyof TResultItem, ConditionalKey<string>>]: TResultItem[P];
 };
 
 export type ExtractConditionalProjectionTypes<TProjectionMap> = Simplify<
   | Empty
-  | ValueOf<{
+  | IntersectionOfValues<{
       [P in Extract<
         keyof TProjectionMap,
         ConditionalKey<string>

@@ -93,6 +93,23 @@ export type EntriesOf<T> = ValueOf<{
 }>;
 
 /**
+ * Returns the intersection (&) of the values of a type.
+ *
+ * Similar to ValueOf, which returns the union (|) of the values.
+ *
+ * @example
+ * IntersectionOfValues<{
+ *   foo: { foo: "FOO" } | { },
+ *   bar: { bar: "BAR" } | { },
+ * }> == { } | { foo: "FOO" } | { bar: "BAR" } | { foo: "FOO", bar: "BAR" }
+ */
+export type IntersectionOfValues<T> = {
+  [P in keyof T]: (x: T[P]) => void;
+}[keyof T] extends (x: infer ValueIntersection) => void
+  ? ValueIntersection
+  : never;
+
+/**
  * Excludes symbol and number from keys, so that you only have strings.
  */
 export type StringKeys<T> = Exclude<T, symbol | number>;
