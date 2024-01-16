@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createGroqBuilder, GroqBuilder, InferResultType } from "../index";
+import {
+  createGroqBuilder,
+  GroqBuilder,
+  InferResultItem,
+  InferResultType,
+} from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { expectType } from "../tests/expectType";
@@ -134,29 +139,41 @@ describe("conditional$", () => {
           }),
           ...qV.conditional$(
             {
-              "another == condition": { foo: q.value("FOO") },
+              "another == condition1": { foo: q.value("FOO") },
+              "another == condition2": { bar: q.value("BAR") },
             },
-            "unique-key"
+            { key: "unique-key" }
           ),
         }));
 
       it("the types should be inferred correctly", () => {
-        expectType<InferResultType<typeof qMultipleConditions>>().toStrictEqual<
-          Array<
-            | { name: string }
-            | { name: string; onSale: false }
-            | { name: string; onSale: true; price: number; msrp: number }
-            | { name: string; foo: "FOO" }
-            | { name: string; onSale: false; foo: "FOO" }
-            | {
-                name: string;
-                onSale: true;
-                price: number;
-                msrp: number;
-                foo: "FOO";
-              }
-          >
-        >();
+        type ActualItem = InferResultItem<typeof qMultipleConditions>;
+        type ExpectedItem =
+          | { name: string }
+          | { name: string; onSale: false }
+          | { name: string; onSale: true; price: number; msrp: number }
+          | { name: string; foo: "FOO" }
+          | { name: string; onSale: false; foo: "FOO" }
+          | {
+              name: string;
+              onSale: true;
+              price: number;
+              msrp: number;
+              foo: "FOO";
+            }
+          | { name: string; bar: "BAR" }
+          | { name: string; onSale: false; bar: "BAR" }
+          | {
+              name: string;
+              onSale: true;
+              price: number;
+              msrp: number;
+              bar: "BAR";
+            };
+
+        type Remainder = Exclude<ActualItem, ExpectedItem>;
+        expectType<Remainder>().toStrictEqual<never>();
+        expectType<ActualItem>().toStrictEqual<ExpectedItem>();
       });
 
       it("the query should be compiled correctly", () => {

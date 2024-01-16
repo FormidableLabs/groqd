@@ -75,16 +75,17 @@ export type ExtractConditionalByTypeProjectionResults<
   TKey extends string
 > = SpreadableConditionals<
   TKey,
-  ValueOf<{
-    [_type in keyof TConditionalByTypeProjectionMap]: ExtractProjectionResult<
-      Extract<TResultItem, { _type: _type }>,
-      TConditionalByTypeProjectionMap[_type] extends (
-        q: any
-      ) => infer TProjectionMap
-        ? TProjectionMap
-        : TConditionalByTypeProjectionMap[_type]
-    >;
-  }>
+  | Empty
+  | ValueOf<{
+      [_type in keyof TConditionalByTypeProjectionMap]: ExtractProjectionResult<
+        Extract<TResultItem, { _type: _type }>,
+        TConditionalByTypeProjectionMap[_type] extends (
+          q: any
+        ) => infer TProjectionMap
+          ? TProjectionMap
+          : TConditionalByTypeProjectionMap[_type]
+      >;
+    }>
 >;
 
 export type ConditionalKey<TKey extends string> = `[Conditional] ${TKey}`;
@@ -97,3 +98,5 @@ export type SpreadableConditionals<
 > = {
   [UniqueConditionalKey in ConditionalKey<TKey>]: IGroqBuilder<ConditionalResultType>;
 };
+
+export type ConditionalConfig<TKey> = { key: TKey };

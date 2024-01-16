@@ -4,6 +4,7 @@ import {
   ExtractTypeNames,
   GroqBuilder,
   IGroqBuilder,
+  InferResultItem,
   InferResultType,
 } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
@@ -11,7 +12,7 @@ import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { expectType } from "../tests/expectType";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { Empty, SimplifyDeep } from "../types/utils";
+import { Empty, Simplify, SimplifyDeep } from "../types/utils";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const data = mock.generateSeedData({
@@ -32,6 +33,7 @@ describe("conditionalByType", () => {
   });
 
   type ExpectedConditionalUnion =
+    | Empty
     | { _type: "variant"; name: string; price: number }
     | { _type: "product"; name: string; slug: string }
     | { _type: "category"; name: string; slug: string };
@@ -45,6 +47,59 @@ describe("conditionalByType", () => {
 
     expect(conditionalByType).toMatchObject({
       "[Conditional] [ByType]": expect.any(GroqBuilder),
+    });
+  });
+
+  describe("multiple conditionals can be spread", () => {
+    const qMultiple = q.star.project((q) => ({
+      ...q.conditionalByType({
+        variant: { price: true },
+        product: { slug: "slug.current" },
+      }),
+      ...q.conditionalByType(
+        {
+          category: { description: true },
+          style: { name: true },
+        },
+        { key: "unique-key" }
+      ),
+    }));
+
+    it("should infer the correct type", () => {
+      type ActualItem = Simplify<InferResultItem<typeof qMultiple>>;
+      type ExpectedItem =
+        | Empty
+        | { price: number }
+        | { slug: string }
+        | { description: string | undefined }
+        | { name: string | undefined }
+        | { price: number; description: string | undefined }
+        | { price: number; name: string | undefined }
+        | { slug: string; description: string | undefined }
+        | { slug: string; name: string | undefined };
+
+      type Remainder = Exclude<ActualItem, ExpectedItem>;
+      expectType<Remainder>().toStrictEqual<never>();
+      expectType<ActualItem>().toStrictEqual<ExpectedItem>();
+    });
+
+    it("the query should be correct", () => {
+      expect(qMultiple.query).toMatchInlineSnapshot(`
+        "* {
+            _type == \\"variant\\" => {
+                price
+              },
+            _type == \\"product\\" => {
+                \\"slug\\": slug.current
+              },
+            _type == \\"category\\" => {
+                description
+              },
+            _type == \\"style\\" => {
+                name
+              }
+          }"
+      `);
     });
   });
 

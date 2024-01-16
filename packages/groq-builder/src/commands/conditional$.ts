@@ -1,6 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import {
+  ConditionalConfig,
   ConditionalKey,
   ConditionalProjectionMap,
   ExtractConditionalProjectionResults,
@@ -21,7 +22,7 @@ declare module "../groq-builder" {
       TKey extends string = "[$]"
     >(
       conditionalProjections: TConditionalProjections,
-      conditionalKey?: TKey
+      config?: ConditionalConfig<TKey>
     ): ExtractConditionalProjectionResults<
       ResultItem<TResult>,
       TConditionalProjections,
@@ -34,7 +35,7 @@ GroqBuilder.implement({
   conditional$<TCP extends object, TKey extends string>(
     this: GroqBuilder,
     conditionalProjections: TCP,
-    conditionalKey = "[$]" as TKey
+    config?: ConditionalConfig<TKey>
   ) {
     const root = this.root;
     const allConditionalProjections = Object.entries(
@@ -60,13 +61,16 @@ GroqBuilder.implement({
       : createConditionalParserUnion(parsers);
 
     const conditionalQuery = root.chain(query, conditionalParser);
-    const uniqueKey: ConditionalKey<TKey> = `[Conditional] ${conditionalKey}`;
+    const uniqueKey: ConditionalKey<TKey> = `[Conditional] ${
+      config?.key ?? ("[$]" as TKey)
+    }`;
 
     return {
       [uniqueKey]: conditionalQuery,
     } as unknown as SpreadableConditionals<TKey, any>;
   },
 });
+
 function createConditionalParserUnion(parsers: ParserFunction[]) {
   return function parserUnion(input: unknown) {
     for (const parser of parsers) {

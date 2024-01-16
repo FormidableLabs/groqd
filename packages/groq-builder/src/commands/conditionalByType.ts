@@ -6,6 +6,7 @@ import {
   ConditionalByTypeProjectionMap,
   ConditionalKey,
   SpreadableConditionals,
+  ConditionalConfig,
 } from "./conditional-types";
 import { ProjectionMap } from "./projection-types";
 
@@ -19,7 +20,7 @@ declare module "../groq-builder" {
       TKey extends string = "[ByType]"
     >(
       conditionalProjections: TConditionalProjections,
-      conditionalKey?: TKey
+      config?: ConditionalConfig<TKey>
     ): ExtractConditionalByTypeProjectionResults<
       ResultItem<TResult>,
       TConditionalProjections,
@@ -35,7 +36,7 @@ GroqBuilder.implement({
   >(
     this: GroqBuilder<any, RootConfig>,
     conditionalProjections: TConditionalProjections,
-    conditionalKey = "[ByType]" as TKey
+    config?: ConditionalConfig<TKey>
   ) {
     const typeNames = Object.keys(conditionalProjections);
 
@@ -66,7 +67,9 @@ GroqBuilder.implement({
         };
 
     const conditionalQuery = this.root.chain(query, conditionalParser);
-    const uniqueKey: ConditionalKey<string> = `[Conditional] ${conditionalKey}`;
+    const uniqueKey: ConditionalKey<string> = `[Conditional] ${
+      config?.key ?? ("[ByType]" as TKey)
+    }`;
     return {
       [uniqueKey]: conditionalQuery,
     } as unknown as SpreadableConditionals<TKey, any>;
