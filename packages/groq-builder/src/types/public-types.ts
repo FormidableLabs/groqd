@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "./result-types";
-import { Simplify } from "./utils";
+import { Simplify, Tagged } from "./utils";
 import { ExtractProjectionResult } from "../commands/projection-types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
