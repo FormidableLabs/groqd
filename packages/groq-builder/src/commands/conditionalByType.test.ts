@@ -103,6 +103,24 @@ describe("conditionalByType", () => {
     });
   });
 
+  it("types are correct when the conditions are exhaustive", () => {
+    const conditionsExhaustive = q.star
+      .filterByType("product", "variant")
+      .conditionalByType({
+        product: { _type: true, name: true },
+        variant: { _type: true, price: true },
+      });
+
+    type ActualItem = ExtractConditionalProjectionTypes<
+      typeof conditionsExhaustive
+    >;
+    type ExpectedItem =
+      | { _type: "product"; name: string }
+      | { _type: "variant"; price: number };
+
+    expectType<Simplify<ActualItem>>().toStrictEqual<ExpectedItem>();
+  });
+
   it("should be able to extract the return types", () => {
     type ConditionalResults = ExtractConditionalProjectionTypes<
       typeof conditionalByType

@@ -5,10 +5,10 @@ import {
   ExtractConditionalByTypeProjectionResults,
   ConditionalByTypeProjectionMap,
   ConditionalKey,
-  SpreadableConditionals,
   ConditionalConfig,
 } from "./conditional-types";
 import { ProjectionMap } from "./projection-types";
+import { IsEqual } from "../tests/expectType";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
@@ -17,14 +17,19 @@ declare module "../groq-builder" {
         ResultItem<TResult>,
         TRootConfig
       >,
-      TKey extends string = "[ByType]"
+      TKey extends string = "[ByType]",
+      TIsExhaustive extends boolean = TConditionalProjections extends Required<
+        ConditionalByTypeProjectionMap<ResultItem<TResult>, TRootConfig>
+      >
+        ? true
+        : false
     >(
       conditionalProjections: TConditionalProjections,
-      config?: ConditionalConfig<TKey>
+      config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
     ): ExtractConditionalByTypeProjectionResults<
       ResultItem<TResult>,
       TConditionalProjections,
-      TKey
+      ConditionalConfig<TKey, TIsExhaustive>
     >;
   }
 }
@@ -32,11 +37,12 @@ declare module "../groq-builder" {
 GroqBuilder.implement({
   conditionalByType<
     TConditionalProjections extends object,
-    TKey extends string
+    TKey extends string,
+    TIsExhaustive extends boolean
   >(
     this: GroqBuilder<any, RootConfig>,
     conditionalProjections: TConditionalProjections,
-    config?: ConditionalConfig<TKey>
+    config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {
     const typeNames = Object.keys(conditionalProjections);
 
@@ -63,15 +69,20 @@ GroqBuilder.implement({
           if (typeParser?.parser) {
             return typeParser.parser(input);
           }
+          if (!typeParser && config?.isExhaustive) {
+            throw new TypeError(
+              `Unexpected _type "${input._type}"; expected one of: ${typeNames}`
+            );
+          }
           return {};
         };
 
     const conditionalQuery = this.root.chain(query, conditionalParser);
-    const uniqueKey: ConditionalKey<string> = `[Conditional] ${
-      config?.key ?? ("[ByType]" as TKey)
-    }`;
+    const key: TKey = config?.key || ("[ByType]" as TKey);
+    const conditionalKey: ConditionalKey<TKey> = `[Conditional] ${key}`;
     return {
-      [uniqueKey]: conditionalQuery,
-    } as unknown as SpreadableConditionals<TKey, any>;
+      _type: true, // Ensure we request the `_type` parameter
+      [conditionalKey]: conditionalQuery,
+    } as any;
   },
 });

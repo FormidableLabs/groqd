@@ -30,10 +30,10 @@ export type ConditionalExpression<TResultItem> = Tagged<string, TResultItem>;
 export type ExtractConditionalProjectionResults<
   TResultItem,
   TConditionalProjectionMap extends ConditionalProjectionMap<any, any>,
-  TKey extends string
+  TConfig extends ConditionalConfig
 > = SpreadableConditionals<
-  TKey,
-  | Empty
+  TConfig["key"],
+  | (TConfig["isExhaustive"] extends true ? never : Empty)
   | ValueOf<{
       [P in keyof TConditionalProjectionMap]: ExtractProjectionResult<
         TResultItem,
@@ -47,13 +47,12 @@ export type OmitConditionalProjections<TResultItem> = {
 };
 
 export type ExtractConditionalProjectionTypes<TProjectionMap> = Simplify<
-  | Empty
-  | IntersectionOfValues<{
-      [P in Extract<
-        keyof TProjectionMap,
-        ConditionalKey<string>
-      >]: InferResultType<Extract<TProjectionMap[P], IGroqBuilder>>;
-    }>
+  IntersectionOfValues<{
+    [P in Extract<
+      keyof TProjectionMap,
+      ConditionalKey<string>
+    >]: InferResultType<Extract<TProjectionMap[P], IGroqBuilder>>;
+  }>
 >;
 
 export type ConditionalByTypeProjectionMap<
@@ -72,10 +71,10 @@ export type ExtractConditionalByTypeProjectionResults<
     any,
     any
   >,
-  TKey extends string
+  TConfig extends ConditionalConfig
 > = SpreadableConditionals<
-  TKey,
-  | Empty
+  TConfig["key"],
+  | (TConfig["isExhaustive"] extends true ? never : Empty)
   | ValueOf<{
       [_type in keyof TConditionalByTypeProjectionMap]: ExtractProjectionResult<
         Extract<TResultItem, { _type: _type }>,
@@ -99,4 +98,10 @@ export type SpreadableConditionals<
   [UniqueConditionalKey in ConditionalKey<TKey>]: IGroqBuilder<ConditionalResultType>;
 };
 
-export type ConditionalConfig<TKey> = { key: TKey };
+export type ConditionalConfig<
+  TKey extends string = string,
+  TIsExhaustive extends boolean = boolean
+> = {
+  key: TKey;
+  isExhaustive: TIsExhaustive;
+};

@@ -5,7 +5,6 @@ import {
   ConditionalKey,
   ConditionalProjectionMap,
   ExtractConditionalProjectionResults,
-  SpreadableConditionals,
 } from "./conditional-types";
 import { notNull } from "../types/utils";
 import { ParserFunction } from "../types/public-types";
@@ -19,23 +18,28 @@ declare module "../groq-builder" {
         ResultItem<TResult>,
         TRootConfig
       >,
-      TKey extends string = "[$]"
+      TKey extends string = "[$]",
+      TIsExhaustive extends boolean = false
     >(
       conditionalProjections: TConditionalProjections,
-      config?: ConditionalConfig<TKey>
+      config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
     ): ExtractConditionalProjectionResults<
       ResultItem<TResult>,
       TConditionalProjections,
-      TKey
+      ConditionalConfig<TKey, TIsExhaustive>
     >;
   }
 }
 
 GroqBuilder.implement({
-  conditional$<TCP extends object, TKey extends string>(
+  conditional$<
+    TCP extends object,
+    TKey extends string,
+    TIsExhaustive extends boolean
+  >(
     this: GroqBuilder,
     conditionalProjections: TCP,
-    config?: ConditionalConfig<TKey>
+    config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {
     const root = this.root;
     const allConditionalProjections = Object.entries(
@@ -58,20 +62,21 @@ GroqBuilder.implement({
       .filter(notNull);
     const conditionalParser = !parsers.length
       ? null
-      : createConditionalParserUnion(parsers);
+      : createConditionalParserUnion(parsers, config?.isExhaustive ?? false);
 
     const conditionalQuery = root.chain(query, conditionalParser);
-    const uniqueKey: ConditionalKey<TKey> = `[Conditional] ${
-      config?.key ?? ("[$]" as TKey)
-    }`;
-
+    const key = config?.key || ("[$]" as TKey);
+    const conditionalKey: ConditionalKey<TKey> = `[Conditional] ${key}`;
     return {
-      [uniqueKey]: conditionalQuery,
-    } as unknown as SpreadableConditionals<TKey, any>;
+      [conditionalKey]: conditionalQuery,
+    } as any;
   },
 });
 
-function createConditionalParserUnion(parsers: ParserFunction[]) {
+function createConditionalParserUnion(
+  parsers: ParserFunction[],
+  isExhaustive: boolean
+) {
   return function parserUnion(input: unknown) {
     for (const parser of parsers) {
       try {
@@ -81,6 +86,11 @@ function createConditionalParserUnion(parsers: ParserFunction[]) {
         // since we never know if it errored due to invalid data,
         // or if it errored due to not meeting the conditional check.
       }
+    }
+    if (isExhaustive) {
+      throw new TypeError(
+        `The data did not match any of the ${parsers.length} conditional assertions`
+      );
     }
     return {};
   };

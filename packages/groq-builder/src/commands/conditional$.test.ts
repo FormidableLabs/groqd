@@ -25,6 +25,7 @@ describe("conditional$", () => {
         msrp: true,
       },
     });
+
     it("we should be able to extract the intersection of projection types", () => {
       expectType<
         Simplify<ExtractConditionalProjectionTypes<typeof conditionalResult>>
