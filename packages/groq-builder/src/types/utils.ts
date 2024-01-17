@@ -89,7 +89,7 @@ export type ExtractTypeMismatchErrors<TResult> =
 
 export type ValueOf<T> = T[keyof T];
 export type EntriesOf<T> = ValueOf<{
-  [Key in StringKeys<keyof T>]: readonly [Key, T[Key]];
+  [Key in StringKeys<keyof T>]: [Key, T[Key]];
 }>;
 
 /**
