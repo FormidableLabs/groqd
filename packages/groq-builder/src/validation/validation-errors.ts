@@ -42,6 +42,5 @@ export class ValidationErrors extends TypeError {
 
 function joinPath(path1: string, path2: string) {
   const emptyJoin = !path1 || !path2 || path2.startsWith("[");
-  console.log({ path1, path2, emptyJoin });
   return path1 + (emptyJoin ? "" : ".") + path2;
 }
