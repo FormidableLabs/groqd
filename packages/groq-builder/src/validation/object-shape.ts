@@ -10,7 +10,7 @@ import { normalizeValidationFunction } from "../commands/validate-utils";
 import { ValidationErrors } from "./validation-errors";
 
 interface ObjectValidation {
-  object(): OptionalParser<object, object>;
+  object<TResult>(): OptionalParser<TResult, TResult>;
   object<TMap extends ObjectValidationMap>(
     map?: TMap
   ): OptionalParser<

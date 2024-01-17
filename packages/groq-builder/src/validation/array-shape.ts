@@ -9,7 +9,7 @@ import { ValidationErrors } from "./validation-errors";
 import { createOptionalParser, inspect, OptionalParser } from "./primitives";
 
 export interface ArrayValidation {
-  array(): OptionalParser<Array<unknown>, Array<unknown>>;
+  array<TItem>(): OptionalParser<Array<TItem>, Array<TItem>>;
   array<TParser extends Parser>(
     itemParser: TParser
   ): OptionalParser<
