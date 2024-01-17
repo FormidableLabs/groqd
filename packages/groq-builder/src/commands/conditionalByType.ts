@@ -8,7 +8,6 @@ import {
   ConditionalConfig,
 } from "./conditional-types";
 import { ProjectionMap } from "./projection-types";
-import { IsEqual } from "../tests/expectType";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
