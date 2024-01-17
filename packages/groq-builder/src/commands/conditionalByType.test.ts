@@ -86,6 +86,7 @@ describe("conditionalByType", () => {
     it("the query should be correct", () => {
       expect(qMultiple.query).toMatchInlineSnapshot(`
         "* {
+            _type,
             _type == \\"variant\\" => {
                 price
               },

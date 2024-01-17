@@ -189,8 +189,11 @@ describe("conditional$", () => {
                   price,
                   msrp
                 },
-              another == condition => {
+              another == condition1 => {
                   \\"foo\\": \\"FOO\\"
+                },
+              another == condition2 => {
+                  \\"bar\\": \\"BAR\\"
                 }
             }"
         `);
