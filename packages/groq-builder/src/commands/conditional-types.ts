@@ -102,6 +102,16 @@ export type ConditionalConfig<
   TKey extends string = string,
   TIsExhaustive extends boolean = boolean
 > = {
+  /**
+   * If using multiple conditions in a single projection,
+   * each condition must have a unique key.
+   * This key is not used in the resulting query, and can be anything.
+   */
   key: TKey;
+  /**
+   * If the conditional statements cover all possible scenarios,
+   * then setting `isExhaustive` to `true` will ensure stronger types,
+   * and can throw runtime errors if none of the conditions are satisfied.
+   */
   isExhaustive: TIsExhaustive;
 };

@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { RootConfig } from "../types/schema-types";
+import { ExtractTypeNames, RootConfig } from "../types/schema-types";
 import { ResultItem } from "../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -18,9 +18,12 @@ declare module "../groq-builder" {
         TRootConfig
       >,
       TKey extends string = "[ByType]",
-      TIsExhaustive extends boolean = TConditionalProjections extends Required<
-        ConditionalByTypeProjectionMap<ResultItem<TResult>, TRootConfig>
-      >
+      /**
+       * Did we supply a condition for all possible _type values?
+       */
+      TIsExhaustive extends boolean = ExtractTypeNames<
+        ResultItem<TResult>
+      > extends keyof TConditionalProjections
         ? true
         : false
     >(
