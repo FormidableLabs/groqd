@@ -77,5 +77,30 @@ Array<
 
 Notice that this type is stronger than the example with `q.conditional$`, because we've detected that the conditions are "exhaustive". 
 
-## The `select` function
+## The `select` method
+
+Adds support for the `select$` method:
+```ts
+const qMovies = q.star.filterByType("movie").project({
+  name: true,
+  popularity: q.select$({
+    "popularity > 20": q.value("high"),
+    "popularity > 10": q.value("medium"),
+  }, q.value("low")),
+});
+```
+
+The `$` sign is to indicate that there's some "loosely typed" code in here -- the conditions are unchecked.
+
+## The `selectByType` method
+
+Adds a `selectByType` helper, which facilitates type-based logic.  This is completely strongly-typed:
+```ts
+const qContent = q.star.filterByType("movie", "actor").project(q => ({
+  name: q.selectByType({
+    movie: q => q.field("title"),
+    actor: q => q.field("name"),
+  })
+}));
+```
 
