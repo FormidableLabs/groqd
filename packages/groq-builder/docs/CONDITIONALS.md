@@ -37,10 +37,10 @@ And the result type is inferred as:
 ```ts
 type ContentResults = InferResultType<typeof contentQuery>;
 // Same as:
-type ContentResults = 
+type ContentResults = Array<
   | { slug: string }
   | { slug: string, title: string, subtitle: string }
-;
+>;
 ```
 
 Notice that the conditions are wrapped in `q.conditional$()` and then spread into the projection.  This is necessary for type-safety and runtime validation.
@@ -68,9 +68,12 @@ const contentQuery = q.star
 
 The resulting query is identical to the above example with `q.conditional$`.
 
-The result type here is inferred as: 
+The result type here is inferred as:
+
 ```ts
-Array<
+type ContentResult = InferResultType<typeof contentQuery>;
+// Same as:
+type ContentResult = Array<
   { slug: string, title: string, subtitle: string }
 >
 ```
@@ -91,6 +94,29 @@ const qMovies = q.star.filterByType("movie").project({
 ```
 
 The `$` sign is to indicate that there's some "loosely typed" code in here -- the conditions are unchecked.
+
+This will output the following query:
+```groq
+*[_type == "movie"] {
+  name,
+  "popularity": select(
+    popularity > 20 => "high",
+    popularity > 10 => "medium",
+    "low"
+  )
+}
+```
+
+And will have the following result type:
+```ts
+type MoviesResult = InferResultType<typeof qMovies>;
+// Same as:
+type MoviesResult = Array<{
+  name: string
+  popularity: "high" | "medium" | "low"
+}>
+```
+
 
 ## The `selectByType` method
 
