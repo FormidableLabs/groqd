@@ -18,11 +18,36 @@ const contentQuery = q.star
   });
 ```
 
+This outputs the following groq query:
+```groq
+*[_type == "movie" || _type == "actor"] {
+  "slug": slug.current,
+  _type == 'movie' => {
+    title,
+    "subtitle": description
+  },
+  _type == 'actor' => {
+    "title": name,
+    "subtitle": biography
+  }
+}
+```
+
+And the result type is inferred as:
+```ts
+type ContentResults = InferResultType<typeof contentQuery>;
+// Same as:
+type ContentResults = 
+  | { slug: string }
+  | { slug: string, title: string, subtitle: string }
+;
+```
+
 Notice that the conditions are wrapped in `q.conditional$()` and then spread into the projection.  This is necessary for type-safety and runtime validation.
 
-The `$` in the method `q.conditional$` indicates that this method is not completely type-safe; the condition statements (eg. `_type == 'movie'`) are not strongly-typed. This may be improved in a future version.
+The `$` in the method `q.conditional$` indicates that this method is not completely type-safe; the condition statements (eg. `_type == 'movie'`) are not strongly-typed (this may be improved in a future version).
 
-However, the most common use-case is to base conditional logic off the document's `_type`.  For this, we have the `q.conditionalByType` helper.
+However, the most common use-case is to base conditional logic off the document's `_type`.  For this, we have the `q.conditionalByType` helper:
 
 ### Strongly-typed conditions via `q.conditionalByType(...)`
 
@@ -35,17 +60,22 @@ const contentQuery = q.star
   .project(q => ({
     slug: "slug.current",
     ...q.conditionalByType({
-      movie: { title: "title", description: true },
-      actor: { title: "name", biography: true },
+      movie: { title: "title", subtitle: "description" },
+      actor: { title: "name", subtitle: "biography" },
     })
   }));
 ```
 
+The resulting query is identical to the above example with `q.conditional$`.
+
 The result type here is inferred as: 
 ```ts
 Array<
-  | { slug: string }
-  | { slug: string, title: string, description: string }
-  | { slug: string, title: string, biography: string }
+  { slug: string, title: string, subtitle: string }
 >
 ```
+
+Notice that this type is stronger than the example with `q.conditional$`, because we've detected that the conditions are "exhaustive". 
+
+## The `select` function
+
