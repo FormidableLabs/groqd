@@ -5,7 +5,7 @@ import { InferFragmentType, InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { TypeMismatchError } from "../types/utils";
 
-const q = createGroqBuilder<SchemaConfig>();
+const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
 describe("fragment", () => {
   // define a fragment:
@@ -16,7 +16,7 @@ describe("fragment", () => {
   });
   type VariantFragment = InferFragmentType<typeof variantFragment>;
 
-  it("should have the correct type", () => {
+  it("simple fragment should have the correct type", () => {
     expectType<VariantFragment>().toStrictEqual<{
       name: string;
       price: number;
@@ -37,7 +37,7 @@ describe("fragment", () => {
   }));
   type ProductFragment = InferFragmentType<typeof productFrag>;
 
-  it("should have the correct types", () => {
+  it("nested fragments should have the correct types", () => {
     expectType<ProductFragment>().toEqual<{
       name: string;
       slug: string;
@@ -57,9 +57,16 @@ describe("fragment", () => {
     >();
 
     expect(qVariants.query).toMatchInlineSnapshot(
-      '"*[_type == \\"variant\\"] { name, price, \\"slug\\": slug.current }"'
+      `
+      "*[_type == \\"variant\\"] {
+          name,
+          price,
+          \\"slug\\": slug.current
+        }"
+    `
     );
   });
+
   it("fragments can be spread in a query", () => {
     const qVariantsPlus = q.star.filterByType("variant").project({
       ...variantFragment,
@@ -70,7 +77,14 @@ describe("fragment", () => {
     >();
 
     expect(qVariantsPlus.query).toMatchInlineSnapshot(
-      '"*[_type == \\"variant\\"] { name, price, \\"slug\\": slug.current, msrp }"'
+      `
+      "*[_type == \\"variant\\"] {
+          name,
+          price,
+          \\"slug\\": slug.current,
+          msrp
+        }"
+    `
     );
   });
 
@@ -122,5 +136,64 @@ describe("fragment", () => {
       _id: string;
       name: string;
     }>();
+  });
+
+  describe("fragments can use conditionals", () => {
+    const fragmentWithConditional = q
+      .fragment<SanitySchema.Variant>()
+      .project((qP) => ({
+        name: true,
+        ...qP.conditional$({
+          "price == msrp": { onSale: q.value(false) },
+          "price < msrp": { onSale: q.value(true), price: true, msrp: true },
+        }),
+      }));
+    const qConditional = q.star.filterByType("variant").project({
+      slug: "slug.current",
+      ...fragmentWithConditional,
+    });
+
+    it("the inferred type is correct", () => {
+      expectType<
+        InferFragmentType<typeof fragmentWithConditional>
+      >().toStrictEqual<
+        | { name: string }
+        | { name: string; onSale: false }
+        | { name: string; onSale: true; price: number; msrp: number }
+      >();
+    });
+
+    it("the fragment can be used in a query", () => {
+      expectType<InferResultType<typeof qConditional>>().toStrictEqual<
+        Array<
+          | { slug: string; name: string }
+          | { slug: string; name: string; onSale: false }
+          | {
+              slug: string;
+              name: string;
+              onSale: true;
+              price: number;
+              msrp: number;
+            }
+        >
+      >();
+    });
+
+    it("the query is compiled correctly", () => {
+      expect(qConditional.query).toMatchInlineSnapshot(`
+        "*[_type == \\"variant\\"] {
+            \\"slug\\": slug.current,
+            name,
+            price == msrp => {
+              \\"onSale\\": false
+            },
+          price < msrp => {
+              \\"onSale\\": true,
+              price,
+              msrp
+            }
+          }"
+      `);
+    });
   });
 });

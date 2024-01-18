@@ -25,6 +25,46 @@ describe("project (object projections)", () => {
     ),
   });
 
+  describe("root projections", () => {
+    const qRoot = q.project({
+      productNames: q.star.filterByType("product").field("name"),
+      categoryNames: q.star.filterByType("category").field("name"),
+    });
+    it("should have the correct type", () => {
+      expectType<InferResultType<typeof qRoot>>().toStrictEqual<{
+        productNames: string[];
+        categoryNames: string[];
+      }>();
+    });
+
+    it("should have the correct query", () => {
+      expect(qRoot.query).toMatchInlineSnapshot(
+        '" { \\"productNames\\": *[_type == \\"product\\"].name, \\"categoryNames\\": *[_type == \\"category\\"].name }"'
+      );
+    });
+
+    it("should execute correctly", async () => {
+      const data = mock.generateSeedData({
+        products: mock.array(2, () => mock.product({})),
+        categories: mock.array(3, () => mock.category({})),
+      });
+      const results = await executeBuilder(qRoot, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        {
+          "categoryNames": [
+            "Category Name",
+            "Category Name",
+            "Category Name",
+          ],
+          "productNames": [
+            "Name",
+            "Name",
+          ],
+        }
+      `);
+    });
+  });
+
   describe("a single plain property", () => {
     it("cannot use 'true' to project unknown properties", () => {
       const qInvalid = qVariants.project({
@@ -134,6 +174,53 @@ describe("project (object projections)", () => {
           {
             "id": "variant-4",
             "msrp": 800,
+            "name": "Variant 4",
+            "price": 400,
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("projection with validation", () => {
+    const qValidation = qVariants.project({
+      name: validation.string(),
+      price: validation.number(),
+    });
+    it("query should be typed correctly", () => {
+      expect(qValidation.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { name, price }"'
+      );
+
+      expectType<InferResultType<typeof qValidation>>().toStrictEqual<
+        Array<{
+          name: string;
+          price: number;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qValidation, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "name": "Variant 0",
+            "price": 0,
+          },
+          {
+            "name": "Variant 1",
+            "price": 100,
+          },
+          {
+            "name": "Variant 2",
+            "price": 200,
+          },
+          {
+            "name": "Variant 3",
+            "price": 300,
+          },
+          {
             "name": "Variant 4",
             "price": 400,
           },

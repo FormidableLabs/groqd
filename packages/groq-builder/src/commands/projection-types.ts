@@ -5,17 +5,25 @@ import {
   Simplify,
   SimplifyDeep,
   StringKeys,
-  TaggedUnwrap,
   TypeMismatchError,
   ValueOf,
 } from "../types/utils";
-import { Parser } from "../types/public-types";
+import {
+  FragmentInputTypeTag,
+  IGroqBuilder,
+  Parser,
+} from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
+import { RootConfig } from "../types/schema-types";
+import {
+  ExtractConditionalProjectionTypes,
+  OmitConditionalProjections,
+} from "./conditional-types";
 
-export type ProjectionKey<TResultItem> = ProjectionKeyImpl<
-  Simplify<PathEntries<DeepRequired<TResultItem>>>
->;
+export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
+  ? string
+  : ProjectionKeyImpl<Simplify<PathEntries<DeepRequired<TResultItem>>>>;
 type ProjectionKeyImpl<Entries> = ValueOf<{
   [Key in keyof Entries]: Entries[Key] extends Array<any>
     ? `${StringKeys<Key>}[]` | Key
@@ -26,6 +34,7 @@ export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
   TResultItem,
   Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
 >;
+
 export type ProjectionMap<TResultItem> = {
   // This allows TypeScript to suggest known keys:
   [P in keyof TResultItem]?: ProjectionFieldConfig<TResultItem, TResultItem[P]>;
@@ -37,7 +46,14 @@ export type ProjectionMap<TResultItem> = {
   "..."?: true;
 };
 
-type ProjectionFieldConfig<TResultItem, TFieldType> =
+export type ProjectionMapOrCallback<
+  TResultItem,
+  TRootConfig extends RootConfig
+> =
+  | ProjectionMap<TResultItem>
+  | ((q: GroqBuilder<TResultItem, TRootConfig>) => ProjectionMap<TResultItem>);
+
+export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use 'true' to include a field as-is
   | true
   // Use a string for naked projections, like 'slug.current'
@@ -47,22 +63,23 @@ type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use a tuple for naked projections with a parser
   | [ProjectionKey<TResultItem>, Parser<TFieldType>]
   // Use a GroqBuilder instance to create a nested projection
-  | GroqBuilder;
+  | IGroqBuilder;
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> =
   (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
     ExtractProjectionResultImpl<
       TResultItem,
       Omit<
-        TaggedUnwrap<TProjectionMap>, // Ensure we unwrap any tags (used by Fragments)
-        "..."
+        OmitConditionalProjections<TProjectionMap>,
+        // Ensure we remove any "tags" that we don't want in the mapped type:
+        "..." | typeof FragmentInputTypeTag
       >
-    >;
+    > &
+    ExtractConditionalProjectionTypes<TProjectionMap>;
 
 type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
-  [P in keyof TProjectionMap]: TProjectionMap[P] extends GroqBuilder<
-    infer TValue,
-    any
+  [P in keyof TProjectionMap]: TProjectionMap[P] extends IGroqBuilder<
+    infer TValue
   > // Extract type from GroqBuilder:
     ? TValue
     : /* Extract type from 'true': */

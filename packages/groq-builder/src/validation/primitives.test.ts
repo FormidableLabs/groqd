@@ -133,7 +133,7 @@ describe("primitiveValidation", () => {
   });
 
   describe("array", () => {
-    const arrParser = validation.array<number[]>();
+    const arrParser = validation.array<number>();
 
     it("should ensure the input was an array", () => {
       expect(

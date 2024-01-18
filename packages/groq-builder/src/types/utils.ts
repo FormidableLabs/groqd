@@ -88,9 +88,26 @@ export type ExtractTypeMismatchErrors<TResult> =
     : never;
 
 export type ValueOf<T> = T[keyof T];
-export type EntriesOf<T> = {
-  [Key in keyof T]: [Key, T[Key]];
-}[keyof T];
+export type EntriesOf<T> = ValueOf<{
+  [Key in StringKeys<keyof T>]: [Key, T[Key]];
+}>;
+
+/**
+ * Returns the intersection (&) of the values of a type.
+ *
+ * Similar to ValueOf, which returns the union (|) of the values.
+ *
+ * @example
+ * IntersectionOfValues<{
+ *   foo: { foo: "FOO" } | { },
+ *   bar: { bar: "BAR" } | { },
+ * }> == { } | { foo: "FOO" } | { bar: "BAR" } | { foo: "FOO", bar: "BAR" }
+ */
+export type IntersectionOfValues<T> = {
+  [P in keyof T]: (x: T[P]) => void;
+}[keyof T] extends (x: infer ValueIntersection) => void
+  ? ValueIntersection
+  : never;
 
 /**
  * Excludes symbol and number from keys, so that you only have strings.
@@ -125,3 +142,11 @@ export type Empty = Record<never, never>;
 
 /** Taken from type-fest; checks if a type is any */
 export type IsAny<T> = 0 extends 1 & T ? true : false;
+
+export function keys<T extends object>(obj: T) {
+  return Object.keys(obj) as Array<Extract<keyof T, string>>;
+}
+
+export function notNull<T>(value: T | null): value is T {
+  return !!value;
+}

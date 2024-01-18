@@ -1,5 +1,5 @@
 // Be sure to keep these 2 imports in the correct order:
-import { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
+import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
 import "./commands";
 
 import type { RootConfig } from "./types/schema-types";
@@ -8,10 +8,8 @@ import type { ButFirst } from "./types/utils";
 // Export all our public types:
 export * from "./types/public-types";
 export * from "./types/schema-types";
-export { GroqBuilder, GroqBuilderOptions } from "./groq-builder";
+export { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
 export { validation } from "./validation";
-
-type RootResult = never;
 
 /**
  * Creates the root `q` query builder.
