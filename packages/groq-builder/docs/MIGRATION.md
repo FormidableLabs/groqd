@@ -26,8 +26,9 @@ const productsQuery = q("*")
 #### After, with `groq-builder`
 
 ```ts
-import { createGroqBuilderWithValidation } from "groq-builder";
-const q = createGroqBuilderWithValidation<any>(); // Using 'any' makes the query schema-unaware 
+import { createGroqBuilder, validation } from "groq-builder";
+// Using 'any' makes the query schema-unaware: 
+const q = createGroqBuilder<any>().include(validation); 
 
 const productsQuery = q.star
   .filterByType("product")
@@ -52,15 +53,17 @@ Keep reading for a deeper explanation of these changes.
 
 ```ts
 // src/queries/q.ts
-import { createGroqBuilder } from 'groq-builder';
+import { createGroqBuilder, validation } from 'groq-builder';
 type SchemaConfig = any;
-export const q = createGroqBuilder<SchemaConfig>();
+export const q = createGroqBuilder<SchemaConfig>().include(validation);
 ```
 
 By creating the root `q` this way, we're able to bind it to our `SchemaConfig`.  
 By using `any` for now, our `q` will be schema-unaware (same as `groqd`).  
 Later, we'll show you how to change this to a strongly-typed schema.
 
+We also call `.include(validation)` to extend the root `q` with our validation methods, like `q.string()`.
+This is for convenience and compatibility.
 
 ## Step 2: Replacing the `q("...")` method
 

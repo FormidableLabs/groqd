@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { validate } from "./index";
+import { validation } from "./index";
 import { expectType } from "../tests/expectType";
 import { InferParserInput, InferParserOutput } from "../types/public-types";
 import { ValidationErrors } from "./validation-errors";
 
-describe("primitiveValidators", () => {
+describe("primitiveValidation", () => {
   it("string", () => {
-    const str = validate.string();
+    const str = validation.string();
 
     expect(str("TEST")).toEqual("TEST");
     const validResult = str("TEST");
@@ -34,7 +34,7 @@ describe("primitiveValidators", () => {
     );
   });
   it("string.optional", () => {
-    const str = validate.string().optional();
+    const str = validation.string().optional();
 
     expect(str("TEST")).toEqual("TEST");
     expect(str(undefined)).toEqual(undefined);
@@ -54,7 +54,7 @@ describe("primitiveValidators", () => {
     );
   });
   it("number", () => {
-    const num = validate.number();
+    const num = validation.number();
 
     expect(num(999)).toEqual(999);
 
@@ -77,7 +77,7 @@ describe("primitiveValidators", () => {
       foo: "FOO";
     };
 
-    const objParser = validate.object<ExpectedType>();
+    const objParser = validation.object<ExpectedType>();
 
     it("should have the correct type", () => {
       expectType<
@@ -133,7 +133,7 @@ describe("primitiveValidators", () => {
   });
 
   describe("array", () => {
-    const arrParser = validate.array<number[]>();
+    const arrParser = validation.array<number>();
 
     it("should ensure the input was an array", () => {
       expect(

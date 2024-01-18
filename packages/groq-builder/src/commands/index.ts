@@ -1,3 +1,5 @@
+import "./conditional$";
+import "./conditionalByType";
 import "./deref";
 import "./filter";
 import "./filterByType";
@@ -7,7 +9,12 @@ import "./order";
 import "./project";
 import "./projectField";
 import "./raw";
+// import "./sanity-image";
+import "./select$";
+import "./selectByType";
 import "./slice";
 import "./slug";
 import "./star";
 import "./validate";
+
+import "./functions/value";

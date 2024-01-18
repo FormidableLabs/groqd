@@ -7,7 +7,7 @@ import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
-import { validate } from "../validation";
+import { validation } from "../validation";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -23,6 +23,46 @@ describe("project (object projections)", () => {
         slug: mock.slug({ current: `variant:${i}` }),
       })
     ),
+  });
+
+  describe("root projections", () => {
+    const qRoot = q.project({
+      productNames: q.star.filterByType("product").field("name"),
+      categoryNames: q.star.filterByType("category").field("name"),
+    });
+    it("should have the correct type", () => {
+      expectType<InferResultType<typeof qRoot>>().toStrictEqual<{
+        productNames: string[];
+        categoryNames: string[];
+      }>();
+    });
+
+    it("should have the correct query", () => {
+      expect(qRoot.query).toMatchInlineSnapshot(
+        '" { \\"productNames\\": *[_type == \\"product\\"].name, \\"categoryNames\\": *[_type == \\"category\\"].name }"'
+      );
+    });
+
+    it("should execute correctly", async () => {
+      const data = mock.generateSeedData({
+        products: mock.array(2, () => mock.product({})),
+        categories: mock.array(3, () => mock.category({})),
+      });
+      const results = await executeBuilder(qRoot, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        {
+          "categoryNames": [
+            "Category Name",
+            "Category Name",
+            "Category Name",
+          ],
+          "productNames": [
+            "Name",
+            "Name",
+          ],
+        }
+      `);
+    });
   });
 
   describe("a single plain property", () => {
@@ -142,6 +182,53 @@ describe("project (object projections)", () => {
     });
   });
 
+  describe("projection with validation", () => {
+    const qValidation = qVariants.project({
+      name: validation.string(),
+      price: validation.number(),
+    });
+    it("query should be typed correctly", () => {
+      expect(qValidation.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"] { name, price }"'
+      );
+
+      expectType<InferResultType<typeof qValidation>>().toStrictEqual<
+        Array<{
+          name: string;
+          price: number;
+        }>
+      >();
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qValidation, data.datalake);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "name": "Variant 0",
+            "price": 0,
+          },
+          {
+            "name": "Variant 1",
+            "price": 100,
+          },
+          {
+            "name": "Variant 2",
+            "price": 200,
+          },
+          {
+            "name": "Variant 3",
+            "price": 300,
+          },
+          {
+            "name": "Variant 4",
+            "price": 400,
+          },
+        ]
+      `);
+    });
+  });
+
   describe("a projection with naked projections", () => {
     const qNakedProjections = qVariants.project({
       NAME: "name",
@@ -177,18 +264,18 @@ describe("project (object projections)", () => {
 
   describe("a projection with naked, validated projections", () => {
     const qNakedProjections = qVariants.project({
-      NAME: ["name", validate.string()],
-      SLUG: ["slug.current", validate.string()],
-      msrp: ["msrp", validate.number()],
+      NAME: ["name", validation.string()],
+      SLUG: ["slug.current", validation.string()],
+      msrp: ["msrp", validation.number()],
     });
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID", validate.number()] });
+      qVariants.project({ NAME: ["INVALID", validation.number()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["slug.INVALID", validate.string()] });
+      qVariants.project({ NAME: ["slug.INVALID", validation.string()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID.current", validate.string()] });
+      qVariants.project({ NAME: ["INVALID.current", validation.string()] });
     });
 
     it("query should be correct", () => {
@@ -321,7 +408,7 @@ describe("project (object projections)", () => {
         name: true,
         description: image
           .field("description")
-          .validate(validate.string().optional()),
+          .validate(validation.string().optional()),
       })),
     }));
 
@@ -454,11 +541,11 @@ describe("project (object projections)", () => {
     });
   });
 
-  describe("validate", () => {
+  describe("validation", () => {
     const qParser = qVariants.project((q) => ({
       name: true,
       msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.field("price").validate(validate.number()),
+      price: q.field("price").validate(validation.number()),
     }));
 
     it("the types should match", () => {

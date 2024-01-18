@@ -1,10 +1,18 @@
-import type { Parser, ParserFunction } from "./types/public-types";
+import type {
+  IGroqBuilder,
+  Parser,
+  ParserFunction,
+} from "./types/public-types";
 import type { RootConfig } from "./types/schema-types";
 import {
   chainParsers,
   normalizeValidationFunction,
 } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
+import { Empty } from "./types/utils";
+import { GroqBuilderResultType } from "./types/public-types";
+
+export type RootResult = Empty;
 
 export type GroqBuilderOptions = {
   /**
@@ -16,7 +24,11 @@ export type GroqBuilderOptions = {
 export class GroqBuilder<
   TResult = unknown,
   TRootConfig extends RootConfig = RootConfig
-> {
+> implements IGroqBuilder<TResult>
+{
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  readonly [GroqBuilderResultType]: TResult;
+
   /**
    * Extends the GroqBuilder class by implementing methods.
    * This allows for this class to be split across multiple files in the `./commands/` folder.
@@ -56,6 +68,13 @@ export class GroqBuilder<
   }
 
   /**
+   * The parser function that should be used to parse result data
+   */
+  public get parser() {
+    return this.internal.parser;
+  }
+
+  /**
    * Parses and validates the query results, passing all data through the parsers.
    */
   public parse(data: unknown): TResult {
@@ -90,5 +109,30 @@ export class GroqBuilder<
       ),
       options: this.internal.options,
     });
+  }
+
+  /**
+   * Returns an empty GroqBuilder
+   */
+  public get root() {
+    let options = this.internal.options;
+    // Make the query pretty, if needed:
+    if (options.indent) {
+      options = { ...options, indent: options.indent + "  " };
+    }
+
+    return new GroqBuilder<RootResult, TRootConfig>({
+      query: "",
+      parser: null,
+      options: options,
+    });
+  }
+
+  protected get indentation() {
+    const indent = this.internal.options.indent;
+    return {
+      newLine: indent ? `\n${indent}` : " ",
+      space: indent ? "  " : "",
+    };
   }
 }
