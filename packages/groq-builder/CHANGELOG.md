@@ -1,5 +1,19 @@
 # groq-builder
 
+## 0.3.0
+
+### Minor Changes
+
+- Added `conditional` and `select` features ([#256](https://github.com/FormidableLabs/groqd/pull/256))
+
+- Improved the way we handle validation. ([#255](https://github.com/FormidableLabs/groqd/pull/255))
+  Enable "tree shaking" to remove validation, if unused.
+  Improve type-checking of validation methods, for better error detection.
+
+### Patch Changes
+
+- Added support for Fragments via `q.fragment` ([#250](https://github.com/FormidableLabs/groqd/pull/250))
+
 ## 0.2.0
 
 ### Minor Changes
