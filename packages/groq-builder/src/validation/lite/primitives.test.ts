@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { validation } from "./index";
-import { expectType } from "../tests/expectType";
-import { InferParserInput, InferParserOutput } from "../types/public-types";
-import { ValidationErrors } from "./validation-errors";
+import { expectType } from "../../tests/expectType";
+import { InferParserInput, InferParserOutput } from "../../types/public-types";
+import { ValidationErrors } from "../validation-errors";
 
 describe("primitiveValidation", () => {
   it("string", () => {

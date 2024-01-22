@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validation } from "./index";
-import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 
 describe("contentBlock", () => {
   const parseBlock = validation.contentBlock();

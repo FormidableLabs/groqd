@@ -4,10 +4,10 @@ import {
   InferParserOutput,
   Parser,
   ParserFunction,
-} from "../types/public-types";
-import { Simplify } from "../types/utils";
-import { normalizeValidationFunction } from "../commands/validate-utils";
-import { ValidationErrors } from "./validation-errors";
+} from "../../types/public-types";
+import { Simplify } from "../../types/utils";
+import { normalizeValidationFunction } from "../../commands/validate-utils";
+import { ValidationErrors } from "../validation-errors";
 
 interface ObjectValidation {
   object<TResult>(): OptionalParser<TResult, TResult>;

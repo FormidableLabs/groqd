@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { validation } from "./index";
-import { expectType } from "../tests/expectType";
-import { InferParserInput, InferParserOutput } from "../types/public-types";
+import { expectType } from "../../tests/expectType";
+import { InferParserInput, InferParserOutput } from "../../types/public-types";
 import { objectValidation } from "./object-shape";
 import { improveErrorMessage } from "./primitives.test";
 

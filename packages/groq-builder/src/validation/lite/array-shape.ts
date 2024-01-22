@@ -2,10 +2,10 @@ import {
   InferParserInput,
   InferParserOutput,
   Parser,
-} from "../types/public-types";
-import { normalizeValidationFunction } from "../commands/validate-utils";
-import { Simplify } from "../types/utils";
-import { ValidationErrors } from "./validation-errors";
+} from "../../types/public-types";
+import { normalizeValidationFunction } from "../../commands/validate-utils";
+import { Simplify } from "../../types/utils";
+import { ValidationErrors } from "../validation-errors";
 import { createOptionalParser, inspect, OptionalParser } from "./primitives";
 
 export interface ArrayValidation {

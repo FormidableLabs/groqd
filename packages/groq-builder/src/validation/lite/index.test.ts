@@ -1,9 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { expectType } from "../tests/expectType";
-import { InferResultItem, InferResultType } from "../types/public-types";
-import { createGroqBuilder, validation } from "../index";
-import { TypeMismatchError } from "../types/utils";
-import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { expectType } from "../../tests/expectType";
+import { InferResultItem, InferResultType } from "../../types/public-types";
+import { createGroqBuilder } from "../../index";
+import { TypeMismatchError } from "../../types/utils";
+import {
+  SanitySchema,
+  SchemaConfig,
+} from "../../tests/schemas/nextjs-sanity-fe";
+
+import { validation } from "./index";
 
 describe("createGroqBuilder<any>() (schema-less)", () => {
   const q = createGroqBuilder<any>();

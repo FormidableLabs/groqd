@@ -1,4 +1,4 @@
-import { ParserFunction } from "../types/public-types";
+import { ParserFunction } from "../../types/public-types";
 
 export const primitiveValidation = {
   string: memo(() => createTypeValidator("string")),
