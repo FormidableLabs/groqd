@@ -128,10 +128,17 @@ export class GroqBuilder<
     });
   }
 
+  /**
+   * Returns a GroqBuilder, overriding the result type.
+   */
   public as<TResultNew>(): GroqBuilder<TResultNew, TRootConfig> {
     return this as any;
   }
 
+  /**
+   * Returns a GroqBuilder, overriding the result type
+   * with the specified document type.
+   */
   public asType<
     _type extends ExtractTypeNames<TRootConfig["documentTypes"]>
   >(): GroqBuilder<
@@ -141,6 +148,9 @@ export class GroqBuilder<
     return this as any;
   }
 
+  /**
+   * This utility returns whitespace, if 'indent' is enabled.
+   */
   protected get indentation() {
     const indent = this.internal.options.indent;
     return {
