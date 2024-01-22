@@ -5,7 +5,7 @@ import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { currencyFormat } from "../tests/utils";
 import { expectType } from "../tests/expectType";
-import { zodValidation } from "../validation";
+import { zod } from "../validation";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -35,7 +35,7 @@ describe("parse", () => {
   });
   describe("Zod parsers", () => {
     const qPriceParse = qPrice.validate<string>(
-      zodValidation.number().transform((p) => currencyFormat(p))
+      zod.number().transform((p) => currencyFormat(p))
     );
 
     it("shouldn't affect the query at all", () => {

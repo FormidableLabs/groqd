@@ -3,13 +3,11 @@ import { createGroqBuilder, InferResultType, validation } from "../../index";
 import { SchemaConfig } from "../../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../../tests/expectType";
 import { nullToUndefined } from "./nullToUndefined";
-import { zodValidation } from "../../validation";
+import { zod } from "../../validation";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 
-const q = createGroqBuilder<SchemaConfig>({ indent: "  " }).include(
-  zodValidation
-);
+const q = createGroqBuilder<SchemaConfig>({ indent: "  " }).include(zod);
 
 describe("nullToUndefined", () => {
   const data = mock.generateSeedData({

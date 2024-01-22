@@ -7,11 +7,9 @@ import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
-import { zodValidation } from "../validation";
+import { zod } from "../validation";
 
-const validation = zodValidation;
-
-const q = createGroqBuilder<SchemaConfig>();
+const q = createGroqBuilder<SchemaConfig>().include(zod);
 const qVariants = q.star.filterByType("variant");
 
 describe("project (object projections)", () => {
@@ -186,8 +184,8 @@ describe("project (object projections)", () => {
 
   describe("projection with validation", () => {
     const qValidation = qVariants.project({
-      name: validation.string(),
-      price: validation.number(),
+      name: zod.string(),
+      price: zod.number(),
     });
     it("query should be typed correctly", () => {
       expect(qValidation.query).toMatchInlineSnapshot(
@@ -266,18 +264,18 @@ describe("project (object projections)", () => {
 
   describe("a projection with naked, validated projections", () => {
     const qNakedProjections = qVariants.project({
-      NAME: ["name", validation.string()],
-      SLUG: ["slug.current", validation.string()],
-      msrp: ["msrp", validation.number()],
+      NAME: ["name", zod.string()],
+      SLUG: ["slug.current", zod.string()],
+      msrp: ["msrp", zod.number()],
     });
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID", validation.number()] });
+      qVariants.project({ NAME: ["INVALID", zod.number()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["slug.INVALID", validation.string()] });
+      qVariants.project({ NAME: ["slug.INVALID", zod.string()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID.current", validation.string()] });
+      qVariants.project({ NAME: ["INVALID.current", zod.string()] });
     });
 
     it("query should be correct", () => {
@@ -410,7 +408,7 @@ describe("project (object projections)", () => {
         name: true,
         description: image
           .field("description")
-          .validate(validation.nullToUndefined(validation.string().optional())),
+          .validate(zod.nullToUndefined(zod.string().optional())),
       })),
     }));
 
@@ -547,7 +545,7 @@ describe("project (object projections)", () => {
     const qParser = qVariants.project((q) => ({
       name: true,
       msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.field("price").validate(validation.number()),
+      price: q.field("price").validate(zod.number()),
     }));
 
     it("the types should match", () => {
