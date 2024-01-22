@@ -5,7 +5,7 @@ import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { currencyFormat } from "../tests/utils";
 import { expectType } from "../tests/expectType";
-import { zod } from "../validation";
+import { zod } from "../validation/zod";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");

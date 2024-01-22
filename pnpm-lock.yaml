@@ -82,6 +82,10 @@ importers:
         version: 4.9.5
 
   packages/groq-builder:
+    dependencies:
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sanity/client':
         specifier: ^3.4.1

@@ -5,11 +5,11 @@ import "./commands";
 import type { RootConfig } from "./types/schema-types";
 import type { ButFirst } from "./types/utils";
 
-// Export all our public types:
+// Re-export all our public types:
 export * from "./types/public-types";
 export * from "./types/schema-types";
 export { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
-export { validation } from "./validation";
+export { zod } from "./validation/zod";
 
 /**
  * Creates the root `q` query builder.

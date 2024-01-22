@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { createGroqBuilder, InferResultType, validation } from "../../index";
+import { createGroqBuilder, InferResultType } from "../../index";
 import { SchemaConfig } from "../../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../../tests/expectType";
 import { nullToUndefined } from "./nullToUndefined";
-import { zod } from "../../validation";
+import { zod } from "../../validation/zod";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 

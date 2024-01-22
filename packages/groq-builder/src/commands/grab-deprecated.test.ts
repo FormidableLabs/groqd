@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { validation } from "../validation";
 import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { zod } from "../validation/zod";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -20,7 +20,7 @@ describe("grab (backwards compatibility)", () => {
     const qGrab = qVariants.grab((q) => ({
       name: true,
       slug: "slug.current",
-      msrp: ["msrp", validation.number()],
+      msrp: ["msrp", zod.number()],
       styles: q.grabOne("style[]").deref().grabOne("name"),
     }));
 

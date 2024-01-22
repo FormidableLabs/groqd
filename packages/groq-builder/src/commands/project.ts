@@ -8,8 +8,8 @@ import {
   ProjectionFieldConfig,
   ProjectionMap,
 } from "./projection-types";
-import { objectValidation } from "../validation/object-shape";
-import { arrayValidation } from "../validation/array-shape";
+import { objectValidation } from "../validation/lite/object-shape";
+import { arrayValidation } from "../validation/lite/array-shape";
 import { isConditional } from "./conditional-types";
 
 declare module "../groq-builder" {
