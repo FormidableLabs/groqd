@@ -3,6 +3,10 @@
  */
 export type Primitive = number | string | boolean | null | undefined | symbol;
 
+export type LiteralUnion<LiteralType, BaseType extends Primitive> =
+  | LiteralType
+  | (BaseType & Record<never, never>);
+
 /**
  * Extracts the key from the object type, same as TObj[TKey[
  * If the key doesn't exist, returns a TypeMismatchError

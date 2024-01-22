@@ -1,10 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { createGroqBuilder, InferResultType } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { currencyFormat } from "../tests/utils";
 import { expectType } from "../tests/expectType";
+import { zodValidation } from "../validation";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -32,8 +33,10 @@ describe("parse", () => {
       expectType<InferResultType<typeof qPriceParse>>().toStrictEqual<string>();
     });
   });
-  describe("Zod-like parser object", () => {
-    const qPriceParse = qPrice.validate({ parse: (p) => currencyFormat(p) });
+  describe("Zod parsers", () => {
+    const qPriceParse = qPrice.validate<string>(
+      zodValidation.number().transform((p) => currencyFormat(p))
+    );
 
     it("shouldn't affect the query at all", () => {
       expect(qPriceParse.query).toEqual(qPrice.query);

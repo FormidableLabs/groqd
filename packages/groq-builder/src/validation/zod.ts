@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { nullToUndefined } from "../commands/functions/nullToUndefined";
 
-export const zodValidations = {
+export const zodValidation = {
   string: z.string,
   number: z.number,
   boolean: z.boolean,
@@ -11,4 +12,5 @@ export const zodValidations = {
   undefined: z.undefined,
   array: z.array,
   object: z.object,
+  nullToUndefined,
 };

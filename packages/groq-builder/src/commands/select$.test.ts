@@ -128,11 +128,11 @@ describe("select$", () => {
   describe("with validation", () => {
     const qSelect = qBase.project((q) => ({
       selected: q.select$({
-        '_type == "product"': q.project({
+        '_type == "product"': q.asType<"product">().project({
           _type: validation.literal("product"),
           name: validation.string(),
         }),
-        '_type == "variant"': q.project({
+        '_type == "variant"': q.asType<"variant">().project({
           _type: validation.literal("variant"),
           name: validation.string(),
           price: validation.number(),

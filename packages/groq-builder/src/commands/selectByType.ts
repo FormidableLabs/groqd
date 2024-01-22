@@ -37,7 +37,8 @@ GroqBuilder.implement({
       const condition = `_type == "${key}"`;
 
       const queryFn = typeQueries[key];
-      const query = typeof queryFn === "function" ? queryFn(root) : queryFn;
+      const query: GroqBuilder =
+        typeof queryFn === "function" ? queryFn(root) : queryFn!;
 
       mapped[condition] = query;
     }

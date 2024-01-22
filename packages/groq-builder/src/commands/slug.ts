@@ -1,13 +1,14 @@
 import { GroqBuilder } from "../groq-builder";
 import { EntriesOf } from "../types/utils";
 import { ResultItem, ResultOverride } from "../types/result-types";
+import { IGroqBuilder } from "../types/public-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilder<TResult, TRootConfig> {
     slug(
       fieldName: FieldsWithSlugs<ResultItem<TResult>>
-    ): GroqBuilder<ResultOverride<TResult, string>, TRootConfig>;
+    ): IGroqBuilder<ResultOverride<TResult, string>>;
   }
 }
 GroqBuilder.implement({

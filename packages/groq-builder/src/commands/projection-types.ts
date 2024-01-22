@@ -2,6 +2,7 @@ import { GroqBuilder } from "../groq-builder";
 import {
   Empty,
   IsAny,
+  LiteralUnion,
   Simplify,
   SimplifyDeep,
   StringKeys,
@@ -36,11 +37,10 @@ export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
 >;
 
 export type ProjectionMap<TResultItem> = {
-  // This allows TypeScript to suggest known keys:
-  [P in keyof TResultItem]?: ProjectionFieldConfig<TResultItem, TResultItem[P]>;
-} & {
-  // This allows any keys to be used in a projection:
-  [P in string]: ProjectionFieldConfig<TResultItem, never>;
+  [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
+    TResultItem,
+    P extends keyof TResultItem ? TResultItem[P] : any
+  >;
 } & {
   // Obviously this allows the ellipsis operator:
   "..."?: true;

@@ -7,7 +7,9 @@ import { createGroqBuilder } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
-import { validation } from "../validation";
+import { zodValidation } from "../validation";
+
+const validation = zodValidation;
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -408,7 +410,7 @@ describe("project (object projections)", () => {
         name: true,
         description: image
           .field("description")
-          .validate(validation.string().optional()),
+          .validate(validation.nullToUndefined(validation.string().optional())),
       })),
     }));
 
@@ -424,7 +426,7 @@ describe("project (object projections)", () => {
           name: string;
           images: Array<{
             name: string;
-            description: string | undefined | null;
+            description: string | undefined;
           }> | null;
         }>
       >();
