@@ -3,7 +3,7 @@ import type {
   Parser,
   ParserFunction,
 } from "./types/public-types";
-import type { RootConfig } from "./types/schema-types";
+import type { ExtractTypeNames, RootConfig } from "./types/schema-types";
 import {
   chainParsers,
   normalizeValidationFunction,
@@ -22,7 +22,7 @@ export type GroqBuilderOptions = {
 };
 
 export class GroqBuilder<
-  TResult = unknown,
+  TResult = any,
   TRootConfig extends RootConfig = RootConfig
 > implements IGroqBuilder<TResult>
 {
@@ -55,7 +55,7 @@ export class GroqBuilder<
   constructor(
     protected readonly internal: {
       readonly query: string;
-      readonly parser: null | ParserFunction<unknown, TResult>;
+      readonly parser: null | ParserFunction;
       readonly options: GroqBuilderOptions;
     }
   ) {}
@@ -70,7 +70,7 @@ export class GroqBuilder<
   /**
    * The parser function that should be used to parse result data
    */
-  public get parser() {
+  public get parser(): null | ParserFunction<unknown, TResult> {
     return this.internal.parser;
   }
 
@@ -126,6 +126,19 @@ export class GroqBuilder<
       parser: null,
       options: options,
     });
+  }
+
+  public as<TResultNew>(): GroqBuilder<TResultNew, TRootConfig> {
+    return this as any;
+  }
+
+  public asType<
+    _type extends ExtractTypeNames<TRootConfig["documentTypes"]>
+  >(): GroqBuilder<
+    Extract<TRootConfig["documentTypes"], { _type: _type }>,
+    TRootConfig
+  > {
+    return this as any;
   }
 
   protected get indentation() {
