@@ -28,15 +28,7 @@ describe("nullToUndefined", () => {
     await expect(() => executeBuilder(qInvalid, data.datalake)).rejects
       .toThrowErrorMatchingInlineSnapshot(`
       "1 Parsing Error:
-      result.description: [
-        {
-          \\"code\\": \\"invalid_type\\",
-          \\"expected\\": \\"string\\",
-          \\"received\\": \\"null\\",
-          \\"path\\": [],
-          \\"message\\": \\"Expected string, received null\\"
-        }
-      ]"
+      result.description: Expected string, received null"
     `);
   });
 

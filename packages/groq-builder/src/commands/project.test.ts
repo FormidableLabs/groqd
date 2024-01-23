@@ -472,7 +472,7 @@ describe("project (object projections)", () => {
       await expect(() => executeBuilder(qNested, dataWithInvalidData)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
         "1 Parsing Error:
-        result[0].images[0].description: Expected string, received 1234"
+        result[0].images[0].description: Expected string, received number"
       `);
     });
   });
@@ -607,7 +607,7 @@ describe("project (object projections)", () => {
       await expect(() => executeBuilder(qParser, invalidData)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
         "1 Parsing Error:
-        result[5].price: Expected number, received \\"INVALID\\""
+        result[5].price: Expected number, received string"
       `);
     });
   });
