@@ -79,17 +79,20 @@ export class GroqBuilder<
    */
   public parse(data: unknown): TResult {
     const parser = this.internal.parser;
-    if (parser) {
-      try {
-        return parser(data);
-      } catch (err) {
-        if (err instanceof ValidationErrors) {
-          throw err.withMessage();
-        }
-        throw err;
-      }
+    if (!parser) {
+      return data as TResult;
     }
-    return data as TResult;
+    try {
+      return parser(data);
+    } catch (err) {
+      // Ensure we throw a ValidationErrors instance:
+      if (err instanceof ValidationErrors) {
+        throw err.withMessage();
+      }
+      const v = new ValidationErrors();
+      v.add("", data, err as Error);
+      throw v.withMessage();
+    }
   }
 
   /**
