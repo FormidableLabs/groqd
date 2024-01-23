@@ -113,13 +113,13 @@ With `groq-builder`, by [adding a strongly-typed Sanity schema](./README.md#sche
 - Safer to write (all commands are type-checked, all fields are verified)
 - Faster to execute (because runtime validation can be skipped)
 
-In a projection, we can skip runtime validation by simply using `true` instead of a validation method (like `q.string()`).  For example:
+In a projection, we can skip runtime validation by using `q.infer()` instead of a validation method like `q.string()`.  For example:
 ```ts
 const productsQuery = q.star
   .filterByType("product")
   .project({
-    name: true, // 👈 'true' will bypass runtime validation
-    price: true, // 👈 and we still get strong result types from our schema
+    name: q.infer(), // 👈 this will bypass runtime validation
+    price: q.infer(), // 👈 and we still get strong result types from our schema
     slug: "slug.current", // 👈 a naked projection string works too!
   });
 ```

@@ -21,8 +21,8 @@ describe("conditional$", () => {
       },
       "price < msrp": {
         onSale: q.value(true),
-        price: true,
-        msrp: true,
+        price: q.infer(),
+        msrp: q.infer(),
       },
     });
 
@@ -43,15 +43,15 @@ describe("conditional$", () => {
   });
 
   const qAll = qBase.project((qA) => ({
-    name: true,
+    name: q.infer(),
     ...qA.conditional$({
       "price == msrp": {
         onSale: q.value(false),
       },
       "price < msrp": {
         onSale: q.value(true),
-        price: true,
-        msrp: true,
+        price: q.infer(),
+        msrp: q.infer(),
       },
     }),
   }));
@@ -87,22 +87,22 @@ describe("conditional$", () => {
   describe("multiple conditionals", () => {
     describe("without using unique keys", () => {
       const qIncorrect = q.star.filterByType("variant").project((qV) => ({
-        name: true,
+        name: q.infer(),
         ...qV.conditional$({
           "price == msrp": {
             onSale: q.value(false),
           },
           "price < msrp": {
             onSale: q.value(true),
-            price: true,
-            msrp: true,
+            price: q.infer(),
+            msrp: q.infer(),
           },
         }),
         // Here we're trying to spread another conditional,
         // however, it will override the first one
         // since we didn't specify a unique key:
         ...qV.conditional$({
-          "second == condition": { price: true },
+          "second == condition": { price: q.infer() },
         }),
       }));
 
@@ -127,15 +127,15 @@ describe("conditional$", () => {
       const qMultipleConditions = q.star
         .filterByType("variant")
         .project((qV) => ({
-          name: true,
+          name: q.infer(),
           ...qV.conditional$({
             "price == msrp": {
               onSale: q.value(false),
             },
             "price < msrp": {
               onSale: q.value(true),
-              price: true,
-              msrp: true,
+              price: q.infer(),
+              msrp: q.infer(),
             },
           }),
           ...qV.conditional$(

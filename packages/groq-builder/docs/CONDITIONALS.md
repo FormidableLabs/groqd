@@ -85,7 +85,7 @@ Notice that this type is stronger than the example with `q.conditional$`, becaus
 Adds support for the `select$` method:
 ```ts
 const qMovies = q.star.filterByType("movie").project({
-  name: true,
+  name: q.infer(),
   popularity: q.select$({
     "popularity > 20": q.value("high"),
     "popularity > 10": q.value("medium"),

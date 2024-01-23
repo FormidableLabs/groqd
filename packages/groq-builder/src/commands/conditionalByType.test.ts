@@ -23,11 +23,11 @@ const data = mock.generateSeedData({
 
 describe("conditionalByType", () => {
   const conditionalByType = q.star.conditionalByType({
-    variant: { _type: true, name: true, price: true },
-    product: { _type: true, name: true, slug: "slug.current" },
+    variant: { _type: q.infer(), name: q.infer(), price: q.infer() },
+    product: { _type: q.infer(), name: q.infer(), slug: "slug.current" },
     category: (qC) => ({
-      _type: true,
-      name: true,
+      _type: q.infer(),
+      name: q.infer(),
       slug: qC.field("slug.current"),
     }),
   });
@@ -53,13 +53,13 @@ describe("conditionalByType", () => {
   describe("multiple conditionals can be spread", () => {
     const qMultiple = q.star.project((q) => ({
       ...q.conditionalByType({
-        variant: { price: true },
+        variant: { price: q.infer() },
         product: { slug: "slug.current" },
       }),
       ...q.conditionalByType(
         {
-          category: { description: true },
-          style: { name: true },
+          category: { description: q.infer() },
+          style: { name: q.infer() },
         },
         { key: "unique-key" }
       ),
@@ -108,8 +108,8 @@ describe("conditionalByType", () => {
     const conditionsExhaustive = q.star
       .filterByType("product", "variant")
       .conditionalByType({
-        product: { _type: true, name: true },
-        variant: { _type: true, price: true },
+        product: { _type: q.infer(), name: q.infer() },
+        variant: { _type: q.infer(), price: q.infer() },
       });
 
     type ActualItem = ExtractConditionalProjectionTypes<
@@ -136,10 +136,10 @@ describe("conditionalByType", () => {
   });
 
   const qAll = q.star.project((qA) => ({
-    _type: true,
+    _type: q.infer(),
     ...qA.conditionalByType({
-      product: { _type: true, name: true, slug: "slug.current" },
-      variant: { name: true, price: true },
+      product: { _type: q.infer(), name: q.infer(), slug: "slug.current" },
+      variant: { name: q.infer(), price: q.infer() },
     }),
   }));
 

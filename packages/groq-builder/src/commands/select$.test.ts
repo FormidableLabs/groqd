@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createGroqBuilder, InferResultType, validation } from "../index";
+import { createGroqBuilder, InferResultType, zod } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { expectType } from "../tests/expectType";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -129,13 +129,13 @@ describe("select$", () => {
     const qSelect = qBase.project((q) => ({
       selected: q.select$({
         '_type == "product"': q.asType<"product">().project({
-          _type: validation.literal("product"),
-          name: validation.string(),
+          _type: zod.literal("product"),
+          name: zod.string(),
         }),
         '_type == "variant"': q.asType<"variant">().project({
-          _type: validation.literal("variant"),
-          name: validation.string(),
-          price: validation.number(),
+          _type: zod.literal("variant"),
+          name: zod.string(),
+          price: zod.number(),
         }),
       }),
     }));

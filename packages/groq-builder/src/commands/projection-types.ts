@@ -21,6 +21,7 @@ import {
   ExtractConditionalProjectionTypes,
   OmitConditionalProjections,
 } from "./conditional-types";
+import { inferSymbol } from "./functions/infer";
 
 export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
   ? string
@@ -43,7 +44,7 @@ export type ProjectionMap<TResultItem> = {
   >;
 } & {
   // Obviously this allows the ellipsis operator:
-  "..."?: true;
+  "..."?: inferSymbol;
 };
 
 export type ProjectionMapOrCallback<
@@ -54,8 +55,8 @@ export type ProjectionMapOrCallback<
   | ((q: GroqBuilder<TResultItem, TRootConfig>) => ProjectionMap<TResultItem>);
 
 export type ProjectionFieldConfig<TResultItem, TFieldType> =
-  // Use 'true' to include a field as-is
-  | true
+  // Use 'q.infer()' to include a field as-is, no transformations/parsers
+  | inferSymbol
   // Use a string for naked projections, like 'slug.current'
   | ProjectionKey<TResultItem>
   // Use a parser to include a field, passing it through the parser at run-time
@@ -66,7 +67,7 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   | IGroqBuilder;
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> =
-  (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
+  (TProjectionMap extends { "...": inferSymbol } ? TResultItem : Empty) &
     ExtractProjectionResultImpl<
       TResultItem,
       Omit<
@@ -82,12 +83,12 @@ type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
     infer TValue
   > // Extract type from GroqBuilder:
     ? TValue
-    : /* Extract type from 'true': */
-    TProjectionMap[P] extends boolean
+    : /* Extract type from 'inferSymbol': */
+    TProjectionMap[P] extends inferSymbol
     ? P extends keyof TResultItem
       ? TResultItem[P]
       : TypeMismatchError<{
-          error: `⛔️ 'true' can only be used for known properties ⛔️`;
+          error: `⛔️ 'q.infer()' can only be used for known properties ⛔️`;
           expected: keyof TResultItem;
           actual: P;
         }>
