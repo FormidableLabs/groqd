@@ -1,4 +1,5 @@
 import { ParserFunction } from "../../types/public-types";
+import { inspect } from "../simple-validation";
 
 export const primitiveValidation = {
   string: memo(() => createTypeValidator("string")),
@@ -55,17 +56,6 @@ export const primitiveValidation = {
 export function memo<T extends () => any>(fn: T): T {
   let result: ReturnType<T>;
   return (() => result || (result = fn())) as T;
-}
-
-/**
- * Pretty-prints the value
- */
-export function inspect(value: unknown): string {
-  if (value) {
-    if (Array.isArray(value)) return "an array";
-    if (typeof value === "object") return "an object";
-  }
-  return JSON.stringify(value);
 }
 
 /**

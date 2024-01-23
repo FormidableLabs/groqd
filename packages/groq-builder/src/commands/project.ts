@@ -8,9 +8,11 @@ import {
   ProjectionFieldConfig,
   ProjectionMap,
 } from "./projection-types";
-import { objectValidation } from "../validation/lite/object-shape";
-import { arrayValidation } from "../validation/lite/array-shape";
 import { isConditional } from "./conditional-types";
+import {
+  simpleArrayParser,
+  simpleObjectParser,
+} from "../validation/simple-validation";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
@@ -128,7 +130,7 @@ function createProjectionParser(
   const objectShape = Object.fromEntries(
     normalFields.map((f) => [f.key, f.parser])
   );
-  const objectParser = objectValidation.object(objectShape);
+  const objectParser = simpleObjectParser(objectShape);
 
   // Parse all conditional fields:
   const conditionalFields = fields.filter((f) => isConditional(f.key));
@@ -148,7 +150,7 @@ function createProjectionParser(
   };
 
   // Finally, transparently handle arrays or objects:
-  const arrayParser = arrayValidation.array(combinedParser);
+  const arrayParser = simpleArrayParser(combinedParser);
   return function projectionParser(
     input: UnknownObject | Array<UnknownObject>
   ) {

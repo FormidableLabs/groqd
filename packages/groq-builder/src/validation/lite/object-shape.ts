@@ -1,4 +1,4 @@
-import { createOptionalParser, inspect, OptionalParser } from "./primitives";
+import { createOptionalParser, OptionalParser } from "./primitives";
 import {
   InferParserInput,
   InferParserOutput,
@@ -6,8 +6,7 @@ import {
   ParserFunction,
 } from "../../types/public-types";
 import { Simplify } from "../../types/utils";
-import { normalizeValidationFunction } from "../../commands/validate-utils";
-import { ValidationErrors } from "../validation-errors";
+import { simpleObjectParser } from "../simple-validation";
 
 interface ObjectValidation {
   object<TResult>(): OptionalParser<TResult, TResult>;
@@ -37,43 +36,7 @@ interface ObjectValidation {
 
 export const objectValidation: ObjectValidation = {
   object(map?: ObjectValidationMap) {
-    if (!map) {
-      return createOptionalParser((input) => {
-        if (input === null || typeof input !== "object") {
-          throw new TypeError(`Expected an object, received ${inspect(input)}`);
-        }
-        return input;
-      });
-    }
-
-    const keys = Object.keys(map) as Array<string>;
-    const normalized = keys.map(
-      (key) =>
-        [
-          key,
-          normalizeValidationFunction(map[key as keyof typeof map]),
-        ] as const
-    );
-    return createOptionalParser((input) => {
-      if (input === null || typeof input !== "object") {
-        throw new TypeError(`Expected an object, received ${inspect(input)}`);
-      }
-
-      const validationErrors = new ValidationErrors();
-
-      const result: any = {};
-      for (const [key, parse] of normalized) {
-        const value = input[key as keyof typeof input];
-        try {
-          result[key] = parse ? parse(value) : value;
-        } catch (err) {
-          validationErrors.add(key, value, err as Error);
-        }
-      }
-
-      if (validationErrors.length) throw validationErrors;
-      return result;
-    });
+    return createOptionalParser(simpleObjectParser(map));
   },
 
   union(parserA, parserB) {
