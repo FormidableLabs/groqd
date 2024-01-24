@@ -1,14 +1,9 @@
-/**
- * All primitive types; just not objects or functions.
- */
-export type Primitive = number | string | boolean | null | undefined | symbol;
+import type { Simplify } from "type-fest";
 
-export type LiteralUnion<LiteralType, BaseType extends Primitive> =
-  | LiteralType
-  | (BaseType & Record<never, never>);
+export type { Simplify, Primitive, LiteralUnion, IsAny } from "type-fest";
 
 /**
- * Extracts the key from the object type, same as TObj[TKey[
+ * Extracts the key from the object type, same as TObj[TKey]
  * If the key doesn't exist, returns a TypeMismatchError
  */
 export type Get<TObj, TKey> = TKey extends keyof TObj
@@ -35,33 +30,7 @@ export type SimplifyDeep<T> = T extends object
     : never
   : T;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type Simplify<T> = { [P in keyof T]: T[P] } & {};
-
-export type UnionToIntersection<U> = (
-  U extends any ? (k: U) => void : never
-) extends (k: infer I) => void
-  ? I
-  : never;
-
 export type Override<T, TOverrides> = Omit<T, keyof TOverrides> & TOverrides;
-
-/**
- * Extracts the type of an array item, if the type is indeed an array.
- */
-export type MaybeArrayItem<T> = NonNullable<
-  T extends Array<infer TItem> ? TItem : T
->;
-/**
- * Extracts the type of an array item; returns an error if it's not an array.
- */
-export type ArrayItem<T> = T extends Array<infer TItem>
-  ? TItem
-  : TypeMismatchError<{
-      error: "Expected an array";
-      expected: Array<any>;
-      actual: T;
-    }>;
 
 export type TypeMismatchError<
   TError extends { error: string; expected: any; actual: any } = any
@@ -91,7 +60,16 @@ export type ExtractTypeMismatchErrors<TResult> =
       : never
     : never;
 
+/**
+ * Returns a union of all value types in the object
+ */
 export type ValueOf<T> = T[keyof T];
+/**
+ * Returns a union of the [Key, Value] pairs of the object.
+ * @example
+ *  EntriesOf<{ foo: "FOO", bar: "BAR" }>
+ *  // Results: ["foo", "FOO"] | ["bar", "BAR"]
+ */
 export type EntriesOf<T> = ValueOf<{
   [Key in StringKeys<keyof T>]: [Key, T[Key]];
 }>;
@@ -126,26 +104,9 @@ export type ButFirst<T extends Array<any>> = T extends [any, ...infer Rest]
   : never;
 
 /**
- * Extends a base type with extra type information.
- *
- * (also known as "opaque", "branding", or "flavoring")
- * @example
- * const id: Tagged<string, "UserId"> = "hello";
- *
- */
-export type Tagged<TActual, TTag> = TActual & { readonly [Tag]?: TTag };
-export type TaggedUnwrap<TTagged> = Omit<TTagged, typeof Tag>;
-export type TaggedType<TTagged extends Tagged<any, any>> =
-  TTagged extends Tagged<unknown, infer TTag> ? TTag : never;
-declare const Tag: unique symbol;
-
-/**
  * A completely empty object.
  */
 export type Empty = Record<never, never>;
-
-/** Taken from type-fest; checks if a type is any */
-export type IsAny<T> = 0 extends 1 & T ? true : false;
 
 export function keys<T extends object>(obj: T) {
   return Object.keys(obj) as Array<Extract<keyof T, string>>;

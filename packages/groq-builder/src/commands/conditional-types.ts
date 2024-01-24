@@ -3,13 +3,7 @@ import {
   ProjectionMap,
   ProjectionMapOrCallback,
 } from "./projection-types";
-import {
-  Empty,
-  IntersectionOfValues,
-  Simplify,
-  Tagged,
-  ValueOf,
-} from "../types/utils";
+import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
 import { ExtractTypeNames, RootConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
@@ -25,7 +19,12 @@ export type ConditionalProjectionMap<
       ) => ProjectionMap<TResultItem>);
 };
 
-export type ConditionalExpression<TResultItem> = Tagged<string, TResultItem>;
+/**
+ * For now, none of our "conditions" are strongly-typed,
+ * so we'll just use "string":
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type ConditionalExpression<TResultItem> = string;
 
 export type ExtractConditionalProjectionResults<
   TResultItem,
