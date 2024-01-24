@@ -1,4 +1,4 @@
-import "./conditional$";
+import "./conditional";
 import "./conditionalByType";
 import "./deref";
 import "./filter";
@@ -10,7 +10,7 @@ import "./project";
 import "./projectField";
 import "./raw";
 // import "./sanity-image";
-import "./select$";
+import "./select";
 import "./selectByType";
 import "./slice";
 import "./slug";

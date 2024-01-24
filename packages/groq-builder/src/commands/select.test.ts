@@ -7,13 +7,13 @@ import { executeBuilder } from "../tests/mocks/executeQuery";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
-describe("select$", () => {
+describe("select", () => {
   const qBase = q.star.filterByType("variant", "product", "category");
 
   describe("without a default value", () => {
     describe("should infer the correct type", () => {
       it("with a single condition", () => {
-        const qSel = q.select$({
+        const qSel = q.select({
           '_type == "variant"': q.value("VARIANT"),
         });
         expectType<InferResultType<typeof qSel>>().toStrictEqual<
@@ -21,7 +21,7 @@ describe("select$", () => {
         >();
       });
       it("with multiple selections", () => {
-        const qSelMultiple = q.select$({
+        const qSelMultiple = q.select({
           '_type == "variant"': q.value("VARIANT"),
           '_type == "product"': q.value("PRODUCT"),
           '_type == "category"': q.value("CATEGORY"),
@@ -32,7 +32,7 @@ describe("select$", () => {
       });
 
       it("with complex mixed selections", () => {
-        const qSelMultiple = q.select$({
+        const qSelMultiple = q.select({
           '_type == "variant"': q.value("VARIANT"),
           '_type == "nested"': q.project({ nested: q.value("NESTED") }),
           '_type == "deeper"': q.project({
@@ -54,7 +54,7 @@ describe("select$", () => {
 
   describe("with a default value", () => {
     const qSelect = qBase.project({
-      selected: q.select$(
+      selected: q.select(
         {
           '_type == "variant"': q.value("VARIANT"),
           '_type == "product"': q.value("PRODUCT"),
@@ -127,7 +127,7 @@ describe("select$", () => {
 
   describe("with validation", () => {
     const qSelect = qBase.project((q) => ({
-      selected: q.select$({
+      selected: q.select({
         '_type == "product"': q.asType<"product">().project({
           _type: zod.literal("product"),
           name: zod.string(),

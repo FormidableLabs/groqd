@@ -4,14 +4,14 @@ In Groq, there are 2 ways to use conditional logic: inline in a projection, or u
 
 ## Conditions in a projection
 
-In `groq-builder`, the `project` method allows inline conditional statements with the help of `q.conditional$(...)` or `q.conditionalByType(...)` using the following syntax:
+In `groq-builder`, the `project` method allows inline conditional statements with the help of `q.conditional(...)` or `q.conditionalByType(...)` using the following syntax:
 
 ```ts
 const contentQuery = q.star
   .filterByType("movie", "actor")
   .project({
     slug: "slug.current",
-    ...q.conditional$({
+    ...q.conditional({
       "_type == 'movie'": { title: "title", subtitle: "description" },
       "_type == 'actor'": { title: "name", subtitle: "biography" },
     }),
@@ -43,11 +43,11 @@ type ContentResults = Array<
 >;
 ```
 
-Notice that the conditions are wrapped in `q.conditional$()` and then spread into the projection.  This is necessary for type-safety and runtime validation.
+Notice that the conditions are wrapped in `q.conditional()` and then spread into the projection.  This is necessary for type-safety and runtime validation.
 
-The `$` in the method `q.conditional$` indicates that this method is not completely type-safe; the condition statements (eg. `_type == 'movie'`) are not strongly-typed (this may be improved in a future version).
+Please note that the condition statements (eg. `_type == 'movie'`) are not strongly-typed.  For now, any string is valid, and no auto-complete is provided. This may be improved in a future version.
 
-However, the most common use-case is to base conditional logic off the document's `_type`.  For this, we have the `q.conditionalByType` helper:
+However, the most common use-case is to base conditional logic off the document's `_type`.  For this, we have a stronger-typed `q.conditionalByType` helper:
 
 ### Strongly-typed conditions via `q.conditionalByType(...)`
 
@@ -66,7 +66,7 @@ const contentQuery = q.star
   }));
 ```
 
-The resulting query is identical to the above example with `q.conditional$`.
+The resulting query is identical to the above example with `q.conditional`.
 
 The result type here is inferred as:
 
@@ -78,22 +78,20 @@ type ContentResult = Array<
 >
 ```
 
-Notice that this type is stronger than the example with `q.conditional$`, because we've detected that the conditions are "exhaustive". 
+Notice that this type is stronger than the example with `q.conditional`, because we've detected that the conditions are "exhaustive". 
 
 ## The `select` method
 
-Adds support for the `select$` method:
+Adds support for the `select` method:
 ```ts
 const qMovies = q.star.filterByType("movie").project({
   name: q.infer(),
-  popularity: q.select$({
+  popularity: q.select({
     "popularity > 20": q.value("high"),
     "popularity > 10": q.value("medium"),
   }, q.value("low")),
 });
 ```
-
-The `$` sign is to indicate that there's some "loosely typed" code in here -- the conditions are unchecked.
 
 This will output the following query:
 ```groq

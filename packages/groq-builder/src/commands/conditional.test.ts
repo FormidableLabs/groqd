@@ -13,9 +13,9 @@ import { Empty, Simplify } from "../types/utils";
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const qBase = q.star.filterByType("variant");
 
-describe("conditional$", () => {
+describe("conditional", () => {
   describe("by itself", () => {
-    const conditionalResult = q.star.filterByType("variant").conditional$({
+    const conditionalResult = q.star.filterByType("variant").conditional({
       "price == msrp": {
         onSale: q.value(false),
       },
@@ -44,7 +44,7 @@ describe("conditional$", () => {
 
   const qAll = qBase.project((qA) => ({
     name: q.infer(),
-    ...qA.conditional$({
+    ...qA.conditional({
       "price == msrp": {
         onSale: q.value(false),
       },
@@ -88,7 +88,7 @@ describe("conditional$", () => {
     describe("without using unique keys", () => {
       const qIncorrect = q.star.filterByType("variant").project((qV) => ({
         name: q.infer(),
-        ...qV.conditional$({
+        ...qV.conditional({
           "price == msrp": {
             onSale: q.value(false),
           },
@@ -101,7 +101,7 @@ describe("conditional$", () => {
         // Here we're trying to spread another conditional,
         // however, it will override the first one
         // since we didn't specify a unique key:
-        ...qV.conditional$({
+        ...qV.conditional({
           "second == condition": { price: q.infer() },
         }),
       }));
@@ -128,7 +128,7 @@ describe("conditional$", () => {
         .filterByType("variant")
         .project((qV) => ({
           name: q.infer(),
-          ...qV.conditional$({
+          ...qV.conditional({
             "price == msrp": {
               onSale: q.value(false),
             },
@@ -138,7 +138,7 @@ describe("conditional$", () => {
               msrp: q.infer(),
             },
           }),
-          ...qV.conditional$(
+          ...qV.conditional(
             {
               "another == condition1": { foo: q.value("FOO") },
               "another == condition2": { bar: q.value("BAR") },

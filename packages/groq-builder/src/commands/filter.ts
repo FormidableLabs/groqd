@@ -1,9 +1,12 @@
 import { GroqBuilder } from "../groq-builder";
 import { RootConfig } from "../types/schema-types";
+import { ConditionalExpression } from "./conditional-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
-    filter(filterExpression: string): GroqBuilder<TResult, TRootConfig>;
+    filter(
+      filterExpression: ConditionalExpression<TResult>
+    ): GroqBuilder<TResult, TRootConfig>;
   }
 }
 

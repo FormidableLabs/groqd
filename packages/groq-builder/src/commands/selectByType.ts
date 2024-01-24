@@ -42,6 +42,6 @@ GroqBuilder.implement({
 
       mapped[condition] = query;
     }
-    return this.select$(mapped, defaultSelection) as any;
+    return this.select(mapped, defaultSelection) as any;
   },
 });

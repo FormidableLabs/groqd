@@ -145,7 +145,7 @@ describe("fragment", () => {
       .fragment<SanitySchema.Variant>()
       .project((qP) => ({
         name: q.infer(),
-        ...qP.conditional$({
+        ...qP.conditional({
           "price == msrp": { onSale: q.value(false) },
           "price < msrp": {
             onSale: q.value(true),
