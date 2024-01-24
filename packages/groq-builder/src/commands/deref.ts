@@ -1,12 +1,15 @@
 import { GroqBuilder } from "../groq-builder";
 import { ExtractRefType, RootConfig } from "../types/schema-types";
-import { InferResultItem, OverrideResultItem } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     deref<
-      TReferencedType = ExtractRefType<InferResultItem<TResult>, TRootConfig>
-    >(): GroqBuilder<OverrideResultItem<TResult, TReferencedType>, TRootConfig>;
+      TReferencedType = ExtractRefType<ResultItem.Infer<TResult>, TRootConfig>
+    >(): GroqBuilder<
+      ResultItem.Override<TResult, TReferencedType>,
+      TRootConfig
+    >;
   }
 }
 

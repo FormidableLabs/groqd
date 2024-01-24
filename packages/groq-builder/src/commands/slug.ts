@@ -1,14 +1,14 @@
 import { GroqBuilder } from "../groq-builder";
 import { EntriesOf } from "../types/utils";
-import { InferResultItem, OverrideResultItem } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 import { IGroqBuilder } from "../types/public-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilder<TResult, TRootConfig> {
     slug(
-      fieldName: FieldsWithSlugs<InferResultItem<TResult>>
-    ): IGroqBuilder<OverrideResultItem<TResult, string>>;
+      fieldName: FieldsWithSlugs<ResultItem.Infer<TResult>>
+    ): IGroqBuilder<ResultItem.Override<TResult, string>>;
   }
 }
 GroqBuilder.implement({

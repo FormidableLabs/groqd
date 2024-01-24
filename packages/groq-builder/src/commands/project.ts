@@ -2,7 +2,7 @@ import { notNull, Simplify } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
-import { InferResultItem, OverrideResultItem } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 import {
   ExtractProjectionResult,
   ProjectionFieldConfig,
@@ -20,16 +20,18 @@ declare module "../groq-builder" {
     /**
      * Performs an "object projection", returning an object with the fields specified.
      */
-    project<TProjection extends ProjectionMap<InferResultItem<TResult>>>(
+    project<TProjection extends ProjectionMap<ResultItem.Infer<TResult>>>(
       projectionMap:
         | TProjection
         | ((
-            q: GroqBuilder<InferResultItem<TResult>, TRootConfig>
+            q: GroqBuilder<ResultItem.Infer<TResult>, TRootConfig>
           ) => TProjection)
     ): GroqBuilder<
-      OverrideResultItem<
+      ResultItem.Override<
         TResult,
-        Simplify<ExtractProjectionResult<InferResultItem<TResult>, TProjection>>
+        Simplify<
+          ExtractProjectionResult<ResultItem.Infer<TResult>, TProjection>
+        >
       >,
       TRootConfig
     >;

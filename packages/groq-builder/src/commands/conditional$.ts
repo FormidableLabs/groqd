@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { InferResultItem } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 import {
   ConditionalConfig,
   ConditionalKey,
@@ -15,7 +15,7 @@ declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     conditional$<
       TConditionalProjections extends ConditionalProjectionMap<
-        InferResultItem<TResult>,
+        ResultItem.Infer<TResult>,
         TRootConfig
       >,
       TKey extends string = "[$]",
@@ -24,7 +24,7 @@ declare module "../groq-builder" {
       conditionalProjections: TConditionalProjections,
       config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
     ): ExtractConditionalProjectionResults<
-      InferResultItem<TResult>,
+      ResultItem.Infer<TResult>,
       TConditionalProjections,
       ConditionalConfig<TKey, TIsExhaustive>
     >;

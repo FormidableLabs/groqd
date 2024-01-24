@@ -1,15 +1,15 @@
 import { GroqBuilder } from "../groq-builder";
-import { InferResultItem, OverrideResultItem } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 import { ExtractTypeNames } from "../types/schema-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
-    filterByType<TType extends ExtractTypeNames<InferResultItem<TResult>>>(
+    filterByType<TType extends ExtractTypeNames<ResultItem.Infer<TResult>>>(
       ...type: TType[]
     ): GroqBuilder<
-      OverrideResultItem<
+      ResultItem.Override<
         TResult,
-        Extract<InferResultItem<TResult>, { _type: TType }>
+        Extract<ResultItem.Infer<TResult>, { _type: TType }>
       >,
       TRootConfig
     >;

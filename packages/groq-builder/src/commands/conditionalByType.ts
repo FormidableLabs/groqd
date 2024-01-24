@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
 import { ExtractTypeNames, RootConfig } from "../types/schema-types";
-import { InferResultItem } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
   ConditionalByTypeProjectionMap,
@@ -13,7 +13,7 @@ declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     conditionalByType<
       TConditionalProjections extends ConditionalByTypeProjectionMap<
-        InferResultItem<TResult>,
+        ResultItem.Infer<TResult>,
         TRootConfig
       >,
       TKey extends string = "[ByType]",
@@ -21,7 +21,7 @@ declare module "../groq-builder" {
        * Did we supply a condition for all possible _type values?
        */
       TIsExhaustive extends boolean = ExtractTypeNames<
-        InferResultItem<TResult>
+        ResultItem.Infer<TResult>
       > extends keyof TConditionalProjections
         ? true
         : false
@@ -29,7 +29,7 @@ declare module "../groq-builder" {
       conditionalProjections: TConditionalProjections,
       config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
     ): ExtractConditionalByTypeProjectionResults<
-      InferResultItem<TResult>,
+      ResultItem.Infer<TResult>,
       TConditionalProjections,
       ConditionalConfig<TKey, TIsExhaustive>
     >;
