@@ -1,32 +1,73 @@
 import { Override, Simplify } from "./utils";
 
-export type ResultTypeInfo = {
-  TItem: unknown;
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace ResultItem {
+  export type Infer<TResult> = InferResultItem<TResult>;
+  export type InferMaybe<TResult> = InferResultItemMaybe<TResult>;
+  export type Override<TResult, TResultItemNew> = OverrideResultItem<
+    TResult,
+    TResultItemNew
+  >;
+}
+
+/**
+ * The results of a query can be a single item or an array of items,
+ * and often the results are nullable.
+ *
+ * Most chainable methods need to "unwrap" this type,
+ * to see what the inner "ResultItem" looks like
+ * (ignoring IsNullable and IsArray).
+ *
+ * Then, the method needs to "rewrap" a new type,
+ * while preserving the IsNullable and IsArray.
+ */
+type ResultTypeUnwrapped = {
+  TResultItem: unknown;
   IsArray: boolean;
   IsNullable: boolean;
 };
 
-export type ResultTypeInfer<T> = {
-  TItem: NonNullable<T> extends Array<infer U> ? U : NonNullable<T>;
-  IsArray: IsArray<NonNullable<T>>;
-  IsNullable: IsNullable<T>;
+/**
+ *
+ * @internal Only exported for tests
+ */
+export type InferResultDetails<TResult> = {
+  TResultItem: NonNullable<TResult> extends Array<infer U>
+    ? U
+    : NonNullable<TResult>;
+  IsArray: IsArray<NonNullable<TResult>>;
+  IsNullable: IsNullable<TResult>;
 };
 
-export type ResultTypeOutput<TResult extends ResultTypeInfo> = MakeNullable<
-  TResult["IsNullable"],
-  MakeArray<TResult["IsArray"], TResult["TItem"]>
->;
+/**
+ * @internal Only exported for tests
+ */
+export type InferFromResultDetails<TDetails extends ResultTypeUnwrapped> =
+  MakeNullable<
+    TDetails["IsNullable"],
+    MakeArray<
+      //
+      TDetails["IsArray"],
+      TDetails["TResultItem"]
+    >
+  >;
 
 /**
  * Overrides the shape of the result, while preserving IsArray and IsNullable
+ *
+ * @example
+ * OverrideResultItem<null | Array<"FOO">, "BAR">;  // Result: null | Array<"BAR">
+ * OverrideResultItem<Array<"FOO">, "BAR">;         // Result: Array<"BAR">
+ * OverrideResultItem<null | "FOO", "BAR">;         // Result: null | "BAR"
+ * OverrideResultItem<"FOO", "BAR">;                // Result: "BAR"
  */
-export type ResultOverride<TResult, TResultNew> = Simplify<
-  ResultTypeOutput<
+export type OverrideResultItem<TResult, TResultItemNew> = Simplify<
+  InferFromResultDetails<
     Override<
-      ResultTypeInfer<TResult>,
+      InferResultDetails<TResult>,
       {
-        TItem: NonNullable<TResultNew>;
-        IsNullable: IsNullable<TResultNew> extends true
+        TResultItem: NonNullable<TResultItemNew>;
+        IsNullable: IsNullable<TResultItemNew> extends true
           ? true
           : IsNullable<TResult>;
       }
@@ -34,13 +75,14 @@ export type ResultOverride<TResult, TResultNew> = Simplify<
   >
 >;
 
-export type ResultItem<TResult> = ResultTypeOutput<
-  Override<ResultTypeInfer<TResult>, { IsArray: false; IsNullable: false }>
+export type InferResultItem<TResult> = InferFromResultDetails<
+  Override<InferResultDetails<TResult>, { IsArray: false; IsNullable: false }>
 >;
-export type ResultItemMaybe<TResult> = ResultTypeOutput<
-  Override<ResultTypeInfer<TResult>, { IsArray: false }>
+export type InferResultItemMaybe<TResult> = InferFromResultDetails<
+  Override<InferResultDetails<TResult>, { IsArray: false }>
 >;
 
+// Internal utils:
 type MakeNullable<IsNullable extends boolean, T> = IsNullable extends true
   ? null | T
   : T;

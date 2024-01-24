@@ -1,9 +1,11 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultItemMaybe } from "../types/result-types";
+import { InferResultItemMaybe } from "../types/result-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
-    slice(index: number): GroqBuilder<ResultItemMaybe<TResult>, TRootConfig>;
+    slice(
+      index: number
+    ): GroqBuilder<InferResultItemMaybe<TResult>, TRootConfig>;
     slice(
       /**
        * The first index to include in the slice

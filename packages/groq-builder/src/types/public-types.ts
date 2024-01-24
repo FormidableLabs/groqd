@@ -52,9 +52,8 @@ export type InferResultType<TGroqBuilder extends IGroqBuilder<any>> =
 /**
  * Extracts the Result type for a single item from a GroqBuilder query
  */
-export type InferResultItem<TGroqBuilder extends GroqBuilder> = ResultItem<
-  InferResultType<TGroqBuilder>
->;
+export type InferResultItem<TGroqBuilder extends GroqBuilder> =
+  ResultItem.Infer<InferResultType<TGroqBuilder>>;
 
 /**
  * Used to store the Result types of a GroqBuilder.

@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultItem } from "../types/result-types";
+import { InferResultItem } from "../types/result-types";
 import { keys, Simplify } from "../types/utils";
 import {
   ExtractSelectByTypeResult,
@@ -12,7 +12,7 @@ declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     selectByType<
       TSelectByTypeProjections extends SelectByTypeProjections<
-        ResultItem<TResult>,
+        InferResultItem<TResult>,
         TRootConfig
       >,
       TDefaultSelection extends GroqBuilder | null = null

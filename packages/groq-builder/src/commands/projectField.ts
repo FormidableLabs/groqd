@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultItem, ResultOverride } from "../types/result-types";
+import { InferResultItem, OverrideResultItem } from "../types/result-types";
 import { ProjectionKey, ProjectionKeyValue } from "./projection-types";
 
 declare module "../groq-builder" {
@@ -8,12 +8,12 @@ declare module "../groq-builder" {
      * Performs a "naked projection", returning just the values of the field specified.
      * @param fieldName
      */
-    field<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
+    field<TProjectionKey extends ProjectionKey<InferResultItem<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
-      ResultOverride<
+      OverrideResultItem<
         TResult,
-        ProjectionKeyValue<ResultItem<TResult>, TProjectionKey>
+        ProjectionKeyValue<InferResultItem<TResult>, TProjectionKey>
       >,
       TRootConfig
     >;
