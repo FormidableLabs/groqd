@@ -8,7 +8,7 @@
     "typecheck:shared": "tsc --project tsconfig.shared.json --noEmit",
     "typecheck": "pnpm run typecheck:shared && pnpm run -r typecheck",
     "check:ci": "pnpm run typecheck && pnpm run lint && pnpm run test",
-    "build:lib": "pnpm run --filter groqd build",
+    "build:lib": "pnpm run --filter groqd --filter groq-builder build",
     "build:packages": "pnpm run --filter groqd --filter groqd-playground build",
     "build": "pnpm run -r build",
     "changeset": "changeset",
