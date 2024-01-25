@@ -13,7 +13,7 @@ declare module "../groq-builder" {
 }
 GroqBuilder.implement({
   slug(this: GroqBuilder, fieldName) {
-    return this.field(`${fieldName}.current` as never).validate((input) => {
+    return this.field(`${fieldName}.current`, (input) => {
       if (typeof input !== "string")
         throw new TypeError(
           `Expected a string for '${fieldName}.current' but got ${input}`

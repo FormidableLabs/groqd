@@ -145,8 +145,8 @@ describe("selectByType", () => {
     const qSelect = qBase.project((q) => ({
       selected: q.selectByType(
         {
-          product: (q) => q.field("name"),
-          variant: (q) => q.field("price"),
+          product: (q) => q.field("name", q.infer()),
+          variant: (q) => q.field("price", q.infer()),
         },
         q.value("UNKNOWN")
       ),

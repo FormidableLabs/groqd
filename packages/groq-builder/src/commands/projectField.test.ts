@@ -10,9 +10,9 @@ const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("field (naked projections)", () => {
-  const qPrices = qVariants.field("price");
-  const qNames = qVariants.field("name");
-  const qImages = qVariants.field("images[]");
+  const qPrices = qVariants.field("price", q.infer());
+  const qNames = qVariants.field("name", q.infer());
+  const qImages = qVariants.field("images[]", q.infer());
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -45,12 +45,17 @@ describe("field (naked projections)", () => {
     > | null>();
   });
   it("can chain projections", () => {
-    const qSlugCurrent = qVariants.field("slug").field("current");
+    const qSlugCurrent = qVariants
+      .field("slug", q.infer())
+      .field("current", q.infer());
     expectType<InferResultType<typeof qSlugCurrent>>().toStrictEqual<
       Array<string>
     >();
 
-    const qImageNames = qVariants.slice(0).field("images[]").field("name");
+    const qImageNames = qVariants
+      .slice(0)
+      .field("images[]", q.infer())
+      .field("name", q.infer());
     expectType<
       InferResultType<typeof qImageNames>
     >().toStrictEqual<Array<string> | null>();
@@ -84,17 +89,17 @@ describe("field (naked projections)", () => {
   describe("deep properties", () => {
     it("invalid entries should have TS errors", () => {
       // @ts-expect-error ---
-      qVariants.field("slug[]");
+      qVariants.field("slug[]", q.infer());
       // @ts-expect-error ---
-      qVariants.field("slug.INVALID");
+      qVariants.field("slug.INVALID", q.infer());
       // @ts-expect-error ---
-      qVariants.field("INVALID");
+      qVariants.field("INVALID", q.infer());
       // @ts-expect-error ---
-      qVariants.field("INVALID.current");
+      qVariants.field("INVALID.current", q.infer());
     });
 
     it("can project nested properties", () => {
-      const qSlugs = qVariants.field("slug.current");
+      const qSlugs = qVariants.field("slug.current", q.infer());
       expectType<InferResultType<typeof qSlugs>>().toStrictEqual<
         Array<string>
       >();
@@ -104,7 +109,7 @@ describe("field (naked projections)", () => {
     });
 
     it("can project arrays with []", () => {
-      const qImages = qVariants.field("images[]");
+      const qImages = qVariants.field("images[]", q.infer());
       type ResultType = InferResultType<typeof qImages>;
 
       expectType<ResultType>().toStrictEqual<Array<
