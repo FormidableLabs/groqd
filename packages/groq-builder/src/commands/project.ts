@@ -50,8 +50,25 @@ GroqBuilder.implement({
       projectionMap = projectionMapArg;
     }
 
-    // Compile query from projection values:
     const keys = Object.keys(projectionMap) as Array<string>;
+
+    if (this.internal.options.validationRequired) {
+      // Validate that we have provided validation functions for all fields:
+      const invalidFields = keys.filter((key) => {
+        const value = projectionMap[key as keyof typeof projectionMap];
+        // Do not allow the user to pass 'true' or a naked projection string:
+        return typeof value === "boolean" || typeof value === "string";
+      });
+      if (invalidFields.length) {
+        throw new TypeError(
+          "[groq-builder] Because 'validationRequired' is enabled, " +
+            "you cannot use 'true' or a naked projection string " +
+            `for the "${invalidFields.join('" and "')}" field`
+        );
+      }
+    }
+
+    // Compile query from projection values:
     const fields = keys
       .map((key) => {
         const fieldConfig = projectionMap[key as keyof typeof projectionMap];

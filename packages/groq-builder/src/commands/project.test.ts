@@ -227,6 +227,26 @@ describe("project (object projections)", () => {
         ]
       `);
     });
+
+    it("we should not be able to use the wrong parser type", () => {
+      qVariants.project({
+        // @ts-expect-error --- number is not assignable to string
+        name: zod.number(),
+      });
+
+      const qId = qVariants.project({
+        id: q.string(),
+      });
+      expectType<InferResultType<typeof qId>>().toStrictEqual<
+        Array<{
+          id: TypeMismatchError<{
+            error: "⛔️ Parser expects a different input type ⛔️";
+            expected: string;
+            actual: string | undefined;
+          }>;
+        }>
+      >();
+    });
   });
 
   describe("a projection with naked projections", () => {
@@ -542,6 +562,11 @@ describe("project (object projections)", () => {
   });
 
   describe("validation", () => {
+    it("without validation, the parser should be null", () => {
+      const qWithoutValidation = qVariants.project({ name: true, price: true });
+      expect(qWithoutValidation.parser).toBeNull();
+    });
+
     const qParser = qVariants.project((q) => ({
       name: true,
       msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
@@ -609,6 +634,47 @@ describe("project (object projections)", () => {
         "1 Parsing Error:
         result[5].price: Expected number, received string"
       `);
+    });
+  });
+
+  describe("with validationRequired", () => {
+    const q = createGroqBuilder<SchemaConfig>({
+      validationRequired: true,
+    }).include(zod);
+    const qVariant = q.star.filterByType("variant").slice(0);
+
+    it("should throw if a projection uses 'true'", () => {
+      expect(() =>
+        qVariant.project({
+          price: true,
+        })
+      ).toThrowErrorMatchingInlineSnapshot(
+        "\"[groq-builder] Because 'validationRequired' is enabled, you cannot use 'true' or a naked projection string for the \\\"price\\\" field\""
+      );
+    });
+    it("should throw if a projection uses a naked projection", () => {
+      expect(() =>
+        qVariant.project({
+          price: "price",
+        })
+      ).toThrowErrorMatchingInlineSnapshot(
+        "\"[groq-builder] Because 'validationRequired' is enabled, you cannot use 'true' or a naked projection string for the \\\"price\\\" field\""
+      );
+    });
+    it("should work just fine when validation is provided", () => {
+      const qNormal = qVariant.project((qV) => ({
+        price: q.number(),
+        price2: ["price", q.number()],
+        price3: qV.field("price", q.number()),
+      }));
+      expect(qNormal.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"][0] { price, \\"price2\\": price, \\"price3\\": price }"'
+      );
+      expectType<InferResultType<typeof qNormal>>().toStrictEqual<{
+        price: number;
+        price2: number;
+        price3: number;
+      }>();
     });
   });
 
