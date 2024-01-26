@@ -19,6 +19,9 @@ export function inspect(value: unknown): string {
   return JSON.stringify(value);
 }
 
+/**
+ * Validates (and maps) each item in an array.
+ */
 export function simpleArrayParser<TItemInput, TItemOutput>(
   itemParser: null | ParserFunction<TItemInput, TItemOutput>
 ): ParserFunction<Array<TItemInput>, Array<TItemOutput>> {
@@ -52,6 +55,9 @@ export function simpleArrayParser<TItemInput, TItemOutput>(
   };
 }
 
+/**
+ * Validates (and maps) each key in an object.
+ */
 export function simpleObjectParser<TMap extends ObjectValidationMap>(
   objectMapper?: TMap
 ): ParserFunction<
