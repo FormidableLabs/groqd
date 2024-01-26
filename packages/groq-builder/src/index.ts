@@ -16,11 +16,9 @@ export { zod } from "./validation/zod";
  *
  * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
- *
- * @param options - Allows you to specify if you want indentation added to the final query. Useful for debugging.  Defaults to none.
  */
 export function createGroqBuilder<TRootConfig extends RootConfig>(
-  options: GroqBuilderOptions = { indent: "" }
+  options: GroqBuilderOptions = {}
 ) {
   const root = new GroqBuilder<RootResult, TRootConfig>({
     query: "",

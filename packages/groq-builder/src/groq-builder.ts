@@ -16,9 +16,30 @@ export type RootResult = Empty;
 
 export type GroqBuilderOptions = {
   /**
-   * Enables "pretty printing" for the compiled GROQ string. Useful for debugging
+   * Enables "pretty printing" for the compiled GROQ string. Useful for debugging.
+   * @default "" (disabled)
    */
-  indent: string;
+  indent?: string;
+  /**
+   * If enabled, then runtime validation is always required for all fields.
+   * If missing, an error will be thrown when the query is created.
+   *
+   * This affects the following 3 APIs where validation is normally optional:
+   *
+   * q.project({
+   *   example: true, // ⛔️ use a validation function instead
+   *   example: q.string(), // ✅
+   *
+   *   example: "example.current", // ⛔️ use a tuple instead
+   *   example: ["example.current", q.string()], // ✅
+   *
+   *   example: q.field("example.current"), // ⛔️ ensure you pass the 2nd validation parameter
+   *   example: q.field("example.current", q.string()), // ✅
+   * })
+   *
+   * @default false
+   */
+  validationRequired?: boolean;
 };
 
 export class GroqBuilder<
