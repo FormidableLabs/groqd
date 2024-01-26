@@ -4,7 +4,7 @@ import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
-import { createGroqBuilder } from "../index";
+import { createGroqBuilder, zod } from "../index";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -110,6 +110,58 @@ describe("field (naked projections)", () => {
       expectType<ResultType>().toStrictEqual<Array<
         NonNullable<SanitySchema.Variant["images"]>
       > | null>();
+    });
+  });
+
+  describe("validation", () => {
+    it("when no validation present, the parser should be null", () => {
+      expect(qPrices.parser).toBeNull();
+    });
+
+    const qPrice = qVariants.slice(0).field("price", zod.number());
+    it("should have the correct result type", () => {
+      expectType<InferResultType<typeof qPrice>>().toStrictEqual<number>();
+    });
+    it("should result in the right query", () => {
+      expect(qPrice.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"][0].price"'
+      );
+    });
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qPrice, data.datalake);
+      expect(results).toMatchInlineSnapshot("55");
+    });
+    it("should throw an error if the data is invalid", async () => {
+      const invalidData = mock.generateSeedData({
+        variants: [
+          mock.variant({
+            // @ts-expect-error ---
+            price: "INVALID",
+          }),
+        ],
+      });
+      await expect(() => executeBuilder(qPrice, invalidData.datalake)).rejects
+        .toMatchInlineSnapshot(`
+        [ValidationErrors: 1 Parsing Error:
+        result: Expected number, received string]
+      `);
+    });
+  });
+
+  describe("with validationRequired", () => {
+    const q = createGroqBuilder<SchemaConfig>({ validationRequired: true });
+    const qVariants = q.star.filterByType("variant");
+    it("an error is thrown when missing the 2nd parameter", () => {
+      expect(() => qVariants.field("price")).toThrowErrorMatchingInlineSnapshot(
+        '"[groq-builder] Because \'validationRequired\' is enabled, you must provide a 2nd argument to q.field(\\"price\\", parser)"'
+      );
+    });
+    it("everything works when validation is present", () => {
+      const res = qVariants.field("price", zod.number());
+      expect(res.query).toMatchInlineSnapshot(
+        '"*[_type == \\"variant\\"].price"'
+      );
+      expect(res.parser).not.toBeNull();
     });
   });
 });

@@ -56,6 +56,13 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   field(this: GroqBuilder, fieldName: string, parser?: Parser): GroqBuilder {
+    if (this.internal.options.validationRequired && !parser) {
+      throw new TypeError(
+        "[groq-builder] Because 'validationRequired' is enabled, " +
+          `you must provide a 2nd argument to q.field("${fieldName}", parser)`
+      );
+    }
+
     if (this.internal.query) {
       fieldName = "." + fieldName;
     }
