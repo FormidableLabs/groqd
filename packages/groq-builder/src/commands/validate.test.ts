@@ -14,7 +14,7 @@ describe("parse", () => {
   const data = mock.generateSeedData({
     variants: [mock.variant({ price: 99 })],
   });
-  const qPrice = qVariants.slice(0).field("price");
+  const qPrice = qVariants.slice(0).field("price", q.infer());
 
   describe("parser function", () => {
     const qPriceParse = qPrice.validate((p) => currencyFormat(p));
