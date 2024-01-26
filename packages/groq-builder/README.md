@@ -35,8 +35,8 @@ const productsQuery = (
    .order('price desc')
    .slice(0, 10)
    .project(q => ({
-     name: q.infer(),
-     price: q.infer(),
+     name: true,
+     price: true,
      slug: q.field("slug.current"),
      imageUrls: q.field("images[]").deref().field("url")
    }))
@@ -84,8 +84,8 @@ The `validate` function accepts a simple function:
 
 ```ts
 const products = q.star.filterByType('products').project(q => ({
-  name: q.infer(),
-  price: q.infer(),
+  name: true,
+  price: true,
   priceFormatted: q.field("price").validate(price => formatCurrency(price)),
 }));
 ```

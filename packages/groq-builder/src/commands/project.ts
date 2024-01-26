@@ -13,7 +13,6 @@ import {
   simpleArrayParser,
   simpleObjectParser,
 } from "../validation/simple-validation";
-import { inferSymbol } from "./functions/infer";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
@@ -86,17 +85,12 @@ function normalizeProjectionField(
       ? key
       : `"${key}": ${value.query}`;
     return { key, query, parser: value.parser };
-  } else if (value === inferSymbol) {
-    return { key, query: key, parser: null };
   } else if (typeof value === "string") {
     const query = key === value ? key : `"${key}": ${value}`;
     return { key, query, parser: null };
-  } else if (isParser(value)) {
-    return {
-      key,
-      query: key,
-      parser: normalizeValidationFunction(value),
-    };
+  } else if (typeof value === "boolean") {
+    if (value === false) return null; // 'false' will be excluded from the results
+    return { key, query: key, parser: null };
   } else if (Array.isArray(value)) {
     const [projectionKey, parser] = value as [string, Parser];
     const query = key === projectionKey ? key : `"${key}": ${projectionKey}`;
@@ -105,6 +99,12 @@ function normalizeProjectionField(
       key,
       query,
       parser: normalizeValidationFunction(parser),
+    };
+  } else if (isParser(value)) {
+    return {
+      key,
+      query: key,
+      parser: normalizeValidationFunction(value),
     };
   } else {
     throw new Error(

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { expectType } from "../tests/expectType";
-import { createGroqBuilder, InferResultType, zod } from "../index";
+import { createGroqBuilder, InferResultType, validation } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -49,14 +49,14 @@ describe("selectByType", () => {
       selected: q.selectByType({
         product: (q) =>
           q.project({
-            _type: q.infer(),
-            name: q.infer(),
+            _type: true,
+            name: true,
           }),
         variant: (q) =>
           q.project({
-            _type: q.infer(),
-            name: q.infer(),
-            price: q.infer(),
+            _type: true,
+            name: true,
+            price: true,
           }),
       }),
     }));
@@ -210,14 +210,14 @@ describe("selectByType", () => {
       selected: q.selectByType({
         product: (q) =>
           q.project({
-            _type: zod.literal("product"),
-            name: zod.string(),
+            _type: validation.literal("product"),
+            name: validation.string(),
           }),
         variant: (q) =>
           q.project({
-            _type: zod.literal("variant"),
-            name: zod.string(),
-            price: zod.number(),
+            _type: validation.literal("variant"),
+            name: validation.string(),
+            price: validation.number(),
           }),
       }),
     }));

@@ -83,7 +83,7 @@ GroqBuilder.implement({
     const key: TKey = config?.key || ("[ByType]" as TKey);
     const conditionalKey: ConditionalKey<TKey> = `[Conditional] ${key}`;
     return {
-      _type: this.infer(), // Ensure we request the `_type` parameter
+      _type: true, // Ensure we request the `_type` parameter
       [conditionalKey]: conditionalQuery,
     } as any;
   },

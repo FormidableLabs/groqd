@@ -21,24 +21,24 @@ describe("GroqBuilder", () => {
       .filterByType("product")
       .filter("slug.current == $slug")
       .grab((q) => ({
-        _id: q.infer(),
-        name: q.infer(),
+        _id: true,
+        name: true,
         categories: q.field("categories[]").deref().grab({
-          name: q.infer(),
+          name: true,
         }),
         slug: q.field("slug").field("current"),
         variants: q
           .field("variants[]")
           .deref()
           .grab((q) => ({
-            _id: q.infer(),
-            name: q.infer(),
-            msrp: q.infer(),
-            price: q.infer(),
+            _id: true,
+            name: true,
+            msrp: true,
+            price: true,
             slug: q.field("slug").field("current"),
             style: q.field("style[]").deref().grab({
-              _id: q.infer(),
-              name: q.infer(),
+              _id: true,
+              name: true,
             }),
           })),
       }));

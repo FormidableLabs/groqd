@@ -21,8 +21,8 @@ describe("conditional", () => {
       },
       "price < msrp": {
         onSale: q.value(true),
-        price: q.infer(),
-        msrp: q.infer(),
+        price: true,
+        msrp: true,
       },
     });
 
@@ -43,15 +43,15 @@ describe("conditional", () => {
   });
 
   const qAll = qBase.project((qA) => ({
-    name: q.infer(),
+    name: true,
     ...qA.conditional({
       "price == msrp": {
         onSale: q.value(false),
       },
       "price < msrp": {
         onSale: q.value(true),
-        price: q.infer(),
-        msrp: q.infer(),
+        price: true,
+        msrp: true,
       },
     }),
   }));
@@ -87,22 +87,22 @@ describe("conditional", () => {
   describe("multiple conditionals", () => {
     describe("without using unique keys", () => {
       const qIncorrect = q.star.filterByType("variant").project((qV) => ({
-        name: q.infer(),
+        name: true,
         ...qV.conditional({
           "price == msrp": {
             onSale: q.value(false),
           },
           "price < msrp": {
             onSale: q.value(true),
-            price: q.infer(),
-            msrp: q.infer(),
+            price: true,
+            msrp: true,
           },
         }),
         // Here we're trying to spread another conditional,
         // however, it will override the first one
         // since we didn't specify a unique key:
         ...qV.conditional({
-          "second == condition": { price: q.infer() },
+          "second == condition": { price: true },
         }),
       }));
 
@@ -127,15 +127,15 @@ describe("conditional", () => {
       const qMultipleConditions = q.star
         .filterByType("variant")
         .project((qV) => ({
-          name: q.infer(),
+          name: true,
           ...qV.conditional({
             "price == msrp": {
               onSale: q.value(false),
             },
             "price < msrp": {
               onSale: q.value(true),
-              price: q.infer(),
-              msrp: q.infer(),
+              price: true,
+              msrp: true,
             },
           }),
           ...qV.conditional(

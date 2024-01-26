@@ -18,7 +18,7 @@ describe("grab (backwards compatibility)", () => {
 
   it("should be type-safe", () => {
     const qGrab = qVariants.grab((q) => ({
-      name: q.infer(),
+      name: true,
       slug: "slug.current",
       msrp: ["msrp", zod.number()],
       styles: q.grabOne("style[]").deref().grabOne("name"),

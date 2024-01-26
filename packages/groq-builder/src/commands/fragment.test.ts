@@ -10,8 +10,8 @@ const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 describe("fragment", () => {
   // define a fragment:
   const variantFragment = q.fragment<SanitySchema.Variant>().project({
-    name: q.infer(),
-    price: q.infer(),
+    name: true,
+    price: true,
     slug: "slug.current",
   });
   type VariantFragment = InferFragmentType<typeof variantFragment>;
@@ -25,14 +25,14 @@ describe("fragment", () => {
   });
 
   const productFrag = q.fragment<SanitySchema.Product>().project((qP) => ({
-    name: q.infer(),
+    name: true,
     slug: "slug.current",
     variants: qP
       .field("variants[]")
       .deref()
       .project({
         ...variantFragment,
-        msrp: q.infer(),
+        msrp: true,
       }),
   }));
   type ProductFragment = InferFragmentType<typeof productFrag>;
@@ -70,7 +70,7 @@ describe("fragment", () => {
   it("fragments can be spread in a query", () => {
     const qVariantsPlus = q.star.filterByType("variant").project({
       ...variantFragment,
-      msrp: q.infer(),
+      msrp: true,
     });
     expectType<InferResultType<typeof qVariantsPlus>>().toStrictEqual<
       Array<{ name: string; price: number; slug: string; msrp: number }>
@@ -94,7 +94,7 @@ describe("fragment", () => {
       InferResultType<typeof qInvalid>[number]["price"]
     >().toStrictEqual<
       TypeMismatchError<{
-        error: "⛔️ 'q.infer()' can only be used for known properties ⛔️";
+        error: "⛔️ 'true' can only be used for known properties ⛔️";
         expected: keyof SanitySchema.Product;
         actual: "price";
       }>
@@ -102,13 +102,11 @@ describe("fragment", () => {
   });
 
   it("can be composed", () => {
-    const idFrag = q
-      .fragment<SanitySchema.Variant>()
-      .project({ id: q.infer() });
+    const idFrag = q.fragment<SanitySchema.Variant>().project({ id: true });
     const variantDetailsFrag = q.fragment<SanitySchema.Variant>().project({
       ...idFrag,
       ...variantFragment,
-      msrp: q.infer(),
+      msrp: true,
     });
 
     type VariantDetails = InferFragmentType<typeof variantDetailsFrag>;
@@ -128,9 +126,9 @@ describe("fragment", () => {
         SanitySchema.Product | SanitySchema.Variant | SanitySchema.Category
       >()
       .project({
-        _type: q.infer(),
-        _id: q.infer(),
-        name: q.infer(),
+        _type: true,
+        _id: true,
+        name: true,
       });
     type CommonFrag = InferFragmentType<typeof commonFrag>;
     expectType<CommonFrag>().toStrictEqual<{
@@ -144,14 +142,10 @@ describe("fragment", () => {
     const fragmentWithConditional = q
       .fragment<SanitySchema.Variant>()
       .project((qP) => ({
-        name: q.infer(),
+        name: true,
         ...qP.conditional({
           "price == msrp": { onSale: q.value(false) },
-          "price < msrp": {
-            onSale: q.value(true),
-            price: q.infer(),
-            msrp: q.infer(),
-          },
+          "price < msrp": { onSale: q.value(true), price: true, msrp: true },
         }),
       }));
     const qConditional = q.star.filterByType("variant").project({

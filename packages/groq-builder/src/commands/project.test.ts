@@ -68,13 +68,13 @@ describe("project (object projections)", () => {
   describe("a single plain property", () => {
     it("cannot use 'true' to project unknown properties", () => {
       const qInvalid = qVariants.project({
-        INVALID: q.infer(),
+        INVALID: true,
       });
 
       expectType<InferResultType<typeof qInvalid>>().toStrictEqual<
         Array<{
           INVALID: TypeMismatchError<{
-            error: `⛔️ 'q.infer()' can only be used for known properties ⛔️`;
+            error: `⛔️ 'true' can only be used for known properties ⛔️`;
             expected: keyof SanitySchema.Variant;
             actual: "INVALID";
           }>;
@@ -83,7 +83,7 @@ describe("project (object projections)", () => {
     });
 
     const qName = qVariants.project({
-      name: q.infer(),
+      name: true,
     });
     it("query should be typed correctly", () => {
       expect(qName.query).toMatchInlineSnapshot(
@@ -123,10 +123,10 @@ describe("project (object projections)", () => {
 
   describe("multiple plain properties", () => {
     const qMultipleFields = qVariants.project({
-      id: q.infer(),
-      name: q.infer(),
-      price: q.infer(),
-      msrp: q.infer(),
+      id: true,
+      name: true,
+      price: true,
+      msrp: true,
     });
     it("query should be typed correctly", () => {
       expect(qMultipleFields.query).toMatchInlineSnapshot(
@@ -405,7 +405,7 @@ describe("project (object projections)", () => {
     const qNested = qVariants.project((variant) => ({
       name: variant.field("name"),
       images: variant.field("images[]").project((image) => ({
-        name: q.infer(),
+        name: true,
         description: image
           .field("description")
           .validate(zod.nullToUndefined(zod.string().optional())),
@@ -478,11 +478,11 @@ describe("project (object projections)", () => {
   });
 
   describe("mixed projections", () => {
-    const qComplex = qVariants.project((qV) => ({
-      name: q.infer(),
-      slug: qV.field("slug").field("current"),
-      price: q.infer(),
-      IMAGES: qV.field("images[]").field("name"),
+    const qComplex = qVariants.project((q) => ({
+      name: true,
+      slug: q.field("slug").field("current"),
+      price: true,
+      IMAGES: q.field("images[]").field("name"),
     }));
 
     it("query should be correct", () => {
@@ -542,10 +542,10 @@ describe("project (object projections)", () => {
   });
 
   describe("validation", () => {
-    const qParser = qVariants.project((qV) => ({
-      name: q.infer(),
-      msrp: qV.field("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: qV.field("price").validate(zod.number()),
+    const qParser = qVariants.project((q) => ({
+      name: true,
+      msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
+      price: q.field("price").validate(zod.number()),
     }));
 
     it("the types should match", () => {
@@ -613,9 +613,9 @@ describe("project (object projections)", () => {
   });
 
   describe("ellipsis ... operator", () => {
-    const qEllipsis = qVariants.project((qV) => ({
-      "...": q.infer(),
-      OTHER: qV.field("name"),
+    const qEllipsis = qVariants.project((q) => ({
+      "...": true,
+      OTHER: q.field("name"),
     }));
     it("query should be correct", () => {
       expect(qEllipsis.query).toMatchInlineSnapshot(
