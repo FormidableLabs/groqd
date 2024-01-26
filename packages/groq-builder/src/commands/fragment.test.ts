@@ -12,7 +12,7 @@ describe("fragment", () => {
   const variantFragment = q.fragment<SanitySchema.Variant>().project({
     name: q.infer(),
     price: q.infer(),
-    slug: ["slug.current", q.infer()],
+    slug: "slug.current",
   });
   type VariantFragment = InferFragmentType<typeof variantFragment>;
 
@@ -26,9 +26,9 @@ describe("fragment", () => {
 
   const productFrag = q.fragment<SanitySchema.Product>().project((qP) => ({
     name: q.infer(),
-    slug: ["slug.current", q.infer()],
+    slug: "slug.current",
     variants: qP
-      .field("variants[]", q.infer())
+      .field("variants[]")
       .deref()
       .project({
         ...variantFragment,
@@ -155,7 +155,7 @@ describe("fragment", () => {
         }),
       }));
     const qConditional = q.star.filterByType("variant").project({
-      slug: ["slug.current", q.infer()],
+      slug: "slug.current",
       ...fragmentWithConditional,
     });
 

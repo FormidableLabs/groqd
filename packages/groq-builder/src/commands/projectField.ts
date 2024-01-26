@@ -1,33 +1,19 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultItem } from "../types/result-types";
+import { ResultItem, ResultOverride } from "../types/result-types";
 import { ProjectionKey, ProjectionKeyValue } from "./projection-types";
-import { Parser } from "../types/public-types";
-import { inferSymbol } from "./functions/infer";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     /**
      * Performs a "naked projection", returning just the values of the field specified.
+     * @param fieldName
      */
-    field<
-      TProjectionKey extends ProjectionKey<ResultItem.Infer<TResult>>,
-      TParser extends
-        | inferSymbol
-        | Parser<ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>>
-    >(
-      fieldName: TProjectionKey,
-      parser: TParser
+    field<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
+      fieldName: TProjectionKey
     ): GroqBuilder<
-      ResultItem.Override<
+      ResultOverride<
         TResult,
-        TParser extends inferSymbol
-          ? ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>
-          : TParser extends Parser<
-              ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>,
-              infer TOutput
-            >
-          ? TOutput
-          : never
+        ProjectionKeyValue<ResultItem<TResult>, TProjectionKey>
       >,
       TRootConfig
     >;
@@ -40,11 +26,10 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  field(this: GroqBuilder, fieldName: string, parser) {
+  field(this: GroqBuilder, fieldName: string) {
     if (this.internal.query) {
       fieldName = "." + fieldName;
     }
-
-    return this.chain(fieldName, parser === inferSymbol ? null : parser);
+    return this.chain(fieldName, null);
   },
 });

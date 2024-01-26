@@ -37,13 +37,6 @@ export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
   Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
 >;
 
-export type ProjectionKeyTuple<TResultItem> = ValueOf<{
-  [TKey in ProjectionKey<TResultItem>]: [
-    TKey,
-    inferSymbol | Parser<ProjectionKeyValue<TResultItem, TKey>, any>
-  ];
-}>;
-
 export type ProjectionMap<TResultItem> = {
   [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
     TResultItem,
@@ -64,10 +57,12 @@ export type ProjectionMapOrCallback<
 export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use 'q.infer()' to include a field as-is, no transformations/parsers
   | inferSymbol
+  // Use a string for naked projections, like 'slug.current'
+  | ProjectionKey<TResultItem>
   // Use a parser to include a field, passing it through the parser at run-time
   | Parser<TFieldType>
   // Use a tuple for naked projections with a parser
-  | ProjectionKeyTuple<TResultItem>
+  | [ProjectionKey<TResultItem>, Parser<TFieldType>]
   // Use a GroqBuilder instance to create a nested projection
   | IGroqBuilder;
 
@@ -97,12 +92,19 @@ type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
           expected: keyof TResultItem;
           actual: P;
         }>
+    : /* Extract type from a ProjectionKey string, like 'slug.current': */
+    TProjectionMap[P] extends string
+    ? TProjectionMap[P] extends ProjectionKey<TResultItem>
+      ? ProjectionKeyValue<TResultItem, TProjectionMap[P]>
+      : TypeMismatchError<{
+          error: `⛔️ Naked projections must be known properties ⛔️`;
+          expected: SimplifyDeep<ProjectionKey<TResultItem>>;
+          actual: TProjectionMap[P];
+        }>
     : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', q.string() ] */
     TProjectionMap[P] extends [infer TKey, infer TParser]
     ? TKey extends ProjectionKey<TResultItem>
-      ? TParser extends inferSymbol
-        ? ProjectionKeyValue<TResultItem, TKey>
-        : TParser extends Parser<infer TInput, infer TOutput>
+      ? TParser extends Parser<infer TInput, infer TOutput>
         ? TInput extends ProjectionKeyValue<TResultItem, TKey>
           ? TOutput
           : TypeMismatchError<{

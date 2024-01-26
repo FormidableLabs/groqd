@@ -19,12 +19,9 @@ describe("grab (backwards compatibility)", () => {
   it("should be type-safe", () => {
     const qGrab = qVariants.grab((q) => ({
       name: q.infer(),
-      slug: ["slug.current", zod.string()],
+      slug: "slug.current",
       msrp: ["msrp", zod.number()],
-      styles: q
-        .grabOne("style[]", q.infer())
-        .deref()
-        .grabOne("name", q.infer()),
+      styles: q.grabOne("style[]").deref().grabOne("name"),
     }));
 
     expectType<InferResultType<typeof qGrab>>().toStrictEqual<

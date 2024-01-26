@@ -9,6 +9,7 @@ import { ZodTypeDef } from "zod/lib/types";
 
 export type Parser<TInput = any, TOutput = any> =
   | ZodType<TOutput, ZodTypeDef, TInput>
+  // | ParserObject<TInput, TOutput>
   | ParserFunction<TInput, TOutput>;
 
 export type InferParserInput<TParser extends Parser> = TParser extends Parser<

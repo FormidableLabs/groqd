@@ -24,15 +24,11 @@ const data = mock.generateSeedData({
 describe("conditionalByType", () => {
   const conditionalByType = q.star.conditionalByType({
     variant: { _type: q.infer(), name: q.infer(), price: q.infer() },
-    product: {
-      _type: q.infer(),
-      name: q.infer(),
-      slug: ["slug.current", q.infer()],
-    },
+    product: { _type: q.infer(), name: q.infer(), slug: "slug.current" },
     category: (qC) => ({
       _type: q.infer(),
       name: q.infer(),
-      slug: qC.field("slug.current", q.infer()),
+      slug: qC.field("slug.current"),
     }),
   });
 
@@ -58,7 +54,7 @@ describe("conditionalByType", () => {
     const qMultiple = q.star.project((q) => ({
       ...q.conditionalByType({
         variant: { price: q.infer() },
-        product: { slug: ["slug.current", q.infer()] },
+        product: { slug: "slug.current" },
       }),
       ...q.conditionalByType(
         {
@@ -142,11 +138,7 @@ describe("conditionalByType", () => {
   const qAll = q.star.project((qA) => ({
     _type: q.infer(),
     ...qA.conditionalByType({
-      product: {
-        _type: q.infer(),
-        name: q.infer(),
-        slug: ["slug.current", q.infer()],
-      },
+      product: { _type: q.infer(), name: q.infer(), slug: "slug.current" },
       variant: { name: q.infer(), price: q.infer() },
     }),
   }));
