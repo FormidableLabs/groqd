@@ -52,7 +52,8 @@ GroqBuilder.implement({
         "When using 'select', either all conditions must have validation, or none of them. " +
           `Missing validation: "${missing.join('", "')}"`
       );
-      Error.captureStackTrace(err, GroqBuilder.prototype.select);
+      // This only works on V8 engines:
+      (Error as any).captureStackTrace?.(err, GroqBuilder.prototype.select);
       throw err;
     }
 

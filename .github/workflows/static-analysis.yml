@@ -35,7 +35,9 @@ jobs:
 
       - name: Build library
         run: pnpm run build:lib
+
       - name: Type Check
         run: pnpm run typecheck
+
       - name: Lint
         run: pnpm run lint
