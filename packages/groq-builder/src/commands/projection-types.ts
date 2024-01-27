@@ -43,7 +43,7 @@ export type ProjectionMap<TResultItem> = {
   >;
 } & {
   // Obviously this allows the ellipsis operator:
-  "..."?: true;
+  "..."?: true | Parser;
 };
 
 export type ProjectionMapOrCallback<
@@ -66,7 +66,7 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   | IGroqBuilder;
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> =
-  (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
+  (TProjectionMap extends { "...": true | Parser } ? TResultItem : Empty) &
     ExtractProjectionResultImpl<
       TResultItem,
       Omit<
