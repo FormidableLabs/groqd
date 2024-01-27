@@ -640,6 +640,7 @@ describe("project (object projections)", () => {
   describe("with validationRequired", () => {
     const q = createGroqBuilder<SchemaConfig>({
       validationRequired: true,
+      indent: "  ",
     }).include(zod);
     const qVariant = q.star.filterByType("variant").slice(0);
 
@@ -649,7 +650,7 @@ describe("project (object projections)", () => {
           price: true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        "\"[groq-builder] Because 'validationRequired' is enabled, you cannot use 'true' or a naked projection string for the \\\"price\\\" field\""
+        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"price\\""'
       );
     });
     it("should throw if a projection uses a naked projection", () => {
@@ -658,7 +659,25 @@ describe("project (object projections)", () => {
           price: "price",
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        "\"[groq-builder] Because 'validationRequired' is enabled, you cannot use 'true' or a naked projection string for the \\\"price\\\" field\""
+        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"price\\""'
+      );
+    });
+    it("should throw if a nested projection is missing a parser", () => {
+      expect(() =>
+        qVariant.project((qV) => ({
+          nested: qV.field("price"),
+        }))
+      ).toThrowErrorMatchingInlineSnapshot(
+        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"nested\\""'
+      );
+    });
+    it("should throw when using ellipsis operator ...", () => {
+      expect(() =>
+        qVariant.project({
+          "...": true,
+        })
+      ).toThrowErrorMatchingInlineSnapshot(
+        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"...\\""'
       );
     });
     it("should work just fine when validation is provided", () => {
@@ -666,14 +685,21 @@ describe("project (object projections)", () => {
         price: q.number(),
         price2: ["price", q.number()],
         price3: qV.field("price", q.number()),
+        price4: qV.field("price").validate(q.number()),
       }));
-      expect(qNormal.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"][0] { price, \\"price2\\": price, \\"price3\\": price }"'
-      );
+      expect(qNormal.query).toMatchInlineSnapshot(`
+        "*[_type == \\"variant\\"][0] {
+            price,
+            \\"price2\\": price,
+            \\"price3\\": price,
+            \\"price4\\": price
+          }"
+      `);
       expectType<InferResultType<typeof qNormal>>().toStrictEqual<{
         price: number;
         price2: number;
         price3: number;
+        price4: number;
       }>();
     });
   });

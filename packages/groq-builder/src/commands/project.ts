@@ -52,22 +52,6 @@ GroqBuilder.implement({
 
     const keys = Object.keys(projectionMap) as Array<string>;
 
-    if (this.internal.options.validationRequired) {
-      // Validate that we have provided validation functions for all fields:
-      const invalidFields = keys.filter((key) => {
-        const value = projectionMap[key as keyof typeof projectionMap];
-        // Do not allow the user to pass 'true' or a naked projection string:
-        return typeof value === "boolean" || typeof value === "string";
-      });
-      if (invalidFields.length) {
-        throw new TypeError(
-          "[groq-builder] Because 'validationRequired' is enabled, " +
-            "you cannot use 'true' or a naked projection string " +
-            `for the "${invalidFields.join('" and "')}" field`
-        );
-      }
-    }
-
     // Compile query from projection values:
     const fields = keys
       .map((key) => {
@@ -75,6 +59,19 @@ GroqBuilder.implement({
         return normalizeProjectionField(key, fieldConfig);
       })
       .filter(notNull);
+
+    if (this.internal.options.validationRequired) {
+      // Validate that we have provided validation functions for all fields:
+      const invalidFields = fields.filter((f) => !f.parser);
+      if (invalidFields.length) {
+        throw new TypeError(
+          "[groq-builder] Because 'validationRequired' is enabled, " +
+            "every field must have validation (like `q.string()`), " +
+            "but the following fields are missing it: " +
+            `${invalidFields.map((f) => `"${f.key}"`)}`
+        );
+      }
+    }
 
     const queries = fields.map((v) => v.query);
     const { newLine, space } = this.indentation;

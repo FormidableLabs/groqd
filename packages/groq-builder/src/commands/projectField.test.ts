@@ -147,21 +147,4 @@ describe("field (naked projections)", () => {
       `);
     });
   });
-
-  describe("with validationRequired", () => {
-    const q = createGroqBuilder<SchemaConfig>({ validationRequired: true });
-    const qVariants = q.star.filterByType("variant");
-    it("an error is thrown when missing the 2nd parameter", () => {
-      expect(() => qVariants.field("price")).toThrowErrorMatchingInlineSnapshot(
-        '"[groq-builder] Because \'validationRequired\' is enabled, you must provide a 2nd argument to q.field(\\"price\\", parser)"'
-      );
-    });
-    it("everything works when validation is present", () => {
-      const res = qVariants.field("price", zod.number());
-      expect(res.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"].price"'
-      );
-      expect(res.parser).not.toBeNull();
-    });
-  });
 });
