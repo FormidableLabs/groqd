@@ -41,10 +41,6 @@ export type ExtractConditionalProjectionResults<
     }>
 >;
 
-export type OmitConditionalProjections<TResultItem> = {
-  [P in Exclude<keyof TResultItem, ConditionalKey<string>>]: TResultItem[P];
-};
-
 export type ExtractConditionalProjectionTypes<TProjectionMap> = Simplify<
   IntersectionOfValues<{
     [P in Extract<

@@ -18,8 +18,8 @@ import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
 import { RootConfig } from "../types/schema-types";
 import {
+  ConditionalKey,
   ExtractConditionalProjectionTypes,
-  OmitConditionalProjections,
 } from "./conditional-types";
 
 export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
@@ -69,10 +69,10 @@ export type ExtractProjectionResult<TResultItem, TProjectionMap> =
   (TProjectionMap extends { "...": true | Parser } ? TResultItem : Empty) &
     ExtractProjectionResultImpl<
       TResultItem,
+      // Be sure to omit the Conditionals, "...", and fragment metadata:
       Omit<
-        OmitConditionalProjections<TProjectionMap>,
-        // Ensure we remove any "tags" that we don't want in the mapped type:
-        "..." | typeof FragmentInputTypeTag
+        TProjectionMap,
+        "..." | typeof FragmentInputTypeTag | ConditionalKey<string>
       >
     > &
     ExtractConditionalProjectionTypes<TProjectionMap>;
