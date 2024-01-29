@@ -71,12 +71,12 @@ describe("conditionalByType", () => {
         | Empty
         | { price: number }
         | { slug: string }
-        | { description: string | undefined }
-        | { name: string | undefined }
-        | { price: number; description: string | undefined }
-        | { price: number; name: string | undefined }
-        | { slug: string; description: string | undefined }
-        | { slug: string; name: string | undefined };
+        | { description: string | null }
+        | { name: string | null }
+        | { price: number; description: string | null }
+        | { price: number; name: string | null }
+        | { slug: string; description: string | null }
+        | { slug: string; name: string | null };
 
       type Remainder = Exclude<ActualItem, ExpectedItem>;
       expectType<Remainder>().toStrictEqual<never>();

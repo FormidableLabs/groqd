@@ -60,7 +60,7 @@ describe("GroqBuilder", () => {
             slug: string;
             style: null | Array<{
               _id: string;
-              name: string | undefined;
+              name: string | null;
             }>;
           }>;
         }>

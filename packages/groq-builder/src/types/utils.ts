@@ -115,3 +115,13 @@ export function keys<T extends object>(obj: T) {
 export function notNull<T>(value: T | null): value is T {
   return !!value;
 }
+
+/**
+ * Replaces undefined with null.
+ * @example
+ * UndefinedToNull<Foo | undefined> == Foo | null;
+ * UndefinedToNull<Foo> == Foo;
+ */
+export type UndefinedToNull<T> = T extends undefined
+  ? NonNullable<T> | null
+  : T;

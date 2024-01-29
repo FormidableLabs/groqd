@@ -116,7 +116,7 @@ describe("fragment", () => {
       name: string;
       msrp: number;
       price: number;
-      id: string | undefined;
+      id: string | null;
     }>();
   });
 

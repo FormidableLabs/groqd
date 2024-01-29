@@ -7,6 +7,7 @@ import {
   SimplifyDeep,
   StringKeys,
   TypeMismatchError,
+  UndefinedToNull,
   ValueOf,
 } from "../types/utils";
 import {
@@ -39,7 +40,7 @@ export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
 export type ProjectionMap<TResultItem> = {
   [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
     TResultItem,
-    P extends keyof TResultItem ? TResultItem[P] : any
+    P extends keyof TResultItem ? UndefinedToNull<TResultItem[P]> : any
   >;
 } & {
   // Obviously this allows the ellipsis operator:
@@ -66,26 +67,32 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   | IGroqBuilder;
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> =
-  (TProjectionMap extends { "...": true | Parser } ? TResultItem : Empty) &
-    ExtractProjectionResultImpl<
+  // Extract the "..." operator:
+  (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
+    (TProjectionMap extends { "...": Parser<TResultItem, infer TOutput> }
+      ? TOutput
+      : Empty) &
+    // Extract any conditional expressions:
+    ExtractConditionalProjectionTypes<TProjectionMap> &
+    // Extract all the fields:
+    ExtractProjectionResultFields<
       TResultItem,
       // Be sure to omit the Conditionals, "...", and fragment metadata:
       Omit<
         TProjectionMap,
         "..." | typeof FragmentInputTypeTag | ConditionalKey<string>
       >
-    > &
-    ExtractConditionalProjectionTypes<TProjectionMap>;
+    >;
 
-type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
+type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
   [P in keyof TProjectionMap]: TProjectionMap[P] extends IGroqBuilder<
     infer TValue
-  > // Extract type from GroqBuilder:
+  > // Extract the type from GroqBuilder:
     ? TValue
-    : /* Extract type from 'true': */
+    : /* Extract the type from a 'true' value: */
     TProjectionMap[P] extends boolean
     ? P extends keyof TResultItem
-      ? TResultItem[P]
+      ? UndefinedToNull<TResultItem[P]>
       : TypeMismatchError<{
           error: `⛔️ 'true' can only be used for known properties ⛔️`;
           expected: keyof TResultItem;
@@ -94,7 +101,7 @@ type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
     : /* Extract type from a ProjectionKey string, like 'slug.current': */
     TProjectionMap[P] extends string
     ? TProjectionMap[P] extends ProjectionKey<TResultItem>
-      ? ProjectionKeyValue<TResultItem, TProjectionMap[P]>
+      ? UndefinedToNull<ProjectionKeyValue<TResultItem, TProjectionMap[P]>>
       : TypeMismatchError<{
           error: `⛔️ Naked projections must be known properties ⛔️`;
           expected: SimplifyDeep<ProjectionKey<TResultItem>>;
@@ -104,11 +111,14 @@ type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
     TProjectionMap[P] extends [infer TKey, infer TParser]
     ? TKey extends ProjectionKey<TResultItem>
       ? TParser extends Parser<infer TInput, infer TOutput>
-        ? TInput extends ProjectionKeyValue<TResultItem, TKey>
+        ? TInput extends UndefinedToNull<ProjectionKeyValue<TResultItem, TKey>>
           ? TOutput
           : TypeMismatchError<{
               error: `⛔️ The value of the projection is not compatible with this parser ⛔️`;
-              expected: Parser<ProjectionKeyValue<TResultItem, TKey>, TOutput>;
+              expected: Parser<
+                UndefinedToNull<ProjectionKeyValue<TResultItem, TKey>>,
+                TOutput
+              >;
               actual: TParser;
             }>
         : TypeMismatchError<{
@@ -124,14 +134,14 @@ type ExtractProjectionResultImpl<TResultItem, TProjectionMap> = {
     : /* Extract type from Parser: */
     TProjectionMap[P] extends Parser<infer TExpectedInput, infer TOutput>
     ? P extends keyof TResultItem
-      ? TResultItem[P] extends TExpectedInput
+      ? UndefinedToNull<TResultItem[P]> extends TExpectedInput
         ? TOutput
         : IsAny<TResultItem[P]> extends true // When using <any> for the schema
         ? TOutput
         : TypeMismatchError<{
             error: `⛔️ Parser expects a different input type ⛔️`;
             expected: TExpectedInput;
-            actual: TResultItem[P];
+            actual: UndefinedToNull<TResultItem[P]>;
           }>
       : TypeMismatchError<{
           error: `⛔️ Parser can only be used with known properties ⛔️`;

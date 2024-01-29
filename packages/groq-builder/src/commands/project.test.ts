@@ -135,7 +135,7 @@ describe("project (object projections)", () => {
 
       expectType<InferResultType<typeof qMultipleFields>>().toStrictEqual<
         Array<{
-          id: string | undefined;
+          id: string | null;
           name: string;
           price: number;
           msrp: number;
@@ -242,7 +242,7 @@ describe("project (object projections)", () => {
           id: TypeMismatchError<{
             error: "⛔️ Parser expects a different input type ⛔️";
             expected: string;
-            actual: string | undefined;
+            actual: string | null;
           }>;
         }>
       >();
