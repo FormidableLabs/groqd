@@ -3,13 +3,11 @@ import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "./result-types";
 import { Simplify } from "./utils";
 import { ExtractProjectionResult } from "../commands/projection-types";
-import { ZodTypeDef } from "zod/lib/types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export type Parser<TInput = any, TOutput = any> =
-  | ZodType<TOutput, ZodTypeDef, TInput>
-  // | ParserObject<TInput, TOutput>
+  | ZodType<TOutput, any, TInput>
   | ParserFunction<TInput, TOutput>;
 
 export type InferParserInput<TParser extends Parser> = TParser extends Parser<

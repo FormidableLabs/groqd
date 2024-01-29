@@ -17,14 +17,10 @@ describe("nullToUndefined", () => {
 
   it("an optional field doesn't work with a Zod default", async () => {
     const qInvalid = qCategory.project({
+      // @ts-expect-error ---
       description: q.string().optional().default("DEFAULT"),
     });
-    // The type is correct:
-    expectType<InferResultType<typeof qInvalid>>().toStrictEqual<{
-      description: string;
-    }>();
-
-    // But it throws runtime errors:
+    // And it throws runtime errors:
     await expect(() => executeBuilder(qInvalid, data.datalake)).rejects
       .toThrowErrorMatchingInlineSnapshot(`
       "1 Parsing Error:

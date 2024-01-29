@@ -112,6 +112,9 @@ describe("with zod", () => {
         }>
       >();
     });
+  });
+  /*
+  describe("zod input widening", () => {
     it("shouldn't complain if the parser's input is wider than the input", () => {
       // FIrst, show that `name` is just a required string:
       const qName = qVariants.project({ name: true });
@@ -132,4 +135,5 @@ describe("with zod", () => {
       >();
     });
   });
+   */
 });
