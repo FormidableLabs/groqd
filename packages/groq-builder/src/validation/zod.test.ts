@@ -14,6 +14,7 @@ describe("with zod", () => {
     const qWithZod = qVariants.project({
       name: q.string(),
       price: q.number(),
+      id: q.string().nullable(),
     });
 
     it("should infer the right type", () => {
@@ -21,6 +22,7 @@ describe("with zod", () => {
         Array<{
           name: string;
           price: number;
+          id: string | null;
         }>
       >();
     });
@@ -38,19 +40,19 @@ describe("with zod", () => {
 
       expect(await executeBuilder(qWithZod, data.datalake))
         .toMatchInlineSnapshot(`
-        [
-          {
-            "id": "ID",
-            "name": "NAME",
-            "price": 999,
-          },
-          {
-            "id": undefined,
-            "name": "NAME",
-            "price": 999,
-          },
-        ]
-      `);
+          [
+            {
+              "id": "ID",
+              "name": "NAME",
+              "price": 999,
+            },
+            {
+              "id": null,
+              "name": "NAME",
+              "price": 999,
+            },
+          ]
+        `);
     });
     it("should throw with invalid data", async () => {
       const data = mock.generateSeedData({
@@ -67,11 +69,11 @@ describe("with zod", () => {
 
       await expect(() => executeBuilder(qWithZod, data.datalake)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
-      "3 Parsing Errors:
-      result[0].price: Expected number, received null
-      result[1].name: Expected string, received null
-      result[1].id: Expected string, received number"
-    `);
+        "3 Parsing Errors:
+        result[0].price: Expected number, received null
+        result[1].name: Expected string, received null
+        result[1].id: Expected string, received number"
+      `);
     });
   });
   describe("q.default helper", () => {
@@ -116,7 +118,7 @@ describe("with zod", () => {
   /*
   describe("zod input widening", () => {
     it("shouldn't complain if the parser's input is wider than the input", () => {
-      // FIrst, show that `name` is just a required string:
+      // First, show that `name` is just a required string:
       const qName = qVariants.project({ name: true });
       expectType<InferResultType<typeof qName>>().toStrictEqual<
         Array<{
