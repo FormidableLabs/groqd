@@ -14,6 +14,7 @@ import {
   FragmentInputTypeTag,
   IGroqBuilder,
   Parser,
+  ParserWithWidenedInput,
 } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
@@ -32,9 +33,11 @@ type ProjectionKeyImpl<Entries> = ValueOf<{
     : Key;
 }>;
 
-export type ProjectionKeyValue<TResultItem, TKey> = PathValue<
-  TResultItem,
-  Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
+export type ProjectionKeyValue<TResultItem, TKey> = UndefinedToNull<
+  PathValue<
+    TResultItem,
+    Extract<TKey extends `${infer TPath}[]` ? TPath : TKey, Path<TResultItem>>
+  >
 >;
 
 export type ProjectionMap<TResultItem> = {
@@ -60,9 +63,9 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use a string for naked projections, like 'slug.current'
   | ProjectionKey<TResultItem>
   // Use a parser to include a field, passing it through the parser at run-time
-  | Parser<TFieldType>
+  | ParserWithWidenedInput<TFieldType>
   // Use a tuple for naked projections with a parser
-  | [ProjectionKey<TResultItem>, Parser<TFieldType>]
+  | [ProjectionKey<TResultItem>, ParserWithWidenedInput<TFieldType>]
   // Use a GroqBuilder instance to create a nested projection
   | IGroqBuilder;
 
@@ -101,7 +104,7 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
     : /* Extract type from a ProjectionKey string, like 'slug.current': */
     TProjectionMap[P] extends string
     ? TProjectionMap[P] extends ProjectionKey<TResultItem>
-      ? UndefinedToNull<ProjectionKeyValue<TResultItem, TProjectionMap[P]>>
+      ? ProjectionKeyValue<TResultItem, TProjectionMap[P]>
       : TypeMismatchError<{
           error: `⛔️ Naked projections must be known properties ⛔️`;
           expected: SimplifyDeep<ProjectionKey<TResultItem>>;
@@ -110,17 +113,12 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
     : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', q.string() ] */
     TProjectionMap[P] extends [infer TKey, infer TParser]
     ? TKey extends ProjectionKey<TResultItem>
-      ? TParser extends Parser<infer TInput, infer TOutput>
-        ? TInput extends UndefinedToNull<ProjectionKeyValue<TResultItem, TKey>>
-          ? TOutput
-          : TypeMismatchError<{
-              error: `⛔️ The value of the projection is not compatible with this parser ⛔️`;
-              expected: Parser<
-                UndefinedToNull<ProjectionKeyValue<TResultItem, TKey>>,
-                TOutput
-              >;
-              actual: TParser;
-            }>
+      ? TParser extends Parser<infer TParserInput, infer TParserOutput>
+        ? ValidateParserInput<
+            ProjectionKeyValue<TResultItem, TKey>,
+            TParserInput,
+            TParserOutput
+          >
         : TypeMismatchError<{
             error: `⛔️ Naked projections must be known properties ⛔️`;
             expected: SimplifyDeep<ProjectionKey<TResultItem>>;
@@ -132,17 +130,13 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
           actual: TKey;
         }>
     : /* Extract type from Parser: */
-    TProjectionMap[P] extends Parser<infer TExpectedInput, infer TOutput>
+    TProjectionMap[P] extends Parser<infer TParserInput, infer TParserOutput>
     ? P extends keyof TResultItem
-      ? UndefinedToNull<TResultItem[P]> extends TExpectedInput
-        ? TOutput
-        : IsAny<TResultItem[P]> extends true // When using <any> for the schema
-        ? TOutput
-        : TypeMismatchError<{
-            error: `⛔️ Parser expects a different input type ⛔️`;
-            expected: TExpectedInput;
-            actual: UndefinedToNull<TResultItem[P]>;
-          }>
+      ? ValidateParserInput<
+          UndefinedToNull<TResultItem[P]>,
+          TParserInput,
+          TParserOutput
+        >
       : TypeMismatchError<{
           error: `⛔️ Parser can only be used with known properties ⛔️`;
           expected: keyof TResultItem;
@@ -150,3 +144,15 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
         }>
     : never;
 };
+
+type ValidateParserInput<TIncomingValue, TParserInput, TParserOutput> =
+  // We need to ensure that the Parser accepts a WIDER input than the value:
+  TIncomingValue extends TParserInput
+    ? TParserOutput
+    : IsAny<TIncomingValue> extends true // When using <any> for the schema
+    ? TParserOutput
+    : TypeMismatchError<{
+        error: `⛔️ Parser expects a different input type ⛔️`;
+        expected: TParserInput;
+        actual: TIncomingValue;
+      }>;

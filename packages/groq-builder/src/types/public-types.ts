@@ -1,14 +1,31 @@
 import type { ZodType } from "zod";
-import { GroqBuilder } from "../groq-builder";
-import { ResultItem } from "./result-types";
-import { Simplify } from "./utils";
-import { ExtractProjectionResult } from "../commands/projection-types";
+import type { GroqBuilder } from "../groq-builder";
+import type { ResultItem } from "./result-types";
+import type { Simplify } from "./utils";
+import type { ExtractProjectionResult } from "../commands/projection-types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+/**
+ * A Parser is either a generic mapping function, or a Zod schema.
+ * It's used for run-time validation and/or transformation
+ * of the results of a field.
+ */
 export type Parser<TInput = any, TOutput = any> =
-  | ZodType<TOutput, any, TInput>
-  | ParserFunction<TInput, TOutput>;
+  | ParserFunction<TInput, TOutput>
+  | ZodType<TOutput, any, TInput>;
+
+/**
+ * Same as `Parser`, except it allows for wider input types,
+ * so that a value of `string` can be handled
+ * by a parser that accepts `string | null` etc.
+ */
+export type ParserWithWidenedInput<TInput> =
+  // TypeScript automatically widens the parameters of a function:
+  | ParserFunction<TInput, any>
+  // TypeScript doesn't widen types for the ZodType signature;
+  // (but we type-check this manually in the ExtractProjectionResult)
+  | ZodType<any, any, any>;
 
 export type InferParserInput<TParser extends Parser> = TParser extends Parser<
   infer TInput

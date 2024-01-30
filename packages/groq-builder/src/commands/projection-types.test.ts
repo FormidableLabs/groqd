@@ -71,7 +71,7 @@ describe("projection-types", () => {
       it("should extract the correct types for each projection", () => {
         expectType<ProjectionKeyValue<Item, "str">>().toStrictEqual<string>();
         expectType<ProjectionKeyValue<Item, "num">>().toStrictEqual<
-          number | undefined
+          number | null
         >();
         expectType<ProjectionKeyValue<Item, "arr">>().toStrictEqual<
           Array<string>
@@ -83,7 +83,7 @@ describe("projection-types", () => {
           Item["nested"]
         >();
         expectType<ProjectionKeyValue<Item, "nested.str">>().toStrictEqual<
-          string | undefined
+          string | null
         >();
         expectType<
           ProjectionKeyValue<Item, "nested.bool">
@@ -94,9 +94,10 @@ describe("projection-types", () => {
         expectType<ProjectionKeyValue<Item, "nested.arr[]">>().toStrictEqual<
           Array<number>
         >();
-        // expectType<ProjectionKeyValue<Item, "optional.str">>().toStrictEqual<
-        //   string | undefined
-        // >();
+        expectType<ProjectionKeyValue<Item, "optional.str">>().toStrictEqual<
+          // @ts-expect-error -- Currently this isn't supported, so it's cast as 'never'
+          string | null
+        >();
       });
     });
   });

@@ -229,21 +229,31 @@ describe("project (object projections)", () => {
     });
 
     it("we should not be able to use the wrong parser type", () => {
-      qVariants.project({
-        // @ts-expect-error --- number is not assignable to string
+      const qNameInvalid = qVariants.project({
         name: zod.number(),
       });
+      expectType<InferResultType<typeof qNameInvalid>>().toStrictEqual<
+        Array<{
+          name: TypeMismatchError<{
+            error: "⛔️ Parser expects a different input type ⛔️";
+            expected: number;
+            actual: string;
+          }>;
+        }>
+      >();
 
       const qId = qVariants.project({
         id: q.string(),
       });
       expectType<InferResultType<typeof qId>>().toStrictEqual<
         Array<{
-          id: TypeMismatchError<{
-            error: "⛔️ Parser expects a different input type ⛔️";
-            expected: string;
-            actual: string | null;
-          }>;
+          id:
+            | string
+            | TypeMismatchError<{
+                error: "⛔️ Parser expects a different input type ⛔️";
+                expected: string;
+                actual: null;
+              }>;
         }>
       >();
     });

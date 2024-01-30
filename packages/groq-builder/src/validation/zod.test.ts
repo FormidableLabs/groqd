@@ -78,10 +78,20 @@ describe("with zod", () => {
   });
   describe("q.default helper", () => {
     it('should have a type error if zod.string().default("") is used', () => {
-      qVariants.project({
-        // @ts-expect-error --- 'string | undefined' is not assignable to 'string | null'
+      const qErr = qVariants.project({
         id: q.string().default("DEFAULT"),
       });
+      expectType<InferResultType<typeof qErr>>().toStrictEqual<
+        Array<{
+          id:
+            | string
+            | TypeMismatchError<{
+                error: "⛔️ Parser expects a different input type ⛔️";
+                expected: string | undefined;
+                actual: null;
+              }>;
+        }>
+      >();
 
       // Sometimes the error is embedded in the results:
       const qRes = qVariants.project({
@@ -89,11 +99,13 @@ describe("with zod", () => {
       });
       expectType<InferResultType<typeof qRes>>().toStrictEqual<
         Array<{
-          id: TypeMismatchError<{
-            error: "⛔️ Parser expects a different input type ⛔️";
-            expected: string;
-            actual: string | null;
-          }>;
+          id:
+            | string
+            | TypeMismatchError<{
+                error: "⛔️ Parser expects a different input type ⛔️";
+                expected: string;
+                actual: null;
+              }>;
         }>
       >();
     });
@@ -115,27 +127,45 @@ describe("with zod", () => {
       >();
     });
   });
-  /*
+
   describe("zod input widening", () => {
+    const qVariant = qVariants.slice(0);
+    it("should complain if the parser's input is narrower than the input", () => {
+      // First, show that `id` is optional/nullable
+      const qResultNormal = qVariant.project({ id: true });
+      expectType<InferResultType<typeof qResultNormal>>().toStrictEqual<{
+        id: string | null;
+      }>();
+
+      // Now, let's pick `id` with a narrow parser:
+      const qResult = qVariant.project({ id: q.string() });
+      // Ensure we return an error result:
+      expectType<InferResultType<typeof qResult>>().toStrictEqual<{
+        id:
+          | string
+          | TypeMismatchError<{
+              error: "⛔️ Parser expects a different input type ⛔️";
+              expected: string;
+              actual: null;
+            }>;
+      }>();
+    });
     it("shouldn't complain if the parser's input is wider than the input", () => {
-      // First, show that `name` is just a required string:
+      // First, show that `name` is a required string:
       const qName = qVariants.project({ name: true });
       expectType<InferResultType<typeof qName>>().toStrictEqual<
         Array<{
           name: string;
         }>
       >();
-      // Let's use a parser that allows for string | null:
-      const qWideParser = qVariants.project({
+
+      // Now let's use a parser that allows for string | null:
+      const qWideParser = qVariant.project({
         name: q.string().nullable(),
       });
-
-      expectType<InferResultType<typeof qWideParser>>().toStrictEqual<
-        Array<{
-          name: string | null;
-        }>
-      >();
+      expectType<InferResultType<typeof qWideParser>>().toStrictEqual<{
+        name: string | null;
+      }>();
     });
   });
-   */
 });
