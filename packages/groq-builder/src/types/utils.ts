@@ -40,25 +40,18 @@ export type TypeMismatchError<
   actual: Simplify<TError["actual"]>;
 };
 
-export type ExtractTypeMismatchErrors<TResult> =
-  TResult extends TypeMismatchError
-    ? TResult
-    : // Search for error values in objects, like { foo: TypeMismatchError }
-    Extract<EntriesOf<TResult>, [string, TypeMismatchError]> extends [
-        infer TKey,
-        infer TError
-      ]
-    ? TKey extends string
-      ? TypeMismatchError<{
-          error: `The following property had a nested error: ${Extract<
-            TKey,
-            string
-          >}`;
-          expected: "No nested errors";
-          actual: TError;
-        }>
-      : never
+/**
+ * Extracts all TypeMismatchError's from the projection result,
+ * making it easy to report these errors.
+ * Returns `never` if there are no errors.
+ */
+export type ExtractTypeMismatchErrors<TProjectionResult> = ValueOf<{
+  [TKey in StringKeys<
+    keyof TProjectionResult
+  >]: TProjectionResult[TKey] extends TypeMismatchError
+    ? `Error in "${TKey}": ${TProjectionResult[TKey]["error"]}`
     : never;
+}>;
 
 /**
  * Returns a union of all value types in the object

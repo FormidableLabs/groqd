@@ -1,4 +1,4 @@
-import { notNull, Simplify } from "../types/utils";
+import { ExtractTypeMismatchErrors, notNull, Simplify } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
@@ -18,29 +18,54 @@ declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     /**
      * Performs an "object projection", returning an object with the fields specified.
+     *
+     * @param projectionMap - The projection map is an object, mapping field names to projection values.
+     * @param ProjectionMapTypeMismatchErrors - This is only used for reporting errors from the projection.
      */
-    project<TProjection extends ProjectionMap<ResultItem.Infer<TResult>>>(
+    project<
+      TProjection extends ProjectionMap<ResultItem.Infer<TResult>>,
+      _TProjectionResult = ExtractProjectionResult<
+        ResultItem.Infer<TResult>,
+        TProjection
+      >
+    >(
       projectionMap:
         | TProjection
         | ((
             q: GroqBuilder<ResultItem.Infer<TResult>, TRootConfig>
-          ) => TProjection)
+          ) => TProjection),
+      ...ProjectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
     ): GroqBuilder<
-      ResultItem.Override<
-        TResult,
-        Simplify<
-          ExtractProjectionResult<ResultItem.Infer<TResult>, TProjection>
-        >
-      >,
+      ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
       TRootConfig
     >;
   }
 }
 
+/**
+ * When we map projection results, we return TypeMismatchError's
+ * for any fields that have an invalid mapping configuration.
+ * However, this does not cause TypeScript to throw any errors.
+ *
+ * In order to get TypeScript to complain about these invalid mappings,
+ * we will "require" an extra parameter, which will reveal the error messages.
+ */
+type RequireAFakeParameterIfThereAreTypeMismatchErrors<
+  TProjectionResult,
+  _Errors extends never | string = ExtractTypeMismatchErrors<TProjectionResult>
+> = _Errors extends never
+  ? [] // No errors, yay!
+  : // We've got errors; let's require the extra parameters:
+    | [_Errors]
+      // And this extra error message causes TypeScript to always log the entire list of errors:
+      | ["⛔️ Error: your projection has type mismatches: ⛔️"];
+
 GroqBuilder.implement({
   project(
     this: GroqBuilder,
-    projectionMapArg: object | ((q: any) => object)
+    projectionMapArg: object | ((q: any) => object),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ...ProjectionMapTypeMismatchErrors
   ): GroqBuilder<any> {
     // Retrieve the projectionMap:
     let projectionMap: object;

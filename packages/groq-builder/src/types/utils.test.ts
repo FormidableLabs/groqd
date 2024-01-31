@@ -13,31 +13,18 @@ describe("ExtractTypeMismatchErrors", () => {
     actual: unknown;
   }>;
 
-  type TestError = TME<"pass-through">;
   type Valid = { FOO: "FOO" };
 
-  it("should pass-through errors", () => {
-    expectType<
-      ExtractTypeMismatchErrors<TestError>
-    >().toStrictEqual<TestError>();
-
-    expectType<
-      ExtractTypeMismatchErrors<TestError | undefined>
-    >().toStrictEqual<TestError>();
-
-    expectType<
-      ExtractTypeMismatchErrors<TestError | Valid>
-    >().toStrictEqual<TestError>();
-  });
   it("should find nested errors", () => {
     type TestObject = {
       FOO: TME<"foo-error">;
       BAR: TME<"bar-error">;
       BAZ: Valid;
     };
-    expectType<ExtractTypeMismatchErrors<TestObject>["error"]>().toStrictEqual<
-      | "The following property had a nested error: FOO"
-      | "The following property had a nested error: BAR"
+    expectType<ExtractTypeMismatchErrors<TestObject>>().toStrictEqual<
+      | 'Error in "FOO": foo-error'
+      //
+      | 'Error in "BAR": bar-error'
     >();
   });
   it("should return 'never' when there's no errors", () => {

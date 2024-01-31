@@ -67,6 +67,7 @@ describe("project (object projections)", () => {
 
   describe("a single plain property", () => {
     it("cannot use 'true' to project unknown properties", () => {
+      // @ts-expect-error ---
       const qInvalid = qVariants.project({
         INVALID: true,
       });
@@ -229,8 +230,10 @@ describe("project (object projections)", () => {
     });
 
     it("we should not be able to use the wrong parser type", () => {
+      // @ts-expect-error ---
       const qNameInvalid = qVariants.project({
         name: zod.number(),
+        price: zod.string(),
       });
       expectType<InferResultType<typeof qNameInvalid>>().toStrictEqual<
         Array<{
@@ -238,6 +241,11 @@ describe("project (object projections)", () => {
             error: "⛔️ Parser expects a different input type ⛔️";
             expected: number;
             actual: string;
+          }>;
+          price: TypeMismatchError<{
+            error: "⛔️ Parser expects a different input type ⛔️";
+            expected: string;
+            actual: number;
           }>;
         }>
       >();
