@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -24,7 +23,7 @@ describe("field (naked projections)", () => {
   });
 
   it("can project a number", () => {
-    expectType<InferResultType<typeof qPrices>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qPrices>>().toEqualTypeOf<
       Array<number>
     >();
     expect(qPrices.query).toMatchInlineSnapshot(
@@ -32,7 +31,9 @@ describe("field (naked projections)", () => {
     );
   });
   it("can project a string", () => {
-    expectType<InferResultType<typeof qNames>>().toStrictEqual<Array<string>>();
+    expectTypeOf<InferResultType<typeof qNames>>().toEqualTypeOf<
+      Array<string>
+    >();
     expect(qNames.query).toMatchInlineSnapshot(
       '"*[_type == \\"variant\\"].name"'
     );
@@ -40,20 +41,20 @@ describe("field (naked projections)", () => {
   it("can project arrays with []", () => {
     type ResultType = InferResultType<typeof qImages>;
 
-    expectType<ResultType>().toStrictEqual<Array<
+    expectTypeOf<ResultType>().toEqualTypeOf<Array<
       NonNullable<SanitySchema.Variant["images"]>
     > | null>();
   });
   it("can chain projections", () => {
     const qSlugCurrent = qVariants.field("slug").field("current");
-    expectType<InferResultType<typeof qSlugCurrent>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qSlugCurrent>>().toEqualTypeOf<
       Array<string>
     >();
 
     const qImageNames = qVariants.slice(0).field("images[]").field("name");
-    expectType<
+    expectTypeOf<
       InferResultType<typeof qImageNames>
-    >().toStrictEqual<Array<string> | null>();
+    >().toEqualTypeOf<Array<string> | null>();
   });
 
   it("executes correctly (price)", async () => {
@@ -95,7 +96,7 @@ describe("field (naked projections)", () => {
 
     it("can project nested properties", () => {
       const qSlugs = qVariants.field("slug.current");
-      expectType<InferResultType<typeof qSlugs>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qSlugs>>().toEqualTypeOf<
         Array<string>
       >();
       expect(qSlugs.query).toMatchInlineSnapshot(
@@ -107,7 +108,7 @@ describe("field (naked projections)", () => {
       const qImages = qVariants.field("images[]");
       type ResultType = InferResultType<typeof qImages>;
 
-      expectType<ResultType>().toStrictEqual<Array<
+      expectTypeOf<ResultType>().toEqualTypeOf<Array<
         NonNullable<SanitySchema.Variant["images"]>
       > | null>();
     });
@@ -120,7 +121,7 @@ describe("field (naked projections)", () => {
 
     const qPrice = qVariants.slice(0).field("price", zod.number());
     it("should have the correct result type", () => {
-      expectType<InferResultType<typeof qPrice>>().toStrictEqual<number>();
+      expectTypeOf<InferResultType<typeof qPrice>>().toEqualTypeOf<number>();
     });
     it("should result in the right query", () => {
       expect(qPrice.query).toMatchInlineSnapshot(

@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest";
-import { expectType } from "../tests/expectType";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -17,18 +16,18 @@ describe("deref", () => {
   const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
-    expectType<
+    expectTypeOf<
       InferResultType<typeof qCategory>
-    >().toEqual<SanitySchema.Category | null>();
+    >().toEqualTypeOf<SanitySchema.Category | null>();
     expect(qCategory.query).toMatchInlineSnapshot(
       '"*[_type == \\"product\\"][0].categories[][0]->"'
     );
   });
 
   it("should deref an array of items", () => {
-    expectType<
+    expectTypeOf<
       InferResultType<typeof qVariants>
-    >().toStrictEqual<Array<SanitySchema.Variant> | null>();
+    >().toEqualTypeOf<Array<SanitySchema.Variant> | null>();
     expect(qVariants.query).toMatchInlineSnapshot(
       '"*[_type == \\"product\\"][0].variants[]->"'
     );
@@ -36,16 +35,16 @@ describe("deref", () => {
 
   it("should be an error if the item is not a reference", () => {
     const notAReference = qProduct.field("slug");
-    expectType<InferResultType<typeof notAReference>>().toStrictEqual<{
+    expectTypeOf<InferResultType<typeof notAReference>>().toEqualTypeOf<{
       _type: "slug";
       current: string;
     }>();
 
     const res = notAReference.deref();
     type ErrorResult = InferResultType<typeof res>;
-    expectType<
+    expectTypeOf<
       ErrorResult["error"]
-    >().toStrictEqual<"⛔️ Expected the object to be a reference type ⛔️">();
+    >().toEqualTypeOf<"⛔️ Expected the object to be a reference type ⛔️">();
   });
 
   it("should execute correctly (single)", async () => {

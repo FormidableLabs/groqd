@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { validation } from "./index";
-import { expectType } from "../../tests/expectType";
 import { InferParserInput, InferParserOutput } from "../../types/public-types";
 import { ValidationErrors } from "../validation-errors";
 
@@ -10,7 +9,7 @@ describe("primitiveValidation", () => {
 
     expect(str("TEST")).toEqual("TEST");
     const validResult = str("TEST");
-    expectType<typeof validResult>().toStrictEqual<string>();
+    expectTypeOf<typeof validResult>().toEqualTypeOf<string>();
 
     // @ts-expect-error ---
     expect(() => str(undefined)).toThrowErrorMatchingInlineSnapshot(
@@ -80,18 +79,18 @@ describe("primitiveValidation", () => {
     const objParser = validation.object<ExpectedType>();
 
     it("should have the correct type", () => {
-      expectType<
+      expectTypeOf<
         InferParserInput<typeof objParser>
-      >().toStrictEqual<ExpectedType>();
-      expectType<
+      >().toEqualTypeOf<ExpectedType>();
+      expectTypeOf<
         InferParserOutput<typeof objParser>
-      >().toStrictEqual<ExpectedType>();
+      >().toEqualTypeOf<ExpectedType>();
 
       const opt = objParser.optional();
-      expectType<InferParserInput<typeof opt>>().toStrictEqual<
+      expectTypeOf<InferParserInput<typeof opt>>().toEqualTypeOf<
         ExpectedType | undefined | null
       >();
-      expectType<InferParserOutput<typeof opt>>().toStrictEqual<
+      expectTypeOf<InferParserOutput<typeof opt>>().toEqualTypeOf<
         ExpectedType | undefined | null
       >();
     });

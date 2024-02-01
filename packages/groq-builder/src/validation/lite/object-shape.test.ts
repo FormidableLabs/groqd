@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { validation } from "./index";
-import { expectType } from "../../tests/expectType";
 import { InferParserInput, InferParserOutput } from "../../types/public-types";
 import { objectValidation } from "./object-shape";
 import { improveErrorMessage } from "./primitives.test";
@@ -25,14 +24,18 @@ describe("objectValidation.object", () => {
   };
 
   it("should have the correct type", () => {
-    expectType<InferParserInput<typeof objParser>>().toStrictEqual<Expected>();
-    expectType<InferParserOutput<typeof objParser>>().toStrictEqual<Expected>();
+    expectTypeOf<
+      InferParserInput<typeof objParser>
+    >().toEqualTypeOf<Expected>();
+    expectTypeOf<
+      InferParserOutput<typeof objParser>
+    >().toEqualTypeOf<Expected>();
 
     const opt = objParser.optional();
-    expectType<InferParserInput<typeof opt>>().toStrictEqual<
+    expectTypeOf<InferParserInput<typeof opt>>().toEqualTypeOf<
       Expected | undefined | null
     >();
-    expectType<InferParserOutput<typeof opt>>().toStrictEqual<
+    expectTypeOf<InferParserOutput<typeof opt>>().toEqualTypeOf<
       Expected | undefined | null
     >();
   });
@@ -99,12 +102,12 @@ describe("objectValidation.object", () => {
     };
 
     it("types should be correct", () => {
-      expectType<
+      expectTypeOf<
         InferParserInput<typeof mapper>
-      >().toStrictEqual<ExpectedInput>();
-      expectType<
+      >().toEqualTypeOf<ExpectedInput>();
+      expectTypeOf<
         InferParserOutput<typeof mapper>
-      >().toStrictEqual<ExpectedOutput>();
+      >().toEqualTypeOf<ExpectedOutput>();
     });
 
     it("should map data correctly", () => {

@@ -1,6 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -15,7 +14,7 @@ describe("slug", () => {
   }));
 
   it("should have the correct type", () => {
-    expectType<InferResultType<typeof qVariantSlugs>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qVariantSlugs>>().toEqualTypeOf<
       Array<{ SLUG: string }>
     >();
   });

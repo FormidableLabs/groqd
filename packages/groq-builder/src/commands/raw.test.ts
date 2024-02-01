@@ -1,6 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -15,7 +14,7 @@ describe("raw", () => {
   const data = mock.generateSeedData({});
 
   it("should be typed correctly", () => {
-    expectType<InferResultType<typeof qRaw>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qRaw>>().toEqualTypeOf<
       Array<{ ANYTHING: string | null }>
     >();
   });
@@ -41,7 +40,7 @@ describe("raw", () => {
     const qInvalid = q.raw<{ NEVER: "gonna" }>(
       `give you up, never gonna let you down`
     );
-    expectType<InferResultType<typeof qInvalid>>().toStrictEqual<{
+    expectTypeOf<InferResultType<typeof qInvalid>>().toEqualTypeOf<{
       NEVER: "gonna";
     }>();
 

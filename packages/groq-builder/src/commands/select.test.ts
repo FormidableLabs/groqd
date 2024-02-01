@@ -1,7 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { createGroqBuilder, InferResultType, zod } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 
@@ -16,7 +15,7 @@ describe("select", () => {
         const qSel = q.select({
           '_type == "variant"': q.value("VARIANT"),
         });
-        expectType<InferResultType<typeof qSel>>().toStrictEqual<
+        expectTypeOf<InferResultType<typeof qSel>>().toEqualTypeOf<
           "VARIANT" | null
         >();
       });
@@ -26,7 +25,7 @@ describe("select", () => {
           '_type == "product"': q.value("PRODUCT"),
           '_type == "category"': q.value("CATEGORY"),
         });
-        expectType<InferResultType<typeof qSelMultiple>>().toStrictEqual<
+        expectTypeOf<InferResultType<typeof qSelMultiple>>().toEqualTypeOf<
           "VARIANT" | "PRODUCT" | "CATEGORY" | null
         >();
       });
@@ -40,7 +39,7 @@ describe("select", () => {
           }),
         });
 
-        expectType<InferResultType<typeof qSelMultiple>>().toStrictEqual<
+        expectTypeOf<InferResultType<typeof qSelMultiple>>().toEqualTypeOf<
           | "VARIANT"
           | { nested: "NESTED" }
           | {
@@ -70,7 +69,7 @@ describe("select", () => {
     });
 
     it("the result types should be correct", () => {
-      expectType<InferResultType<typeof qSelect>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qSelect>>().toEqualTypeOf<
         Array<{
           selected: "VARIANT" | "PRODUCT" | "OTHER";
         }>

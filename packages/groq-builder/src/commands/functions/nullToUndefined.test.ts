@@ -1,7 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { createGroqBuilder, InferResultType } from "../../index";
 import { SchemaConfig } from "../../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../../tests/expectType";
 import { nullToUndefined } from "./nullToUndefined";
 import { zod } from "../../validation/zod";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
@@ -22,7 +21,7 @@ describe("nullToUndefined", () => {
       description: q.string().optional().default("DEFAULT"),
     });
     // Expect the description field itself contains details:
-    expectType<InferResultType<typeof qInvalid>>().toStrictEqual<{
+    expectTypeOf<InferResultType<typeof qInvalid>>().toEqualTypeOf<{
       description:
         | string
         | TypeMismatchError<{
@@ -44,7 +43,7 @@ describe("nullToUndefined", () => {
   });
 
   it("it works when wrapped with nullToUndefined", async () => {
-    expectType<InferResultType<typeof qNullToUndefined>>().toStrictEqual<{
+    expectTypeOf<InferResultType<typeof qNullToUndefined>>().toEqualTypeOf<{
       description: string;
     }>();
 

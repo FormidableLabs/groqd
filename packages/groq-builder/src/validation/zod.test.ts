@@ -1,7 +1,6 @@
-import { expect, describe, it } from "vitest";
+import { expect, describe, it, expectTypeOf } from "vitest";
 import { createGroqBuilder, InferResultType, zod } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { TypeMismatchError } from "../types/utils";
@@ -18,7 +17,7 @@ describe("with zod", () => {
     });
 
     it("should infer the right type", () => {
-      expectType<InferResultType<typeof qWithZod>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qWithZod>>().toEqualTypeOf<
         Array<{
           name: string;
           price: number;
@@ -82,7 +81,7 @@ describe("with zod", () => {
       const qErr = qVariants.project({
         id: q.string().default("DEFAULT"),
       });
-      expectType<InferResultType<typeof qErr>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qErr>>().toEqualTypeOf<
         Array<{
           id:
             | string
@@ -98,7 +97,7 @@ describe("with zod", () => {
       const qRes = qVariants.project({
         id: q.string(),
       });
-      expectType<InferResultType<typeof qRes>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qRes>>().toEqualTypeOf<
         Array<{
           id:
             | string
@@ -112,7 +111,7 @@ describe("with zod", () => {
     });
     it("infers the correct type", () => {
       const qNormal = qVariants.project({ id: true });
-      expectType<InferResultType<typeof qNormal>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qNormal>>().toEqualTypeOf<
         Array<{
           id: string | null;
         }>
@@ -121,7 +120,7 @@ describe("with zod", () => {
       const query = qVariants.project({
         id: q.default(q.string(), "DEFAULT"),
       });
-      expectType<InferResultType<typeof query>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<
         Array<{
           id: string;
         }>
@@ -134,7 +133,7 @@ describe("with zod", () => {
     it("should complain if the parser's input is narrower than the input", () => {
       // First, show that `id` is optional/nullable
       const qResultNormal = qVariant.project({ id: true });
-      expectType<InferResultType<typeof qResultNormal>>().toStrictEqual<{
+      expectTypeOf<InferResultType<typeof qResultNormal>>().toEqualTypeOf<{
         id: string | null;
       }>();
 
@@ -142,7 +141,7 @@ describe("with zod", () => {
       // @ts-expect-error ---
       const qResult = qVariant.project({ id: q.string() });
       // Ensure we return an error result:
-      expectType<InferResultType<typeof qResult>>().toStrictEqual<{
+      expectTypeOf<InferResultType<typeof qResult>>().toEqualTypeOf<{
         id:
           | string
           | TypeMismatchError<{
@@ -155,7 +154,7 @@ describe("with zod", () => {
     it("shouldn't complain if the parser's input is wider than the input", () => {
       // First, show that `name` is a required string:
       const qName = qVariants.project({ name: true });
-      expectType<InferResultType<typeof qName>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qName>>().toEqualTypeOf<
         Array<{
           name: string;
         }>
@@ -165,7 +164,7 @@ describe("with zod", () => {
       const qWideParser = qVariant.project({
         name: q.string().nullable(),
       });
-      expectType<InferResultType<typeof qWideParser>>().toStrictEqual<{
+      expectTypeOf<InferResultType<typeof qWideParser>>().toEqualTypeOf<{
         name: string | null;
       }>();
     });

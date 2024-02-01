@@ -1,6 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { InferFragmentType, InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { TypeMismatchError } from "../types/utils";
@@ -17,7 +16,7 @@ describe("fragment", () => {
   type VariantFragment = InferFragmentType<typeof variantFragment>;
 
   it("simple fragment should have the correct type", () => {
-    expectType<VariantFragment>().toStrictEqual<{
+    expectTypeOf<VariantFragment>().toEqualTypeOf<{
       name: string;
       price: number;
       slug: string;
@@ -38,7 +37,7 @@ describe("fragment", () => {
   type ProductFragment = InferFragmentType<typeof productFrag>;
 
   it("nested fragments should have the correct types", () => {
-    expectType<ProductFragment>().toEqual<{
+    expectTypeOf<ProductFragment>().toEqualTypeOf<{
       name: string;
       slug: string;
       variants: null | Array<{
@@ -52,7 +51,7 @@ describe("fragment", () => {
 
   it("fragments can be used in a query", () => {
     const qVariants = q.star.filterByType("variant").project(variantFragment);
-    expectType<InferResultType<typeof qVariants>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<
       Array<VariantFragment>
     >();
 
@@ -72,7 +71,7 @@ describe("fragment", () => {
       ...variantFragment,
       msrp: true,
     });
-    expectType<InferResultType<typeof qVariantsPlus>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qVariantsPlus>>().toEqualTypeOf<
       Array<{ name: string; price: number; slug: string; msrp: number }>
     >();
 
@@ -91,9 +90,9 @@ describe("fragment", () => {
   it("should have errors if the variant is used incorrectly", () => {
     // @ts-expect-error ---
     const qInvalid = q.star.filterByType("product").project(variantFragment);
-    expectType<
+    expectTypeOf<
       InferResultType<typeof qInvalid>[number]["price"]
-    >().toStrictEqual<
+    >().toEqualTypeOf<
       TypeMismatchError<{
         error: "⛔️ 'true' can only be used for known properties ⛔️";
         expected: keyof SanitySchema.Product;
@@ -112,7 +111,7 @@ describe("fragment", () => {
 
     type VariantDetails = InferFragmentType<typeof variantDetailsFrag>;
 
-    expectType<VariantDetails>().toStrictEqual<{
+    expectTypeOf<VariantDetails>().toEqualTypeOf<{
       slug: string;
       name: string;
       msrp: number;
@@ -132,7 +131,7 @@ describe("fragment", () => {
         name: true,
       });
     type CommonFrag = InferFragmentType<typeof commonFrag>;
-    expectType<CommonFrag>().toStrictEqual<{
+    expectTypeOf<CommonFrag>().toEqualTypeOf<{
       _type: "product" | "variant" | "category";
       _id: string;
       name: string;
@@ -155,9 +154,9 @@ describe("fragment", () => {
     });
 
     it("the inferred type is correct", () => {
-      expectType<
+      expectTypeOf<
         InferFragmentType<typeof fragmentWithConditional>
-      >().toStrictEqual<
+      >().toEqualTypeOf<
         | { name: string }
         | { name: string; onSale: false }
         | { name: string; onSale: true; price: number; msrp: number }
@@ -165,7 +164,7 @@ describe("fragment", () => {
     });
 
     it("the fragment can be used in a query", () => {
-      expectType<InferResultType<typeof qConditional>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qConditional>>().toEqualTypeOf<
         Array<
           | { slug: string; name: string }
           | { slug: string; name: string; onSale: false }

@@ -1,6 +1,5 @@
-import { describe, it } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 import { Path, PathValue, PathEntries } from "./path-types";
-import { expectType } from "../tests/expectType";
 import { DeepRequired } from "./deep-required";
 
 describe("type-paths", () => {
@@ -17,7 +16,7 @@ describe("type-paths", () => {
   describe("'Path'", () => {
     type Keys = Path<TestObject>;
     it("should extract all object keys", () => {
-      expectType<Keys>().toStrictEqual<
+      expectTypeOf<Keys>().toEqualTypeOf<
         | "a"
         //
         | "b"
@@ -33,23 +32,23 @@ describe("type-paths", () => {
     });
     it("optional values don't get included", () => {
       type KeysRequired = Path<DeepRequired<TestObject>>;
-      expectType<Exclude<KeysRequired, Keys>>().toStrictEqual<"j.k">();
+      expectTypeOf<Exclude<KeysRequired, Keys>>().toEqualTypeOf<"j.k">();
     });
   });
 
   describe("'PathValue'", () => {
     it("should extract the correct values", () => {
-      expectType<PathValue<TestObject, "a">>().toStrictEqual<"A">();
-      expectType<PathValue<TestObject, "b">>().toStrictEqual<{ c: "C" }>();
-      expectType<PathValue<TestObject, "b.c">>().toStrictEqual<"C">();
-      expectType<PathValue<TestObject, "d.e.f">>().toStrictEqual<0>();
+      expectTypeOf<PathValue<TestObject, "a">>().toEqualTypeOf<"A">();
+      expectTypeOf<PathValue<TestObject, "b">>().toEqualTypeOf<{ c: "C" }>();
+      expectTypeOf<PathValue<TestObject, "b.c">>().toEqualTypeOf<"C">();
+      expectTypeOf<PathValue<TestObject, "d.e.f">>().toEqualTypeOf<0>();
     });
   });
 
   describe("'PathEntries'", () => {
     it("should extract all entries", () => {
       type Entries = PathEntries<TestObject>;
-      expectType<Entries>().toStrictEqual<{
+      expectTypeOf<Entries>().toEqualTypeOf<{
         a: "A";
         b: { c: "C" };
         "b.c": "C";

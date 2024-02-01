@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest";
-import { expectType } from "../tests/expectType";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { createGroqBuilder, InferResultType, zod } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -27,10 +26,10 @@ describe("selectByType", () => {
       }),
     }));
 
-    expectType<InferResultType<typeof qWithCb>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qWithCb>>().toEqualTypeOf<
       Array<{ selected: "PRODUCT" | null }>
     >();
-    expectType<InferResultType<typeof qWithoutCb>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qWithoutCb>>().toEqualTypeOf<
       Array<{ selected: "PRODUCT" | null }>
     >();
 
@@ -63,7 +62,7 @@ describe("selectByType", () => {
 
     it("should infer the correct types", () => {
       type TSelect = InferResultType<typeof qSelect>;
-      expectType<TSelect>().toStrictEqual<
+      expectTypeOf<TSelect>().toEqualTypeOf<
         Array<{
           selected:
             | { _type: "product"; name: string }
@@ -153,7 +152,7 @@ describe("selectByType", () => {
     }));
 
     it("should infer the correct type", () => {
-      expectType<InferResultType<typeof qSelect>>().toStrictEqual<
+      expectTypeOf<InferResultType<typeof qSelect>>().toEqualTypeOf<
         Array<{
           selected: string | number | "UNKNOWN";
         }>

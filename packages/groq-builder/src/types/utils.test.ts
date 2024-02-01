@@ -1,5 +1,4 @@
-import { describe, it } from "vitest";
-import { expectType } from "../tests/expectType";
+import { describe, expectTypeOf, it } from "vitest";
 import {
   ExtractTypeMismatchErrors,
   TypeMismatchError,
@@ -21,32 +20,34 @@ describe("ExtractTypeMismatchErrors", () => {
       BAR: TME<"bar-error">;
       BAZ: Valid;
     };
-    expectType<ExtractTypeMismatchErrors<TestObject>>().toStrictEqual<
+    expectTypeOf<ExtractTypeMismatchErrors<TestObject>>().toEqualTypeOf<
       | 'Error in "FOO": foo-error'
       //
       | 'Error in "BAR": bar-error'
     >();
   });
   it("should return 'never' when there's no errors", () => {
-    expectType<ExtractTypeMismatchErrors<Valid>>().toStrictEqual<never>();
-    expectType<ExtractTypeMismatchErrors<undefined>>().toStrictEqual<never>();
-    expectType<ExtractTypeMismatchErrors<null>>().toStrictEqual<never>();
+    expectTypeOf<ExtractTypeMismatchErrors<Valid>>().toEqualTypeOf<never>();
+    expectTypeOf<ExtractTypeMismatchErrors<undefined>>().toEqualTypeOf<never>();
+    expectTypeOf<ExtractTypeMismatchErrors<null>>().toEqualTypeOf<never>();
   });
 });
 
 describe("UndefinedToNull", () => {
   it("should cast undefined or optional properties to null", () => {
     type Foo = "Foo";
-    expectType<UndefinedToNull<Foo | undefined>>().toStrictEqual<Foo | null>();
-    expectType<UndefinedToNull<Foo | null>>().toStrictEqual<Foo | null>();
-    expectType<
+    expectTypeOf<
+      UndefinedToNull<Foo | undefined>
+    >().toEqualTypeOf<Foo | null>();
+    expectTypeOf<UndefinedToNull<Foo | null>>().toEqualTypeOf<Foo | null>();
+    expectTypeOf<
       UndefinedToNull<Foo | null | undefined>
-    >().toStrictEqual<Foo | null>();
-    expectType<UndefinedToNull<Foo>>().toStrictEqual<Foo>();
+    >().toEqualTypeOf<Foo | null>();
+    expectTypeOf<UndefinedToNull<Foo>>().toEqualTypeOf<Foo>();
   });
   it("should cast optional properties to null", () => {
     type Foo = { Foo?: "FOO" };
-    expectType<Foo["Foo"]>().toStrictEqual<"FOO" | undefined>();
-    expectType<UndefinedToNull<Foo["Foo"]>>().toStrictEqual<"FOO" | null>();
+    expectTypeOf<Foo["Foo"]>().toEqualTypeOf<"FOO" | undefined>();
+    expectTypeOf<UndefinedToNull<Foo["Foo"]>>().toEqualTypeOf<"FOO" | null>();
   });
 });

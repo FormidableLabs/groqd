@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest";
-import { expectType } from "../tests/expectType";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
@@ -24,7 +23,7 @@ describe("grab (backwards compatibility)", () => {
       styles: q.grabOne("style[]").deref().grabOne("name"),
     }));
 
-    expectType<InferResultType<typeof qGrab>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qGrab>>().toEqualTypeOf<
       Array<{
         name: string;
         slug: string;

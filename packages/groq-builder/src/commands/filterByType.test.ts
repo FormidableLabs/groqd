@@ -1,6 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -13,7 +12,7 @@ const data = mock.generateSeedData({});
 describe("filterByType", () => {
   const qProduct = q.star.filterByType("product");
   it("types should be correct", () => {
-    expectType<InferResultType<typeof qProduct>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qProduct>>().toEqualTypeOf<
       Array<SanitySchema.Product>
     >();
   });

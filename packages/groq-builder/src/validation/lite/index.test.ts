@@ -1,5 +1,4 @@
-import { describe, it, expect } from "vitest";
-import { expectType } from "../../tests/expectType";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { InferResultItem, InferResultType } from "../../types/public-types";
 import { createGroqBuilder } from "../../index";
 import { TypeMismatchError } from "../../types/utils";
@@ -15,37 +14,37 @@ describe("createGroqBuilder<any>() (schema-less)", () => {
 
   it("filterByType", () => {
     const qFilterByType = q.star.filterByType("ANYTHING");
-    expectType<
+    expectTypeOf<
       InferResultType<typeof qFilterByType>
-    >().toStrictEqual<Array<any> | null>();
+    >().toEqualTypeOf<Array<any> | null>();
   });
   it("deref", () => {
     const qDeref = q.star.deref();
-    expectType<
+    expectTypeOf<
       InferResultType<typeof qDeref>
-    >().toStrictEqual<Array<any> | null>();
+    >().toEqualTypeOf<Array<any> | null>();
   });
   it("grab", () => {
     // todo
   });
   it("order", () => {
     const qOrder = q.star.order("ANYTHING");
-    expectType<InferResultType<typeof qOrder>>().toStrictEqual<Array<any>>();
+    expectTypeOf<InferResultType<typeof qOrder>>().toEqualTypeOf<Array<any>>();
   });
   it("slice(0)", () => {
     const qSlice = q.star.slice(0);
-    expectType<InferResultType<typeof qSlice>>().toStrictEqual<any>();
-    expectType<InferResultType<typeof qSlice>>().not.toStrictEqual<
+    expectTypeOf<InferResultType<typeof qSlice>>().toEqualTypeOf<any>();
+    expectTypeOf<InferResultType<typeof qSlice>>().not.toEqualTypeOf<
       Array<any>
     >();
   });
   it("slice(10, 5)", () => {
     const qSlice = q.star.slice(10, 15);
-    expectType<InferResultType<typeof qSlice>>().toStrictEqual<Array<any>>();
+    expectTypeOf<InferResultType<typeof qSlice>>().toEqualTypeOf<Array<any>>();
   });
   it("star", () => {
     const qStar = q.star;
-    expectType<InferResultType<typeof qStar>>().toStrictEqual<Array<any>>();
+    expectTypeOf<InferResultType<typeof qStar>>().toEqualTypeOf<Array<any>>();
   });
 });
 
@@ -82,7 +81,7 @@ describe("createGroqBuilder().include(validation)", () => {
       price: q.number(),
     });
 
-    expectType<InferResultType<typeof qVariants>>().toStrictEqual<Array<{
+    expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<Array<{
       name: string;
       price: number;
     }> | null>();
@@ -98,7 +97,7 @@ describe("strongly-typed schema, with runtime validation", () => {
       price: q.number(),
     });
 
-    expectType<InferResultType<typeof qVariants>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<
       Array<{
         name: string;
         price: number;
@@ -121,8 +120,8 @@ describe("strongly-typed schema, with runtime validation", () => {
 
     type ResultItem = InferResultItem<typeof qUnknownFieldName>;
 
-    expectType<ResultItem["INVALID"]>().not.toStrictEqual<string>();
-    expectType<ResultItem["INVALID"]>().toStrictEqual<
+    expectTypeOf<ResultItem["INVALID"]>().not.toEqualTypeOf<string>();
+    expectTypeOf<ResultItem["INVALID"]>().toEqualTypeOf<
       TypeMismatchError<{
         error: "⛔️ Parser can only be used with known properties ⛔️";
         expected: keyof SanitySchema.Variant;

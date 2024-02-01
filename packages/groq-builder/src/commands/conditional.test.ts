@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   createGroqBuilder,
   GroqBuilder,
@@ -7,7 +7,6 @@ import {
 } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
-import { expectType } from "../tests/expectType";
 import { Empty, Simplify } from "../types/utils";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
@@ -27,9 +26,9 @@ describe("conditional", () => {
     });
 
     it("we should be able to extract the intersection of projection types", () => {
-      expectType<
+      expectTypeOf<
         Simplify<ExtractConditionalProjectionTypes<typeof conditionalResult>>
-      >().toStrictEqual<
+      >().toEqualTypeOf<
         | Empty
         | { onSale: false }
         | { onSale: true; price: number; msrp: number }
@@ -57,7 +56,7 @@ describe("conditional", () => {
   }));
 
   it("should be able to extract the return type", () => {
-    expectType<InferResultType<typeof qAll>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qAll>>().toEqualTypeOf<
       Array<
         | { name: string }
         | { name: string; onSale: false }
@@ -107,7 +106,7 @@ describe("conditional", () => {
       }));
 
       it("the type will be missing the first conditionals", () => {
-        expectType<InferResultType<typeof qIncorrect>>().toStrictEqual<
+        expectTypeOf<InferResultType<typeof qIncorrect>>().toEqualTypeOf<
           Array<{ name: string } | { name: string; price: number }>
         >();
       });
@@ -173,8 +172,8 @@ describe("conditional", () => {
             };
 
         type Remainder = Exclude<ActualItem, ExpectedItem>;
-        expectType<Remainder>().toStrictEqual<never>();
-        expectType<ActualItem>().toStrictEqual<ExpectedItem>();
+        expectTypeOf<Remainder>().toEqualTypeOf<never>();
+        expectTypeOf<ActualItem>().toEqualTypeOf<ExpectedItem>();
       });
 
       it("the query should be compiled correctly", () => {

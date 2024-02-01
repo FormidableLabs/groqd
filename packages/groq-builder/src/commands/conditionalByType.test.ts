@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import {
   createGroqBuilder,
   ExtractTypeNames,
@@ -9,7 +9,6 @@ import {
 } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
-import { expectType } from "../tests/expectType";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { Empty, Simplify, SimplifyDeep } from "../types/utils";
@@ -39,7 +38,7 @@ describe("conditionalByType", () => {
     | { _type: "category"; name: string; slug: string };
 
   it('should have a "spreadable" signature', () => {
-    expectType<SimplifyDeep<typeof conditionalByType>>().toStrictEqual<
+    expectTypeOf<SimplifyDeep<typeof conditionalByType>>().toEqualTypeOf<
       SimplifyDeep<{
         "[Conditional] [ByType]": IGroqBuilder<ExpectedConditionalUnion>;
       }>
@@ -79,8 +78,8 @@ describe("conditionalByType", () => {
         | { slug: string; name: string | null };
 
       type Remainder = Exclude<ActualItem, ExpectedItem>;
-      expectType<Remainder>().toStrictEqual<never>();
-      expectType<ActualItem>().toStrictEqual<ExpectedItem>();
+      expectTypeOf<Remainder>().toEqualTypeOf<never>();
+      expectTypeOf<ActualItem>().toEqualTypeOf<ExpectedItem>();
     });
 
     it("the query should be correct", () => {
@@ -119,7 +118,7 @@ describe("conditionalByType", () => {
       | { _type: "product"; name: string }
       | { _type: "variant"; price: number };
 
-    expectType<Simplify<ActualItem>>().toStrictEqual<ExpectedItem>();
+    expectTypeOf<Simplify<ActualItem>>().toEqualTypeOf<ExpectedItem>();
   });
 
   it("should be able to extract the return types", () => {
@@ -127,7 +126,7 @@ describe("conditionalByType", () => {
       typeof conditionalByType
     >;
 
-    expectType<ConditionalResults>().toStrictEqual<
+    expectTypeOf<ConditionalResults>().toEqualTypeOf<
       | Empty
       | { _type: "variant"; name: string; price: number }
       | { _type: "product"; name: string; slug: string }
@@ -147,7 +146,7 @@ describe("conditionalByType", () => {
     type QueryResult = InferResultType<typeof qAll>;
 
     type DocTypes = ExtractTypeNames<SchemaConfig["documentTypes"]>;
-    expectType<QueryResult>().toStrictEqual<
+    expectTypeOf<QueryResult>().toEqualTypeOf<
       Array<
         | {
             _type: DocTypes;
