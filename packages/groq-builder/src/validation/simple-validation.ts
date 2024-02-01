@@ -1,12 +1,12 @@
 import {
   InferParserInput,
   InferParserOutput,
+  Parser,
   ParserFunction,
 } from "../types/public-types";
 import { ValidationErrors } from "./validation-errors";
 import { Simplify } from "../types/utils";
 import { normalizeValidationFunction } from "../commands/validate-utils";
-import { ObjectValidationMap } from "./lite/object-shape";
 
 /**
  * Pretty-prints the value
@@ -62,15 +62,13 @@ export function simpleObjectParser<TMap extends ObjectValidationMap>(
   objectMapper?: TMap
 ): ParserFunction<
   Simplify<{
-    [P in keyof TMap]: TMap[P] extends {}
-      ? //
-        InferParserInput<TMap[P]>
+    [P in keyof TMap]: TMap[P] extends Parser
+      ? InferParserInput<TMap[P]>
       : unknown;
   }>,
   Simplify<{
-    [P in keyof TMap]: TMap[P] extends {}
-      ? //
-        InferParserOutput<TMap[P]>
+    [P in keyof TMap]: TMap[P] extends Parser
+      ? InferParserOutput<TMap[P]>
       : unknown;
   }>
 > {
@@ -115,3 +113,5 @@ export function simpleObjectParser<TMap extends ObjectValidationMap>(
     return result;
   };
 }
+
+export type ObjectValidationMap = Record<string, Parser | null>;

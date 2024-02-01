@@ -6,7 +6,7 @@ import {
   ParserFunction,
 } from "../../types/public-types";
 import { Simplify } from "../../types/utils";
-import { simpleObjectParser } from "../simple-validation";
+import { ObjectValidationMap, simpleObjectParser } from "../simple-validation";
 
 interface ObjectValidation {
   object<TResult>(): OptionalParser<TResult, TResult>;
@@ -14,12 +14,12 @@ interface ObjectValidation {
     map?: TMap
   ): OptionalParser<
     Simplify<{
-      [P in keyof TMap]: TMap[P] extends {}
+      [P in keyof TMap]: TMap[P] extends Parser
         ? InferParserInput<TMap[P]>
         : unknown;
     }>,
     Simplify<{
-      [P in keyof TMap]: TMap[P] extends {}
+      [P in keyof TMap]: TMap[P] extends Parser
         ? InferParserOutput<TMap[P]>
         : unknown;
     }>
@@ -48,5 +48,3 @@ export const objectValidation: ObjectValidation = {
     });
   },
 };
-
-export type ObjectValidationMap = Record<string, Parser | null>;

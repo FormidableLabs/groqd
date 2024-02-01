@@ -4,6 +4,7 @@ import "./commands";
 
 import type { RootConfig } from "./types/schema-types";
 import type { ButFirst } from "./types/utils";
+import { zod } from "./validation/zod";
 
 // Re-export all our public types:
 export * from "./types/public-types";
@@ -14,33 +15,41 @@ export { zod } from "./validation/zod";
 /**
  * Creates the root `q` query builder.
  *
+ * Does not include runtime validation methods like `q.string()`.
+ * Instead, you have 3 options:
+ * - You can import `zod` and use `zod.string()` instead of `q.string()`
+ * - You can use inferred types without runtime validation
+ * - You can provide your own validation methods
+ * The Zod dependency can be tree-shaken with the latter 2 approaches.
+ *
  * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
  */
 export function createGroqBuilder<TRootConfig extends RootConfig>(
   options: GroqBuilderOptions = {}
 ) {
-  const root = new GroqBuilder<RootResult, TRootConfig>({
+  const q = new GroqBuilder<RootResult, TRootConfig>({
     query: "",
     parser: null,
     options,
   });
+  return q;
+}
 
-  return Object.assign(root, {
-    /**
-     * Returns the root query object, extended with extra methods.
-     * Useful for making validation utilities.
-     *
-     * @example
-     * const q = createGroqBuilder().include(validation);
-     *
-     * // Now we have access to validation methods directly on `q`, like:
-     * q.string()
-     */
-    include<TExtensions>(extensions: TExtensions) {
-      return Object.assign(root, extensions);
-    },
-  });
+/**
+ * Creates the root `q` query builder.
+ *
+ * Includes all Zod validation methods attached to the `q` object,
+ * like `q.string()` etc. This ensures an API that's backwards compatible with GroqD syntax.
+ *
+ * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
+ * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
+ */
+export function createGroqBuilderWithZod<TRootConfig extends RootConfig>(
+  options: GroqBuilderOptions = {}
+) {
+  const q = createGroqBuilder<TRootConfig>(options);
+  return Object.assign(q, zod);
 }
 
 /**

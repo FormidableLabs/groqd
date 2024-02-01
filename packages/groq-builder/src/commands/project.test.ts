@@ -2,13 +2,13 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../types/public-types";
 import { Simplify, TypeMismatchError } from "../types/utils";
-import { createGroqBuilder } from "../index";
+import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
 import { zod } from "../validation/zod";
 
-const q = createGroqBuilder<SchemaConfig>().include(zod);
+const q = createGroqBuilderWithZod<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("project (object projections)", () => {
@@ -656,10 +656,10 @@ describe("project (object projections)", () => {
   });
 
   describe("with validationRequired", () => {
-    const q = createGroqBuilder<SchemaConfig>({
+    const q = createGroqBuilderWithZod<SchemaConfig>({
       validationRequired: true,
       indent: "  ",
-    }).include(zod);
+    });
     const qVariant = q.star.filterByType("variant").slice(0);
 
     it("should throw if a projection uses 'true'", () => {

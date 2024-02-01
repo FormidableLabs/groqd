@@ -1,13 +1,12 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { createGroqBuilder, InferResultType } from "../../index";
+import { createGroqBuilderWithZod, InferResultType } from "../../index";
 import { SchemaConfig } from "../../tests/schemas/nextjs-sanity-fe";
 import { nullToUndefined } from "./nullToUndefined";
-import { zod } from "../../validation/zod";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 import { TypeMismatchError } from "../../types/utils";
 
-const q = createGroqBuilder<SchemaConfig>({ indent: "  " }).include(zod);
+const q = createGroqBuilderWithZod<SchemaConfig>({ indent: "  " });
 
 describe("nullToUndefined", () => {
   const data = mock.generateSeedData({

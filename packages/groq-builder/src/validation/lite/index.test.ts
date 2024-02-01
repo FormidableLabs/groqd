@@ -7,7 +7,7 @@ import {
   SchemaConfig,
 } from "../../tests/schemas/nextjs-sanity-fe";
 
-import { validation } from "./index";
+import { validation as v } from "./index";
 
 describe("createGroqBuilder<any>() (schema-less)", () => {
   const q = createGroqBuilder<any>();
@@ -49,24 +49,24 @@ describe("createGroqBuilder<any>() (schema-less)", () => {
 });
 
 describe("createGroqBuilder().include(validation)", () => {
-  const q = createGroqBuilder<any>().include(validation);
+  const q = createGroqBuilder<any>();
 
   it("should contain all methods", () => {
-    expect(q.string()).toBeTypeOf("function");
-    expect(q.number()).toBeTypeOf("function");
-    expect(q.boolean()).toBeTypeOf("function");
-    expect(q.bigint()).toBeTypeOf("function");
-    expect(q.undefined()).toBeTypeOf("function");
-    expect(q.date()).toBeTypeOf("function");
-    expect(q.literal("LITERAL")).toBeTypeOf("function");
-    expect(q.object()).toBeTypeOf("function");
-    expect(q.array()).toBeTypeOf("function");
-    expect(q.contentBlock()).toBeTypeOf("function");
-    expect(q.contentBlocks()).toBeTypeOf("function");
+    expect(v.string()).toBeTypeOf("function");
+    expect(v.number()).toBeTypeOf("function");
+    expect(v.boolean()).toBeTypeOf("function");
+    expect(v.bigint()).toBeTypeOf("function");
+    expect(v.undefined()).toBeTypeOf("function");
+    expect(v.date()).toBeTypeOf("function");
+    expect(v.literal("LITERAL")).toBeTypeOf("function");
+    expect(v.object()).toBeTypeOf("function");
+    expect(v.array()).toBeTypeOf("function");
+    expect(v.contentBlock()).toBeTypeOf("function");
+    expect(v.contentBlocks()).toBeTypeOf("function");
   });
 
   it('"q.string()" should work', () => {
-    const str = q.string();
+    const str = v.string();
     expect(str).toBeTypeOf("function");
     expect(str("FOO")).toEqual("FOO");
     // @ts-expect-error ---
@@ -77,8 +77,8 @@ describe("createGroqBuilder().include(validation)", () => {
 
   it("validation should work with projections", () => {
     const qVariants = q.star.filterByType("variant").project({
-      name: q.string(),
-      price: q.number(),
+      name: v.string(),
+      price: v.number(),
     });
 
     expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<Array<{
@@ -89,12 +89,12 @@ describe("createGroqBuilder().include(validation)", () => {
 });
 
 describe("strongly-typed schema, with runtime validation", () => {
-  const q = createGroqBuilder<SchemaConfig>().include(validation);
+  const q = createGroqBuilder<SchemaConfig>();
 
   it("validation should work with projections", () => {
     const qVariants = q.star.filterByType("variant").project({
-      name: q.string(),
-      price: q.number(),
+      name: v.string(),
+      price: v.number(),
     });
 
     expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<
@@ -108,14 +108,14 @@ describe("strongly-typed schema, with runtime validation", () => {
   it("improper validation usage should be caught at compile time", () => {
     q.star.filterByType("variant").project({
       // @ts-expect-error --- number is not assignable to string
-      price: q.string(),
+      price: v.string(),
       // @ts-expect-error --- string is not assignable to number
-      name: q.number(),
+      name: v.number(),
     });
 
     // @ts-expect-error ---
     const qUnknownFieldName = q.star.filterByType("variant").project({
-      INVALID: q.string(),
+      INVALID: v.string(),
     });
 
     type ResultItem = InferResultItem<typeof qUnknownFieldName>;
