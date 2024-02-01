@@ -26,9 +26,9 @@ const productsQuery = q("*")
 #### After, with `groq-builder`
 
 ```ts
-import { createGroqBuilder, validation } from "groq-builder";
+import { createGroqBuilderWithZod } from "groq-builder";
 // Using 'any' makes the query schema-unaware: 
-const q = createGroqBuilder<any>().include(validation); 
+const q = createGroqBuilderWithZod<any>();
 
 const productsQuery = q.star
   .filterByType("product")
@@ -53,17 +53,14 @@ Keep reading for a deeper explanation of these changes.
 
 ```ts
 // src/queries/q.ts
-import { createGroqBuilder, validation } from 'groq-builder';
+import { createGroqBuilderWithZod } from 'groq-builder';
 type SchemaConfig = any;
-export const q = createGroqBuilder<SchemaConfig>().include(validation);
+export const q = createGroqBuilderWithZod<SchemaConfig>();
 ```
 
 By creating the root `q` this way, we're able to bind it to our `SchemaConfig`.  
 By using `any` for now, our `q` will be schema-unaware (same as `groqd`).  
 Later, we'll show you how to change this to a strongly-typed schema.
-
-We also call `.include(validation)` to extend the root `q` with our validation methods, like `q.string()`.
-This is for convenience and compatibility.
 
 ## Step 2: Replacing the `q("...")` method
 
@@ -124,7 +121,7 @@ const productsQuery = q.star
   });
 ```
 
-Since `q` is strongly-typed to our Sanity schema, it knows the types of the product's `name`, `price`, and `slug`, so it outputs a strongly-typed result.  And assuming we trust our Sanity schema, we can skip the overhead of runtime checks.
+Since `q` is strongly-typed to our Sanity schema, it knows the types of the product's `name`, `price`, and `slug.current`, so it outputs a strongly-typed result.  And assuming we trust our Sanity schema, we can skip the overhead of runtime checks.
 
 
 ## Additional Improvements
@@ -133,7 +130,7 @@ Since `q` is strongly-typed to our Sanity schema, it knows the types of the prod
 
 The `grab`, `grabOne`, `grab$`, and `grabOne$` methods still exist, but have been deprecated, and should be replaced with the `project` and `field` methods.
 
-Sanity's documentation uses the word "projection" to refer to grabbing specific fields, so we have renamed the `grab` method to `project` (pronounced pruh-JEKT, if that helps). It also uses the phrase "naked projection" to refer to grabbing a single field, but to keep things terse, we've renamed `grabOne` to `field`.  So we recommend migrating from `grab` to `project`, and from `grabOne` to `field`.
+Sanity's documentation uses the word "projection" to refer to grabbing specific fields, so we have renamed the `grab` method to `project` (pronounced *pruh-JEKT*, if that helps). It also uses the phrase "naked projection" to refer to grabbing a single field, but to keep things terse, we've renamed `grabOne` to `field`.  So we recommend migrating from `grab` to `project`, and from `grabOne` to `field`.
 
 #### Alternatives for `grab$` and `grabOne$`
 
@@ -152,24 +149,3 @@ q.project({
   field: q.default(q.string(), "DEFAULT")),
 })
 ```
-
-
-### Validation methods
-
-Most validation methods, like `q.string()` or `q.number()`, are built-in now, and are no longer powered by Zod. These validation methods work mostly the same, but are simplified and more specialized to work with a strongly-typed schema.
-
-Some of the built-in validation methods, like `q.object()` and `q.array()`, are much simpler than the previous Zod version.  
-These check that the data is an `object` or an `array`, but do NOT check the shape of the data. 
-
-Please use Zod if you need to validate an object's shape, validate items inside an Array, or you'd like more powerful runtime validation logic. For example:
-
-```ts
-import { z } from 'zod';
-
-q.star.filterByType("user").project({
-  email: z.coerce.string().email().min(5),
-  createdAt: z.string().datetime().optional(),
-});
-```
-
-
