@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { nullToUndefined } from "../commands/functions/nullToUndefined";
 import { ParserFunction } from "../types/public-types";
 
 export const zod = {
@@ -13,7 +12,13 @@ export const zod = {
   undefined: z.undefined,
   array: z.array,
   object: z.object,
-  nullToUndefined,
+  nullToUndefined<TZodSchema extends z.ZodType>(
+    schema: TZodSchema
+  ): ParserFunction<z.input<TZodSchema> | null, z.output<TZodSchema>> {
+    return (input) => {
+      return schema.parse(input ?? undefined);
+    };
+  },
   default<TZodSchema extends z.ZodType<any, any, any>>(
     schema: TZodSchema,
     defaultValue: z.output<TZodSchema>

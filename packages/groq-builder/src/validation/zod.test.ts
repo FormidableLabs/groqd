@@ -127,6 +127,36 @@ describe("with zod", () => {
       >();
     });
   });
+  describe("q.nullToUndefined helper", () => {
+    it("optional types shouldn't normally work", () => {
+      // @ts-expect-error ---
+      const qErr = qVariants.project({
+        id: q.string().optional(),
+      });
+      expectTypeOf<InferResultType<typeof qErr>>().toEqualTypeOf<
+        Array<{
+          id:
+            | string
+            | undefined
+            | TypeMismatchError<{
+                error: "⛔️ Parser expects a different input type ⛔️";
+                expected: string | undefined;
+                actual: null;
+              }>;
+        }>
+      >();
+    });
+    it("unless wrapped with nullToUndefined", () => {
+      const qValid = qVariants.project({
+        id: q.nullToUndefined(q.string().optional()),
+      });
+      expectTypeOf<InferResultType<typeof qValid>>().toEqualTypeOf<
+        Array<{
+          id: string | undefined;
+        }>
+      >();
+    });
+  });
 
   describe("zod input widening", () => {
     const qVariant = qVariants.slice(0);
