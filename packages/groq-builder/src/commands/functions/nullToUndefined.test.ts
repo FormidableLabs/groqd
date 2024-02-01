@@ -6,6 +6,7 @@ import { nullToUndefined } from "./nullToUndefined";
 import { zod } from "../../validation/zod";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
+import { TypeMismatchError } from "../../types/utils";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " }).include(zod);
 
@@ -16,15 +17,25 @@ describe("nullToUndefined", () => {
   const qCategory = q.star.filterByType("category").slice(0);
 
   it("an optional field doesn't work with a Zod default", async () => {
+    // @ts-expect-error ---
     const qInvalid = qCategory.project({
-      // @ts-expect-error ---
       description: q.string().optional().default("DEFAULT"),
     });
+    // Expect the description field itself contains details:
+    expectType<InferResultType<typeof qInvalid>>().toStrictEqual<{
+      description:
+        | string
+        | TypeMismatchError<{
+            error: "⛔️ Parser expects a different input type ⛔️";
+            expected: string | undefined;
+            actual: null;
+          }>;
+    }>();
     // And it throws runtime errors:
     await expect(() => executeBuilder(qInvalid, data.datalake)).rejects
       .toThrowErrorMatchingInlineSnapshot(`
-      "1 Parsing Error:
-      result.description: Expected string, received null"
+        "1 Parsing Error:
+        result.description: Expected string, received null"
     `);
   });
 

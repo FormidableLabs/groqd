@@ -54,11 +54,11 @@ type RequireAFakeParameterIfThereAreTypeMismatchErrors<
   TProjectionResult,
   _Errors extends never | string = ExtractTypeMismatchErrors<TProjectionResult>
 > = _Errors extends never
-  ? [] // No errors, yay!
-  : // We've got errors; let's require the extra parameters:
+  ? [] // No errors, yay! Do not require any extra parameters.
+  : // We've got errors; let's require an extra parameter, with the error message:
     | [_Errors]
       // And this extra error message causes TypeScript to always log the entire list of errors:
-      | ["⛔️ Error: your projection has type mismatches: ⛔️"];
+      | ["⛔️ Error: this projection has type mismatches: ⛔️"];
 
 GroqBuilder.implement({
   project(

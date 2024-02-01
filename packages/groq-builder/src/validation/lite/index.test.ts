@@ -114,6 +114,7 @@ describe("strongly-typed schema, with runtime validation", () => {
       name: q.number(),
     });
 
+    // @ts-expect-error ---
     const qUnknownFieldName = q.star.filterByType("variant").project({
       INVALID: q.string(),
     });

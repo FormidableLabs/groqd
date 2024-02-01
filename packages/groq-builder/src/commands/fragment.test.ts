@@ -89,6 +89,7 @@ describe("fragment", () => {
   });
 
   it("should have errors if the variant is used incorrectly", () => {
+    // @ts-expect-error ---
     const qInvalid = q.star.filterByType("product").project(variantFragment);
     expectType<
       InferResultType<typeof qInvalid>[number]["price"]

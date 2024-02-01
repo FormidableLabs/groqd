@@ -46,11 +46,10 @@ export type TypeMismatchError<
  * Returns `never` if there are no errors.
  */
 export type ExtractTypeMismatchErrors<TProjectionResult> = ValueOf<{
-  [TKey in StringKeys<
-    keyof TProjectionResult
-  >]: TProjectionResult[TKey] extends TypeMismatchError
-    ? `Error in "${TKey}": ${TProjectionResult[TKey]["error"]}`
-    : never;
+  [TKey in StringKeys<keyof TProjectionResult>]: `Error in "${TKey}": ${Extract<
+    TProjectionResult[TKey],
+    TypeMismatchError
+  >["error"]}`;
 }>;
 
 /**

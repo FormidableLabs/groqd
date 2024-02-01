@@ -250,10 +250,11 @@ describe("project (object projections)", () => {
         }>
       >();
 
-      const qId = qVariants.project({
+      // @ts-expect-error ---
+      const qIdIsNullable = qVariants.project({
         id: q.string(),
       });
-      expectType<InferResultType<typeof qId>>().toStrictEqual<
+      expectType<InferResultType<typeof qIdIsNullable>>().toStrictEqual<
         Array<{
           id:
             | string

@@ -78,6 +78,7 @@ describe("with zod", () => {
   });
   describe("q.default helper", () => {
     it('should have a type error if zod.string().default("") is used', () => {
+      // @ts-expect-error --- Parser expects a different input type
       const qErr = qVariants.project({
         id: q.string().default("DEFAULT"),
       });
@@ -93,7 +94,7 @@ describe("with zod", () => {
         }>
       >();
 
-      // Sometimes the error is embedded in the results:
+      // @ts-expect-error --- Parser expects a different input type
       const qRes = qVariants.project({
         id: q.string(),
       });
@@ -137,7 +138,8 @@ describe("with zod", () => {
         id: string | null;
       }>();
 
-      // Now, let's pick `id` with a narrow parser:
+      // Now, let's pick `id` with a too-narrow parser:
+      // @ts-expect-error ---
       const qResult = qVariant.project({ id: q.string() });
       // Ensure we return an error result:
       expectType<InferResultType<typeof qResult>>().toStrictEqual<{
