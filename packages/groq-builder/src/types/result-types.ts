@@ -59,10 +59,7 @@ export namespace ResultItem {
       _Override<
         ResultUtils.Unwrap<TResult>,
         {
-          TResultItem: NonNullable<TResultItemNew>;
-          IsNullable: ResultUtils.IsNullable<TResultItemNew> extends true
-            ? true
-            : ResultUtils.IsNullable<TResult>;
+          TResultItem: TResultItemNew;
         }
       >
     >

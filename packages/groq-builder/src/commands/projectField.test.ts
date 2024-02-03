@@ -12,6 +12,7 @@ describe("field (naked projections)", () => {
   const qPrices = qVariants.field("price");
   const qNames = qVariants.field("name");
   const qImages = qVariants.field("images[]");
+  type ImagesArray = NonNullable<SanitySchema.Variant["images"]>;
   const data = mock.generateSeedData({
     variants: mock.array(5, (i) =>
       mock.variant({
@@ -40,10 +41,7 @@ describe("field (naked projections)", () => {
   });
   it("can project arrays with []", () => {
     type ResultType = InferResultType<typeof qImages>;
-
-    expectTypeOf<ResultType>().toEqualTypeOf<Array<
-      NonNullable<SanitySchema.Variant["images"]>
-    > | null>();
+    expectTypeOf<ResultType>().toEqualTypeOf<Array<ImagesArray | null>>();
   });
   it("can chain projections", () => {
     const qSlugCurrent = qVariants.field("slug").field("current");
@@ -108,9 +106,7 @@ describe("field (naked projections)", () => {
       const qImages = qVariants.field("images[]");
       type ResultType = InferResultType<typeof qImages>;
 
-      expectTypeOf<ResultType>().toEqualTypeOf<Array<
-        NonNullable<SanitySchema.Variant["images"]>
-      > | null>();
+      expectTypeOf<ResultType>().toEqualTypeOf<Array<ImagesArray | null>>();
     });
   });
 

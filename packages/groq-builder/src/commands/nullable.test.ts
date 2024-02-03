@@ -29,16 +29,17 @@ describe("nullable", () => {
       InferResultType<typeof qVariantsNullable>
     >().toEqualTypeOf<Array<SanitySchema.Variant> | null>();
   });
-  it("should do nothing to an already-nullable query", () => {
-    const qVariantId = qVariants.field("id");
-    type ExpectedType = Array<string> | null; // TODO: shouldn't this be Array<string | null>?
+  it("doesn't really work with fields (naked projections), since it makes the whole array nullable", () => {
+    const qNullableField = qVariants.field("name").nullable();
     expectTypeOf<
-      InferResultType<typeof qVariantId>
-    >().toEqualTypeOf<ExpectedType>();
-    const qExtraNullable = qVariantId.nullable();
-    expectTypeOf<
-      InferResultType<typeof qExtraNullable>
-    >().toEqualTypeOf<ExpectedType>();
+      InferResultType<typeof qNullableField>
+    >().toEqualTypeOf<Array<string> | null>();
+  });
+  it("to mark a field (naked projection) nullable, it's better to use zod", () => {
+    const qNullableFieldFixed = qVariants.field("name", q.string().nullable());
+    expectTypeOf<InferResultType<typeof qNullableFieldFixed>>().toEqualTypeOf<
+      Array<string | null>
+    >();
   });
 
   const qWithoutValidation = qVariants.project((qV) => ({
