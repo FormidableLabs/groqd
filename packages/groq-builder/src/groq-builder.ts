@@ -4,10 +4,7 @@ import type {
   ParserFunction,
 } from "./types/public-types";
 import type { ExtractTypeNames, RootConfig } from "./types/schema-types";
-import {
-  chainParsers,
-  normalizeValidationFunction,
-} from "./commands/validate-utils";
+import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import { Empty } from "./types/utils";
 import { GroqBuilderResultType } from "./types/public-types";
