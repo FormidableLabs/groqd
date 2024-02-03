@@ -1,11 +1,11 @@
-import { ExtractTypeNames, RootConfig } from "../types/schema-types";
+import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { StringKeys, ValueOf } from "../types/utils";
 import { ConditionalExpression } from "./conditional-types";
 import { GroqBuilder } from "../groq-builder";
 import { InferResultType } from "../types/public-types";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type SelectProjections<TResultItem, TRootConfig extends RootConfig> = {
+export type SelectProjections<TResultItem, TQueryConfig extends QueryConfig> = {
   [Condition: ConditionalExpression<TResultItem>]: GroqBuilder;
 };
 
@@ -19,12 +19,12 @@ export type ExtractSelectResult<
 
 export type SelectByTypeProjections<
   TResultItem,
-  TRootConfig extends RootConfig
+  TQueryConfig extends QueryConfig
 > = {
   [_type in ExtractTypeNames<TResultItem>]?:
     | GroqBuilder
     | ((
-        q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TRootConfig>
+        q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TQueryConfig>
       ) => GroqBuilder);
 };
 

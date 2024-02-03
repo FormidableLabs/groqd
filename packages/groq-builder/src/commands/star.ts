@@ -2,8 +2,8 @@ import { GroqBuilder } from "../groq-builder";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TRootConfig> {
-    star: GroqBuilder<Array<TRootConfig["documentTypes"]>, TRootConfig>;
+  export interface GroqBuilder<TResult, TQueryConfig> {
+    star: GroqBuilder<Array<TQueryConfig["documentTypes"]>, TQueryConfig>;
   }
 }
 

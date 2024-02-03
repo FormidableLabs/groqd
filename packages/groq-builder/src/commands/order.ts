@@ -3,13 +3,13 @@ import { StringKeys } from "../types/utils";
 import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * Orders the results by the keys specified
      */
     order<TKeys extends StringKeys<keyof ResultItem.Infer<TResult>>>(
       ...fields: Array<`${TKeys}${"" | " asc" | " desc"}`>
-    ): GroqBuilder<TResult, TRootConfig>;
+    ): GroqBuilder<TResult, TQueryConfig>;
 
     /** @deprecated Sorting is done via the 'order' method */
     sort: never;

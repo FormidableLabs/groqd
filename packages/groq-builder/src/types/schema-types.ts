@@ -1,6 +1,6 @@
 import { TypeMismatchError } from "./utils";
 
-export type RootConfig = {
+export type QueryConfig = {
   /**
    * This should be a union of all possible document types, according to your Sanity config.
    *
@@ -44,15 +44,15 @@ export type RefType<referenceSymbol extends symbol, TTypeName> = {
   [P in referenceSymbol]: TTypeName;
 };
 
-export type ExtractRefType<TResultItem, TRootConfig extends RootConfig> =
+export type ExtractRefType<TResultItem, TQueryConfig extends QueryConfig> =
   //
-  TResultItem extends RefType<TRootConfig["referenceSymbol"], infer TTypeName>
-    ? Extract<TRootConfig["documentTypes"], { _type: TTypeName }>
+  TResultItem extends RefType<TQueryConfig["referenceSymbol"], infer TTypeName>
+    ? Extract<TQueryConfig["documentTypes"], { _type: TTypeName }>
     : TypeMismatchError<{
         error: "⛔️ Expected the object to be a reference type ⛔️";
         expected: RefType<
-          TRootConfig["referenceSymbol"],
-          TRootConfig["documentTypes"]["_type"]
+          TQueryConfig["referenceSymbol"],
+          TQueryConfig["documentTypes"]["_type"]
         >;
         actual: TResultItem;
       }>;

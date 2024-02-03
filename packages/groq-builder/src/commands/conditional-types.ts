@@ -4,18 +4,18 @@ import {
   ProjectionMapOrCallback,
 } from "./projection-types";
 import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
-import { ExtractTypeNames, RootConfig } from "../types/schema-types";
+import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
 
 export type ConditionalProjectionMap<
   TResultItem,
-  TRootConfig extends RootConfig
+  TQueryConfig extends QueryConfig
 > = {
   [Condition: ConditionalExpression<TResultItem>]:
     | ProjectionMap<TResultItem>
     | ((
-        q: GroqBuilder<TResultItem, TRootConfig>
+        q: GroqBuilder<TResultItem, TQueryConfig>
       ) => ProjectionMap<TResultItem>);
 };
 
@@ -52,11 +52,11 @@ export type ExtractConditionalProjectionTypes<TProjectionMap> = Simplify<
 
 export type ConditionalByTypeProjectionMap<
   TResultItem,
-  TRootConfig extends RootConfig
+  TQueryConfig extends QueryConfig
 > = {
   [_type in ExtractTypeNames<TResultItem>]?: ProjectionMapOrCallback<
     Extract<TResultItem, { _type: _type }>,
-    TRootConfig
+    TQueryConfig
   >;
 };
 

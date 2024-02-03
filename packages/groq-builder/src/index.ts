@@ -2,7 +2,7 @@
 import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
 import "./commands";
 
-import type { RootConfig } from "./types/schema-types";
+import type { QueryConfig } from "./types/schema-types";
 import type { ButFirst } from "./types/utils";
 import { zod } from "./validation/zod";
 
@@ -22,13 +22,13 @@ export { zod } from "./validation/zod";
  * - You can provide your own validation methods
  * The Zod dependency can be tree-shaken with the latter 2 approaches.
  *
- * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
+ * The TQueryConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
  */
-export function createGroqBuilder<TRootConfig extends RootConfig>(
+export function createGroqBuilder<TQueryConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
-  const q = new GroqBuilder<RootResult, TRootConfig>({
+  const q = new GroqBuilder<RootResult, TQueryConfig>({
     query: "",
     parser: null,
     options,
@@ -42,13 +42,13 @@ export function createGroqBuilder<TRootConfig extends RootConfig>(
  * Includes all Zod validation methods attached to the `q` object,
  * like `q.string()` etc. This ensures an API that's backwards compatible with GroqD syntax.
  *
- * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
+ * The TQueryConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
  */
-export function createGroqBuilderWithZod<TRootConfig extends RootConfig>(
+export function createGroqBuilderWithZod<TQueryConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
-  const q = createGroqBuilder<TRootConfig>(options);
+  const q = createGroqBuilder<TQueryConfig>(options);
   return Object.assign(q, zod);
 }
 

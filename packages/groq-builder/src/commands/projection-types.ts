@@ -18,7 +18,7 @@ import {
 } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
-import { RootConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/schema-types";
 import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,
@@ -52,10 +52,10 @@ export type ProjectionMap<TResultItem> = {
 
 export type ProjectionMapOrCallback<
   TResultItem,
-  TRootConfig extends RootConfig
+  TQueryConfig extends QueryConfig
 > =
   | ProjectionMap<TResultItem>
-  | ((q: GroqBuilder<TResultItem, TRootConfig>) => ProjectionMap<TResultItem>);
+  | ((q: GroqBuilder<TResultItem, TQueryConfig>) => ProjectionMap<TResultItem>);
 
 export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use 'true' to include a field as-is

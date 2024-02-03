@@ -2,10 +2,10 @@ import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     slice(
       index: number
-    ): GroqBuilder<ResultItem.InferMaybe<TResult>, TRootConfig>;
+    ): GroqBuilder<ResultItem.InferMaybe<TResult>, TQueryConfig>;
     slice(
       /**
        * The first index to include in the slice
@@ -21,7 +21,7 @@ declare module "../groq-builder" {
        * @default false
        */
       inclusive?: boolean
-    ): GroqBuilder<TResult, TRootConfig>;
+    ): GroqBuilder<TResult, TQueryConfig>;
 
     /** @deprecated Use the 'slice' method */
     index: never;

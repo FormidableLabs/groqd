@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractTypeNames, RootConfig } from "../types/schema-types";
+import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { ResultItem } from "../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -10,11 +10,11 @@ import {
 import { ProjectionMap } from "./projection-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     conditionalByType<
       TConditionalProjections extends ConditionalByTypeProjectionMap<
         ResultItem.Infer<TResult>,
-        TRootConfig
+        TQueryConfig
       >,
       TKey extends string = "[ByType]",
       /**
@@ -42,7 +42,7 @@ GroqBuilder.implement({
     TKey extends string,
     TIsExhaustive extends boolean
   >(
-    this: GroqBuilder<any, RootConfig>,
+    this: GroqBuilder<any, QueryConfig>,
     conditionalProjections: TConditionalProjections,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {

@@ -7,23 +7,23 @@ import "./projectField";
 import { GroqBuilder } from "../groq-builder";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * @deprecated This method has been renamed to 'project' and will be removed in a future version.
      */
-    grab: GroqBuilder<TResult, TRootConfig>["project"];
+    grab: GroqBuilder<TResult, TQueryConfig>["project"];
     /**
      * @deprecated This method has been renamed to 'project' and will be removed in a future version.
      */
-    grab$: GroqBuilder<TResult, TRootConfig>["project"];
+    grab$: GroqBuilder<TResult, TQueryConfig>["project"];
     /**
      * @deprecated This method has been renamed to 'field' and will be removed in a future version.
      */
-    grabOne: GroqBuilder<TResult, TRootConfig>["field"];
+    grabOne: GroqBuilder<TResult, TQueryConfig>["field"];
     /**
      * @deprecated This method has been renamed to 'field' and will be removed in a future version.
      */
-    grabOne$: GroqBuilder<TResult, TRootConfig>["field"];
+    grabOne$: GroqBuilder<TResult, TQueryConfig>["field"];
   }
 }
 GroqBuilder.implement({

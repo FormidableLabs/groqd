@@ -9,11 +9,11 @@ import {
 import { InferResultType } from "../types/public-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     selectByType<
       TSelectByTypeProjections extends SelectByTypeProjections<
         ResultItem.Infer<TResult>,
-        TRootConfig
+        TQueryConfig
       >,
       TDefaultSelection extends GroqBuilder | null = null
     >(
@@ -24,7 +24,7 @@ declare module "../groq-builder" {
       | (TDefaultSelection extends null | undefined
           ? null
           : InferResultType<NonNullable<TDefaultSelection>>),
-      TRootConfig
+      TQueryConfig
     >;
   }
 }

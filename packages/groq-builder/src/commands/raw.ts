@@ -3,7 +3,7 @@ import { Parser } from "../types/public-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * An "escape hatch" allowing you to write any groq query you want.
      * You must specify a type parameter for the new results.
@@ -13,7 +13,7 @@ declare module "../groq-builder" {
     raw<TResultNew = never>(
       query: string,
       parser?: Parser | null
-    ): GroqBuilder<TResultNew, TRootConfig>;
+    ): GroqBuilder<TResultNew, TQueryConfig>;
   }
 }
 GroqBuilder.implement({

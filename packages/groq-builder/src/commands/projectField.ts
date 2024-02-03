@@ -8,7 +8,7 @@ import {
 import { Parser, ParserWithWidenedInput } from "../types/public-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * Performs a "naked projection", returning just the values of the field specified.
      *
@@ -21,7 +21,7 @@ declare module "../groq-builder" {
         TResult,
         ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>
       >,
-      TRootConfig
+      TQueryConfig
     >;
 
     /**
@@ -48,7 +48,7 @@ declare module "../groq-builder" {
             >
           : never
       >,
-      TRootConfig
+      TQueryConfig
     >;
 
     /** @deprecated Please use the 'field' method for naked projections */

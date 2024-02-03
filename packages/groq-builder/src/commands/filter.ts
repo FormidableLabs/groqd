@@ -1,17 +1,17 @@
 import { GroqBuilder } from "../groq-builder";
-import { RootConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/schema-types";
 import { ConditionalExpression } from "./conditional-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     filter(
       filterExpression: ConditionalExpression<TResult>
-    ): GroqBuilder<TResult, TRootConfig>;
+    ): GroqBuilder<TResult, TQueryConfig>;
   }
 }
 
 GroqBuilder.implement({
-  filter(this: GroqBuilder<any, RootConfig>, filterExpression) {
+  filter(this: GroqBuilder<any, QueryConfig>, filterExpression) {
     return this.chain(`[${filterExpression}]`);
   },
 });

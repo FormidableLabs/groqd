@@ -1,14 +1,14 @@
 import { GroqBuilder } from "../groq-builder";
-import { RootConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/schema-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
-    nullable(): GroqBuilder<TResult | null, TRootConfig>;
+  export interface GroqBuilder<TResult, TQueryConfig> {
+    nullable(): GroqBuilder<TResult | null, TQueryConfig>;
   }
 }
 
 GroqBuilder.implement({
-  nullable(this: GroqBuilder<any, RootConfig>) {
+  nullable(this: GroqBuilder<any, QueryConfig>) {
     const parser = this.parser;
 
     if (!parser) {
