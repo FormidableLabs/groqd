@@ -28,7 +28,7 @@ describe("grab (backwards compatibility)", () => {
         name: string;
         slug: string;
         msrp: number;
-        styles: Array<string> | null;
+        styles: Array<string | null> | null;
       }>
     >();
   });
