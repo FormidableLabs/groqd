@@ -65,7 +65,7 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use a parser to include a field, passing it through the parser at run-time
   | ParserWithWidenedInput<TFieldType>
   // Use a tuple for naked projections with a parser
-  | [ProjectionKey<TResultItem>, ParserWithWidenedInput<TFieldType>]
+  | readonly [ProjectionKey<TResultItem>, ParserWithWidenedInput<TFieldType>]
   // Use a GroqBuilder instance to create a nested projection
   | IGroqBuilder;
 
@@ -111,7 +111,7 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
           actual: TProjectionMap[P];
         }>
     : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', q.string() ] */
-    TProjectionMap[P] extends [infer TKey, infer TParser]
+    TProjectionMap[P] extends readonly [infer TKey, infer TParser]
     ? TKey extends ProjectionKey<TResultItem>
       ? TParser extends Parser<infer TParserInput, infer TParserOutput>
         ? ValidateParserInput<

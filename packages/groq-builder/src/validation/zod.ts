@@ -31,4 +31,7 @@ export const zod = {
       return schema.parse(input);
     };
   },
+  slug<TFieldName extends string>(fieldName: TFieldName) {
+    return [`${fieldName}.current`, z.string()] as const;
+  },
 };

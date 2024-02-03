@@ -157,6 +157,65 @@ describe("with zod", () => {
       >();
     });
   });
+  describe("q.slug helper", () => {
+    const qVariantSlugs = qVariants.project({
+      SLUG: q.slug("slug"),
+    });
+
+    it("should have the correct type", () => {
+      expectTypeOf<InferResultType<typeof qVariantSlugs>>().toEqualTypeOf<
+        Array<{ SLUG: string }>
+      >();
+    });
+
+    it("should not allow invalid fields to be slugged", () => {
+      qVariants.project({
+        // @ts-expect-error ---
+        name: q.slug("name"),
+        // @ts-expect-error ---
+        INVALID: q.slug("INVALID"),
+      });
+    });
+
+    describe("execution", () => {
+      const data = mock.generateSeedData({
+        variants: [
+          mock.variant({ slug: mock.slug({ current: "SLUG_1" }) }),
+          mock.variant({ slug: mock.slug({ current: "SLUG_2" }) }),
+          mock.variant({ slug: mock.slug({ current: "SLUG_3" }) }),
+        ],
+      });
+      it("should retrieve all slugs", async () => {
+        const result = await executeBuilder(qVariantSlugs, data.datalake);
+
+        expect(result).toEqual([
+          { SLUG: "SLUG_1" },
+          { SLUG: "SLUG_2" },
+          { SLUG: "SLUG_3" },
+        ]);
+      });
+      it("should have errors for missing / invalid slugs", async () => {
+        const data = mock.generateSeedData({
+          variants: [
+            // @ts-expect-error ---
+            mock.variant({ slug: mock.slug({ current: 123 }) }),
+            // @ts-expect-error ---
+            mock.variant({ slug: mock.slug({ current: undefined }) }),
+            mock.variant({ slug: undefined }),
+            mock.variant({}),
+          ],
+        });
+
+        await expect(() => executeBuilder(qVariantSlugs, data.datalake)).rejects
+          .toThrowErrorMatchingInlineSnapshot(`
+            "3 Parsing Errors:
+            result[0].SLUG: Expected string, received number
+            result[1].SLUG: Expected string, received null
+            result[2].SLUG: Expected string, received null"
+        `);
+      });
+    });
+  });
 
   describe("zod input widening", () => {
     const qVariant = qVariants.slice(0);

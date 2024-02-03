@@ -13,7 +13,6 @@ import "./raw";
 import "./select";
 import "./selectByType";
 import "./slice";
-import "./slug";
 import "./star";
 import "./validate";
 
