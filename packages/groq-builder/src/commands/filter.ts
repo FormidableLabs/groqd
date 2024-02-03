@@ -12,6 +12,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   filter(this: GroqBuilder<any, RootConfig>, filterExpression) {
-    return this.chain(`[${filterExpression}]`, null);
+    return this.chain(`[${filterExpression}]`);
   },
 });

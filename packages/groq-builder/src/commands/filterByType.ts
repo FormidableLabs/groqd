@@ -18,9 +18,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   filterByType(this: GroqBuilder, ...type) {
-    return this.chain(
-      `[${type.map((t) => `_type == "${t}"`).join(" || ")}]`,
-      null
-    );
+    return this.chain(`[${type.map((t) => `_type == "${t}"`).join(" || ")}]`);
   },
 });

@@ -124,7 +124,7 @@ export class GroqBuilder<
    */
   protected chain<TResultNew = never>(
     query: string,
-    parser: Parser | null | undefined
+    parser?: Parser | null
   ): GroqBuilder<TResultNew, TRootConfig> {
     if (query && this.internal.parser) {
       throw new QueryError(
