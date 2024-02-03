@@ -11,6 +11,7 @@ import {
 import { ValidationErrors } from "./validation/validation-errors";
 import { Empty } from "./types/utils";
 import { GroqBuilderResultType } from "./types/public-types";
+import { QueryError } from "./types/query-error";
 
 export type RootResult = Empty;
 
@@ -123,14 +124,22 @@ export class GroqBuilder<
    */
   protected chain<TResultNew = never>(
     query: string,
-    parser: Parser | null = null
+    parser: Parser | null | undefined
   ): GroqBuilder<TResultNew, TRootConfig> {
+    if (query && this.internal.parser) {
+      throw new QueryError(
+        "You cannot chain a new query once you've specified a parser, " +
+          "since this changes the result type.",
+        {
+          existingQuery: this.internal.query,
+          newQuery: query,
+        }
+      );
+    }
+
     return new GroqBuilder({
       query: this.internal.query + query,
-      parser: chainParsers(
-        this.internal.parser,
-        normalizeValidationFunction(parser)
-      ),
+      parser: normalizeValidationFunction(parser),
       options: this.internal.options,
     });
   }
