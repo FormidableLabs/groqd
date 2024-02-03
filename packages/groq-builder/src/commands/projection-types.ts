@@ -145,7 +145,7 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
     : never;
 };
 
-type ValidateParserInput<TIncomingValue, TParserInput, TParserOutput> =
+export type ValidateParserInput<TIncomingValue, TParserInput, TParserOutput> =
   // We need to ensure that the Parser accepts a WIDER input than the value:
   TIncomingValue extends TParserInput
     ? TParserOutput

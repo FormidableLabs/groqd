@@ -1,7 +1,11 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
-import { ProjectionKey, ProjectionKeyValue } from "./projection-types";
-import { Parser } from "../types/public-types";
+import {
+  ProjectionKey,
+  ProjectionKeyValue,
+  ValidateParserInput,
+} from "./projection-types";
+import { Parser, ParserWithWidenedInput } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
@@ -27,9 +31,8 @@ declare module "../groq-builder" {
      */
     field<
       TProjectionKey extends ProjectionKey<ResultItem.Infer<TResult>>,
-      TParser extends Parser<
-        ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>,
-        any
+      TParser extends ParserWithWidenedInput<
+        ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>
       >
     >(
       fieldName: TProjectionKey,
@@ -37,11 +40,12 @@ declare module "../groq-builder" {
     ): GroqBuilder<
       ResultItem.Override<
         TResult,
-        TParser extends Parser<
-          ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>,
-          infer TOutput
-        >
-          ? TOutput
+        TParser extends Parser<infer TParserInput, infer TParserOutput>
+          ? ValidateParserInput<
+              ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>,
+              TParserInput,
+              TParserOutput
+            >
           : never
       >,
       TRootConfig
