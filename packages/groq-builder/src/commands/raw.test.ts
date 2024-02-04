@@ -23,7 +23,7 @@ describe("raw", () => {
   });
 
   it("should execute correctly", async () => {
-    const result = await executeBuilder(qRaw, data.datalake);
+    const result = await executeBuilder(qRaw, data);
     expect(result).toMatchInlineSnapshot(`
       [
         {

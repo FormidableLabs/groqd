@@ -24,7 +24,7 @@ describe("star", () => {
   describe("execution", () => {
     it("should retrieve all documents", async () => {
       const data = mock.generateSeedData({});
-      const result = await executeBuilder(q.star, data.datalake);
+      const result = await executeBuilder(q.star, data);
 
       // I mean, this should be sufficient, right?
       expect(result).toEqual(data.datalake);

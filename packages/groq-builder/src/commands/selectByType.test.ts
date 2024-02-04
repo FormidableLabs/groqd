@@ -96,7 +96,7 @@ describe("selectByType", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qSelect, data.datalake);
+      const results = await executeBuilder(qSelect, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -177,7 +177,7 @@ describe("selectByType", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qSelect, data.datalake);
+      const results = await executeBuilder(qSelect, data);
 
       expect(results).toMatchInlineSnapshot(`
         [
@@ -243,7 +243,7 @@ describe("selectByType", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qSelect, data.datalake);
+      const results = await executeBuilder(qSelect, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -266,7 +266,7 @@ describe("selectByType", () => {
       `);
     });
     it("should fail with invalid data", async () => {
-      await expect(() => executeBuilder(qSelect, invalidData.datalake)).rejects
+      await expect(() => executeBuilder(qSelect, invalidData)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
         "2 Parsing Errors:
         result[0].selected: Conditional parsing failed; all 2 conditions failed

@@ -47,7 +47,7 @@ describe("project (object projections)", () => {
         products: mock.array(2, () => mock.product({})),
         categories: mock.array(3, () => mock.category({})),
       });
-      const results = await executeBuilder(qRoot, data.datalake);
+      const results = await executeBuilder(qRoot, data);
       expect(results).toMatchInlineSnapshot(`
         {
           "categoryNames": [
@@ -98,7 +98,7 @@ describe("project (object projections)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qName, data.datalake);
+      const results = await executeBuilder(qName, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -144,7 +144,7 @@ describe("project (object projections)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qMultipleFields, data.datalake);
+      const results = await executeBuilder(qMultipleFields, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -201,7 +201,7 @@ describe("project (object projections)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qValidation, data.datalake);
+      const results = await executeBuilder(qValidation, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -353,7 +353,7 @@ describe("project (object projections)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qComplex, data.datalake);
+      const results = await executeBuilder(qComplex, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -400,7 +400,7 @@ describe("project (object projections)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qComplex, data.datalake);
+      const results = await executeBuilder(qComplex, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -434,7 +434,7 @@ describe("project (object projections)", () => {
   });
 
   describe("nested projections", () => {
-    const { datalake: dataWithImages } = mock.generateSeedData({
+    const dataWithImages = mock.generateSeedData({
       variants: [
         mock.variant({ images: [mock.keyed(mock.image({}))] }),
         mock.variant({ images: [mock.keyed(mock.image({}))] }),
@@ -507,8 +507,9 @@ describe("project (object projections)", () => {
           ],
         }),
       ];
-      await expect(() => executeBuilder(qNested, dataWithInvalidData)).rejects
-        .toThrowErrorMatchingInlineSnapshot(`
+      await expect(() =>
+        executeBuilder(qNested, { datalake: dataWithInvalidData })
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "1 Parsing Error:
         result[0].images[0].description: Expected string, received number"
       `);
@@ -541,7 +542,7 @@ describe("project (object projections)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qComplex, data.datalake);
+      const results = await executeBuilder(qComplex, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -606,7 +607,7 @@ describe("project (object projections)", () => {
       );
     });
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qParser, data.datalake);
+      const results = await executeBuilder(qParser, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -647,8 +648,8 @@ describe("project (object projections)", () => {
         }),
       ];
 
-      await expect(() => executeBuilder(qParser, invalidData)).rejects
-        .toThrowErrorMatchingInlineSnapshot(`
+      await expect(() => executeBuilder(qParser, { datalake: invalidData }))
+        .rejects.toThrowErrorMatchingInlineSnapshot(`
         "1 Parsing Error:
         result[5].price: Expected number, received string"
       `);
@@ -740,7 +741,7 @@ describe("project (object projections)", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qEllipsis, data.datalake);
+      const results = await executeBuilder(qEllipsis, data);
       expect(results).toEqual(
         data.variants.map((v) => {
           // @ts-expect-error ---

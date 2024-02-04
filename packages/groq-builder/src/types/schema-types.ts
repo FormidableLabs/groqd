@@ -1,6 +1,6 @@
 import { TypeMismatchError } from "./utils";
 
-export type QueryConfig = {
+export type RootQueryConfig = {
   /**
    * This should be a union of all possible document types, according to your Sanity config.
    *
@@ -24,6 +24,14 @@ export type QueryConfig = {
    * It's used to extract document types from a reference object.
    */
   referenceSymbol: symbol;
+};
+
+export type QueryConfig = RootQueryConfig & {
+  /**
+   * Represents a map of input variable names, and their types.
+   * To set this, use the `q.variables<{ id: string }>()` syntax
+   */
+  variables?: {};
 };
 
 /**

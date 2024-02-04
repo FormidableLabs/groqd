@@ -183,7 +183,7 @@ describe("conditionalByType", () => {
   });
 
   it("should execute correctly", async () => {
-    const res = await executeBuilder(qAll, data.datalake);
+    const res = await executeBuilder(qAll, data);
 
     expect(res.find((item) => item._type === "category"))
       .toMatchInlineSnapshot(`

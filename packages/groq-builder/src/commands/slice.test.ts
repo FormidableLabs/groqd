@@ -11,7 +11,7 @@ describe("slice", () => {
   const qVariants = q.star.filterByType("variant");
   const data = mock.generateSeedData({});
   beforeAll(async function checkRootQuery() {
-    const results = await executeBuilder(qVariants, data.datalake);
+    const results = await executeBuilder(qVariants, data);
     expect(results).toStrictEqual(data.variants);
   });
 
@@ -28,7 +28,7 @@ describe("slice", () => {
       });
     });
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qSlice0, data.datalake);
+      const results = await executeBuilder(qSlice0, data);
       expect(results).toMatchObject(data.variants[0]);
     });
   });
@@ -55,7 +55,7 @@ describe("slice", () => {
     });
     it("should execute correctly", async () => {
       const qSlice = qVariants.slice(5, 7);
-      const results = await executeBuilder(qSlice, data.datalake);
+      const results = await executeBuilder(qSlice, data);
       expect(results).toMatchObject([
         // Triple-dots is exclusive
         data.variants[5],

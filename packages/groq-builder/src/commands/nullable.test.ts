@@ -46,7 +46,7 @@ describe("nullable", () => {
     name: qV.field("name").nullable(),
   }));
   it("should execute correctly, without runtime validation", async () => {
-    const results = await executeBuilder(qWithoutValidation, data.datalake);
+    const results = await executeBuilder(qWithoutValidation, data);
     expect(results).toMatchInlineSnapshot(`
       [
         {
@@ -94,7 +94,7 @@ describe("nullable", () => {
       expect(qWithValidation.parser).toBeTypeOf("function");
     });
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qWithValidation, data.datalake);
+      const results = await executeBuilder(qWithValidation, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {

@@ -3,14 +3,14 @@ import { makeSafeQueryRunner } from "../../index";
 
 type Datalake = Array<object>;
 
-export const executeBuilder = makeSafeQueryRunner(
-  async (query: string, datalake: Datalake, params = {}) =>
-    await executeQuery(query, datalake, params)
+export const executeBuilder = makeSafeQueryRunner<{ datalake: Datalake }>(
+  async (query: string, { variables, datalake }) =>
+    await executeQuery(datalake, query, variables ?? {})
 );
 
 export async function executeQuery(
-  query: string,
   dataset: Datalake,
+  query: string,
   params: Record<string, string>
 ): Promise<unknown> {
   try {

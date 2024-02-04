@@ -2,9 +2,9 @@
 import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
 import "./commands";
 
-import type { QueryConfig } from "./types/schema-types";
-import type { ButFirst } from "./types/utils";
+import type { QueryConfig, RootQueryConfig } from "./types/schema-types";
 import { zod } from "./validation/zod";
+import type { HasRequiredKeys, IsUnknown } from "type-fest";
 
 // Re-export all our public types:
 export * from "./types/public-types";
@@ -22,13 +22,13 @@ export { zod } from "./validation/zod";
  * - You can provide your own validation methods
  * The Zod dependency can be tree-shaken with the latter 2 approaches.
  *
- * The TQueryConfig type argument is used to bind the query builder to the Sanity schema config.
+ * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
  */
-export function createGroqBuilder<TQueryConfig extends QueryConfig>(
+export function createGroqBuilder<TRootConfig extends RootQueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
-  const q = new GroqBuilder<RootResult, TQueryConfig>({
+  const q = new GroqBuilder<RootResult, TRootConfig>({
     query: "",
     parser: null,
     options,
@@ -42,29 +42,58 @@ export function createGroqBuilder<TQueryConfig extends QueryConfig>(
  * Includes all Zod validation methods attached to the `q` object,
  * like `q.string()` etc. This ensures an API that's backwards compatible with GroqD syntax.
  *
- * The TQueryConfig type argument is used to bind the query builder to the Sanity schema config.
+ * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
  */
-export function createGroqBuilderWithZod<TQueryConfig extends QueryConfig>(
+export function createGroqBuilderWithZod<TRootConfig extends RootQueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
-  const q = createGroqBuilder<TQueryConfig>(options);
+  const q = createGroqBuilder<TRootConfig>(options);
   return Object.assign(q, zod);
 }
 
-/**
- * Utility to create a "query runner" that consumes the result of the `q` function.
- */
-export function makeSafeQueryRunner<
-  FunnerFn extends (query: string, ...parameters: any[]) => Promise<any>
->(fn: FunnerFn) {
-  return async function queryRunner<TResult>(
-    builder: GroqBuilder<TResult>,
-    ...parameters: ButFirst<Parameters<FunnerFn>>
-  ): Promise<TResult> {
-    const data = await fn(builder.query, ...parameters);
+export type QueryRunnerOptions<TQueryConfig extends QueryConfig = QueryConfig> =
+  IsUnknown<TQueryConfig["variables"]> extends true
+    ? {
+        /**
+         * This query does not have any variables defined.
+         * Please use `q.variables<...>()` to define the required input variables.
+         */
+        variables?: never;
+      }
+    : {
+        /**
+         * This query requires the following input variables.
+         */
+        variables: TQueryConfig["variables"];
+      };
 
-    const parsed = builder.parse(data);
+/**
+ * Utility to create a "query runner" that consumes the result of the `q` chain.
+ */
+export function makeSafeQueryRunner<TCustomParameters>(
+  fn: (
+    query: string,
+    options: QueryRunnerOptions & TCustomParameters
+  ) => Promise<any>
+) {
+  return async function queryRunner<
+    TResult,
+    TQueryConfig extends QueryConfig,
+    _TOptions extends QueryRunnerOptions<TQueryConfig> &
+      TCustomParameters = QueryRunnerOptions<TQueryConfig> & TCustomParameters
+  >(
+    builder: GroqBuilder<TResult, TQueryConfig>,
+    // If the `options` argument doesn't have any required keys,
+    // then make the argument optional:
+    ..._options: HasRequiredKeys<_TOptions> extends true
+      ? [_TOptions] // Required
+      : [] | [_TOptions] // Optional
+  ): Promise<TResult> {
+    const options: any = _options[0] || {};
+    const results = await fn(builder.query, options);
+
+    const parsed = builder.parse(results);
     return parsed;
   };
 }

@@ -48,12 +48,12 @@ describe("order", () => {
 
   it("should execute correctly (asc)", async () => {
     const qOrder = qVariants.order("price");
-    const results = await executeBuilder(qOrder, data.datalake);
+    const results = await executeBuilder(qOrder, data);
     expect(results).toMatchObject(priceAsc);
   });
   it("should execute correctly (desc)", async () => {
     const qOrder = qVariants.order("price desc");
-    const results = await executeBuilder(qOrder, data.datalake);
+    const results = await executeBuilder(qOrder, data);
     expect(results).toMatchObject(priceDesc);
   });
 
@@ -110,7 +110,7 @@ describe("order", () => {
 
     it("should execute correctly", async () => {
       const qOrder = qVariants.order("msrp", "price");
-      const results = await executeBuilder(qOrder, data.datalake);
+      const results = await executeBuilder(qOrder, data);
       expect(results).toMatchObject([
         { name: `Variant 4`, msrp: 500, price: 96 },
         { name: `Variant 3`, msrp: 500, price: 97 },

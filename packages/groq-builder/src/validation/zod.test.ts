@@ -37,8 +37,7 @@ describe("with zod", () => {
         '"*[_type == \\"variant\\"] { name, price, id }"'
       );
 
-      expect(await executeBuilder(qWithZod, data.datalake))
-        .toMatchInlineSnapshot(`
+      expect(await executeBuilder(qWithZod, data)).toMatchInlineSnapshot(`
           [
             {
               "id": "ID",
@@ -66,7 +65,7 @@ describe("with zod", () => {
         '"*[_type == \\"variant\\"] { name, price, id }"'
       );
 
-      await expect(() => executeBuilder(qWithZod, data.datalake)).rejects
+      await expect(() => executeBuilder(qWithZod, data)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
         "3 Parsing Errors:
         result[0].price: Expected number, received null
@@ -186,7 +185,7 @@ describe("with zod", () => {
         ],
       });
       it("should retrieve all slugs", async () => {
-        const result = await executeBuilder(qVariantSlugs, data.datalake);
+        const result = await executeBuilder(qVariantSlugs, data);
 
         expect(result).toEqual([
           { SLUG: "SLUG_1" },
@@ -206,7 +205,7 @@ describe("with zod", () => {
           ],
         });
 
-        await expect(() => executeBuilder(qVariantSlugs, data.datalake)).rejects
+        await expect(() => executeBuilder(qVariantSlugs, data)).rejects
           .toThrowErrorMatchingInlineSnapshot(`
             "3 Parsing Errors:
             result[0].SLUG: Expected string, received number

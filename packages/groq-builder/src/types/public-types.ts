@@ -3,6 +3,7 @@ import type { GroqBuilder } from "../groq-builder";
 import type { ResultItem } from "./result-types";
 import type { Simplify } from "./utils";
 import type { ExtractProjectionResult } from "../commands/projection-types";
+import type { QueryConfig } from "./schema-types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -70,16 +71,33 @@ export type InferResultType<TGroqBuilder extends IGroqBuilder<any>> =
 export type InferResultItem<TGroqBuilder extends GroqBuilder> =
   ResultItem.Infer<InferResultType<TGroqBuilder>>;
 
+export type InferVariablesType<TGroqBuilder extends GroqBuilder> =
+  TGroqBuilder extends IGroqBuilder<any, infer TQueryConfig>
+    ? TQueryConfig["variables"]
+    : never;
+
 /**
- * Used to store the Result types of a GroqBuilder.
+ * Used to infer the Result types of a GroqBuilder.
  * This symbol is not used at runtime.
+ * @internal
  */
 export declare const GroqBuilderResultType: unique symbol;
 /**
- * IGroqBuilder is the bare minimum GroqBuilder, used to prevent circular references
+ * Used to infer the TQueryConfig types of a GroqBuilder.
+ * This symbol is not used at runtime
+ * @internal
  */
-export type IGroqBuilder<TResult = unknown> = {
+export declare const GroqBuilderConfigType: unique symbol;
+/**
+ * IGroqBuilder is the bare minimum GroqBuilder, used to prevent circular references
+ * @internal
+ */
+export type IGroqBuilder<
+  TResult = unknown,
+  TQueryConfig extends QueryConfig = QueryConfig
+> = {
   readonly [GroqBuilderResultType]: TResult;
+  readonly [GroqBuilderConfigType]: TQueryConfig;
   query: string;
   parser: ParserFunction | null;
 };

@@ -23,7 +23,7 @@ describe("parse", () => {
     });
 
     it("should parse the data", async () => {
-      const result = await executeBuilder(qPriceParse, data.datalake);
+      const result = await executeBuilder(qPriceParse, data);
       expect(result).toMatchInlineSnapshot('"$99.00"');
     });
 
@@ -44,7 +44,7 @@ describe("parse", () => {
     });
 
     it("should parse the data", async () => {
-      const result = await executeBuilder(qPriceParse, data.datalake);
+      const result = await executeBuilder(qPriceParse, data);
       expect(result).toMatchInlineSnapshot('"$99.00"');
     });
   });
