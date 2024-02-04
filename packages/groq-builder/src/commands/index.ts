@@ -15,5 +15,6 @@ import "./selectByType";
 import "./slice";
 import "./star";
 import "./validate";
+import "./variables";
 
 import "./functions/value";

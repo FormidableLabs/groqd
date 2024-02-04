@@ -1,4 +1,5 @@
-import type {
+import {
+  GroqBuilderConfigType,
   IGroqBuilder,
   Parser,
   ParserFunction,
@@ -47,6 +48,8 @@ export class GroqBuilder<
 {
   // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
   readonly [GroqBuilderResultType]: TResult;
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  readonly [GroqBuilderConfigType]: TQueryConfig;
 
   /**
    * Extends the GroqBuilder class by implementing methods.
