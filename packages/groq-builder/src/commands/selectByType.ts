@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../groq-builder";
+import { GroqBuilder, IGroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import { keys, Simplify } from "../types/utils";
 import {
@@ -6,7 +6,7 @@ import {
   SelectByTypeProjections,
   SelectProjections,
 } from "./select-types";
-import { IGroqBuilder, InferResultType } from "../types/public-types";
+import { InferResultType } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {

@@ -1,14 +1,8 @@
-import {
-  GroqBuilderConfigType,
-  IGroqBuilder,
-  Parser,
-  ParserFunction,
-} from "./types/public-types";
+import { Parser, ParserFunction } from "./types/public-types";
 import type { ExtractTypeNames, QueryConfig } from "./types/schema-types";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import { Empty } from "./types/utils";
-import { GroqBuilderResultType } from "./types/public-types";
 import { QueryError } from "./types/query-error";
 
 export type RootResult = Empty;
@@ -192,3 +186,30 @@ export class GroqBuilder<
     };
   }
 }
+
+export declare const GroqBuilderResultType: unique symbol;
+export declare const GroqBuilderConfigType: unique symbol;
+/**
+ * IGroqBuilder is the bare minimum GroqBuilder, used to prevent circular references
+ * @internal
+ */
+export type IGroqBuilder<
+  TResult = unknown,
+  TQueryConfig extends QueryConfig = QueryConfig
+> = {
+  /**
+   * Used to infer the Result types of a GroqBuilder.
+   * This symbol is not used at runtime.
+   * @internal
+   */
+  readonly [GroqBuilderResultType]: TResult;
+  /**
+   * Used to infer the TQueryConfig types of a GroqBuilder.
+   * This symbol is not used at runtime
+   * @internal
+   */
+  readonly [GroqBuilderConfigType]: TQueryConfig;
+  query: string;
+  parser: ParserFunction | null;
+  parse: ParserFunction;
+};

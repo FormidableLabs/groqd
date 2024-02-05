@@ -1,6 +1,5 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import {
-  createGroqBuilder,
   ExtractTypeNames,
   GroqBuilder,
   IGroqBuilder,
@@ -12,6 +11,7 @@ import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { Empty, Simplify, SimplifyDeep } from "../types/utils";
+import { createGroqBuilder } from "../createGroqBuilder";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const data = mock.generateSeedData({

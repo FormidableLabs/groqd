@@ -2,7 +2,7 @@ import type { ZodType } from "zod";
 import type { ResultItem } from "./result-types";
 import type { Simplify } from "./utils";
 import type { ExtractProjectionResult } from "../commands/projection-types";
-import type { QueryConfig } from "./schema-types";
+import { IGroqBuilder } from "../groq-builder";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -70,36 +70,10 @@ export type InferResultType<TGroqBuilder extends IGroqBuilder<any>> =
 export type InferResultItem<TGroqBuilder extends IGroqBuilder<any>> =
   ResultItem.Infer<InferResultType<TGroqBuilder>>;
 
-export type InferVariablesType<TGroqBuilder extends IGroqBuilder<any>> =
+export type InferParametersType<TGroqBuilder extends IGroqBuilder<any>> =
   TGroqBuilder extends IGroqBuilder<any, infer TQueryConfig>
-    ? TQueryConfig["variables"]
+    ? TQueryConfig["parameters"]
     : never;
-
-/**
- * Used to infer the Result types of a GroqBuilder.
- * This symbol is not used at runtime.
- * @internal
- */
-export declare const GroqBuilderResultType: unique symbol;
-/**
- * Used to infer the TQueryConfig types of a GroqBuilder.
- * This symbol is not used at runtime
- * @internal
- */
-export declare const GroqBuilderConfigType: unique symbol;
-/**
- * IGroqBuilder is the bare minimum GroqBuilder, used to prevent circular references
- * @internal
- */
-export type IGroqBuilder<
-  TResult = unknown,
-  TQueryConfig extends QueryConfig = QueryConfig
-> = {
-  readonly [GroqBuilderResultType]: TResult;
-  readonly [GroqBuilderConfigType]: TQueryConfig;
-  query: string;
-  parser: ParserFunction | null;
-};
 
 /**
  * Used to store the Result types of a Fragment.
