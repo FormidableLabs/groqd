@@ -125,13 +125,13 @@ describe("select", () => {
   });
 
   describe("with validation", () => {
-    const qSelect = qBase.project((q) => ({
-      selected: q.select({
-        '_type == "product"': q.asType<"product">().project({
+    const qSelect = qBase.project((qB) => ({
+      selected: qB.select({
+        '_type == "product"': qB.asType<"product">().project({
           _type: zod.literal("product"),
           name: zod.string(),
         }),
-        '_type == "variant"': q.asType<"variant">().project({
+        '_type == "variant"': qB.asType<"variant">().project({
           _type: zod.literal("variant"),
           name: zod.string(),
           price: zod.number(),

@@ -15,14 +15,14 @@ describe("selectByType", () => {
   });
 
   it("can be used with or without callback functions", () => {
-    const qWithCb = qBase.project((q) => ({
-      selected: q.selectByType({
-        product: (q) => q.value("PRODUCT"), // <-- uses the callback API
+    const qWithCb = qBase.project((qB) => ({
+      selected: qB.selectByType({
+        product: (qP) => qP.value("PRODUCT"), // <-- uses the callback API
       }),
     }));
-    const qWithoutCb = qBase.project((q) => ({
-      selected: q.selectByType({
-        product: q.value("PRODUCT"), // <-- no callback
+    const qWithoutCb = qBase.project((qB) => ({
+      selected: qB.selectByType({
+        product: qB.value("PRODUCT"), // <-- no callback
       }),
     }));
 
@@ -44,15 +44,15 @@ describe("selectByType", () => {
   });
 
   describe("without a default param", () => {
-    const qSelect = qBase.project((q) => ({
-      selected: q.selectByType({
-        product: (q) =>
-          q.project({
+    const qSelect = qBase.project((qB) => ({
+      selected: qB.selectByType({
+        product: (qP) =>
+          qP.project({
             _type: true,
             name: true,
           }),
-        variant: (q) =>
-          q.project({
+        variant: (qP) =>
+          qP.project({
             _type: true,
             name: true,
             price: true,
@@ -141,13 +141,13 @@ describe("selectByType", () => {
   });
 
   describe("with default param", () => {
-    const qSelect = qBase.project((q) => ({
-      selected: q.selectByType(
+    const qSelect = qBase.project((qB) => ({
+      selected: qB.selectByType(
         {
-          product: (q) => q.field("name"),
-          variant: (q) => q.field("price"),
+          product: (qP) => qP.field("name"),
+          variant: (qV) => qV.field("price"),
         },
-        q.value("UNKNOWN")
+        qB.value("UNKNOWN")
       ),
     }));
 
@@ -205,15 +205,15 @@ describe("selectByType", () => {
   });
 
   describe("with validation", () => {
-    const qSelect = qBase.project((q) => ({
-      selected: q.selectByType({
-        product: (q) =>
-          q.project({
+    const qSelect = qBase.project((qB) => ({
+      selected: qB.selectByType({
+        product: (qP) =>
+          qP.project({
             _type: zod.literal("product"),
             name: zod.string(),
           }),
-        variant: (q) =>
-          q.project({
+        variant: (qV) =>
+          qV.project({
             _type: zod.literal("variant"),
             name: zod.string(),
             price: zod.number(),

@@ -6,7 +6,7 @@ import {
   SelectByTypeProjections,
   SelectProjections,
 } from "./select-types";
-import { InferResultType } from "../types/public-types";
+import { IGroqBuilder, InferResultType } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -15,7 +15,7 @@ declare module "../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >,
-      TDefaultSelection extends GroqBuilder | null = null
+      TDefaultSelection extends IGroqBuilder | null = null
     >(
       typeQueries: TSelectByTypeProjections,
       defaultSelection?: TDefaultSelection
@@ -37,7 +37,7 @@ GroqBuilder.implement({
       const condition = `_type == "${key}"`;
 
       const queryFn = typeQueries[key];
-      const query: GroqBuilder =
+      const query: IGroqBuilder =
         typeof queryFn === "function" ? queryFn(root) : queryFn!;
 
       mapped[condition] = query;

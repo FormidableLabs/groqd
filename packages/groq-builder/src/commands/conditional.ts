@@ -60,7 +60,7 @@ GroqBuilder.implement({
       .join(`,${newLine}`);
 
     const parsers = allConditionalProjections
-      .map((q) => q.internal.parser)
+      .map((q) => q.parser)
       .filter(notNull);
     const conditionalParser = !parsers.length
       ? null

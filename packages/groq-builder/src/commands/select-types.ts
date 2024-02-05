@@ -25,20 +25,20 @@ export type SelectByTypeProjections<
   TQueryConfig extends QueryConfig
 > = {
   [_type in ExtractTypeNames<TResultItem>]?:
-    | GroqBuilder
+    | IGroqBuilder
     | ((
         q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TQueryConfig>
-      ) => GroqBuilder);
+      ) => IGroqBuilder);
 };
 
 export type ExtractSelectByTypeResult<
   TSelectProjections extends SelectByTypeProjections<any, any>
 > = ValueOf<{
-  [_type in keyof TSelectProjections]: TSelectProjections[_type] extends GroqBuilder<
+  [_type in keyof TSelectProjections]: TSelectProjections[_type] extends IGroqBuilder<
     infer TResult
   >
     ? TResult
-    : TSelectProjections[_type] extends (q: any) => GroqBuilder<infer TResult>
+    : TSelectProjections[_type] extends (q: any) => IGroqBuilder<infer TResult>
     ? TResult
     : never;
 }>;

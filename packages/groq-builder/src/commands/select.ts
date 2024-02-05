@@ -2,7 +2,11 @@ import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import { ExtractSelectResult, SelectProjections } from "./select-types";
 import { notNull } from "../types/utils";
-import { InferResultType, ParserFunction } from "../types/public-types";
+import {
+  IGroqBuilder,
+  InferResultType,
+  ParserFunction,
+} from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -11,7 +15,7 @@ declare module "../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >,
-      TDefault extends null | GroqBuilder = null
+      TDefault extends null | IGroqBuilder = null
     >(
       selections: TSelectProjections,
       defaultSelection?: TDefault
@@ -43,7 +47,7 @@ GroqBuilder.implement({
     const conditionalParser =
       parsers.length === 0
         ? null
-        : createConditionalParser(parsers, defaultSelection?.internal.parser);
+        : createConditionalParser(parsers, defaultSelection?.parser);
 
     // Check that we've got "all or nothing" parsers:
     if (parsers.length !== 0 && parsers.length !== conditions.length) {
