@@ -29,7 +29,7 @@ GroqBuilder.implement({
     const conditions = Object.keys(selections);
 
     const queries = conditions.map((condition) => {
-      const builder = selections[condition];
+      const builder = selections[condition]!;
       return `${condition} => ${builder.query}`;
     });
 
@@ -38,7 +38,7 @@ GroqBuilder.implement({
     }
 
     const parsers = conditions
-      .map((c) => selections[c].internal.parser)
+      .map((c) => selections[c]!.parser)
       .filter(notNull);
     const conditionalParser =
       parsers.length === 0
@@ -47,7 +47,7 @@ GroqBuilder.implement({
 
     // Check that we've got "all or nothing" parsers:
     if (parsers.length !== 0 && parsers.length !== conditions.length) {
-      const missing = conditions.filter((c) => !selections[c].internal.parser);
+      const missing = conditions.filter((c) => !selections[c]!.parser);
       const err = new TypeError(
         "When using 'select', either all conditions must have validation, or none of them. " +
           `Missing validation: "${missing.join('", "')}"`

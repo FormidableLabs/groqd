@@ -1,11 +1,11 @@
 import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/schema-types";
-import { ConditionalExpression } from "./conditional-types";
+import { Expressions } from "../types/groq-expressions";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
     filter(
-      filterExpression: ConditionalExpression<TResult>
+      filterExpression: Expressions.AnyConditional<TResult, TQueryConfig>
     ): GroqBuilder<TResult, TQueryConfig>;
   }
 }

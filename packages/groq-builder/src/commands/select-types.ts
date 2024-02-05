@@ -1,19 +1,22 @@
 import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { StringKeys, ValueOf } from "../types/utils";
-import { ConditionalExpression } from "./conditional-types";
 import { GroqBuilder } from "../groq-builder";
-import { InferResultType } from "../types/public-types";
+import { IGroqBuilder, InferResultType } from "../types/public-types";
+import { Expressions } from "../types/groq-expressions";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type SelectProjections<TResultItem, TQueryConfig extends QueryConfig> = {
-  [Condition: ConditionalExpression<TResultItem>]: GroqBuilder;
-};
+export type SelectProjections<
+  TResultItem,
+  TQueryConfig extends QueryConfig
+> = Partial<
+  Record<Expressions.AnyConditional<TResultItem, TQueryConfig>, IGroqBuilder>
+>;
 
 export type ExtractSelectResult<
   TSelectProjections extends SelectProjections<any, any>
 > = ValueOf<{
   [P in StringKeys<keyof TSelectProjections>]: InferResultType<
-    TSelectProjections[P]
+    NonNullable<TSelectProjections[P]>
   >;
 }>;
 

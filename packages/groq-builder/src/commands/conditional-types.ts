@@ -7,24 +7,20 @@ import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
 import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
+import { Expressions } from "../types/groq-expressions";
 
 export type ConditionalProjectionMap<
   TResultItem,
   TQueryConfig extends QueryConfig
-> = {
-  [Condition: ConditionalExpression<TResultItem>]:
+> = Partial<
+  Record<
+    Expressions.AnyConditional<TResultItem, TQueryConfig>,
     | ProjectionMap<TResultItem>
     | ((
         q: GroqBuilder<TResultItem, TQueryConfig>
-      ) => ProjectionMap<TResultItem>);
-};
-
-/**
- * For now, none of our "conditions" are strongly-typed,
- * so we'll just use "string":
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type ConditionalExpression<TResultItem> = string;
+      ) => ProjectionMap<TResultItem>)
+  >
+>;
 
 export type ExtractConditionalProjectionResults<
   TResultItem,
