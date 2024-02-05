@@ -1,6 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -28,12 +27,12 @@ describe("order", () => {
     qVariants.order("INVALID desc");
   });
   it("result type is not changed", () => {
-    expectType<InferResultType<typeof qVariants>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<
       Array<SanitySchema.Variant>
     >();
 
     const qOrder = qVariants.order("price");
-    expectType<InferResultType<typeof qOrder>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof qOrder>>().toEqualTypeOf<
       Array<SanitySchema.Variant>
     >();
   });

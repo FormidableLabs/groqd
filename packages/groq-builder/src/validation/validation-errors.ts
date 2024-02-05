@@ -1,7 +1,9 @@
+import type { ZodError } from "zod";
+
 export type ErrorDetails = {
-  path: string;
+  path: string; // Will be overridden as errors bubble up
   readonly value: unknown;
-  readonly error: Error;
+  readonly message: string;
 };
 
 export class ValidationErrors extends TypeError {
@@ -14,13 +16,24 @@ export class ValidationErrors extends TypeError {
   }
 
   public add(path: string, value: unknown, error: Error) {
-    if (error instanceof ValidationErrors) {
+    if (isZodError(error)) {
+      this.errors.push(
+        ...error.errors.map((e) => ({
+          path: joinPath(
+            path,
+            ...e.path.map((p) => (typeof p === "number" ? `[${p}]` : p))
+          ),
+          value: value,
+          message: e.message,
+        }))
+      );
+    } else if (error instanceof ValidationErrors) {
       error.errors.forEach((e) => {
         e.path = joinPath(path, e.path);
       });
       this.errors.push(...error.errors);
     } else {
-      this.errors.push({ path, value, error });
+      this.errors.push({ path, value, message: error.message });
     }
   }
 
@@ -29,18 +42,33 @@ export class ValidationErrors extends TypeError {
   }
 
   /**
-   * Returns a new error with an updated message (since an Error message is read-only)
+   * Returns the error with an updated message
    */
   withMessage() {
     const l = this.errors.length;
     const message = `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this.errors
-      .map((e) => `${joinPath("result", e.path)}: ${e.error.message}`)
+      .map((e) => `${joinPath("result", e.path)}: ${e.message}`)
       .join("\n")}`;
-    return new ValidationErrors(message, this.errors);
+    this.message = message;
+    return this;
   }
 }
 
-function joinPath(path1: string, path2: string) {
-  const emptyJoin = !path1 || !path2 || path2.startsWith("[");
-  return path1 + (emptyJoin ? "" : ".") + path2;
+function joinPath(path1: string, ...paths: string[]) {
+  let result = path1;
+  for (const p of paths) {
+    const needsDot = result && p && !p.startsWith("[");
+    if (needsDot) result += ".";
+    result += p;
+  }
+  return result;
+}
+
+function isZodError(err: Error): err is ZodError {
+  const errZ = err as ZodError;
+  return (
+    Array.isArray(errZ.errors) &&
+    Array.isArray(errZ.issues) &&
+    typeof errZ.isEmpty === "boolean"
+  );
 }

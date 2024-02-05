@@ -1,6 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, expectTypeOf } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -12,7 +11,7 @@ describe("star", () => {
   const star = q.star;
 
   it("should have the correct type, matching all documents", () => {
-    expectType<InferResultType<typeof star>>().toStrictEqual<
+    expectTypeOf<InferResultType<typeof star>>().toEqualTypeOf<
       Array<SchemaConfig["documentTypes"]>
     >();
   });

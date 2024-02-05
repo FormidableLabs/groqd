@@ -1,40 +1,71 @@
-import { notNull, Simplify } from "../types/utils";
+import { ExtractTypeMismatchErrors, notNull, Simplify } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
-import { ResultItem, ResultOverride } from "../types/result-types";
+import { ResultItem } from "../types/result-types";
 import {
   ExtractProjectionResult,
   ProjectionFieldConfig,
   ProjectionMap,
 } from "./projection-types";
-import { objectValidation } from "../validation/object-shape";
-import { arrayValidation } from "../validation/array-shape";
 import { isConditional } from "./conditional-types";
+import {
+  simpleArrayParser,
+  simpleObjectParser,
+} from "../validation/simple-validation";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     /**
      * Performs an "object projection", returning an object with the fields specified.
+     *
+     * @param projectionMap - The projection map is an object, mapping field names to projection values.
+     * @param ProjectionMapTypeMismatchErrors - This is only used for reporting errors from the projection.
      */
-    project<TProjection extends ProjectionMap<ResultItem<TResult>>>(
+    project<
+      TProjection extends ProjectionMap<ResultItem.Infer<TResult>>,
+      _TProjectionResult = ExtractProjectionResult<
+        ResultItem.Infer<TResult>,
+        TProjection
+      >
+    >(
       projectionMap:
         | TProjection
-        | ((q: GroqBuilder<ResultItem<TResult>, TRootConfig>) => TProjection)
+        | ((
+            q: GroqBuilder<ResultItem.Infer<TResult>, TRootConfig>
+          ) => TProjection),
+      ...ProjectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
     ): GroqBuilder<
-      ResultOverride<
-        TResult,
-        Simplify<ExtractProjectionResult<ResultItem<TResult>, TProjection>>
-      >,
+      ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
       TRootConfig
     >;
   }
 }
 
+/**
+ * When we map projection results, we return TypeMismatchError's
+ * for any fields that have an invalid mapping configuration.
+ * However, this does not cause TypeScript to throw any errors.
+ *
+ * In order to get TypeScript to complain about these invalid mappings,
+ * we will "require" an extra parameter, which will reveal the error messages.
+ */
+type RequireAFakeParameterIfThereAreTypeMismatchErrors<
+  TProjectionResult,
+  _Errors extends never | string = ExtractTypeMismatchErrors<TProjectionResult>
+> = _Errors extends never
+  ? [] // No errors, yay! Do not require any extra parameters.
+  : // We've got errors; let's require an extra parameter, with the error message:
+    | [_Errors]
+      // And this extra error message causes TypeScript to always log the entire list of errors:
+      | ["⛔️ Error: this projection has type mismatches: ⛔️"];
+
 GroqBuilder.implement({
   project(
     this: GroqBuilder,
-    projectionMapArg: object | ((q: any) => object)
+    projectionMapArg: object | ((q: any) => object),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ...ProjectionMapTypeMismatchErrors
   ): GroqBuilder<any> {
     // Retrieve the projectionMap:
     let projectionMap: object;
@@ -44,14 +75,28 @@ GroqBuilder.implement({
       projectionMap = projectionMapArg;
     }
 
-    // Compile query from projection values:
     const keys = Object.keys(projectionMap) as Array<string>;
+
+    // Compile query from projection values:
     const fields = keys
       .map((key) => {
         const fieldConfig = projectionMap[key as keyof typeof projectionMap];
         return normalizeProjectionField(key, fieldConfig);
       })
       .filter(notNull);
+
+    if (this.internal.options.validationRequired) {
+      // Validate that we have provided validation functions for all fields:
+      const invalidFields = fields.filter((f) => !f.parser);
+      if (invalidFields.length) {
+        throw new TypeError(
+          "[groq-builder] Because 'validationRequired' is enabled, " +
+            "every field must have validation (like `q.string()`), " +
+            "but the following fields are missing it: " +
+            `${invalidFields.map((f) => `"${f.key}"`)}`
+        );
+      }
+    }
 
     const queries = fields.map((v) => v.query);
     const { newLine, space } = this.indentation;
@@ -128,7 +173,7 @@ function createProjectionParser(
   const objectShape = Object.fromEntries(
     normalFields.map((f) => [f.key, f.parser])
   );
-  const objectParser = objectValidation.object(objectShape);
+  const objectParser = simpleObjectParser(objectShape);
 
   // Parse all conditional fields:
   const conditionalFields = fields.filter((f) => isConditional(f.key));
@@ -148,7 +193,7 @@ function createProjectionParser(
   };
 
   // Finally, transparently handle arrays or objects:
-  const arrayParser = arrayValidation.array(combinedParser);
+  const arrayParser = simpleArrayParser(combinedParser);
   return function projectionParser(
     input: UnknownObject | Array<UnknownObject>
   ) {

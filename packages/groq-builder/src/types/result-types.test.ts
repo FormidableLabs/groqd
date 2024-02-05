@@ -1,100 +1,100 @@
-import { describe, it } from "vitest";
-import { expectType } from "../tests/expectType";
-import {
-  ResultItem,
-  ResultItemMaybe,
-  ResultOverride,
-  ResultTypeInfer,
-  ResultTypeOutput,
-} from "./result-types";
+import { describe, expectTypeOf, it } from "vitest";
+import { ResultItem, ResultUtils } from "./result-types";
 
-describe("result-types", () => {
+describe("ResultItem (namespace)", () => {
   type Item = { ITEM: "ITEM" };
 
-  it("ResultOverride", () => {
-    expectType<ResultOverride<Array<Item>, "NEW-ITEM">>().toStrictEqual<
+  it("Override", () => {
+    expectTypeOf<ResultItem.Override<Array<Item>, "NEW-ITEM">>().toEqualTypeOf<
       Array<"NEW-ITEM">
     >();
-    expectType<
-      ResultOverride<Array<Item> | null, "NEW-ITEM">
-    >().toStrictEqual<Array<"NEW-ITEM"> | null>();
+    expectTypeOf<
+      ResultItem.Override<Array<Item> | null, "NEW-ITEM">
+    >().toEqualTypeOf<Array<"NEW-ITEM"> | null>();
   });
 
-  it("ResultItem", () => {
-    expectType<ResultItem<Array<Item>>>().toStrictEqual<Item>();
-    expectType<ResultItem<Array<Item> | null>>().toStrictEqual<Item>();
-  });
-  it("ResultItemMaybe", () => {
-    expectType<ResultItemMaybe<Array<Item>>>().toStrictEqual<Item>();
-    expectType<
-      ResultItemMaybe<Array<Item> | null>
-    >().toStrictEqual<Item | null>();
+  it("Infer", () => {
+    expectTypeOf<ResultItem.Infer<Array<Item>>>().toEqualTypeOf<Item>();
+    expectTypeOf<ResultItem.Infer<Array<Item> | null>>().toEqualTypeOf<Item>();
   });
 
-  describe("internal types", () => {
-    it("ResultTypeOutput", () => {
+  it("InferMaybe", () => {
+    expectTypeOf<ResultItem.InferMaybe<Array<Item>>>().toEqualTypeOf<Item>();
+    expectTypeOf<
+      ResultItem.InferMaybe<Array<Item> | null>
+    >().toEqualTypeOf<Item | null>();
+  });
+
+  describe("ResultUtils (internal)", () => {
+    it("Wrap", () => {
       type ArrayResult = {
-        TItem: Item;
+        TResultItem: Item;
         IsArray: true;
         IsNullable: false;
       };
-      expectType<ResultTypeOutput<ArrayResult>>().toStrictEqual<Array<Item>>();
+      expectTypeOf<ResultUtils.Wrap<ArrayResult>>().toEqualTypeOf<
+        Array<Item>
+      >();
 
       type SingleItem = {
-        TItem: Item;
+        TResultItem: Item;
         IsArray: false;
         IsNullable: false;
       };
-      expectType<ResultTypeOutput<SingleItem>>().toStrictEqual<Item>();
+      expectTypeOf<ResultUtils.Wrap<SingleItem>>().toEqualTypeOf<Item>();
 
       type NullableItem = {
-        TItem: Item;
+        TResultItem: Item;
         IsArray: false;
         IsNullable: true;
       };
-      expectType<ResultTypeOutput<NullableItem>>().not.toStrictEqual<Item>();
-      expectType<ResultTypeOutput<NullableItem>>().toStrictEqual<Item | null>();
+      expectTypeOf<ResultUtils.Wrap<NullableItem>>().not.toEqualTypeOf<Item>();
+      expectTypeOf<
+        ResultUtils.Wrap<NullableItem>
+      >().toEqualTypeOf<Item | null>();
 
       type NullableArray = {
-        TItem: Item;
+        TResultItem: Item;
         IsArray: true;
         IsNullable: true;
       };
-      expectType<
-        ResultTypeOutput<NullableArray>
-      >().toStrictEqual<Array<Item> | null>();
+      expectTypeOf<
+        ResultUtils.Wrap<NullableArray>
+      >().toEqualTypeOf<Array<Item> | null>();
     });
 
-    it("ResultTypeInfer", () => {
-      expectType<ResultTypeInfer<Item>>().toStrictEqual<{
-        TItem: Item;
+    it("Unwrap", () => {
+      expectTypeOf<ResultUtils.Unwrap<Item>>().toEqualTypeOf<{
+        TResultItem: Item;
         IsArray: false;
         IsNullable: false;
       }>();
       // IsNullable variants:
-      expectType<ResultTypeInfer<Item | null>>().toStrictEqual<{
-        TItem: Item;
+      expectTypeOf<ResultUtils.Unwrap<Item | null>>().toEqualTypeOf<{
+        TResultItem: Item;
         IsArray: false;
         IsNullable: true;
       }>();
-      expectType<ResultTypeInfer<Item | undefined>>().toStrictEqual<{
-        TItem: Item;
+      expectTypeOf<ResultUtils.Unwrap<Item | undefined>>().toEqualTypeOf<{
+        TResultItem: Item;
         IsArray: false;
         IsNullable: true;
       }>();
-      expectType<ResultTypeInfer<Item | undefined | null>>().toStrictEqual<{
-        TItem: Item;
+      expectTypeOf<
+        ResultUtils.Unwrap<Item | undefined | null>
+      >().toEqualTypeOf<{
+        TResultItem: Item;
         IsArray: false;
         IsNullable: true;
       }>();
       // IsArray variants:
-      expectType<ResultTypeInfer<Array<Item>>>().toStrictEqual<{
-        TItem: Item;
+      expectTypeOf<ResultUtils.Unwrap<Array<Item>>>().toEqualTypeOf<{
+        TResultItem: Item;
         IsArray: true;
         IsNullable: false;
       }>();
-      expectType<ResultTypeInfer<Array<Item> | null>>().toStrictEqual<{
-        TItem: Item;
+      expectTypeOf<ResultUtils.Unwrap<Array<Item> | null>>().toEqualTypeOf<{
+        TResultItem: Item;
         IsArray: true;
         IsNullable: true;
       }>();

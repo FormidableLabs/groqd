@@ -10,7 +10,7 @@ declare module "../groq-builder" {
 GroqBuilder.implementProperties({
   star: {
     get(this: GroqBuilder) {
-      return this.chain("*", null);
+      return this.chain("*");
     },
   },
 });

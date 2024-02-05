@@ -12,7 +12,7 @@ declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     selectByType<
       TSelectByTypeProjections extends SelectByTypeProjections<
-        ResultItem<TResult>,
+        ResultItem.Infer<TResult>,
         TRootConfig
       >,
       TDefaultSelection extends GroqBuilder | null = null
@@ -37,10 +37,11 @@ GroqBuilder.implement({
       const condition = `_type == "${key}"`;
 
       const queryFn = typeQueries[key];
-      const query = typeof queryFn === "function" ? queryFn(root) : queryFn;
+      const query: GroqBuilder =
+        typeof queryFn === "function" ? queryFn(root) : queryFn!;
 
       mapped[condition] = query;
     }
-    return this.select$(mapped, defaultSelection) as any;
+    return this.select(mapped, defaultSelection) as any;
   },
 });

@@ -3,26 +3,45 @@ import type {
   Parser,
   ParserFunction,
 } from "./types/public-types";
-import type { RootConfig } from "./types/schema-types";
-import {
-  chainParsers,
-  normalizeValidationFunction,
-} from "./commands/validate-utils";
+import type { ExtractTypeNames, RootConfig } from "./types/schema-types";
+import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import { Empty } from "./types/utils";
 import { GroqBuilderResultType } from "./types/public-types";
+import { QueryError } from "./types/query-error";
 
 export type RootResult = Empty;
 
 export type GroqBuilderOptions = {
   /**
-   * Enables "pretty printing" for the compiled GROQ string. Useful for debugging
+   * Enables "pretty printing" for the compiled GROQ string. Useful for debugging.
+   * @default "" (disabled)
    */
-  indent: string;
+  indent?: string;
+  /**
+   * If enabled, then runtime validation is always required for all fields.
+   * If missing, an error will be thrown when the query is created.
+   *
+   * This affects the following 3 APIs where validation is normally optional:
+   *
+   * q.project({
+   *   example: true, // ⛔️ use a validation function instead
+   *   example: q.string(), // ✅
+   *
+   *   example: "example.current", // ⛔️ use a tuple instead
+   *   example: ["example.current", q.string()], // ✅
+   *
+   *   example: q.field("example.current"), // ⛔️ ensure you pass the 2nd validation parameter
+   *   example: q.field("example.current", q.string()), // ✅
+   * })
+   *
+   * @default false
+   */
+  validationRequired?: boolean;
 };
 
 export class GroqBuilder<
-  TResult = unknown,
+  TResult = any,
   TRootConfig extends RootConfig = RootConfig
 > implements IGroqBuilder<TResult>
 {
@@ -55,7 +74,7 @@ export class GroqBuilder<
   constructor(
     protected readonly internal: {
       readonly query: string;
-      readonly parser: null | ParserFunction<unknown, TResult>;
+      readonly parser: null | ParserFunction;
       readonly options: GroqBuilderOptions;
     }
   ) {}
@@ -70,7 +89,7 @@ export class GroqBuilder<
   /**
    * The parser function that should be used to parse result data
    */
-  public get parser() {
+  public get parser(): null | ParserFunction<unknown, TResult> {
     return this.internal.parser;
   }
 
@@ -79,17 +98,20 @@ export class GroqBuilder<
    */
   public parse(data: unknown): TResult {
     const parser = this.internal.parser;
-    if (parser) {
-      try {
-        return parser(data);
-      } catch (err) {
-        if (err instanceof ValidationErrors) {
-          throw err.withMessage();
-        }
-        throw err;
-      }
+    if (!parser) {
+      return data as TResult;
     }
-    return data as TResult;
+    try {
+      return parser(data);
+    } catch (err) {
+      // Ensure we throw a ValidationErrors instance:
+      if (err instanceof ValidationErrors) {
+        throw err.withMessage();
+      }
+      const v = new ValidationErrors();
+      v.add("", data, err as Error);
+      throw v.withMessage();
+    }
   }
 
   /**
@@ -99,14 +121,22 @@ export class GroqBuilder<
    */
   protected chain<TResultNew = never>(
     query: string,
-    parser: Parser | null = null
+    parser?: Parser | null
   ): GroqBuilder<TResultNew, TRootConfig> {
+    if (query && this.internal.parser) {
+      throw new QueryError(
+        "You cannot chain a new query once you've specified a parser, " +
+          "since this changes the result type.",
+        {
+          existingQuery: this.internal.query,
+          newQuery: query,
+        }
+      );
+    }
+
     return new GroqBuilder({
       query: this.internal.query + query,
-      parser: chainParsers(
-        this.internal.parser,
-        normalizeValidationFunction(parser)
-      ),
+      parser: normalizeValidationFunction(parser),
       options: this.internal.options,
     });
   }
@@ -128,6 +158,29 @@ export class GroqBuilder<
     });
   }
 
+  /**
+   * Returns a GroqBuilder, overriding the result type.
+   */
+  public as<TResultNew>(): GroqBuilder<TResultNew, TRootConfig> {
+    return this as any;
+  }
+
+  /**
+   * Returns a GroqBuilder, overriding the result type
+   * with the specified document type.
+   */
+  public asType<
+    _type extends ExtractTypeNames<TRootConfig["documentTypes"]>
+  >(): GroqBuilder<
+    Extract<TRootConfig["documentTypes"], { _type: _type }>,
+    TRootConfig
+  > {
+    return this as any;
+  }
+
+  /**
+   * This utility returns whitespace, if 'indent' is enabled.
+   */
   protected get indentation() {
     const indent = this.internal.options.indent;
     return {

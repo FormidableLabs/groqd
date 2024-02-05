@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, expectTypeOf } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { expectType } from "../tests/expectType";
 import { InferResultType } from "../types/public-types";
 import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -19,9 +18,9 @@ describe("slice", () => {
   describe("a single item", () => {
     const qSlice0 = qVariants.slice(0);
     it("should be typed correctly", () => {
-      expectType<
+      expectTypeOf<
         InferResultType<typeof qSlice0>
-      >().toStrictEqual<SanitySchema.Variant>();
+      >().toEqualTypeOf<SanitySchema.Variant>();
     });
     it("query should be correct", () => {
       expect(qSlice0).toMatchObject({

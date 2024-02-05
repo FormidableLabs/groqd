@@ -13,9 +13,9 @@ import { ProjectionMap } from "./projection-types";
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilder<TResult, TRootConfig> {
-    conditional$<
+    conditional<
       TConditionalProjections extends ConditionalProjectionMap<
-        ResultItem<TResult>,
+        ResultItem.Infer<TResult>,
         TRootConfig
       >,
       TKey extends string = "[$]",
@@ -24,7 +24,7 @@ declare module "../groq-builder" {
       conditionalProjections: TConditionalProjections,
       config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
     ): ExtractConditionalProjectionResults<
-      ResultItem<TResult>,
+      ResultItem.Infer<TResult>,
       TConditionalProjections,
       ConditionalConfig<TKey, TIsExhaustive>
     >;
@@ -32,7 +32,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  conditional$<
+  conditional<
     TCP extends object,
     TKey extends string,
     TIsExhaustive extends boolean

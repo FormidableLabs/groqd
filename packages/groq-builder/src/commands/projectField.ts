@@ -1,19 +1,52 @@
 import { GroqBuilder } from "../groq-builder";
-import { ResultItem, ResultOverride } from "../types/result-types";
-import { ProjectionKey, ProjectionKeyValue } from "./projection-types";
+import { ResultItem } from "../types/result-types";
+import {
+  ProjectionKey,
+  ProjectionKeyValue,
+  ValidateParserInput,
+} from "./projection-types";
+import { Parser, ParserWithWidenedInput } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
     /**
      * Performs a "naked projection", returning just the values of the field specified.
-     * @param fieldName
+     *
+     * This overload does NOT perform any runtime validation; the return type is inferred.
      */
-    field<TProjectionKey extends ProjectionKey<ResultItem<TResult>>>(
+    field<TProjectionKey extends ProjectionKey<ResultItem.Infer<TResult>>>(
       fieldName: TProjectionKey
     ): GroqBuilder<
-      ResultOverride<
+      ResultItem.Override<
         TResult,
-        ProjectionKeyValue<ResultItem<TResult>, TProjectionKey>
+        ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>
+      >,
+      TRootConfig
+    >;
+
+    /**
+     * Performs a "naked projection", returning just the values of the field specified.
+     *
+     * This overload allows a parser to be passed, for validating the results.
+     */
+    field<
+      TProjectionKey extends ProjectionKey<ResultItem.Infer<TResult>>,
+      TParser extends ParserWithWidenedInput<
+        ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>
+      >
+    >(
+      fieldName: TProjectionKey,
+      parser: TParser
+    ): GroqBuilder<
+      ResultItem.Override<
+        TResult,
+        TParser extends Parser<infer TParserInput, infer TParserOutput>
+          ? ValidateParserInput<
+              ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>,
+              TParserInput,
+              TParserOutput
+            >
+          : never
       >,
       TRootConfig
     >;
@@ -26,10 +59,11 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  field(this: GroqBuilder, fieldName: string) {
+  field(this: GroqBuilder, fieldName: string, parser?: Parser): GroqBuilder {
     if (this.internal.query) {
       fieldName = "." + fieldName;
     }
-    return this.chain(fieldName, null);
+
+    return this.chain(fieldName, parser);
   },
 });

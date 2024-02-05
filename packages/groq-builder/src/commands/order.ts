@@ -7,7 +7,7 @@ declare module "../groq-builder" {
     /**
      * Orders the results by the keys specified
      */
-    order<TKeys extends StringKeys<keyof ResultItem<TResult>>>(
+    order<TKeys extends StringKeys<keyof ResultItem.Infer<TResult>>>(
       ...fields: Array<`${TKeys}${"" | " asc" | " desc"}`>
     ): GroqBuilder<TResult, TRootConfig>;
 
@@ -19,6 +19,6 @@ declare module "../groq-builder" {
 GroqBuilder.implement({
   order(this: GroqBuilder, ...fields) {
     const query = ` | order(${fields.join(", ")})`;
-    return this.chain(query, null);
+    return this.chain(query);
   },
 });

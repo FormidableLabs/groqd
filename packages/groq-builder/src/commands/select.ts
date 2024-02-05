@@ -6,9 +6,9 @@ import { InferResultType, ParserFunction } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TRootConfig> {
-    select$<
+    select<
       TSelectProjections extends SelectProjections<
-        ResultItem<TResult>,
+        ResultItem.Infer<TResult>,
         TRootConfig
       >,
       TDefault extends null | GroqBuilder = null
@@ -25,7 +25,7 @@ declare module "../groq-builder" {
   }
 }
 GroqBuilder.implement({
-  select$(this: GroqBuilder, selections, defaultSelection): GroqBuilder<any> {
+  select(this: GroqBuilder, selections, defaultSelection): GroqBuilder<any> {
     const conditions = Object.keys(selections);
 
     const queries = conditions.map((condition) => {
@@ -53,7 +53,7 @@ GroqBuilder.implement({
           `Missing validation: "${missing.join('", "')}"`
       );
       // This only works on V8 engines:
-      (Error as any).captureStackTrace?.(err, GroqBuilder.prototype.select$);
+      (Error as any).captureStackTrace?.(err, GroqBuilder.prototype.select);
       throw err;
     }
 

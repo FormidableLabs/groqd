@@ -1,6 +1,5 @@
-import { describe, it } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 import { ProjectionKey, ProjectionKeyValue } from "./projection-types";
-import { expectType } from "../tests/expectType";
 
 describe("projection-types", () => {
   describe("Projection Keys (naked projections)", () => {
@@ -21,17 +20,17 @@ describe("projection-types", () => {
 
     describe("ProjectionKey", () => {
       it("should extract simple types", () => {
-        expectType<ProjectionKey<{ str: string; num: number }>>().toStrictEqual<
-          "str" | "num"
-        >();
+        expectTypeOf<
+          ProjectionKey<{ str: string; num: number }>
+        >().toEqualTypeOf<"str" | "num">();
       });
       it("should extract nested types", () => {
-        expectType<
+        expectTypeOf<
           ProjectionKey<{ str: string; nested: { num: number; bool: boolean } }>
-        >().toStrictEqual<"str" | "nested" | "nested.num" | "nested.bool">();
+        >().toEqualTypeOf<"str" | "nested" | "nested.num" | "nested.bool">();
       });
       it("should extract arrays", () => {
-        expectType<ProjectionKey<{ arr: Array<string> }>>().toStrictEqual<
+        expectTypeOf<ProjectionKey<{ arr: Array<string> }>>().toEqualTypeOf<
           "arr" | "arr[]"
         >();
       });
@@ -39,7 +38,7 @@ describe("projection-types", () => {
         type Keys = ProjectionKey<{
           nested: { arr: Array<string> };
         }>;
-        expectType<Keys>().toStrictEqual<
+        expectTypeOf<Keys>().toEqualTypeOf<
           "nested" | "nested.arr" | "nested.arr[]"
         >();
       });
@@ -47,11 +46,11 @@ describe("projection-types", () => {
         type Keys = ProjectionKey<{
           nested?: { num: number };
         }>;
-        expectType<Keys>().toStrictEqual<"nested" | "nested.num">();
+        expectTypeOf<Keys>().toEqualTypeOf<"nested" | "nested.num">();
       });
 
       it("should extract all the deeply nested types", () => {
-        expectType<Keys>().toStrictEqual<
+        expectTypeOf<Keys>().toEqualTypeOf<
           | "str"
           | "num"
           | "arr"
@@ -69,34 +68,35 @@ describe("projection-types", () => {
 
     describe("ProjectionKeyValue", () => {
       it("should extract the correct types for each projection", () => {
-        expectType<ProjectionKeyValue<Item, "str">>().toStrictEqual<string>();
-        expectType<ProjectionKeyValue<Item, "num">>().toStrictEqual<
-          number | undefined
+        expectTypeOf<ProjectionKeyValue<Item, "str">>().toEqualTypeOf<string>();
+        expectTypeOf<ProjectionKeyValue<Item, "num">>().toEqualTypeOf<
+          number | null
         >();
-        expectType<ProjectionKeyValue<Item, "arr">>().toStrictEqual<
+        expectTypeOf<ProjectionKeyValue<Item, "arr">>().toEqualTypeOf<
           Array<string>
         >();
-        expectType<ProjectionKeyValue<Item, "arr[]">>().toStrictEqual<
+        expectTypeOf<ProjectionKeyValue<Item, "arr[]">>().toEqualTypeOf<
           Array<string>
         >();
-        expectType<ProjectionKeyValue<Item, "nested">>().toStrictEqual<
+        expectTypeOf<ProjectionKeyValue<Item, "nested">>().toEqualTypeOf<
           Item["nested"]
         >();
-        expectType<ProjectionKeyValue<Item, "nested.str">>().toStrictEqual<
-          string | undefined
+        expectTypeOf<ProjectionKeyValue<Item, "nested.str">>().toEqualTypeOf<
+          string | null
         >();
-        expectType<
+        expectTypeOf<
           ProjectionKeyValue<Item, "nested.bool">
-        >().toStrictEqual<true>();
-        expectType<ProjectionKeyValue<Item, "nested.arr">>().toStrictEqual<
+        >().toEqualTypeOf<true>();
+        expectTypeOf<ProjectionKeyValue<Item, "nested.arr">>().toEqualTypeOf<
           Array<number>
         >();
-        expectType<ProjectionKeyValue<Item, "nested.arr[]">>().toStrictEqual<
+        expectTypeOf<ProjectionKeyValue<Item, "nested.arr[]">>().toEqualTypeOf<
           Array<number>
         >();
-        // expectType<ProjectionKeyValue<Item, "optional.str">>().toStrictEqual<
-        //   string | undefined
-        // >();
+        // @ts-expect-error -- Currently this isn't supported, so it's cast as 'never'
+        expectTypeOf<ProjectionKeyValue<Item, "optional.str">>().toEqualTypeOf<
+          string | null
+        >();
       });
     });
   });

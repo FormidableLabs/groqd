@@ -44,6 +44,10 @@
     "build": "pnpm run clean && tsc --project tsconfig.build.json",
     "prepublishOnly": "pnpm run build"
   },
+  "dependencies": {
+    "type-fest": "^4.10.1",
+    "zod": "^3.22.4"
+  },
   "devDependencies": {
     "@sanity/client": "^3.4.1",
     "groq-js": "^1.1.9",
