@@ -40,12 +40,12 @@ describe("conditionalByType", () => {
   it('should have a "spreadable" signature', () => {
     expectTypeOf<SimplifyDeep<typeof conditionalByType>>().toEqualTypeOf<
       SimplifyDeep<{
-        "[Conditional] [ByType]": IGroqBuilder<ExpectedConditionalUnion>;
+        "[CONDITIONAL] [BY_TYPE]": IGroqBuilder<ExpectedConditionalUnion>;
       }>
     >();
 
     expect(conditionalByType).toMatchObject({
-      "[Conditional] [ByType]": expect.any(GroqBuilder),
+      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilder),
     });
   });
 

@@ -13,8 +13,9 @@ export namespace Expressions {
     TResultItem,
     TQueryConfig extends QueryConfig
   > = LiteralUnion<
-    // Let's suggest some equality expressions, like `slug.current == $slug`
-    Equality<TResultItem, TQueryConfig>,
+    // Suggest some equality expressions, like `slug.current == $slug`,
+    Conditional<TResultItem, TQueryConfig>,
+    // but still allow for any string:
     string
   >;
 

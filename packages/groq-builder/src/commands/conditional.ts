@@ -18,7 +18,7 @@ declare module "../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >,
-      TKey extends string = "[$]",
+      TKey extends string = typeof DEFAULT_KEY,
       TIsExhaustive extends boolean = false
     >(
       conditionalProjections: TConditionalProjections,
@@ -30,6 +30,8 @@ declare module "../groq-builder" {
     >;
   }
 }
+
+const DEFAULT_KEY = "[KEY]" as const;
 
 GroqBuilder.implement({
   conditional<
@@ -65,8 +67,8 @@ GroqBuilder.implement({
       : createConditionalParserUnion(parsers, config?.isExhaustive ?? false);
 
     const conditionalQuery = root.chain(query, conditionalParser);
-    const key = config?.key || ("[$]" as TKey);
-    const conditionalKey: ConditionalKey<TKey> = `[Conditional] ${key}`;
+    const key = config?.key || (DEFAULT_KEY as TKey);
+    const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {
       [conditionalKey]: conditionalQuery,
     } as any;

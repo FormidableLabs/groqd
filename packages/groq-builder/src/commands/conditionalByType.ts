@@ -16,7 +16,7 @@ declare module "../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >,
-      TKey extends string = "[ByType]",
+      TKey extends string = typeof DEFAULT_KEY,
       /**
        * Did we supply a condition for all possible _type values?
        */
@@ -35,6 +35,7 @@ declare module "../groq-builder" {
     >;
   }
 }
+const DEFAULT_KEY = "[BY_TYPE]" as const;
 
 GroqBuilder.implement({
   conditionalByType<
@@ -80,8 +81,8 @@ GroqBuilder.implement({
         };
 
     const conditionalQuery = this.root.chain(query, conditionalParser);
-    const key: TKey = config?.key || ("[ByType]" as TKey);
-    const conditionalKey: ConditionalKey<TKey> = `[Conditional] ${key}`;
+    const key: TKey = config?.key || (DEFAULT_KEY as TKey);
+    const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {
       _type: true, // Ensure we request the `_type` parameter
       [conditionalKey]: conditionalQuery,
