@@ -1,5 +1,4 @@
 import type { ZodType } from "zod";
-import type { GroqBuilder } from "../groq-builder";
 import type { ResultItem } from "./result-types";
 import type { Simplify } from "./utils";
 import type { ExtractProjectionResult } from "../commands/projection-types";
@@ -68,10 +67,10 @@ export type InferResultType<TGroqBuilder extends IGroqBuilder<any>> =
 /**
  * Extracts the Result type for a single item from a GroqBuilder query
  */
-export type InferResultItem<TGroqBuilder extends GroqBuilder> =
+export type InferResultItem<TGroqBuilder extends IGroqBuilder<any>> =
   ResultItem.Infer<InferResultType<TGroqBuilder>>;
 
-export type InferVariablesType<TGroqBuilder extends GroqBuilder> =
+export type InferVariablesType<TGroqBuilder extends IGroqBuilder<any>> =
   TGroqBuilder extends IGroqBuilder<any, infer TQueryConfig>
     ? TQueryConfig["variables"]
     : never;
