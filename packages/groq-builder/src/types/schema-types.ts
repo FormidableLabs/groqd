@@ -28,7 +28,7 @@ export type RootQueryConfig = {
 
 export type QueryConfig = RootQueryConfig & {
   /**
-   * Represents a map of input variable names, and their types.
+   * Represents a map of input parameter names, and their types.
    * To set this, use the `q.parameters<{ id: string }>()` syntax
    */
   parameters?: {};

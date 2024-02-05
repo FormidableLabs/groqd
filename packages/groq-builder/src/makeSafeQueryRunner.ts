@@ -32,7 +32,8 @@ export function makeSafeQueryRunner<TCustomOptions>(
     TResult,
     TQueryConfig extends QueryConfig,
     /** Type alias (local use only): */
-    _TOptions extends object = QueryRunnerOptions<TQueryConfig> & TCustomOptions
+    _TOptions extends QueryRunnerOptions<TQueryConfig> &
+      TCustomOptions = QueryRunnerOptions<TQueryConfig> & TCustomOptions
   >(
     builder: IGroqBuilder<TResult, TQueryConfig>,
     // If the `options` argument doesn't have any required keys,
