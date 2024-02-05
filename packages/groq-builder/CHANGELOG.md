@@ -10,7 +10,7 @@
 
   Added `validationRequired` option to require runtime validation
 
-  Removed `# groq-builder from `q.conditional# groq-builder and `q.select# groq-builder methods; these are now just `q.conditional`and`q.select`
+  Removed `$` from `q.conditional$` and `q.select$` methods; these are now just `q.conditional` and `q.select`
 
   Added optional validation parameter to `q.field(field, parser?)`
 
