@@ -20,16 +20,16 @@ describe("Expressions", () => {
   it("primitive values are properly typed", () => {
     expectTypeOf<
       Expressions.Equality<{ foo: string }, QueryConfig>
-    >().toEqualTypeOf<`foo == "${string}"`>();
+    >().toEqualTypeOf<`foo == "${string}"` | "foo == (string)">();
     expectTypeOf<
       Expressions.Equality<{ foo: number }, QueryConfig>
-    >().toEqualTypeOf<`foo == ${number}`>();
+    >().toEqualTypeOf<`foo == ${number}` | "foo == (number)">();
     expectTypeOf<
       Expressions.Equality<{ foo: boolean }, QueryConfig>
-    >().toEqualTypeOf<`foo == ${boolean}`>();
+    >().toEqualTypeOf<"foo == true" | "foo == false">();
     expectTypeOf<
       Expressions.Equality<{ foo: null }, QueryConfig>
-    >().toEqualTypeOf<`foo == ${null}`>();
+    >().toEqualTypeOf<`foo == null`>();
   });
 
   it("multiple literals", () => {
@@ -40,12 +40,19 @@ describe("Expressions", () => {
   it("multiple primitives", () => {
     expectTypeOf<
       Expressions.Equality<{ foo: string; bar: number }, QueryConfig>
-    >().toEqualTypeOf<`foo == "${string}"` | `bar == ${number}`>();
+    >().toEqualTypeOf<
+      | "foo == (string)"
+      | `foo == "${string}"`
+      | "bar == (number)"
+      | `bar == ${number}`
+    >();
   });
   it("mixed types", () => {
     expectTypeOf<
       Expressions.Equality<{ foo: "FOO"; bar: number }, QueryConfig>
-    >().toEqualTypeOf<'foo == "FOO"' | `bar == ${number}`>();
+    >().toEqualTypeOf<
+      'foo == "FOO"' | "bar == (number)" | `bar == ${number}`
+    >();
   });
 
   describe("with variables", () => {
@@ -57,19 +64,23 @@ describe("Expressions", () => {
       >().toEqualTypeOf<'foo == "FOO"' | "foo == $str">();
       expectTypeOf<
         Expressions.Equality<{ foo: string }, WithVars<{ str: "FOO" }>>
-      >().toEqualTypeOf<`foo == "${string}"` | "foo == $str">();
+      >().toEqualTypeOf<
+        `foo == "${string}"` | "foo == (string)" | "foo == $str"
+      >();
       expectTypeOf<
-        Expressions.Equality<{ foo: number }, WithVars<{ str: string }>>
-      >().toEqualTypeOf<`foo == ${number}`>();
+        Expressions.Equality<{ bar: number }, WithVars<{ str: string }>>
+      >().toEqualTypeOf<`bar == ${number}` | "bar == (number)">();
       expectTypeOf<
         Expressions.Equality<{ foo: 999 }, WithVars<{ num: number }>>
       >().toEqualTypeOf<`foo == 999` | "foo == $num">();
       expectTypeOf<
         Expressions.Equality<{ foo: number }, WithVars<{ num: number }>>
-      >().toEqualTypeOf<`foo == ${number}` | "foo == $num">();
+      >().toEqualTypeOf<
+        "foo == $num" | "foo == (number)" | `foo == ${number}`
+      >();
     });
 
-    type Variables = {
+    type ManyVariables = {
       str1: string;
       str2: string;
       num: number;
@@ -78,30 +89,33 @@ describe("Expressions", () => {
 
     it("we can extract variables based on their type", () => {
       expectTypeOf<
-        Expressions.VariablesOfType<Variables, string>
+        Expressions.VariablesOfType<ManyVariables, string>
       >().toEqualTypeOf<"$str1" | "$str2">();
       expectTypeOf<
-        Expressions.VariablesOfType<Variables, "LITERAL">
+        Expressions.VariablesOfType<ManyVariables, "LITERAL">
       >().toEqualTypeOf<"$str1" | "$str2">();
       expectTypeOf<
-        Expressions.VariablesOfType<Variables, number>
+        Expressions.VariablesOfType<ManyVariables, number>
       >().toEqualTypeOf<"$num">();
       expectTypeOf<
-        Expressions.VariablesOfType<Variables, boolean>
+        Expressions.VariablesOfType<ManyVariables, boolean>
       >().toEqualTypeOf<"$bool">();
     });
 
     it("multiple values are compared to same-typed variables", () => {
       type Item = { foo: string; bar: number; baz: boolean };
-      type Res = Expressions.Equality<Item, WithVars<Variables>>;
+      type Res = Expressions.Equality<Item, WithVars<ManyVariables>>;
       expectTypeOf<Res>().toEqualTypeOf<
-        | `foo == "${string}"`
         | "foo == $str1"
         | "foo == $str2"
-        | `bar == ${number}`
+        | "foo == (string)"
+        | `foo == "${string}"`
         | "bar == $num"
-        | `baz == ${boolean}`
+        | "bar == (number)"
+        | `bar == ${number}`
         | "baz == $bool"
+        | "baz == true"
+        | "baz == false"
       >();
     });
   });
