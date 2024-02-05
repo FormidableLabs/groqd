@@ -4,13 +4,13 @@ import { Simplify } from "type-fest";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
-    variables<TVariables>(): GroqBuilder<
+    parameters<TParameters>(): GroqBuilder<
       TResult,
       Override<
         TQueryConfig,
         {
-          // Merge existing variables with the new variables:
-          variables: Simplify<TQueryConfig["variables"] & TVariables>;
+          // Merge existing parameters with the new parameters:
+          parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
         }
       >
     >;
@@ -18,7 +18,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  variables(this: GroqBuilder) {
+  parameters(this: GroqBuilder) {
     // This method is used just for chaining types
     return this as any;
   },

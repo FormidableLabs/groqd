@@ -7,6 +7,7 @@ import "./fragment";
 import "./grab-deprecated";
 import "./nullable";
 import "./order";
+import "./parameters";
 import "./project";
 import "./projectField";
 import "./raw";
@@ -15,6 +16,5 @@ import "./selectByType";
 import "./slice";
 import "./star";
 import "./validate";
-import "./variables";
 
 import "./functions/value";

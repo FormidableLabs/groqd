@@ -1,9 +1,9 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { createGroqBuilder } from "../createGroqBuilder";
 
 const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -112,17 +112,17 @@ describe("filterBy", () => {
     `);
   });
 
-  describe("with variables", () => {
-    type Variables = {
+  describe("with parameters", () => {
+    type Parameters = {
       str: string;
       num: number;
     };
-    const qWithVars = qVariants.variables<Variables>();
-    it("should support strongly-typed variables", () => {
+    const qWithVars = qVariants.parameters<Parameters>();
+    it("should support strongly-typed parameters", () => {
       qWithVars.filterBy("name == $str");
       qWithVars.filterBy("price == $num");
     });
-    it("should fail for invalid / mismatched variables", () => {
+    it("should fail for invalid / mismatched parameters", () => {
       qWithVars.filterBy(
         // @ts-expect-error ---
         "name == $num"

@@ -56,10 +56,10 @@ describe("Expressions", () => {
     >();
   });
 
-  describe("with variables", () => {
-    type WithVars<TVars> = RootQueryConfig & { variables: TVars };
+  describe("with parameters", () => {
+    type WithVars<TVars> = RootQueryConfig & { parameters: TVars };
 
-    it("a literal value can be compared to variables with the same type", () => {
+    it("a literal value can be compared to parameters with the same type", () => {
       expectTypeOf<
         Expressions.Equality<{ foo: "FOO" }, WithVars<{ str: string }>>
       >().toEqualTypeOf<'foo == "FOO"' | "foo == $str">();
@@ -115,31 +115,31 @@ describe("Expressions", () => {
       expectTypeOf<ActualMissing>().toEqualTypeOf<never>();
     });
 
-    type ManyVariables = {
+    type ManyParameters = {
       str1: string;
       str2: string;
       num: number;
       bool: boolean;
     };
 
-    it("we can extract variables based on their type", () => {
+    it("we can extract parameters based on their type", () => {
       expectTypeOf<
-        Expressions.VariablesOfType<ManyVariables, string>
+        Expressions.ParametersOfType<ManyParameters, string>
       >().toEqualTypeOf<"$str1" | "$str2">();
       expectTypeOf<
-        Expressions.VariablesOfType<ManyVariables, "LITERAL">
+        Expressions.ParametersOfType<ManyParameters, "LITERAL">
       >().toEqualTypeOf<"$str1" | "$str2">();
       expectTypeOf<
-        Expressions.VariablesOfType<ManyVariables, number>
+        Expressions.ParametersOfType<ManyParameters, number>
       >().toEqualTypeOf<"$num">();
       expectTypeOf<
-        Expressions.VariablesOfType<ManyVariables, boolean>
+        Expressions.ParametersOfType<ManyParameters, boolean>
       >().toEqualTypeOf<"$bool">();
     });
 
-    it("multiple values are compared to same-typed variables", () => {
+    it("multiple values are compared to same-typed parameters", () => {
       type Item = { foo: string; bar: number; baz: boolean };
-      type Res = Expressions.Equality<Item, WithVars<ManyVariables>>;
+      type Res = Expressions.Equality<Item, WithVars<ManyParameters>>;
       expectTypeOf<Res>().toEqualTypeOf<
         | "foo == $str1"
         | "foo == $str2"

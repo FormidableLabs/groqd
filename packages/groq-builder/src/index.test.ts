@@ -1,6 +1,7 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { createGroqBuilder, makeSafeQueryRunner } from "./index";
 import { SchemaConfig } from "./tests/schemas/nextjs-sanity-fe";
+import { createGroqBuilder } from "./createGroqBuilder";
+import { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
@@ -9,7 +10,7 @@ describe("makeSafeQueryRunner", () => {
     makeSafeQueryRunner(async (query, options) => {
       expectTypeOf(query).toEqualTypeOf<string>();
       expectTypeOf(options).toEqualTypeOf<{
-        variables: {} | undefined;
+        parameters: {} | undefined;
       }>();
       return null;
     });
@@ -18,7 +19,7 @@ describe("makeSafeQueryRunner", () => {
     makeSafeQueryRunner<{ foo: "FOO"; bar?: "BAR" }>(async (query, options) => {
       expectTypeOf(query).toEqualTypeOf<string>();
       expectTypeOf(options).toEqualTypeOf<{
-        variables: {} | undefined;
+        parameters: {} | undefined;
         foo: "FOO";
         bar?: "BAR";
       }>();
@@ -28,7 +29,7 @@ describe("makeSafeQueryRunner", () => {
 
   const query = q.star.filterByType("variant").project({ name: true });
   const queryWithVars = q
-    .variables<{ foo: string }>()
+    .parameters<{ foo: string }>()
     .star.filterByType("variant")
     .project({ name: true });
   const runner = makeSafeQueryRunner(async (query, options) => {
@@ -56,7 +57,7 @@ describe("makeSafeQueryRunner", () => {
       ]
     `);
   });
-  it("should require variables when present", () => {
+  it("should require parameters when present", () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async function onlyCheckTypes() {
       // @ts-expect-error --- requires 2 parameters
@@ -70,10 +71,10 @@ describe("makeSafeQueryRunner", () => {
 
       await runner(queryWithVars, {
         // @ts-expect-error --- property 'foo' is missing
-        variables: {},
+        parameters: {},
       });
       await runner(queryWithVars, {
-        variables: {
+        parameters: {
           // @ts-expect-error --- 'number' is not assignable to 'string'
           foo: 999,
         },

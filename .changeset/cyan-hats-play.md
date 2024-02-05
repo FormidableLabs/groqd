@@ -2,7 +2,7 @@
 "groq-builder": minor
 ---
 
-Added support for variables.
+Added support for parameters.
 
 Changed how parameters work for `makeSafeQueryRunner`
 

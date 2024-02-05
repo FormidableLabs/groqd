@@ -34,9 +34,9 @@ export namespace Expressions {
     TQueryConfig extends QueryConfig
   > = ValueOf<{
     [Key in SuggestedKeys<TResultItem>]: `${Key} == ${
-      // First, suggest variables:
-      | VariablesOfType<
-            TQueryConfig["variables"],
+      // First, suggest parameters:
+      | ParametersOfType<
+            TQueryConfig["parameters"],
             SuggestedKeysValue<TResultItem, Key>
           >
         // Next, make some literal suggestions:
@@ -70,8 +70,8 @@ export namespace Expressions {
     TKey extends SuggestedKeys<TResultItem>
   > = UndefinedToNull<PathValue<TResultItem, TKey>>;
 
-  export type VariablesOfType<TVariables, TType> = `$${AsString<
-    KeysOfType<TVariables, TType>
+  export type ParametersOfType<TParameters, TType> = `$${AsString<
+    KeysOfType<TParameters, TType>
   >}`;
   type KeysOfType<TObject, TType> = ValueOf<{
     [P in keyof TObject]: TObject[P] extends TType
