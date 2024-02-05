@@ -1,5 +1,21 @@
 # groq-builder
 
+## 0.4.0
+
+### Minor Changes
+
+- Added `createGroqBuilderWithZod()` and removed the `.include(zod)` method ([#257](https://github.com/FormidableLabs/groqd/pull/257))
+
+  Removed internal validation methods; use Zod methods instead
+
+  Added `validationRequired` option to require runtime validation
+
+  Removed `# groq-builder from `q.conditional# groq-builder and `q.select# groq-builder methods; these are now just `q.conditional`and`q.select`
+
+  Added optional validation parameter to `q.field(field, parser?)`
+
+  Cleaned up some internal types, added better type documentation
+
 ## 0.3.0
 
 ### Minor Changes
