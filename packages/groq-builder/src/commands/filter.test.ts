@@ -54,7 +54,6 @@ describe("filterBy", () => {
   const qFiltered = q.star
     .filterBy('_type == "variant"')
     .project({ _type: true });
-  const data = mock.generateSeedData({});
 
   it("should not allow invalid expressions", () => {
     qVariants.filterBy(
@@ -73,6 +72,7 @@ describe("filterBy", () => {
     qVariants.filterBy("price == 55");
     qVariants.filterBy("id == null");
     qVariants.filterBy('id == "id"');
+    qVariants.filterBy("id == (string)"); // (this is just for auto-complete)
   });
   it("should not allow mismatched types", () => {
     qVariants.filterBy(
@@ -96,7 +96,10 @@ describe("filterBy", () => {
     >();
   });
   it("should execute correctly", async () => {
-    const results = await executeBuilder(qFiltered.slice(0, 2), data);
+    const data = mock.generateSeedData({
+      variants: [mock.variant({}), mock.variant({})],
+    });
+    const results = await executeBuilder(qFiltered, data);
     expect(results).toMatchInlineSnapshot(`
       [
         {
@@ -136,6 +139,44 @@ describe("filterBy", () => {
         // @ts-expect-error ---
         "price == $INVALID"
       );
+    });
+  });
+
+  describe("nested properties", () => {
+    const qVariants = q.star.filterByType("variant");
+    const data = mock.generateSeedData({
+      variants: [
+        //
+        mock.variant({ slug: mock.slug({ current: "SLUG-1" }) }),
+        mock.variant({ slug: mock.slug({ current: "SLUG-2" }) }),
+        mock.variant({ slug: mock.slug({ current: "SLUG-3" }) }),
+      ],
+    });
+
+    const qFiltered = qVariants.filterBy('slug.current == "SLUG-1"').project({
+      slug: "slug.current",
+    });
+
+    it("nested properties should not allow invalid types", () => {
+      qVariants.filterBy(
+        // @ts-expect-error ---
+        "slug.current == 999"
+      );
+      qVariants.filterBy(
+        // @ts-expect-error ---
+        "slug.current == true"
+      );
+    });
+
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qFiltered, data);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "slug": "SLUG-1",
+          },
+        ]
+      `);
     });
   });
 });

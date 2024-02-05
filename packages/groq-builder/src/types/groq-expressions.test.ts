@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
 import { QueryConfig, RootQueryConfig } from "./schema-types";
+import { Simplify } from "type-fest";
 
 describe("Expressions", () => {
   it("literal values are properly escaped", () => {
@@ -78,6 +79,40 @@ describe("Expressions", () => {
       >().toEqualTypeOf<
         "foo == $num" | "foo == (number)" | `foo == ${number}`
       >();
+    });
+
+    it("nested properties can be compared", () => {
+      type WithNested = {
+        foo: "FOO";
+        bar: {
+          baz: "BAZ";
+          str: string;
+          num: number;
+        };
+      };
+      type Actual = Expressions.Equality<
+        WithNested,
+        WithVars<{ str: string; num: number }>
+      >;
+      type Expected =
+        | "foo == $str"
+        | 'foo == "FOO"'
+        | 'bar.baz == "BAZ"'
+        | "bar.baz == $str"
+        | "bar.str == $str"
+        | "bar.str == (string)"
+        | `bar.str == "${string}"`
+        | "bar.num == $num"
+        | "bar.num == (number)"
+        | `bar.num == ${number}`;
+
+      // This is really hard to debug:
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      // Here are 2 easier ways to debug:
+      type ActualExtras = Exclude<Expected, Actual>;
+      type ActualMissing = Exclude<Actual, Expected>;
+      expectTypeOf<ActualExtras>().toEqualTypeOf<never>();
+      expectTypeOf<ActualMissing>().toEqualTypeOf<never>();
     });
 
     type ManyVariables = {

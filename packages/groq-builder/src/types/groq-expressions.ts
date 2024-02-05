@@ -1,6 +1,7 @@
 import { QueryConfig } from "./schema-types";
 import type { IsLiteral, LiteralUnion } from "type-fest";
-import { StringKeys, UndefinedToNull, ValueOf } from "./utils";
+import { UndefinedToNull, ValueOf } from "./utils";
+import { Path, PathValue } from "./path-types";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Expressions {
@@ -63,11 +64,11 @@ export namespace Expressions {
     : never;
 
   // Suggest keys:
-  type SuggestedKeys<TResultItem> = StringKeys<keyof TResultItem>;
+  type SuggestedKeys<TResultItem> = Path<TResultItem>;
   type SuggestedKeysValue<
     TResultItem,
-    Key extends SuggestedKeys<TResultItem>
-  > = UndefinedToNull<TResultItem[Key]>;
+    TKey extends SuggestedKeys<TResultItem>
+  > = UndefinedToNull<PathValue<TResultItem, TKey>>;
 
   export type VariablesOfType<TVariables, TType> = `$${AsString<
     KeysOfType<TVariables, TType>
