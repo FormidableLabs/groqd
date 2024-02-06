@@ -3,7 +3,8 @@ import { InferResultType } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { createGroqBuilder } from "../createGroqBuilder";
+
+import { createGroqBuilder } from "../index";
 
 const q = createGroqBuilder<SchemaConfig>();
 const data = mock.generateSeedData({});

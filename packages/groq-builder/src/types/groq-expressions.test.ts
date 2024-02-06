@@ -1,7 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
 import { QueryConfig, RootQueryConfig } from "./schema-types";
-import { Simplify } from "type-fest";
 
 describe("Expressions", () => {
   it("literal values are properly escaped", () => {

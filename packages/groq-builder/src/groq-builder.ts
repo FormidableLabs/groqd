@@ -1,8 +1,14 @@
-import { Parser, ParserFunction } from "./types/public-types";
+import {
+  GroqBuilderConfigType,
+  GroqBuilderResultType,
+  IGroqBuilder,
+  Parser,
+  ParserFunction,
+} from "./types/public-types";
 import type { ExtractTypeNames, QueryConfig } from "./types/schema-types";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
-import { Empty } from "./types/utils";
+import type { Empty } from "./types/utils";
 import { QueryError } from "./types/query-error";
 
 export type RootResult = Empty;
@@ -40,9 +46,9 @@ export class GroqBuilder<
   TQueryConfig extends QueryConfig = QueryConfig
 > implements IGroqBuilder<TResult>
 {
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
   readonly [GroqBuilderResultType]: TResult;
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
   readonly [GroqBuilderConfigType]: TQueryConfig;
 
   /**
@@ -186,30 +192,3 @@ export class GroqBuilder<
     };
   }
 }
-
-export declare const GroqBuilderResultType: unique symbol;
-export declare const GroqBuilderConfigType: unique symbol;
-/**
- * IGroqBuilder is the bare minimum GroqBuilder, used to prevent circular references
- * @internal
- */
-export type IGroqBuilder<
-  TResult = unknown,
-  TQueryConfig extends QueryConfig = QueryConfig
-> = {
-  /**
-   * Used to infer the Result types of a GroqBuilder.
-   * This symbol is not used at runtime.
-   * @internal
-   */
-  readonly [GroqBuilderResultType]: TResult;
-  /**
-   * Used to infer the TQueryConfig types of a GroqBuilder.
-   * This symbol is not used at runtime
-   * @internal
-   */
-  readonly [GroqBuilderConfigType]: TQueryConfig;
-  query: string;
-  parser: ParserFunction | null;
-  parse: ParserFunction;
-};

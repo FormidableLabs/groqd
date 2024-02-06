@@ -1,7 +1,7 @@
 import type { HasRequiredKeys, IsUnknown } from "type-fest";
 import type { QueryConfig } from "./types/schema-types";
 
-import { IGroqBuilder } from "./groq-builder";
+import { IGroqBuilder } from "./types/public-types";
 
 export type QueryRunnerOptions<TQueryConfig extends QueryConfig = QueryConfig> =
   IsUnknown<TQueryConfig["parameters"]> extends true

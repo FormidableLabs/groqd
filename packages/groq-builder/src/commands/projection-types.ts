@@ -1,4 +1,4 @@
-import { GroqBuilder, IGroqBuilder } from "../groq-builder";
+import { GroqBuilder } from "../groq-builder";
 import {
   Empty,
   IsAny,
@@ -12,6 +12,7 @@ import {
 } from "../types/utils";
 import {
   FragmentInputTypeTag,
+  IGroqBuilder,
   Parser,
   ParserWithWidenedInput,
 } from "../types/public-types";

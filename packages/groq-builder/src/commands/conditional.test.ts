@@ -1,9 +1,13 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { GroqBuilder, InferResultItem, InferResultType } from "../index";
+import {
+  createGroqBuilder,
+  GroqBuilder,
+  InferResultItem,
+  InferResultType,
+} from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { Empty, Simplify } from "../types/utils";
-import { createGroqBuilder } from "../createGroqBuilder";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const qVariants = q.star.filterByType("variant");
