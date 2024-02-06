@@ -1,6 +1,6 @@
 import { QueryConfig } from "./schema-types";
 import type { IsLiteral, LiteralUnion } from "type-fest";
-import { UndefinedToNull, ValueOf } from "./utils";
+import { StringKeys, UndefinedToNull, ValueOf } from "./utils";
 import { Path, PathValue } from "./path-types";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -31,12 +31,13 @@ export namespace Expressions {
 
   export type Equality<
     TResultItem,
-    TQueryConfig extends QueryConfig
+    TQueryConfig extends QueryConfig,
+    _ParameterEntries = ParameterEntries<TQueryConfig["parameters"]>
   > = ValueOf<{
     [Key in SuggestedKeys<TResultItem>]: `${Key} == ${
       // First, suggest parameters:
-      | ParametersOfType<
-            TQueryConfig["parameters"],
+      | StringKeysWithType<
+            _ParameterEntries,
             SuggestedKeysValue<TResultItem, Key>
           >
         // Next, make some literal suggestions:
@@ -70,15 +71,20 @@ export namespace Expressions {
     TKey extends SuggestedKeys<TResultItem>
   > = UndefinedToNull<PathValue<TResultItem, TKey>>;
 
-  export type ParametersOfType<TParameters, TType> = `$${AsString<
-    KeysOfType<TParameters, TType>
-  >}`;
-  type KeysOfType<TObject, TType> = ValueOf<{
-    [P in keyof TObject]: TObject[P] extends TType
-      ? P
-      : TType extends TObject[P]
-      ? P
-      : never;
-  }>;
-  type AsString<T> = Extract<T, string>;
+  export type ParameterEntries<TParameters> = {
+    [P in Path<TParameters> as `$${P}`]: PathValue<TParameters, P>;
+  };
+
+  /**
+   * Finds all (string) keys of TObject where the value matches the given TType
+   */
+  export type StringKeysWithType<TObject, TType> = StringKeys<
+    ValueOf<{
+      [P in keyof TObject]: TObject[P] extends TType
+        ? P
+        : TType extends TObject[P]
+        ? P
+        : never;
+    }>
+  >;
 }

@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
 import { QueryConfig, RootQueryConfig } from "./schema-types";
+import { Simplify } from "./utils";
 
 describe("Expressions", () => {
   it("literal values are properly escaped", () => {
@@ -117,22 +118,30 @@ describe("Expressions", () => {
     type ManyParameters = {
       str1: string;
       str2: string;
-      num: number;
+      num1: number;
       bool: boolean;
     };
 
     it("we can extract parameters based on their type", () => {
+      type ParameterEntries = Expressions.ParameterEntries<ManyParameters>;
+      expectTypeOf<Simplify<ParameterEntries>>().toEqualTypeOf<{
+        $str1: string;
+        $str2: string;
+        $num1: number;
+        $bool: boolean;
+      }>();
+
       expectTypeOf<
-        Expressions.ParametersOfType<ManyParameters, string>
+        Expressions.StringKeysWithType<ParameterEntries, string>
       >().toEqualTypeOf<"$str1" | "$str2">();
       expectTypeOf<
-        Expressions.ParametersOfType<ManyParameters, "LITERAL">
+        Expressions.StringKeysWithType<ParameterEntries, "LITERAL">
       >().toEqualTypeOf<"$str1" | "$str2">();
       expectTypeOf<
-        Expressions.ParametersOfType<ManyParameters, number>
-      >().toEqualTypeOf<"$num">();
+        Expressions.StringKeysWithType<ParameterEntries, number>
+      >().toEqualTypeOf<"$num1">();
       expectTypeOf<
-        Expressions.ParametersOfType<ManyParameters, boolean>
+        Expressions.StringKeysWithType<ParameterEntries, boolean>
       >().toEqualTypeOf<"$bool">();
     });
 
@@ -144,13 +153,51 @@ describe("Expressions", () => {
         | "foo == $str2"
         | "foo == (string)"
         | `foo == "${string}"`
-        | "bar == $num"
+        | "bar == $num1"
         | "bar == (number)"
         | `bar == ${number}`
         | "baz == $bool"
         | "baz == true"
         | "baz == false"
       >();
+    });
+
+    type NestedParameters = {
+      nested: {
+        str1: string;
+        deep: {
+          str2: string;
+          num1: number;
+        };
+      };
+    };
+    it("should work with deeply-nested parameters", () => {
+      type Item = { foo: string; bar: number; baz: boolean };
+      type Res = Expressions.Equality<Item, WithVars<NestedParameters>>;
+
+      type StandardSuggestions =
+        | `foo == (string)`
+        | `foo == "${string}"`
+        | `bar == (number)`
+        | `bar == ${number}`
+        | "baz == true"
+        | "baz == false";
+      expectTypeOf<Exclude<Res, StandardSuggestions>>().toEqualTypeOf<
+        | "foo == $nested.str1"
+        | "foo == $nested.deep.str2"
+        | "bar == $nested.deep.num1"
+      >();
+    });
+
+    it("we can extract parameters based on their type", () => {
+      type ParameterEntries = Expressions.ParameterEntries<NestedParameters>;
+      expectTypeOf<Simplify<ParameterEntries>>().toEqualTypeOf<{
+        $nested: NestedParameters["nested"];
+        "$nested.str1": string;
+        "$nested.deep": NestedParameters["nested"]["deep"];
+        "$nested.deep.str2": string;
+        "$nested.deep.num1": number;
+      }>();
     });
   });
 });
