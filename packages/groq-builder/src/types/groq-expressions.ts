@@ -32,6 +32,7 @@ export namespace Expressions {
   export type Equality<
     TResultItem,
     TQueryConfig extends QueryConfig,
+    /** (local use only) Calculate our Parameter entries once, and reuse across suggestions */
     _ParameterEntries = ParameterEntries<TQueryConfig["parameters"]>
   > = ValueOf<{
     [Key in SuggestedKeys<TResultItem>]: `${Key} == ${

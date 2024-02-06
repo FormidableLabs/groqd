@@ -21,31 +21,56 @@ export type QueryRunnerOptions<TQueryConfig extends QueryConfig = QueryConfig> =
 
 /**
  * Utility to create a "query runner" that consumes the result of the `q` chain.
- */
+ *
+ * If you need to pass custom options to your `execute` function,
+ * use the TCustomOptions to ensure they're strongly typed.
+ *
+ * @example
+ * const runner = makeSafeQueryRunner(
+ *   async (query, { parameters }) => {
+ *     return await sanityClient.fetch(query, { params: parameters });
+ *   }
+ * )
+ *
+ * @example
+ * const runner = makeSafeQueryRunner<{ withAuth: boolean }>(
+ *   async (query, { parameters, withAuth }) => {
+ *     if (withAuth) ...
+ *   }
+ * )
+ * */
 export function makeSafeQueryRunner<TCustomOptions>(
-  fn: (
+  execute: (
     query: string,
     options: QueryRunnerOptions & TCustomOptions
   ) => Promise<any>
 ) {
-  return async function queryRunner<
-    TResult,
-    TQueryConfig extends QueryConfig,
-    /** Type alias (local use only): */
-    _TOptions extends QueryRunnerOptions<TQueryConfig> &
-      TCustomOptions = QueryRunnerOptions<TQueryConfig> & TCustomOptions
-  >(
+  /**
+   * This queryRunner will execute a query and return strongly-typed results.
+   * If the query has any parameters, you can pass them here too.
+   */
+  return async function queryRunner<TResult, TQueryConfig extends QueryConfig>(
     builder: IGroqBuilder<TResult, TQueryConfig>,
-    // If the `options` argument doesn't have any required keys,
-    // then make the argument optional:
-    ..._options: HasRequiredKeys<_TOptions> extends true
-      ? [_TOptions] // Required
-      : [] | [_TOptions] // Optional
+    ..._options: MaybeRequired<
+      QueryRunnerOptions<TQueryConfig> & TCustomOptions
+    >
   ): Promise<TResult> {
     const options: any = _options[0] || {};
-    const results = await fn(builder.query, options);
+    const results = await execute(builder.query, options);
 
     const parsed = builder.parse(results);
     return parsed;
   };
 }
+
+/**
+ * If all options are fully optional,
+ * then this makes the entire options argument optional too.
+ *
+ * If the options argument has any required keys,
+ * then the entire options argument is required too.
+ */
+type MaybeRequired<TOptions extends object> =
+  HasRequiredKeys<TOptions> extends true
+    ? [TOptions] // Required
+    : [] | [TOptions]; // Optional
