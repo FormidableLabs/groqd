@@ -12,7 +12,7 @@ declare module "../groq-builder" {
      */
     raw<TResultNew = never>(
       query: string,
-      parser?: Parser | null
+      parser?: Parser<unknown, TResultNew> | null
     ): GroqBuilder<TResultNew, TQueryConfig>;
   }
 }
