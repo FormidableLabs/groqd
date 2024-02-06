@@ -4,6 +4,9 @@
 
 Added support for parameters.
 
-Changed how parameters work for `makeSafeQueryRunner`
+Added `filterBy` for strongly-typed filtering.
 
-Added auto-complete help for conditional statements and filters
+Added auto-complete help for conditional statements and filters.
+
+Changed how parameters are passed to `makeSafeQueryRunner`.
+
