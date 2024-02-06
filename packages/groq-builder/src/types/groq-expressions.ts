@@ -35,17 +35,10 @@ export namespace Expressions {
     /** (local use only) Calculate our Parameter entries once, and reuse across suggestions */
     _ParameterEntries = ParameterEntries<TQueryConfig["parameters"]>
   > = ValueOf<{
-    [Key in SuggestedKeys<TResultItem>]: `${Key} == ${
-      // First, suggest parameters:
-      | StringKeysWithType<
-            _ParameterEntries,
-            SuggestedKeysValue<TResultItem, Key>
-          >
-        // Next, make some literal suggestions:
-        | LiteralSuggestion<SuggestedKeysValue<TResultItem, Key>>
-        // Finally, allow all literal values:
-        | LiteralValue<SuggestedKeysValue<TResultItem, Key>>
-    }`;
+    [Key in SuggestedKeys<TResultItem>]: `${Key} == ${SuggestedValues<
+      _ParameterEntries,
+      SuggestedKeysValue<TResultItem, Key>
+    >}`;
   }>;
 
   // Escape literal values:
@@ -71,6 +64,14 @@ export namespace Expressions {
     TResultItem,
     TKey extends SuggestedKeys<TResultItem>
   > = UndefinedToNull<PathValue<TResultItem, TKey>>;
+
+  type SuggestedValues<TParameterEntries, TValue> =
+    // First, suggest parameters:
+    | StringKeysWithType<TParameterEntries, TValue>
+    // Next, make some literal suggestions:
+    | LiteralSuggestion<TValue>
+    // Finally, allow all literal values:
+    | LiteralValue<TValue>;
 
   export type ParameterEntries<TParameters> = {
     [P in Path<TParameters> as `$${P}`]: PathValue<TParameters, P>;
