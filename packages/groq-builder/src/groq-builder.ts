@@ -1,13 +1,14 @@
-import type {
+import {
+  GroqBuilderConfigType,
+  GroqBuilderResultType,
   IGroqBuilder,
   Parser,
   ParserFunction,
 } from "./types/public-types";
-import type { ExtractTypeNames, RootConfig } from "./types/schema-types";
+import type { ExtractTypeNames, QueryConfig } from "./types/schema-types";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
-import { Empty } from "./types/utils";
-import { GroqBuilderResultType } from "./types/public-types";
+import type { Empty } from "./types/utils";
 import { QueryError } from "./types/query-error";
 
 export type RootResult = Empty;
@@ -42,11 +43,13 @@ export type GroqBuilderOptions = {
 
 export class GroqBuilder<
   TResult = any,
-  TRootConfig extends RootConfig = RootConfig
+  TQueryConfig extends QueryConfig = QueryConfig
 > implements IGroqBuilder<TResult>
 {
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
   readonly [GroqBuilderResultType]: TResult;
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
+  readonly [GroqBuilderConfigType]: TQueryConfig;
 
   /**
    * Extends the GroqBuilder class by implementing methods.
@@ -122,7 +125,7 @@ export class GroqBuilder<
   protected chain<TResultNew = never>(
     query: string,
     parser?: Parser | null
-  ): GroqBuilder<TResultNew, TRootConfig> {
+  ): GroqBuilder<TResultNew, TQueryConfig> {
     if (query && this.internal.parser) {
       throw new QueryError(
         "You cannot chain a new query once you've specified a parser, " +
@@ -151,7 +154,7 @@ export class GroqBuilder<
       options = { ...options, indent: options.indent + "  " };
     }
 
-    return new GroqBuilder<RootResult, TRootConfig>({
+    return new GroqBuilder<RootResult, TQueryConfig>({
       query: "",
       parser: null,
       options: options,
@@ -161,7 +164,7 @@ export class GroqBuilder<
   /**
    * Returns a GroqBuilder, overriding the result type.
    */
-  public as<TResultNew>(): GroqBuilder<TResultNew, TRootConfig> {
+  public as<TResultNew>(): GroqBuilder<TResultNew, TQueryConfig> {
     return this as any;
   }
 
@@ -170,10 +173,10 @@ export class GroqBuilder<
    * with the specified document type.
    */
   public asType<
-    _type extends ExtractTypeNames<TRootConfig["documentTypes"]>
+    _type extends ExtractTypeNames<TQueryConfig["documentTypes"]>
   >(): GroqBuilder<
-    Extract<TRootConfig["documentTypes"], { _type: _type }>,
-    TRootConfig
+    Extract<TQueryConfig["documentTypes"], { _type: _type }>,
+    TQueryConfig
   > {
     return this as any;
   }

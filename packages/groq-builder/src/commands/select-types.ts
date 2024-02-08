@@ -1,41 +1,44 @@
-import { ExtractTypeNames, RootConfig } from "../types/schema-types";
+import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { StringKeys, ValueOf } from "../types/utils";
-import { ConditionalExpression } from "./conditional-types";
 import { GroqBuilder } from "../groq-builder";
-import { InferResultType } from "../types/public-types";
+import { IGroqBuilder, InferResultType } from "../types/public-types";
+import { Expressions } from "../types/groq-expressions";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type SelectProjections<TResultItem, TRootConfig extends RootConfig> = {
-  [Condition: ConditionalExpression<TResultItem>]: GroqBuilder;
-};
+export type SelectProjections<
+  TResultItem,
+  TQueryConfig extends QueryConfig
+> = Partial<
+  Record<Expressions.AnyConditional<TResultItem, TQueryConfig>, IGroqBuilder>
+>;
 
 export type ExtractSelectResult<
   TSelectProjections extends SelectProjections<any, any>
 > = ValueOf<{
   [P in StringKeys<keyof TSelectProjections>]: InferResultType<
-    TSelectProjections[P]
+    NonNullable<TSelectProjections[P]>
   >;
 }>;
 
 export type SelectByTypeProjections<
   TResultItem,
-  TRootConfig extends RootConfig
+  TQueryConfig extends QueryConfig
 > = {
   [_type in ExtractTypeNames<TResultItem>]?:
-    | GroqBuilder
+    | IGroqBuilder
     | ((
-        q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TRootConfig>
-      ) => GroqBuilder);
+        q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TQueryConfig>
+      ) => IGroqBuilder);
 };
 
 export type ExtractSelectByTypeResult<
   TSelectProjections extends SelectByTypeProjections<any, any>
 > = ValueOf<{
-  [_type in keyof TSelectProjections]: TSelectProjections[_type] extends GroqBuilder<
+  [_type in keyof TSelectProjections]: TSelectProjections[_type] extends IGroqBuilder<
     infer TResult
   >
     ? TResult
-    : TSelectProjections[_type] extends (q: any) => GroqBuilder<infer TResult>
+    : TSelectProjections[_type] extends (q: any) => IGroqBuilder<infer TResult>
     ? TResult
     : never;
 }>;

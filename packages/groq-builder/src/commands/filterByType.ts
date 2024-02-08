@@ -3,7 +3,7 @@ import { ResultItem } from "../types/result-types";
 import { ExtractTypeNames } from "../types/schema-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     filterByType<TType extends ExtractTypeNames<ResultItem.Infer<TResult>>>(
       ...type: TType[]
     ): GroqBuilder<
@@ -11,7 +11,7 @@ declare module "../groq-builder" {
         TResult,
         Extract<ResultItem.Infer<TResult>, { _type: TType }>
       >,
-      TRootConfig
+      TQueryConfig
     >;
   }
 }

@@ -10,7 +10,7 @@ import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { Empty, Simplify } from "../types/utils";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
-const qBase = q.star.filterByType("variant");
+const qVariants = q.star.filterByType("variant");
 
 describe("conditional", () => {
   describe("by itself", () => {
@@ -36,14 +36,14 @@ describe("conditional", () => {
     });
     it("should return a spreadable object", () => {
       expect(conditionalResult).toMatchObject({
-        "[Conditional] [$]": expect.any(GroqBuilder),
+        "[CONDITIONAL] [KEY]": expect.any(GroqBuilder),
       });
     });
   });
 
-  const qAll = qBase.project((qA) => ({
+  const qAll = qVariants.project((qV) => ({
     name: true,
-    ...qA.conditional({
+    ...qV.conditional({
       "price == msrp": {
         onSale: q.value(false),
       },
@@ -142,7 +142,7 @@ describe("conditional", () => {
               "another == condition1": { foo: q.value("FOO") },
               "another == condition2": { bar: q.value("BAR") },
             },
-            { key: "unique-key" }
+            { key: "[UNIQUE-KEY]" }
           ),
         }));
 

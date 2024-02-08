@@ -4,27 +4,23 @@ import {
   ProjectionMapOrCallback,
 } from "./projection-types";
 import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
-import { ExtractTypeNames, RootConfig } from "../types/schema-types";
+import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
+import { Expressions } from "../types/groq-expressions";
 
 export type ConditionalProjectionMap<
   TResultItem,
-  TRootConfig extends RootConfig
-> = {
-  [Condition: ConditionalExpression<TResultItem>]:
+  TQueryConfig extends QueryConfig
+> = Partial<
+  Record<
+    Expressions.AnyConditional<TResultItem, TQueryConfig>,
     | ProjectionMap<TResultItem>
     | ((
-        q: GroqBuilder<TResultItem, TRootConfig>
-      ) => ProjectionMap<TResultItem>);
-};
-
-/**
- * For now, none of our "conditions" are strongly-typed,
- * so we'll just use "string":
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type ConditionalExpression<TResultItem> = string;
+        q: GroqBuilder<TResultItem, TQueryConfig>
+      ) => ProjectionMap<TResultItem>)
+  >
+>;
 
 export type ExtractConditionalProjectionResults<
   TResultItem,
@@ -52,11 +48,11 @@ export type ExtractConditionalProjectionTypes<TProjectionMap> = Simplify<
 
 export type ConditionalByTypeProjectionMap<
   TResultItem,
-  TRootConfig extends RootConfig
+  TQueryConfig extends QueryConfig
 > = {
   [_type in ExtractTypeNames<TResultItem>]?: ProjectionMapOrCallback<
     Extract<TResultItem, { _type: _type }>,
-    TRootConfig
+    TQueryConfig
   >;
 };
 
@@ -82,9 +78,9 @@ export type ExtractConditionalByTypeProjectionResults<
     }>
 >;
 
-export type ConditionalKey<TKey extends string> = `[Conditional] ${TKey}`;
+export type ConditionalKey<TKey extends string> = `[CONDITIONAL] ${TKey}`;
 export function isConditional(key: string): key is ConditionalKey<string> {
-  return key.startsWith("[Conditional] ");
+  return key.startsWith("[CONDITIONAL] ");
 }
 export type SpreadableConditionals<
   TKey extends string,

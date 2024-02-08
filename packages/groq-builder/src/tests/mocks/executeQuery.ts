@@ -1,21 +1,25 @@
 import * as groqJs from "groq-js";
-import { makeSafeQueryRunner } from "../../index";
+
+import { makeSafeQueryRunner } from "../../makeSafeQueryRunner";
 
 type Datalake = Array<object>;
 
-export const executeBuilder = makeSafeQueryRunner(
-  async (query: string, datalake: Datalake, params = {}) =>
-    await executeQuery(query, datalake, params)
+export const executeBuilder = makeSafeQueryRunner<{ datalake: Datalake }>(
+  async (query: string, { parameters, datalake }) =>
+    await executeQuery(datalake, query, parameters ?? {})
 );
 
 export async function executeQuery(
-  query: string,
   dataset: Datalake,
-  params: Record<string, string>
+  query: string,
+  parameters: Record<string, string>
 ): Promise<unknown> {
   try {
-    const parsed = groqJs.parse(query, { params });
-    const streamResult = await groqJs.evaluate(parsed, { dataset, params });
+    const parsed = groqJs.parse(query, { params: parameters });
+    const streamResult = await groqJs.evaluate(parsed, {
+      dataset,
+      params: parameters,
+    });
     const start = Date.now();
     const result = await streamResult.get();
 

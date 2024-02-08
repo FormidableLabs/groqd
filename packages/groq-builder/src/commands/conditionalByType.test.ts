@@ -40,12 +40,12 @@ describe("conditionalByType", () => {
   it('should have a "spreadable" signature', () => {
     expectTypeOf<SimplifyDeep<typeof conditionalByType>>().toEqualTypeOf<
       SimplifyDeep<{
-        "[Conditional] [ByType]": IGroqBuilder<ExpectedConditionalUnion>;
+        "[CONDITIONAL] [BY_TYPE]": IGroqBuilder<ExpectedConditionalUnion>;
       }>
     >();
 
     expect(conditionalByType).toMatchObject({
-      "[Conditional] [ByType]": expect.any(GroqBuilder),
+      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilder),
     });
   });
 
@@ -183,7 +183,7 @@ describe("conditionalByType", () => {
   });
 
   it("should execute correctly", async () => {
-    const res = await executeBuilder(qAll, data.datalake);
+    const res = await executeBuilder(qAll, data);
 
     expect(res.find((item) => item._type === "category"))
       .toMatchInlineSnapshot(`

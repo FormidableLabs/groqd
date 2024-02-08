@@ -12,13 +12,13 @@ import { ProjectionMap } from "./projection-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     conditional<
       TConditionalProjections extends ConditionalProjectionMap<
         ResultItem.Infer<TResult>,
-        TRootConfig
+        TQueryConfig
       >,
-      TKey extends string = "[$]",
+      TKey extends string = typeof DEFAULT_KEY,
       TIsExhaustive extends boolean = false
     >(
       conditionalProjections: TConditionalProjections,
@@ -30,6 +30,8 @@ declare module "../groq-builder" {
     >;
   }
 }
+
+const DEFAULT_KEY = "[KEY]" as const;
 
 GroqBuilder.implement({
   conditional<
@@ -58,15 +60,15 @@ GroqBuilder.implement({
       .join(`,${newLine}`);
 
     const parsers = allConditionalProjections
-      .map((q) => q.internal.parser)
+      .map((q) => q.parser)
       .filter(notNull);
     const conditionalParser = !parsers.length
       ? null
       : createConditionalParserUnion(parsers, config?.isExhaustive ?? false);
 
     const conditionalQuery = root.chain(query, conditionalParser);
-    const key = config?.key || ("[$]" as TKey);
-    const conditionalKey: ConditionalKey<TKey> = `[Conditional] ${key}`;
+    const key = config?.key || (DEFAULT_KEY as TKey);
+    const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {
       [conditionalKey]: conditionalQuery,
     } as any;

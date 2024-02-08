@@ -27,7 +27,7 @@ describe("filterByType", () => {
   });
 
   it("should execute correctly", async () => {
-    const results = await executeBuilder(qProduct, data.datalake);
+    const results = await executeBuilder(qProduct, data);
     expect(results).toEqual(data.products);
   });
 });

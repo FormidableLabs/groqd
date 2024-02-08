@@ -1,9 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilder } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+
+import { createGroqBuilder } from "../index";
 
 const q = createGroqBuilder<SchemaConfig>();
 const data = mock.generateSeedData({});
@@ -48,11 +49,11 @@ describe("deref", () => {
   });
 
   it("should execute correctly (single)", async () => {
-    const results = await executeBuilder(qCategory, data.datalake);
+    const results = await executeBuilder(qCategory, data);
     expect(results).toEqual(data.categories[0]);
   });
   it("should execute correctly (multiple)", async () => {
-    const results = await executeBuilder(qVariants, data.datalake);
+    const results = await executeBuilder(qVariants, data);
     expect(results).toEqual(data.variants);
   });
 });

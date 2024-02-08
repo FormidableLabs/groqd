@@ -3,7 +3,7 @@ import { Parser } from "../../types/public-types";
 
 declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * Returns a literal Groq value, properly escaped.
      * @param value
@@ -12,7 +12,7 @@ declare module "../../groq-builder" {
     value<T extends LiteralValueTypes>(
       value: T,
       validation?: Parser<T, T> | null
-    ): GroqBuilder<T, TRootConfig>;
+    ): GroqBuilder<T, TQueryConfig>;
   }
 }
 

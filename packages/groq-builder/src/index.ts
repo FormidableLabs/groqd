@@ -1,16 +1,17 @@
-// Be sure to keep these 2 imports in the correct order:
-import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
+// Be sure to keep these first 2 imports in this order:
+import "./groq-builder";
 import "./commands";
 
-import type { RootConfig } from "./types/schema-types";
-import type { ButFirst } from "./types/utils";
+import type { RootQueryConfig } from "./types/schema-types";
+import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
 import { zod } from "./validation/zod";
 
 // Re-export all our public types:
+export * from "./groq-builder";
 export * from "./types/public-types";
 export * from "./types/schema-types";
-export { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
 export { zod } from "./validation/zod";
+export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 
 /**
  * Creates the root `q` query builder.
@@ -25,7 +26,7 @@ export { zod } from "./validation/zod";
  * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
  */
-export function createGroqBuilder<TRootConfig extends RootConfig>(
+export function createGroqBuilder<TRootConfig extends RootQueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
   const q = new GroqBuilder<RootResult, TRootConfig>({
@@ -45,26 +46,9 @@ export function createGroqBuilder<TRootConfig extends RootConfig>(
  * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
  * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
  */
-export function createGroqBuilderWithZod<TRootConfig extends RootConfig>(
+export function createGroqBuilderWithZod<TRootConfig extends RootQueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
   const q = createGroqBuilder<TRootConfig>(options);
   return Object.assign(q, zod);
-}
-
-/**
- * Utility to create a "query runner" that consumes the result of the `q` function.
- */
-export function makeSafeQueryRunner<
-  FunnerFn extends (query: string, ...parameters: any[]) => Promise<any>
->(fn: FunnerFn) {
-  return async function queryRunner<TResult>(
-    builder: GroqBuilder<TResult>,
-    ...parameters: ButFirst<Parameters<FunnerFn>>
-  ): Promise<TResult> {
-    const data = await fn(builder.query, ...parameters);
-
-    const parsed = builder.parse(data);
-    return parsed;
-  };
 }

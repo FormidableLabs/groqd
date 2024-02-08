@@ -15,7 +15,7 @@ import {
 } from "../validation/simple-validation";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * Performs an "object projection", returning an object with the fields specified.
      *
@@ -32,12 +32,12 @@ declare module "../groq-builder" {
       projectionMap:
         | TProjection
         | ((
-            q: GroqBuilder<ResultItem.Infer<TResult>, TRootConfig>
+            q: GroqBuilder<ResultItem.Infer<TResult>, TQueryConfig>
           ) => TProjection),
       ...ProjectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
     ): GroqBuilder<
       ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
-      TRootConfig
+      TQueryConfig
     >;
   }
 }

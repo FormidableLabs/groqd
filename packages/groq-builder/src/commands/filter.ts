@@ -1,17 +1,33 @@
 import { GroqBuilder } from "../groq-builder";
-import { RootConfig } from "../types/schema-types";
-import { ConditionalExpression } from "./conditional-types";
+import { Expressions } from "../types/groq-expressions";
+import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     filter(
-      filterExpression: ConditionalExpression<TResult>
-    ): GroqBuilder<TResult, TRootConfig>;
+      filterExpression: Expressions.AnyConditional<
+        ResultItem.Infer<TResult>,
+        TQueryConfig
+      >
+    ): GroqBuilder<TResult, TQueryConfig>;
+
+    /**
+     * Same as `filter`, but only supports simple, strongly-typed equality expressions.
+     */
+    filterBy(
+      filterExpression: Expressions.Conditional<
+        ResultItem.Infer<TResult>,
+        TQueryConfig
+      >
+    ): GroqBuilder<TResult, TQueryConfig>;
   }
 }
 
 GroqBuilder.implement({
-  filter(this: GroqBuilder<any, RootConfig>, filterExpression) {
+  filter(this: GroqBuilder, filterExpression) {
     return this.chain(`[${filterExpression}]`);
+  },
+  filterBy(this: GroqBuilder, filterExpression) {
+    return this.filter(filterExpression);
   },
 });

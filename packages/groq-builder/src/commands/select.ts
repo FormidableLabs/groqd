@@ -2,16 +2,20 @@ import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import { ExtractSelectResult, SelectProjections } from "./select-types";
 import { notNull } from "../types/utils";
-import { InferResultType, ParserFunction } from "../types/public-types";
+import {
+  IGroqBuilder,
+  InferResultType,
+  ParserFunction,
+} from "../types/public-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     select<
       TSelectProjections extends SelectProjections<
         ResultItem.Infer<TResult>,
-        TRootConfig
+        TQueryConfig
       >,
-      TDefault extends null | GroqBuilder = null
+      TDefault extends null | IGroqBuilder = null
     >(
       selections: TSelectProjections,
       defaultSelection?: TDefault
@@ -20,7 +24,7 @@ declare module "../groq-builder" {
       | (TDefault extends null | undefined
           ? null
           : InferResultType<NonNullable<TDefault>>),
-      TRootConfig
+      TQueryConfig
     >;
   }
 }
@@ -29,7 +33,7 @@ GroqBuilder.implement({
     const conditions = Object.keys(selections);
 
     const queries = conditions.map((condition) => {
-      const builder = selections[condition];
+      const builder = selections[condition]!;
       return `${condition} => ${builder.query}`;
     });
 
@@ -38,16 +42,16 @@ GroqBuilder.implement({
     }
 
     const parsers = conditions
-      .map((c) => selections[c].internal.parser)
+      .map((c) => selections[c]!.parser)
       .filter(notNull);
     const conditionalParser =
       parsers.length === 0
         ? null
-        : createConditionalParser(parsers, defaultSelection?.internal.parser);
+        : createConditionalParser(parsers, defaultSelection?.parser);
 
     // Check that we've got "all or nothing" parsers:
     if (parsers.length !== 0 && parsers.length !== conditions.length) {
-      const missing = conditions.filter((c) => !selections[c].internal.parser);
+      const missing = conditions.filter((c) => !selections[c]!.parser);
       const err = new TypeError(
         "When using 'select', either all conditions must have validation, or none of them. " +
           `Missing validation: "${missing.join('", "')}"`

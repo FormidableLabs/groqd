@@ -56,7 +56,7 @@ describe("field (naked projections)", () => {
   });
 
   it("executes correctly (price)", async () => {
-    const results = await executeBuilder(qPrices, data.datalake);
+    const results = await executeBuilder(qPrices, data);
     expect(results).toMatchInlineSnapshot(`
       [
         55,
@@ -68,7 +68,7 @@ describe("field (naked projections)", () => {
     `);
   });
   it("executes correctly (name)", async () => {
-    const results = await executeBuilder(qNames, data.datalake);
+    const results = await executeBuilder(qNames, data);
     expect(results).toMatchInlineSnapshot(`
       [
         "Variant 0",
@@ -125,7 +125,7 @@ describe("field (naked projections)", () => {
       );
     });
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qPrice, data.datalake);
+      const results = await executeBuilder(qPrice, data);
       expect(results).toMatchInlineSnapshot("55");
     });
     it("should throw an error if the data is invalid", async () => {
@@ -137,7 +137,7 @@ describe("field (naked projections)", () => {
           }),
         ],
       });
-      await expect(() => executeBuilder(qPrice, invalidData.datalake)).rejects
+      await expect(() => executeBuilder(qPrice, invalidData)).rejects
         .toMatchInlineSnapshot(`
         [ValidationErrors: 1 Parsing Error:
         result: Expected number, received string]

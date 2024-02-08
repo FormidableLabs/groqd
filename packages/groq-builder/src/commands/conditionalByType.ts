@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractTypeNames, RootConfig } from "../types/schema-types";
+import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
 import { ResultItem } from "../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -10,13 +10,13 @@ import {
 import { ProjectionMap } from "./projection-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TRootConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     conditionalByType<
       TConditionalProjections extends ConditionalByTypeProjectionMap<
         ResultItem.Infer<TResult>,
-        TRootConfig
+        TQueryConfig
       >,
-      TKey extends string = "[ByType]",
+      TKey extends string = typeof DEFAULT_KEY,
       /**
        * Did we supply a condition for all possible _type values?
        */
@@ -35,6 +35,7 @@ declare module "../groq-builder" {
     >;
   }
 }
+const DEFAULT_KEY = "[BY_TYPE]" as const;
 
 GroqBuilder.implement({
   conditionalByType<
@@ -42,7 +43,7 @@ GroqBuilder.implement({
     TKey extends string,
     TIsExhaustive extends boolean
   >(
-    this: GroqBuilder<any, RootConfig>,
+    this: GroqBuilder<any, QueryConfig>,
     conditionalProjections: TConditionalProjections,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {
@@ -80,8 +81,8 @@ GroqBuilder.implement({
         };
 
     const conditionalQuery = this.root.chain(query, conditionalParser);
-    const key: TKey = config?.key || ("[ByType]" as TKey);
-    const conditionalKey: ConditionalKey<TKey> = `[Conditional] ${key}`;
+    const key: TKey = config?.key || (DEFAULT_KEY as TKey);
+    const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {
       _type: true, // Ensure we request the `_type` parameter
       [conditionalKey]: conditionalQuery,

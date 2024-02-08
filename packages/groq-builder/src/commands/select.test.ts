@@ -89,7 +89,7 @@ describe("select", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qSelect, data.datalake);
+      const results = await executeBuilder(qSelect, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -125,13 +125,13 @@ describe("select", () => {
   });
 
   describe("with validation", () => {
-    const qSelect = qBase.project((q) => ({
-      selected: q.select({
-        '_type == "product"': q.asType<"product">().project({
+    const qSelect = qBase.project((qB) => ({
+      selected: qB.select({
+        '_type == "product"': qB.asType<"product">().project({
           _type: zod.literal("product"),
           name: zod.string(),
         }),
-        '_type == "variant"': q.asType<"variant">().project({
+        '_type == "variant"': qB.asType<"variant">().project({
           _type: zod.literal("variant"),
           name: zod.string(),
           price: zod.number(),
@@ -161,7 +161,7 @@ describe("select", () => {
     });
 
     it("should execute correctly", async () => {
-      const results = await executeBuilder(qSelect, data.datalake);
+      const results = await executeBuilder(qSelect, data);
       expect(results).toMatchInlineSnapshot(`
         [
           {
@@ -184,7 +184,7 @@ describe("select", () => {
       `);
     });
     it("should fail with invalid data", async () => {
-      await expect(() => executeBuilder(qSelect, invalidData.datalake)).rejects
+      await expect(() => executeBuilder(qSelect, invalidData)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
         "2 Parsing Errors:
         result[0].selected: Conditional parsing failed; all 2 conditions failed
