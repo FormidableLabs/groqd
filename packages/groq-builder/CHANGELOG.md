@@ -1,5 +1,17 @@
 # groq-builder
 
+## 0.5.0
+
+### Minor Changes
+
+- Added support for parameters. ([#263](https://github.com/FormidableLabs/groqd/pull/263))
+
+  Added `filterBy` for strongly-typed filtering.
+
+  Added auto-complete help for conditional statements and filters.
+
+  Changed how parameters are passed to `makeSafeQueryRunner`.
+
 ## 0.4.0
 
 ### Minor Changes
