@@ -19,15 +19,16 @@ describe("ExtractTypeMismatchErrors", () => {
     type TestObject = {
       FOO: TME<"foo-error">;
       BAR: TME<"bar-error">;
-      BAZ: Valid;
+      BAZ: Valid | TME<"baz-error">;
+      BAT: Valid;
     };
 
     type Result = ExtractTypeMismatchErrors<TestObject>;
 
     expectTypeOf<Result>().toEqualTypeOf<
       | 'Error in "FOO": foo-error'
-      //
       | 'Error in "BAR": bar-error'
+      | 'Error in "BAZ": baz-error'
     >();
   });
   it("should return 'never' when there's no errors", () => {
@@ -49,6 +50,13 @@ describe("RequireAFakeParameterIfThereAreTypeMismatchErrors", () => {
       expected: "EXPECTED";
       actual: "ACTUAL";
     }>;
+    alsoInvalid:
+      | string
+      | TypeMismatchError<{
+          error: "ERROR";
+          expected: "EXPECTED";
+          actual: "ACTUAL";
+        }>;
   };
   it("should return an empty parameter list when there are no errors", () => {
     type Params = RequireAFakeParameterIfThereAreTypeMismatchErrors<NoErrors>;
@@ -58,7 +66,7 @@ describe("RequireAFakeParameterIfThereAreTypeMismatchErrors", () => {
     type Params = RequireAFakeParameterIfThereAreTypeMismatchErrors<WithErrors>;
     expectTypeOf<Params>().toEqualTypeOf<
       | ["⛔️ Error: this projection has type mismatches: ⛔️"]
-      | ['Error in "invalid": ERROR']
+      | ['Error in "invalid": ERROR' | 'Error in "alsoInvalid": ERROR']
     >();
   });
 });

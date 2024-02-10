@@ -49,8 +49,11 @@ export type TypeMismatchError<
 export type ExtractTypeMismatchErrors<TProjectionResult> = ValueOf<{
   [TKey in StringKeys<
     keyof TProjectionResult
-  >]: TProjectionResult[TKey] extends TypeMismatchError
-    ? `Error in "${TKey}": ${TProjectionResult[TKey]["error"]}`
+  >]: TypeMismatchError extends TProjectionResult[TKey]
+    ? `Error in "${TKey}": ${Extract<
+        TProjectionResult[TKey],
+        TypeMismatchError
+      >["error"]}`
     : never;
 }>;
 
@@ -133,6 +136,6 @@ export type RequireAFakeParameterIfThereAreTypeMismatchErrors<
 > = IsNever<_Errors> extends true
   ? [] // No errors, yay! Do not require any extra parameters.
   : // We've got errors; let's require an extra parameter, with the error message:
-    | [Exclude<_Errors, null>]
+    | [_Errors]
       // And this extra error message causes TypeScript to always log the entire list of errors:
       | ["⛔️ Error: this projection has type mismatches: ⛔️"];
