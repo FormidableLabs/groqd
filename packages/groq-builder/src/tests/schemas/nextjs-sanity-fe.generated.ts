@@ -46,7 +46,12 @@ export type SchemaValues = {
     metadata: {
       [x: string]: unknown;
       _type: "sanity.imageMetadata";
-      dimensions: { _type: "sanity.imageDimensions"; height: number; width: number; aspectRatio: number };
+      dimensions: {
+        _type: "sanity.imageDimensions";
+        height: number;
+        width: number;
+        aspectRatio: number;
+      };
       palette?:
         | {
             _type: "sanity.imagePalette";
@@ -119,13 +124,28 @@ export type SchemaValues = {
       blurHash?: string | undefined;
       hasAlpha: boolean;
       isOpaque: boolean;
-      exif?: { [x: string]: unknown; _type: "sanity.imageExifMetadata" } | undefined;
-      location?: { _type: "geopoint"; lat: number; lng: number; alt?: number | undefined } | undefined;
+      exif?:
+        | { [x: string]: unknown; _type: "sanity.imageExifMetadata" }
+        | undefined;
+      location?:
+        | {
+            _type: "geopoint";
+            lat: number;
+            lng: number;
+            alt?: number | undefined;
+          }
+        | undefined;
     };
   };
   description: {
     _type: "block";
-    children: { text: string; _type: "span"; [decorator]: any; marks: string[]; _key: string }[];
+    children: {
+      text: string;
+      _type: "span";
+      [decorator]: any;
+      marks: string[];
+      _key: string;
+    }[];
     level?: number | undefined;
     listItem?: any;
     markDefs: never[];
@@ -149,7 +169,14 @@ export type SchemaValues = {
     _id: string;
     _rev: string;
     _updatedAt: string;
-    images?: { _ref: string; _type: "reference"; [referenced]: "categoryImage"; _key: string }[] | undefined;
+    images?:
+      | {
+          _ref: string;
+          _type: "reference";
+          [referenced]: "categoryImage";
+          _key: string;
+        }[]
+      | undefined;
     _type: "category";
   };
   categoryImage: {
@@ -159,7 +186,14 @@ export type SchemaValues = {
     _id: string;
     _rev: string;
     _updatedAt: string;
-    images: { _type: "image"; asset: { _ref: string; _type: "reference"; [referenced]: "sanity.imageAsset" } };
+    images: {
+      _type: "image";
+      asset: {
+        _ref: string;
+        _type: "reference";
+        [referenced]: "sanity.imageAsset";
+      };
+    };
     _type: "categoryImage";
   };
   flavour: {
@@ -177,7 +211,13 @@ export type SchemaValues = {
     description?:
       | {
           _type: "block";
-          children: { text: string; _type: "span"; [decorator]: any; marks: string[]; _key: string }[];
+          children: {
+            text: string;
+            _type: "span";
+            [decorator]: any;
+            marks: string[];
+            _key: string;
+          }[];
           level?: number | undefined;
           listItem?: any;
           markDefs: never[];
@@ -193,19 +233,41 @@ export type SchemaValues = {
       | {
           name: string;
           description?: string | undefined;
-          asset: { _ref: string; _type: "reference"; [referenced]: "sanity.imageAsset" };
+          asset: {
+            _ref: string;
+            _type: "reference";
+            [referenced]: "sanity.imageAsset";
+          };
           _type: "productImage";
           _key: string;
         }[]
       | undefined;
-    categories?: { _ref: string; _type: "reference"; [referenced]: "category"; _key: string }[] | undefined;
-    variants?: { _ref: string; _type: "reference"; [referenced]: "variant"; _key: string }[] | undefined;
+    categories?:
+      | {
+          _ref: string;
+          _type: "reference";
+          [referenced]: "category";
+          _key: string;
+        }[]
+      | undefined;
+    variants?:
+      | {
+          _ref: string;
+          _type: "reference";
+          [referenced]: "variant";
+          _key: string;
+        }[]
+      | undefined;
     _type: "product";
   };
   productImage: {
     name: string;
     description?: string | undefined;
-    asset: { _ref: string; _type: "reference"; [referenced]: "sanity.imageAsset" };
+    asset: {
+      _ref: string;
+      _type: "reference";
+      [referenced]: "sanity.imageAsset";
+    };
     _type: "productImage";
   };
   variant: {
@@ -214,7 +276,13 @@ export type SchemaValues = {
     description?:
       | {
           _type: "block";
-          children: { text: string; _type: "span"; [decorator]: any; marks: string[]; _key: string }[];
+          children: {
+            text: string;
+            _type: "span";
+            [decorator]: any;
+            marks: string[];
+            _key: string;
+          }[];
           level?: number | undefined;
           listItem?: any;
           markDefs: never[];
@@ -222,7 +290,14 @@ export type SchemaValues = {
           _key: string;
         }[]
       | undefined;
-    style?: { _ref: string; _type: "reference"; [referenced]: "style"; _key: string }[] | undefined;
+    style?:
+      | {
+          _ref: string;
+          _type: "reference";
+          [referenced]: "style";
+          _key: string;
+        }[]
+      | undefined;
     id?: string | undefined;
     _createdAt: string;
     _id: string;
@@ -232,12 +307,23 @@ export type SchemaValues = {
       | {
           name: string;
           description?: string | undefined;
-          asset: { _ref: string; _type: "reference"; [referenced]: "sanity.imageAsset" };
+          asset: {
+            _ref: string;
+            _type: "reference";
+            [referenced]: "sanity.imageAsset";
+          };
           _type: "productImage";
           _key: string;
         }[]
       | undefined;
-    flavour?: { _ref: string; _type: "reference"; [referenced]: "flavour"; _key: string }[] | undefined;
+    flavour?:
+      | {
+          _ref: string;
+          _type: "reference";
+          [referenced]: "flavour";
+          _key: string;
+        }[]
+      | undefined;
     msrp: number;
     price: number;
     _type: "variant";

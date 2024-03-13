@@ -3,6 +3,8 @@ import { ExtractDocumentTypes } from "../../types/schema-types";
 import { Simplify } from "../../types/utils";
 import { referenced, SchemaValues } from "./nextjs-sanity-fe.generated";
 
+export { referenced };
+
 export type SchemaConfig = {
   documentTypes: ExtractDocumentTypes<SanitySchema.Reconstructed>;
   referenceSymbol: typeof referenced;

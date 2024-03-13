@@ -1,4 +1,5 @@
 import { referenced, SanitySchema } from "../schemas/nextjs-sanity-fe";
+import { decorator } from "../schemas/nextjs-sanity-fe.generated";
 
 export class MockFactory {
   // Common helpers:
@@ -116,7 +117,11 @@ export class MockFactory {
     return {
       _type: "block",
       _key: "",
-      children: [{ _type: "span", _key: "", text: "", marks: [] }],
+      children: [
+        { _type: "span", _key: "", text: "", marks: [], [decorator]: null },
+      ],
+      markDefs: [],
+      style: undefined,
       ...data,
     };
   }
