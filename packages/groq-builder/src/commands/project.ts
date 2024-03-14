@@ -1,4 +1,8 @@
-import { ExtractTypeMismatchErrors, notNull, Simplify } from "../types/utils";
+import {
+  notNull,
+  RequireAFakeParameterIfThereAreTypeMismatchErrors,
+  Simplify,
+} from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
@@ -41,24 +45,6 @@ declare module "../groq-builder" {
     >;
   }
 }
-
-/**
- * When we map projection results, we return TypeMismatchError's
- * for any fields that have an invalid mapping configuration.
- * However, this does not cause TypeScript to throw any errors.
- *
- * In order to get TypeScript to complain about these invalid mappings,
- * we will "require" an extra parameter, which will reveal the error messages.
- */
-type RequireAFakeParameterIfThereAreTypeMismatchErrors<
-  TProjectionResult,
-  _Errors extends never | string = ExtractTypeMismatchErrors<TProjectionResult>
-> = _Errors extends never
-  ? [] // No errors, yay! Do not require any extra parameters.
-  : // We've got errors; let's require an extra parameter, with the error message:
-    | [_Errors]
-      // And this extra error message causes TypeScript to always log the entire list of errors:
-      | ["⛔️ Error: this projection has type mismatches: ⛔️"];
 
 GroqBuilder.implement({
   project(
