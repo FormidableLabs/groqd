@@ -8,18 +8,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  matrix:
-    name: 'Node ${{ matrix.node }}'
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [16, 18]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
-
+          node-version: 18
       - uses: pnpm/action-setup@v2
         with:
           version: 8.2.0
@@ -35,7 +30,5 @@ jobs:
           restore-keys: ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install
-
       - name: Unit Test
         run: pnpm run test
-
