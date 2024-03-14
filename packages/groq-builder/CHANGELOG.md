@@ -1,5 +1,15 @@
 # groq-builder
 
+## 0.9.0
+
+### Minor Changes
+
+- Releasing as a Release Candidate ([#266](https://github.com/FormidableLabs/groqd/pull/266))
+
+### Patch Changes
+
+- Fixed a type issue with `project`, where it would complain `argument [] is not assignable to 'never'` ([#266](https://github.com/FormidableLabs/groqd/pull/266))
+
 ## 0.5.0
 
 ### Minor Changes
