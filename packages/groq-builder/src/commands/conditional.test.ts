@@ -68,13 +68,13 @@ describe("conditional", () => {
   it("the query should look correct", () => {
     expect(qAll.query).toMatchInlineSnapshot(
       `
-      "*[_type == \\"variant\\"] {
+      "*[_type == "variant"] {
           name,
           price == msrp => {
-              \\"onSale\\": false
+              "onSale": false
             },
           price < msrp => {
-              \\"onSale\\": true,
+              "onSale": true,
               price,
               msrp
             }
@@ -112,7 +112,7 @@ describe("conditional", () => {
       });
       it("the query will also be missing the first conditionals", () => {
         expect(qIncorrect.query).toMatchInlineSnapshot(`
-          "*[_type == \\"variant\\"] {
+          "*[_type == "variant"] {
               name,
               second == condition => {
                   price
@@ -178,21 +178,21 @@ describe("conditional", () => {
 
       it("the query should be compiled correctly", () => {
         expect(qMultipleConditions.query).toMatchInlineSnapshot(`
-          "*[_type == \\"variant\\"] {
+          "*[_type == "variant"] {
               name,
               price == msrp => {
-                  \\"onSale\\": false
+                  "onSale": false
                 },
               price < msrp => {
-                  \\"onSale\\": true,
+                  "onSale": true,
                   price,
                   msrp
                 },
               another == condition1 => {
-                  \\"foo\\": \\"FOO\\"
+                  "foo": "FOO"
                 },
               another == condition2 => {
-                  \\"bar\\": \\"BAR\\"
+                  "bar": "BAR"
                 }
             }"
         `);

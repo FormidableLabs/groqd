@@ -15,7 +15,7 @@ describe("filter", () => {
       Array<SanitySchema.Variant>
     >();
     expect(qAnything.query).toMatchInlineSnapshot(
-      '"*[_type == \\"variant\\"][ANYTHING]"'
+      `"*[_type == "variant"][ANYTHING]"`
     );
   });
 

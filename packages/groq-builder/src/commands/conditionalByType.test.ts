@@ -86,16 +86,16 @@ describe("conditionalByType", () => {
       expect(qMultiple.query).toMatchInlineSnapshot(`
         "* {
             _type,
-            _type == \\"variant\\" => {
+            _type == "variant" => {
                 price
               },
-            _type == \\"product\\" => {
-                \\"slug\\": slug.current
+            _type == "product" => {
+                "slug": slug.current
               },
-            _type == \\"category\\" => {
+            _type == "category" => {
                 description
               },
-            _type == \\"style\\" => {
+            _type == "style" => {
                 name
               }
           }"
@@ -169,12 +169,12 @@ describe("conditionalByType", () => {
     expect(qAll.query).toMatchInlineSnapshot(`
       "* {
           _type,
-          _type == \\"product\\" => {
+          _type == "product" => {
               _type,
               name,
-              \\"slug\\": slug.current
+              "slug": slug.current
             },
-          _type == \\"variant\\" => {
+          _type == "variant" => {
               name,
               price
             }

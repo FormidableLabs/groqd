@@ -57,10 +57,10 @@ describe("fragment", () => {
 
     expect(qVariants.query).toMatchInlineSnapshot(
       `
-      "*[_type == \\"variant\\"] {
+      "*[_type == "variant"] {
           name,
           price,
-          \\"slug\\": slug.current
+          "slug": slug.current
         }"
     `
     );
@@ -77,10 +77,10 @@ describe("fragment", () => {
 
     expect(qVariantsPlus.query).toMatchInlineSnapshot(
       `
-      "*[_type == \\"variant\\"] {
+      "*[_type == "variant"] {
           name,
           price,
-          \\"slug\\": slug.current,
+          "slug": slug.current,
           msrp
         }"
     `
@@ -181,14 +181,14 @@ describe("fragment", () => {
 
     it("the query is compiled correctly", () => {
       expect(qConditional.query).toMatchInlineSnapshot(`
-        "*[_type == \\"variant\\"] {
-            \\"slug\\": slug.current,
+        "*[_type == "variant"] {
+            "slug": slug.current,
             name,
             price == msrp => {
-              \\"onSale\\": false
+              "onSale": false
             },
           price < msrp => {
-              \\"onSale\\": true,
+              "onSale": true,
               price,
               msrp
             }

@@ -50,7 +50,7 @@ describe("makeSafeQueryRunner", () => {
     // But actually, our result contains the query and options:
     expect(result).toMatchInlineSnapshot(`
       [
-        "*[_type == \\"variant\\"] {
+        "*[_type == "variant"] {
           name
         }",
         {},

@@ -78,11 +78,11 @@ describe("select", () => {
 
     it("the query should be formed correctly", () => {
       expect(qSelect.query).toMatchInlineSnapshot(`
-        "*[_type == \\"variant\\" || _type == \\"product\\" || _type == \\"category\\"] {
-            \\"selected\\": select(
-            _type == \\"variant\\" => \\"VARIANT\\",
-            _type == \\"product\\" => \\"PRODUCT\\",
-            \\"OTHER\\"
+        "*[_type == "variant" || _type == "product" || _type == "category"] {
+            "selected": select(
+            _type == "variant" => "VARIANT",
+            _type == "product" => "PRODUCT",
+            "OTHER"
           )
           }"
       `);
@@ -186,9 +186,9 @@ describe("select", () => {
     it("should fail with invalid data", async () => {
       await expect(() => executeBuilder(qSelect, invalidData)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
-        "2 Parsing Errors:
+        [ValidationErrors: 2 Parsing Errors:
         result[0].selected: Conditional parsing failed; all 2 conditions failed
-        result[2].selected: Conditional parsing failed; all 2 conditions failed"
+        result[2].selected: Conditional parsing failed; all 2 conditions failed]
       `);
     });
   });

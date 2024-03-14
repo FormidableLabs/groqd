@@ -34,7 +34,7 @@ describe("with zod", () => {
       });
 
       expect(qWithZod.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name, price, id }"'
+        `"*[_type == "variant"] { name, price, id }"`
       );
 
       expect(await executeBuilder(qWithZod, data)).toMatchInlineSnapshot(`
@@ -62,15 +62,15 @@ describe("with zod", () => {
       });
 
       expect(qWithZod.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name, price, id }"'
+        `"*[_type == "variant"] { name, price, id }"`
       );
 
       await expect(() => executeBuilder(qWithZod, data)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
-        "3 Parsing Errors:
+        [ValidationErrors: 3 Parsing Errors:
         result[0].price: Expected number, received null
         result[1].name: Expected string, received null
-        result[1].id: Expected string, received number"
+        result[1].id: Expected string, received number]
       `);
     });
   });
@@ -207,10 +207,10 @@ describe("with zod", () => {
 
         await expect(() => executeBuilder(qVariantSlugs, data)).rejects
           .toThrowErrorMatchingInlineSnapshot(`
-            "3 Parsing Errors:
-            result[0].SLUG: Expected string, received number
-            result[1].SLUG: Expected string, received null
-            result[2].SLUG: Expected string, received null"
+          [ValidationErrors: 3 Parsing Errors:
+          result[0].SLUG: Expected string, received number
+          result[1].SLUG: Expected string, received null
+          result[2].SLUG: Expected string, received null]
         `);
       });
     });

@@ -69,20 +69,20 @@ describe("GroqBuilder", () => {
     it("the query should look correct", () => {
       expect(getProductBySlug.query).toMatchInlineSnapshot(
         `
-        "*[_type == \\"product\\"][slug.current == $slug] {
+        "*[_type == "product"][slug.current == $slug] {
             _id,
             name,
-            \\"categories\\": categories[]-> {
+            "categories": categories[]-> {
               name
             },
-            \\"slug\\": slug.current,
-            \\"variants\\": variants[]-> {
+            "slug": slug.current,
+            "variants": variants[]-> {
               _id,
               name,
               msrp,
               price,
-              \\"slug\\": slug.current,
-              \\"style\\": style[]-> {
+              "slug": slug.current,
+              "style": style[]-> {
                 _id,
                 name
               }
