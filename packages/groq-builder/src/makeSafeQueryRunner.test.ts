@@ -18,11 +18,14 @@ describe("makeSafeQueryRunner", () => {
   it("should have correctly-typed extra parameters", () => {
     makeSafeQueryRunner<{ foo: "FOO"; bar?: "BAR" }>(async (query, options) => {
       expectTypeOf(query).toEqualTypeOf<string>();
-      expectTypeOf(options).toEqualTypeOf<{
-        parameters: {} | undefined;
-        foo: "FOO";
-        bar?: "BAR";
-      }>();
+      expectTypeOf(options).toEqualTypeOf<
+        {
+          parameters: {} | undefined;
+        } & {
+          foo: "FOO";
+          bar?: "BAR" | undefined;
+        }
+      >();
       return null;
     });
   });

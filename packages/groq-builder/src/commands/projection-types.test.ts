@@ -93,8 +93,8 @@ describe("projection-types", () => {
         expectTypeOf<ProjectionKeyValue<Item, "nested.arr[]">>().toEqualTypeOf<
           Array<number>
         >();
-        // @ts-expect-error -- Currently this isn't supported, so it's cast as 'never'
         expectTypeOf<ProjectionKeyValue<Item, "optional.str">>().toEqualTypeOf<
+          // @ts-expect-error -- Currently this isn't supported, so it's cast as 'never'
           string | null
         >();
       });
