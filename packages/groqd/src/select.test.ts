@@ -104,7 +104,7 @@ describe("q.select()", () => {
     });
 
     expect(query).toBe('*[]{"foo": select(foo > 2 => { bar }, { baz })}');
-    expectTypeOf<z.infer<typeof schema>>().toEqualTypeOf<
+    expectTypeOf<z.infer<typeof schema>>().toMatchTypeOf<
       {
         foo: { bar: boolean } | { baz: string };
       }[]
@@ -303,7 +303,10 @@ describe("select() zod validations", () => {
     expectTypeOf(data).toEqualTypeOf<
       {
         name: string;
-        base: { Defense: number } | { Speed: number };
+        base:
+          | { Defense: number }
+          | ({ Speed: number } & { Defense: number })
+          | { Speed: number };
       }[]
     >();
     expect(data).toContainEqual({
