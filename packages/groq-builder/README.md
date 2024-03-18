@@ -1,8 +1,3 @@
-# WARNING: this package is in "beta" state; feel free to use at your own risk
-
-> If you're looking for a feature-complete, strongly-typed Groq utility, please use [GroqD](https://formidable.com/open-source/groqd/).
-> This package aims to be a successor to GroqD, but is not yet feature-complete.  Please use at your own risk.
-
 # `groq-builder`
 
 A **schema-aware**, strongly-typed GROQ query builder.  
