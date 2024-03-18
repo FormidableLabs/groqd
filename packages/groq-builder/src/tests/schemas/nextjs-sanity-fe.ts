@@ -15,9 +15,11 @@ export namespace SanitySchema {
   // We're going to "reconstruct" our types here,
   // so that we get better type aliases when debugging:
 
-  type PromoteType<T extends { _type: string }> = {
-    _type: T["_type"];
-  } & Simplify<Omit<T, "_type">>;
+  type PromoteType<T extends { _type: string }> = Simplify<
+    {
+      _type: T["_type"];
+    } & Omit<T, "_type">
+  >;
 
   export type Description = SchemaValues["description"];
   export type Style = PromoteType<SchemaValues["style"]>;
