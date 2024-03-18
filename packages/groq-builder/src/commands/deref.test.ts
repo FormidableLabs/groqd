@@ -17,8 +17,6 @@ describe("deref", () => {
   const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
-    // I don't understand why this is now failing.
-    // switching to toMatchTypeOf seems to fix it, but that does not seem like the correct solution
     type CategoryInferenceResult = InferResultType<typeof qCategory>;
     expectTypeOf<CategoryInferenceResult>().toEqualTypeOf<SanitySchema.Category | null>();
     expect(qCategory.query).toMatchInlineSnapshot(
