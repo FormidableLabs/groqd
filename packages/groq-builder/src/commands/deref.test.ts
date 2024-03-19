@@ -17,8 +17,9 @@ describe("deref", () => {
   const qVariants = qVariantsRefs.deref();
 
   it("should deref a single item", () => {
-    type CategoryInferenceResult = InferResultType<typeof qCategory>;
-    expectTypeOf<CategoryInferenceResult>().toEqualTypeOf<SanitySchema.Category | null>();
+    expectTypeOf<
+      InferResultType<typeof qCategory>
+    >().toEqualTypeOf<SanitySchema.Category | null>();
     expect(qCategory.query).toMatchInlineSnapshot(
       `"*[_type == "product"][0].categories[][0]->"`
     );
