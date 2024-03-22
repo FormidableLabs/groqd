@@ -44,13 +44,13 @@ describe("slice", () => {
     it("query should be correct with inclusive ..", () => {
       const qSlice = qVariants.slice(5, 10, true);
       expect(qSlice.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"][5..10]"'
+        `"*[_type == "variant"][5..10]"`
       );
     });
     it("query should be correct with exclusive ...", () => {
       const qSlice = qVariants.slice(5, 10);
       expect(qSlice.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"][5...10]"'
+        `"*[_type == "variant"][5...10]"`
       );
     });
     it("should execute correctly", async () => {

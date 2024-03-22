@@ -35,9 +35,9 @@ describe("selectByType", () => {
 
     expect(qWithCb.query).toEqual(qWithoutCb.query);
     expect(qWithCb.query).toMatchInlineSnapshot(`
-      "*[_type == \\"product\\" || _type == \\"variant\\" || _type == \\"category\\"] {
-          \\"selected\\": select(
-            _type == \\"product\\" => \\"PRODUCT\\"
+      "*[_type == "product" || _type == "variant" || _type == "category"] {
+          "selected": select(
+            _type == "product" => "PRODUCT"
           )
         }"
     `);
@@ -79,13 +79,13 @@ describe("selectByType", () => {
 
     it("the query should be correct", () => {
       expect(qSelect.query).toMatchInlineSnapshot(`
-        "*[_type == \\"product\\" || _type == \\"variant\\" || _type == \\"category\\"] {
-            \\"selected\\": select(
-              _type == \\"product\\" =>  {
+        "*[_type == "product" || _type == "variant" || _type == "category"] {
+            "selected": select(
+              _type == "product" =>  {
                 _type,
                 name
               },
-              _type == \\"variant\\" =>  {
+              _type == "variant" =>  {
                 _type,
                 name,
                 price
@@ -161,11 +161,11 @@ describe("selectByType", () => {
 
     it("the query should be correct", () => {
       expect(qSelect.query).toMatchInlineSnapshot(`
-        "*[_type == \\"product\\" || _type == \\"variant\\" || _type == \\"category\\"] {
-            \\"selected\\": select(
-              _type == \\"product\\" => name,
-              _type == \\"variant\\" => price,
-              \\"UNKNOWN\\"
+        "*[_type == "product" || _type == "variant" || _type == "category"] {
+            "selected": select(
+              _type == "product" => name,
+              _type == "variant" => price,
+              "UNKNOWN"
             )
           }"
       `);
@@ -268,9 +268,9 @@ describe("selectByType", () => {
     it("should fail with invalid data", async () => {
       await expect(() => executeBuilder(qSelect, invalidData)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
-        "2 Parsing Errors:
+        [ValidationErrors: 2 Parsing Errors:
         result[0].selected: Conditional parsing failed; all 2 conditions failed
-        result[2].selected: Conditional parsing failed; all 2 conditions failed"
+        result[2].selected: Conditional parsing failed; all 2 conditions failed]
       `);
     });
   });

@@ -16,6 +16,8 @@ pnpm run build
 
 ## Run tests
 
+Test are written using [vitest](https://www.npmjs.com/package/vitest). To run tests, node 18 or later must be used.
+
 ```sh
 pnpm run test
 

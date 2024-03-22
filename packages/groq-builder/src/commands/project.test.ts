@@ -38,7 +38,7 @@ describe("project (object projections)", () => {
 
     it("should have the correct query", () => {
       expect(qRoot.query).toMatchInlineSnapshot(
-        '" { \\"productNames\\": *[_type == \\"product\\"].name, \\"categoryNames\\": *[_type == \\"category\\"].name }"'
+        `" { "productNames": *[_type == "product"].name, "categoryNames": *[_type == "category"].name }"`
       );
     });
 
@@ -87,7 +87,7 @@ describe("project (object projections)", () => {
     });
     it("query should be typed correctly", () => {
       expect(qName.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name }"'
+        `"*[_type == "variant"] { name }"`
       );
 
       expectTypeOf<InferResultType<typeof qName>>().toEqualTypeOf<
@@ -130,7 +130,7 @@ describe("project (object projections)", () => {
     });
     it("query should be typed correctly", () => {
       expect(qMultipleFields.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { id, name, price, msrp }"'
+        `"*[_type == "variant"] { id, name, price, msrp }"`
       );
 
       expectTypeOf<InferResultType<typeof qMultipleFields>>().toEqualTypeOf<
@@ -189,7 +189,7 @@ describe("project (object projections)", () => {
     });
     it("query should be typed correctly", () => {
       expect(qValidation.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name, price }"'
+        `"*[_type == "variant"] { name, price }"`
       );
 
       expectTypeOf<InferResultType<typeof qValidation>>().toEqualTypeOf<
@@ -285,7 +285,7 @@ describe("project (object projections)", () => {
 
     it("query should be correct", () => {
       expect(qNakedProjections.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { \\"NAME\\": name, \\"SLUG\\": slug.current, msrp }"'
+        `"*[_type == "variant"] { "NAME": name, "SLUG": slug.current, msrp }"`
       );
     });
 
@@ -318,7 +318,7 @@ describe("project (object projections)", () => {
 
     it("query should be correct", () => {
       expect(qNakedProjections.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { \\"NAME\\": name, \\"SLUG\\": slug.current, msrp }"'
+        `"*[_type == "variant"] { "NAME": name, "SLUG": slug.current, msrp }"`
       );
     });
 
@@ -340,7 +340,7 @@ describe("project (object projections)", () => {
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { \\"NAME\\": name }"'
+        `"*[_type == "variant"] { "NAME": name }"`
       );
     });
 
@@ -385,7 +385,7 @@ describe("project (object projections)", () => {
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name, \\"slug\\": slug.current, \\"images\\": images[].name }"'
+        `"*[_type == "variant"] { name, "slug": slug.current, "images": images[].name }"`
       );
     });
 
@@ -452,7 +452,7 @@ describe("project (object projections)", () => {
 
     it("query should be correct", () => {
       expect(qNested.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name, \\"images\\": images[] { name, description } }"'
+        `"*[_type == "variant"] { name, "images": images[] { name, description } }"`
       );
     });
 
@@ -510,8 +510,8 @@ describe("project (object projections)", () => {
       await expect(() =>
         executeBuilder(qNested, { datalake: dataWithInvalidData })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "1 Parsing Error:
-        result[0].images[0].description: Expected string, received number"
+        [ValidationErrors: 1 Parsing Error:
+        result[0].images[0].description: Expected string, received number]
       `);
     });
   });
@@ -526,7 +526,7 @@ describe("project (object projections)", () => {
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name, \\"slug\\": slug.current, price, \\"IMAGES\\": images[].name }"'
+        `"*[_type == "variant"] { name, "slug": slug.current, price, "IMAGES": images[].name }"`
       );
     });
 
@@ -603,7 +603,7 @@ describe("project (object projections)", () => {
     });
     it("the query shouldn't be affected", () => {
       expect(qParser.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { name, msrp, price }"'
+        `"*[_type == "variant"] { name, msrp, price }"`
       );
     });
     it("should execute correctly", async () => {
@@ -650,8 +650,8 @@ describe("project (object projections)", () => {
 
       await expect(() => executeBuilder(qParser, { datalake: invalidData }))
         .rejects.toThrowErrorMatchingInlineSnapshot(`
-        "1 Parsing Error:
-        result[5].price: Expected number, received string"
+        [ValidationErrors: 1 Parsing Error:
+        result[5].price: Expected number, received string]
       `);
     });
   });
@@ -669,7 +669,7 @@ describe("project (object projections)", () => {
           price: true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"price\\""'
+        `[TypeError: [groq-builder] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a projection uses a naked projection", () => {
@@ -678,7 +678,7 @@ describe("project (object projections)", () => {
           price: "price",
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"price\\""'
+        `[TypeError: [groq-builder] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a nested projection is missing a parser", () => {
@@ -687,7 +687,7 @@ describe("project (object projections)", () => {
           nested: qV.field("price"),
         }))
       ).toThrowErrorMatchingInlineSnapshot(
-        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"nested\\""'
+        `[TypeError: [groq-builder] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "nested"]`
       );
     });
     it("should throw when using ellipsis operator ...", () => {
@@ -696,7 +696,7 @@ describe("project (object projections)", () => {
           "...": true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        '"[groq-builder] Because \'validationRequired\' is enabled, every field must have validation (like `q.string()`), but the following fields are missing it: \\"...\\""'
+        `[TypeError: [groq-builder] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "..."]`
       );
     });
     it("should work just fine when validation is provided", () => {
@@ -707,11 +707,11 @@ describe("project (object projections)", () => {
         price4: qV.field("price").validate(q.number()),
       }));
       expect(qNormal.query).toMatchInlineSnapshot(`
-        "*[_type == \\"variant\\"][0] {
+        "*[_type == "variant"][0] {
             price,
-            \\"price2\\": price,
-            \\"price3\\": price,
-            \\"price4\\": price
+            "price2": price,
+            "price3": price,
+            "price4": price
           }"
       `);
       expectTypeOf<InferResultType<typeof qNormal>>().toEqualTypeOf<{
@@ -730,7 +730,7 @@ describe("project (object projections)", () => {
     }));
     it("query should be correct", () => {
       expect(qEllipsis.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"] { ..., \\"OTHER\\": name }"'
+        `"*[_type == "variant"] { ..., "OTHER": name }"`
       );
     });
 

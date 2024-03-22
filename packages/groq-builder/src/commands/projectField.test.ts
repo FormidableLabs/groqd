@@ -28,16 +28,14 @@ describe("field (naked projections)", () => {
       Array<number>
     >();
     expect(qPrices.query).toMatchInlineSnapshot(
-      '"*[_type == \\"variant\\"].price"'
+      `"*[_type == "variant"].price"`
     );
   });
   it("can project a string", () => {
     expectTypeOf<InferResultType<typeof qNames>>().toEqualTypeOf<
       Array<string>
     >();
-    expect(qNames.query).toMatchInlineSnapshot(
-      '"*[_type == \\"variant\\"].name"'
-    );
+    expect(qNames.query).toMatchInlineSnapshot(`"*[_type == "variant"].name"`);
   });
   it("can project arrays with []", () => {
     type ResultType = InferResultType<typeof qImages>;
@@ -98,7 +96,7 @@ describe("field (naked projections)", () => {
         Array<string>
       >();
       expect(qSlugs.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"].slug.current"'
+        `"*[_type == "variant"].slug.current"`
       );
     });
 
@@ -121,7 +119,7 @@ describe("field (naked projections)", () => {
     });
     it("should result in the right query", () => {
       expect(qPrice.query).toMatchInlineSnapshot(
-        '"*[_type == \\"variant\\"][0].price"'
+        `"*[_type == "variant"][0].price"`
       );
     });
     it("should execute correctly", async () => {

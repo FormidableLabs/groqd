@@ -21,7 +21,7 @@ describe("deref", () => {
       InferResultType<typeof qCategory>
     >().toEqualTypeOf<SanitySchema.Category | null>();
     expect(qCategory.query).toMatchInlineSnapshot(
-      '"*[_type == \\"product\\"][0].categories[][0]->"'
+      `"*[_type == "product"][0].categories[][0]->"`
     );
   });
 
@@ -30,7 +30,7 @@ describe("deref", () => {
       InferResultType<typeof qVariants>
     >().toEqualTypeOf<Array<SanitySchema.Variant> | null>();
     expect(qVariants.query).toMatchInlineSnapshot(
-      '"*[_type == \\"product\\"][0].variants[]->"'
+      `"*[_type == "product"][0].variants[]->"`
     );
   });
 
