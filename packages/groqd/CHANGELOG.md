@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.11
+
+### Patch Changes
+
+- bump Sanity to 3.15.0. bump vitest to 1.3.1 ([#278](https://github.com/FormidableLabs/groqd/pull/278))
+
 ## 0.15.10
 
 ### Patch Changes
