@@ -1,6 +1,6 @@
 {
   "name": "playground-example",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "sample sanity project to test out the groqd-playground package",
   "scripts": {
