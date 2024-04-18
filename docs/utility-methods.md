@@ -142,7 +142,7 @@ Sanity's image document has fields for hotspot information, which you can query 
 q("*")
   .filter("_type == 'pokemon'")
   .grab({
-    cover: sanityImage("cover", { withHotpot: true }), // 👈 fetch hotspot info
+    cover: sanityImage("cover", { withHotspot: true }), // 👈 fetch hotspot info
   });
 
 // -> { cover: { ..., hotspot: { x: number; y: number; height: number; width: number; } | null } }[]
