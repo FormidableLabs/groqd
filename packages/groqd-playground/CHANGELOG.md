@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.19
+
+### Patch Changes
+
+- Bump sanity/ui to version 2 ([#283](https://github.com/FormidableLabs/groqd/pull/283))
+
+- bump Sanity to 3.15.0. bump vitest to 1.3.1 ([#278](https://github.com/FormidableLabs/groqd/pull/278))
+
+- security update: bump sanity to 3.14.0 ([#277](https://github.com/FormidableLabs/groqd/pull/277))
+
+- Updated dependencies [[`38f3f23`](https://github.com/FormidableLabs/groqd/commit/38f3f233398cf360a4be2f76ec908857946be64c)]:
+  - groqd@0.15.11
+
 ## 0.0.18
 
 ### Patch Changes
