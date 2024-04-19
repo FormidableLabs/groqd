@@ -519,7 +519,7 @@ const EDITOR_URL =
   typeof process !== "undefined" &&
   process?.env?.SANITY_STUDIO_GROQD_PLAYGROUND_ENV === "development"
     ? "http://localhost:3069"
-    : "https://unpkg.com/groqd-playground-editor@0.0.5/build/index.html";
+    : "https://unpkg.com/groqd-playground-editor@0.0.6/build/index.html";
 const EDITOR_ORIGIN = new URL(EDITOR_URL).origin;
 
 type Params = Record<string, string | number>;
