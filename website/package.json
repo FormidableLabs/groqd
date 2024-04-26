@@ -26,6 +26,7 @@
     "@uiw/react-split": "^5.8.10",
     "autoprefixer": "^10.4.14",
     "clsx": "^1.2.1",
+    "formidable-oss-badges": "^1.4.1",
     "glob": "^10.0.0",
     "groq-js": "^1.1.1",
     "groqd": "workspace:*",
