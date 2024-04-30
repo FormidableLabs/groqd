@@ -11,6 +11,7 @@ import {
   feature2,
   feature3,
 } from "../components/landing/landing-images";
+import { Divider } from "../components/landing/divider";
 
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
@@ -36,36 +37,43 @@ export default function Home(): JSX.Element {
         list={[
           {
             imgSrc: feature1,
-            alt: "robust",
-            title: "Robust",
+            alt: "Flexible",
+            title: "Flexible",
             html: {
-              __html:
-                "The <code>useSwipeable</code> hook provides you with all the information you need to know about a user's swipe behavior.",
+              __html: "GROQD maintains the flexibility of GROQ.",
             },
           },
           {
             imgSrc: feature2,
-            alt: "flexible",
-            title: "Flexible",
+            alt: "Runtime Safe",
+            title: "Runtime Safe",
             html: {
               __html:
-                "<code>useSwipeable</code> is minimal, versatile and flexible. It can be attached to any HTML element, which allows for unlimited possibilities in component design.",
+                "Automatically layers in the runtime safety of <a href='https://github.com/colinhacks/zod' target='_blank'>Zod</a>.",
             },
           },
           {
             imgSrc: feature3,
-            alt: "powered by react",
-            title: "Powered by React",
-            body: "Swipeable leverages the power of React's declarative and component-based architecture for immersive swipe interactions.",
+            alt: "Type Safe",
+            title: "Type Safe",
+            body: "Leverages the type safety of TypeScript.",
           },
         ]}
       />
-      <LandingBanner
-        showDivider
-        heading="Get Started"
-        body="Implement a robust, flexible and dynamic Swipeable component today!"
-        cta={{ link: "/open-source/groqd/docs", text: "Documentation" }}
-      />
+      <Divider />
+      <div className="flex gap-20 flex-col md:flex-row mx-16 lg:mx-32 xl:mx-64">
+        <LandingBanner
+          heading="Get Started"
+          body="Get the flexibility of GROQ with the runtime/type safety of Zod and TypeScript today!"
+          cta={{ link: "/open-source/groqd/docs", text: "Documentation" }}
+        />
+        <LandingBanner
+          heading="GROQD Arcade"
+          body="View sample queries, and play with live examples in the GROQD Arcade."
+          cta={{ link: "/open-source/groqd/arcade", text: "Arcade" }}
+        />
+      </div>
+      <Divider />
       <LandingFeaturedProjects
         heading="Other Open Source from Nearform_Commerce"
         projects={[
