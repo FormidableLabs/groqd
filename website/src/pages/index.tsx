@@ -20,10 +20,10 @@ export default function Home(): JSX.Element {
         <LandingHero
           heading={siteConfig.title}
           body={siteConfig.tagline}
-          copyText="npm add react-swipeable"
+          copyText="npm install groqd"
           navItems={[
             { link: "/open-source/groqd/docs", title: "Documentation" },
-            { link: "/open-source/groqd/docs/examples/", title: "Demo" },
+            { link: "/open-source/groqd/arcade", title: "Demo" },
             {
               link: "https://github.com/FormidableLabs/groqd",
               title: "Github",
