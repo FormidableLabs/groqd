@@ -6,7 +6,7 @@ slug: /
 
 # Introduction
 
-[![GROQD — Formidable, We build the modern web](https://raw.githubusercontent.com/FormidableLabs/groqd/main/groqd-Hero.png)](https://formidable.com/open-source/)
+[![GROQD](https://oss.nearform.com/api/banner?badge=groqd&bg=c99f46)](https://commerce.nearform.com/open-source/groqd)
 
 
 `groqd` is a schema-unaware, runtime-safe query builder for [GROQ](https://www.sanity.io/docs/groq). **The goal of `groqd` is to give you (most of) the flexibility of GROQ, with the runtime/type safety of [Zod](https://github.com/colinhacks/zod) and TypeScript.**
