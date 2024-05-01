@@ -80,7 +80,7 @@ q("*").grab({
 });
 ```
 
-See [Schema Types](/schema-types) for available schema options, such as `q.string()`. These generally correspond to Zod primitives, so you can do something like:
+See [Schema Types](/docs/schema-types) for available schema options, such as `q.string()`. These generally correspond to Zod primitives, so you can do something like:
 
 ```ts
 q("*").grab({
@@ -120,11 +120,11 @@ type SanityPokemon = InferType<typeof pokemonQuery>
 //       )[]
 ```
 
-If you find that you are using the conditional argument with an empty base selection, we recommend using the [.select](/query-building#select) method instead.
+If you find that you are using the conditional argument with an empty base selection, we recommend using the [.select](/docs/query-building#select) method instead.
 
 ## `.grab$`
 
-Just like `.grab`, but uses the `nullToUndefined` helper [outlined here](/utility-methods#nulltoundefined) to convert `null` values to `undefined` which makes writing queries with "optional" values a bit easier.
+Just like `.grab`, but uses the `nullToUndefined` helper [outlined here](/docs/utility-methods#nulltoundefined) to convert `null` values to `undefined` which makes writing queries with "optional" values a bit easier.
 
 ```ts
 q("*")
