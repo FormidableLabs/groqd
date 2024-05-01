@@ -75,7 +75,7 @@ export default function Home(): JSX.Element {
       </div>
       <Divider />
       <LandingFeaturedProjects
-        heading="Other Open Source from Nearform_Commerce"
+        heading="Other Open Source"
         projects={[
           {
             name: "nuka",
@@ -84,10 +84,10 @@ export default function Home(): JSX.Element {
               "Small, fast and accessibility-first React carousel library with easily customizable UI and behavior to fit your brand and site.",
           },
           {
-            name: "spectacle",
-            link: "https://commerce.nearform.com/open-source/spectacle",
+            name: "figlog",
+            link: "https://www.figma.com/community/widget/1293230657540297914",
             description:
-              "A React.js based library for creating sleek presentations using JSX syntax with the ability to live demo your code!",
+              "The easiest and most efficient way to document team decisions and the evolution of your changes in Figma.",
           },
           {
             name: "envy",
