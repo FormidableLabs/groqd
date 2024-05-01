@@ -21,7 +21,6 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
-          editUrl: "https://github.com/FormidableLabs/groqd/tree/main/website",
         },
         blog: false,
         theme: {
