@@ -36,7 +36,7 @@ Have a question about Groqd? Submit an issue in this repository using the
 
 Notice something inaccurate or confusing? Feel free to [open an issue](https://github.com/FormidableLabs/groqd/issues/new/choose) or [make a pull request](https://github.com/FormidableLabs/groqd/pulls) to help improve the documentation for everyone!
 
-The source for our docs site lives in this repo in the [`docs`](https://github.com/FormidableLabs/groqd/blob/main/docs) folder.
+The source for our docs site lives in this repo in the [`docs`](https://github.com/FormidableLabs/groqd/blob/main/website/docs) folder.
 
 ## Contributing
 
