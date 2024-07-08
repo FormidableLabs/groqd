@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.12
+
+### Patch Changes
+
+- Updated README to fix banner, add Support link ([#291](https://github.com/FormidableLabs/groqd/pull/291))
+
 ## 0.15.11
 
 ### Patch Changes
