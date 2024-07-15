@@ -49,7 +49,7 @@ export type ExtractTypeNames<TResultItem> = Extract<
 >["_type"];
 
 export type RefType<referenceSymbol extends symbol, TTypeName> = {
-  [P in referenceSymbol]: TTypeName;
+  [P in referenceSymbol]?: TTypeName;
 };
 
 export type ExtractRefType<TResultItem, TQueryConfig extends QueryConfig> =
