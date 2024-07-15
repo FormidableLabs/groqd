@@ -74,8 +74,8 @@ export type Variant = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  name?: string;
-  slug?: Slug;
+  name: string;
+  slug: Slug;
   description?: Array<{
     children?: Array<{
       marks?: Array<string>;
@@ -95,8 +95,8 @@ export type Variant = {
     _key: string;
   }>;
   id?: string;
-  msrp?: number;
-  price?: number;
+  msrp: number;
+  price: number;
   images?: Array<{
     asset?: {
       _ref: string;
@@ -106,7 +106,7 @@ export type Variant = {
     };
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    name?: string;
+    name: string;
     description?: string;
     _type: "productImage";
     _key: string;
@@ -134,7 +134,7 @@ export type Style = {
   _updatedAt: string;
   _rev: string;
   name?: string;
-  slug?: Slug;
+  slug: Slug;
 };
 
 export type SiteSettings = {
@@ -157,7 +157,7 @@ export type ProductImage = {
   };
   hotspot?: SanityImageHotspot;
   crop?: SanityImageCrop;
-  name?: string;
+  name: string;
   description?: string;
 };
 
@@ -167,7 +167,7 @@ export type Product = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  name?: string;
+  name: string;
   description?: Array<{
     children?: Array<{
       marks?: Array<string>;
@@ -186,7 +186,7 @@ export type Product = {
     _type: "block";
     _key: string;
   }>;
-  slug?: Slug;
+  slug: Slug;
   categories?: Array<{
     _ref: string;
     _type: "reference";
@@ -215,7 +215,7 @@ export type Flavour = {
   _updatedAt: string;
   _rev: string;
   name?: string;
-  slug?: Slug;
+  slug: Slug;
 };
 
 export type Description = Array<{
@@ -243,9 +243,9 @@ export type CategoryImage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  name?: string;
+  name: string;
   description?: string;
-  images?: {
+  images: {
     asset?: {
       _ref: string;
       _type: "reference";
@@ -321,9 +321,9 @@ export type Category = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  name?: string;
+  name: string;
   description?: string;
-  slug?: Slug;
+  slug: Slug;
   images?: Array<{
     _ref: string;
     _type: "reference";
@@ -335,7 +335,7 @@ export type Category = {
 
 export type Slug = {
   _type: "slug";
-  current?: string;
+  current: string;
   source?: string;
 };
 
