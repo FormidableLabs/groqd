@@ -1,7 +1,7 @@
 # `groq-builder`
 
 A **schema-aware**, strongly-typed GROQ query builder.  
-It enables you to use **auto-completion** and **type-checking** for your GROQ queries.
+It enables you to build GROQ queries using **auto-completion**, **type-checking**, and **runtime validation**.
 
 <details>
 <summary>What is GROQ?</summary>
@@ -14,9 +14,9 @@ It enables you to use **auto-completion** and **type-checking** for your GROQ qu
 
 ## Features
 
-- **Schema-aware** - Use your `sanity.config.ts` for auto-completion and type-checking
-- **Strongly-typed** - Query results are strongly typed, based on the schema
-- **Optional runtime validation** - Validate or transform query results at run-time, with broad or granular levels
+- **Schema-aware** - uses your `sanity.config.ts` schema for auto-completion and type-checking.
+- **Strongly-typed** - query results are strongly typed, based on your Sanity schema.
+- **Runtime validation** - validate, parse, and transform query results at run-time, with broad or granular levels.
 
 ## Brought to you by the team behind `GroqD`
 
@@ -108,86 +108,46 @@ const products = q.star.filterByType('products').project(q => ({
 ```
 
 
-## Schema Configuration
+## Sanity Schema Configuration
 
-The entry-point to this library is the `createGroqBuilder<SchemaConfig>()` function, which returns a strongly-typed `q` object.  You must supply the `SchemaConfig` type parameter, which lists all document types from your Sanity Schema.
+To support auto-completion and maximum type-safety, you must configure `groq-builder` by providing type information for your Sanity Schema.
 
-There are 2 approaches for creating this Schema. You can specify the Schema manually, or you can auto-generate the types based on your `sanity.config.ts`.
+Fortunately, the Sanity CLI supports a `typegen` command that will generate the Sanity Schema Types for you!
 
-### Manually typing your Sanity Schema
+### Generating Sanity Schema Types
 
-The simplest way to create a Sanity Schema is to manually specify the document types.  Here's a working example:
-
-```ts
-import { createGroqBuilder } from './index';
-
-declare const references: unique symbol;
-type Product = {
-  _type: "product";
-  _id: string;
-  name: string;
-  price: number;
-  images: Array<{ width: number; height: number; url: string; }>;
-  category: { _type: "reference"; _ref: string; [references]: "category"; };
-}
-type Category = {
-  _type: "category";
-  _id: string;
-  name: string;
-  products: Array<{ _type: "reference"; _ref: string; [references]: "product"; }>;
-}
-
-export type SchemaConfig = {
-  documentTypes: Product | Category;
-  referenceSymbol: typeof references;
-}
-
-export const q = createGroqBuilder<SchemaConfig>();
-```
-
-The only complexity is how **references** are handled.  In the Sanity data, the `reference` object doesn't say what kind of document it's referencing.  We have to add this type information, using a unique symbol.  So above, we added  `[references]: "category"` to capture the reference type.  This information is used by the `.deref()` method to ensure we follow references correctly.
-
-### Automatically generating your Sanity Schema
-
-Fortunately, there is a way to automatically generate the Sanity Schema, using the Sanity configuration itself (`sanity.config.ts`).  This workflow has 2 steps: inferring types from the config, then copying the compiled types to your application.
-
-#### Augment your `sanity.config.ts` to infer the types
-
-In the repo with your Sanity configuration (`sanity.config.ts`), [use the `@sanity-typed/types` library](https://www.sanity.io/plugins/sanity-typed-types) to augment your configuration code.  
-
-This is pretty easy, and involves:
-- Changing your imports `from 'sanity';` to `from '@sanity-typed/types'`
-- Adding `as const` in a few places (according to the docs)
-
-Then, in your `schema.config.ts`, you infer all document types by adding: 
-```ts
-import { InferSchemaValues } from '@sanity-typed/types';
-export type SanityValues = InferSchemaValues<typeof config>;
-```
-
-
-#### Compile the types and copy to your application
-
-Now that you've got the `SanityValues` type, you'll need to compile the types, and copy them to your application (where you're using `groq-builder`).  
-
-Normally you could use `tsc` to compile the types, and copy them over.  However, there is a far better approach: use [the `ts-simplify` CLI tool](https://www.npmjs.com/package/ts-simplify) to compile and simplify the types.
-
-From your Sanity repo, run:
+First, in your Sanity Studio project (where you have your `sanity.config.ts`), follow [the Sanity documentation](https://www.sanity.io/docs/sanity-typegen) to run the following commands:
 ```sh
-npx ts-simplify ./sanity.config.ts ./sanity-schema.ts
+sanity schema extract --enforce-required-fields
+sanity typegen generate
 ```
 
-This generates a `./sanity-schema.ts` file that has no dependencies, just the Sanity types!  
+This generates a `sanity.types.ts` file, which contains type definitions for all your Sanity documents.
 
-Move this file to your application (where you're using `groq-builder`), and finally, glue it all together like so:
+Second, copy the newly generated `sanity.types.ts` into your application (where you intend to use `groq-builder`).  
 
-`./q.ts`
+
+### Configuring `groq-builder` with your Sanity Schema:
+
+In your application, you can create a strongly-typed `groq-builder` using the following snippet:
+
 ```ts
-import { createGroqBuilder, ExtractDocumentTypes } from 'groq-builder';
-import { referenced, SanityValues } from './sanity-schema'; // This is the generated file
+// ./q.ts
+import { createGroqBuilder } from 'groq-builder';
+import {
+  AllSanitySchemaTypes,
+  internalGroqTypeReferenceTo,
+} from "./sanity.types.ts";
 
 export const q = createGroqBuilder<{
-  documentTypes: ExtractDocumentTypes<SanityValues>;
-  referenceSymbol: typeof referenced;
+  documentTypes: AllSanitySchemaTypes,
+  referenceSymbol: typeof internalGroqTypeReferenceTo;
 }>();
+```
+
+And that's it!  Wherever you write queries, be sure to import this strongly-typed `q` and you'll get full auto-completion and type-safety! 
+```ts
+import { q } from './q';
+
+const productQuery = q.star.filterByType('product');
 ```
