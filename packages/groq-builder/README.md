@@ -3,9 +3,14 @@
 A **schema-aware**, strongly-typed GROQ query builder.  
 It enables you to use **auto-completion** and **type-checking** for your GROQ queries.
 
-### In case you're wondering "What is GROQ?" 
-From https://www.sanity.io/docs/groq:
-> "GROQ is Sanity's open-source query language. It's a powerful and intuitive language that's easy to learn. With GROQ you can describe exactly what information your application needs, join information from several sets of documents, and stitch together a very specific response with only the exact fields you need."
+<details>
+<summary>What is GROQ?</summary>
+
+[GROQ is Sanity's open-source query language.](https://www.sanity.io/docs/groq)
+
+> "It's a powerful and intuitive language that's easy to learn. With GROQ you can describe exactly what information your application needs, join information from several sets of documents, and stitch together a very specific response with only the exact fields you need."
+
+</details>
 
 ## Features
 
