@@ -2,9 +2,10 @@
 import "./groq-builder";
 import "./commands";
 
-import type { RootQueryConfig } from "./types/schema-types";
+import type { QueryConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
 import { zod } from "./validation/zod";
+import type { Override } from "./types/utils";
 
 // Re-export all our public types:
 export * from "./groq-builder";
@@ -12,6 +13,22 @@ export * from "./types/public-types";
 export * from "./types/schema-types";
 export { zod } from "./validation/zod";
 export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
+
+export type RootQueryConfig = Override<
+  QueryConfig,
+  {
+    /**
+     * All possible schema types, as exported from sanity.types.ts.
+     */
+    documentTypes: object; // We'll filter out non-documents later
+  }
+>;
+type ExtractQueryConfig<TRootConfig extends RootQueryConfig> =
+  // Filter out all non-documents:
+  Override<
+    TRootConfig,
+    { documentTypes: Extract<TRootConfig["documentTypes"], { _type: string }> }
+  >;
 
 /**
  * Creates the root `q` query builder.
@@ -29,7 +46,8 @@ export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 export function createGroqBuilder<TRootConfig extends RootQueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
-  const q = new GroqBuilder<RootResult, TRootConfig>({
+  type TQueryConfig = ExtractQueryConfig<TRootConfig>;
+  const q = new GroqBuilder<RootResult, TQueryConfig>({
     query: "",
     parser: null,
     options,
