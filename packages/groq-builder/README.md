@@ -18,6 +18,10 @@ It enables you to use **auto-completion** and **type-checking** for your GROQ qu
 - **Strongly-typed** - Query results are strongly typed, based on the schema
 - **Optional runtime validation** - Validate or transform query results at run-time, with broad or granular levels
 
+## Brought to you by the team behind `GroqD`
+
+`groq-builder` is the successor to `GroqD`.  In addition to runtime validation and strongly-typed results, `groq-builder` adds schema-awareness and auto-completion.
+
 ## Example
 
 ```ts
@@ -44,11 +48,13 @@ const productsQuery = (
 ```
 In the above query, ALL fields are strongly-typed, according to the Sanity schema defined in `sanity.config.ts`!  
 
-- All strings like `'products'`, `'price desc'`, and `'images[]'` are strongly-typed, based on the matching field definitions.
-- In the projection, `name` and `price` are strongly-typed based on the fields of `product`.
-- In the projection, sub-queries are strongly typed too.
+- All the strings above are strongly-typed, based on field definitions, including `'products'`, `'price desc'`, `'slug.current'`, `'images[]'`, and `'url'`.
+- In the projection, the keys `name` and `price` have auto-completion, and are strongly-typed, based on the fields of `product`.
+- In the projection, the keys `slug` and `imageUrls` are strongly-typed based on their sub-queries.
 
-This example generates the following GROQ query:
+### Example Query:
+
+This example above generates the following GROQ query:
 ```groq
 *[_type == "products"] | order(price desc)[0...10] {
   name,
@@ -59,9 +65,9 @@ This example generates the following GROQ query:
 ```
 
 
-## Query Result Types
+### Example Types:
 
-The above `productsQuery` example generates the following results type:
+The example above also generates the following result type:
 
 ```ts
 import type { InferResultType } from 'groq-builder';
@@ -76,28 +82,31 @@ type ProductsQueryResult = Array<{
 }>;
 ```
 
-## Optional Runtime Validation and Custom Parsing
+## Runtime Validation
 
-You can add custom runtime validation and/or parsing logic into your queries, using the `validate` method.  
-
-The `validate` function accepts a simple function:
+`groq-builder` enables effortless runtime validation using [Zod](https://zod.dev/): 
 
 ```ts
-const products = q.star.filterByType('products').project(q => ({
-  name: true,
-  price: true,
-  priceFormatted: q.field("price").validate(price => formatCurrency(price)),
-}));
-```
+import { z } from 'zod';
 
-It is also compatible with [Zod](https://zod.dev/), and can take any Zod parser or validation logic:
-```ts
 const products = q.star.filterByType('products').project(q => ({
   name: z.string(),
-  slug: ["slug.current", z.string().optional()],
-  price: q.field("price").validate(z.number().nonnegative()),
+  slug: ["slug.current", z.string()],
+  price: q.field("price", z.number().nonnegative()),
 }));
 ```
+
+## Custom Parsing
+
+Validation methods can include custom validation and/or parsing logic too:
+
+```ts
+const products = q.star.filterByType('products').project(q => ({
+  price: z.number(),
+  priceFormatted: q.field("price", price => formatCurrency(price)),
+}));
+```
+
 
 ## Schema Configuration
 
