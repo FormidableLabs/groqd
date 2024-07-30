@@ -33,15 +33,6 @@ export type QueryConfig = {
   parameters?: {};
 };
 
-/**
- * Extracts all document types from an inferred schema.
- * The inferred schema type should look like { [string]: Document }
- */
-export type ExtractDocumentTypes<TInferredSchemaConfigValues> = Extract<
-  TInferredSchemaConfigValues[keyof TInferredSchemaConfigValues],
-  { _type: string }
->;
-
 export type ExtractTypeNames<TResultItem> = Extract<
   TResultItem,
   { _type: string }
