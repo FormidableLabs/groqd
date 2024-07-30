@@ -18,6 +18,7 @@ module.exports = () => {
     for (let j = 0; j < numItems; j++) {
       data.push({
         _id: nanoid(),
+        _type: "todo",
         user: { _type: "reference", _ref: userId },
         title: faker.lorem.sentence(8),
         completed: Math.random() >= 0.5,
