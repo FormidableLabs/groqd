@@ -18,7 +18,14 @@ export type RootQueryConfig = Override<
   QueryConfig,
   {
     /**
-     * All possible schema types, as exported from sanity.types.ts.
+     * This is a union of all possible document types,
+     * according to your Sanity config.
+     *
+     * You can automatically generate these types using the
+     * `sanity typegen generate` command in your Sanity Studio project.
+     *
+     * Alternatively, you can use `any`, which disables schema-awareness,
+     * but still allows strongly-typed query results.
      */
     documentTypes: object; // We'll filter out non-documents later
   }
@@ -33,15 +40,21 @@ type ExtractQueryConfig<TRootConfig extends RootQueryConfig> =
 /**
  * Creates the root `q` query builder.
  *
- * Does not include runtime validation methods like `q.string()`.
- * Instead, you have 3 options:
- * - You can import `zod` and use `zod.string()` instead of `q.string()`
- * - You can use inferred types without runtime validation
- * - You can provide your own validation methods
- * The Zod dependency can be tree-shaken with the latter 2 approaches.
+ * This method does not include the `zod` utilities
+ * for runtime validation, like `q.string()`;
+ * see `createGroqBuilderWithZod` for more information.
  *
- * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
- * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
+ * @example
+ * import { createGroqBuilder } from 'groq-builder';
+ * import {
+ *   AllSanitySchemaTypes,
+ *   internalGroqTypeReferenceTo,
+ * } from "./sanity.types.ts";
+ *
+ * export const q = createGroqBuilder<{
+ *   documentTypes: AllSanitySchemaTypes,
+ *   referenceSymbol: typeof internalGroqTypeReferenceTo;
+ * }>();
  */
 export function createGroqBuilder<TRootConfig extends RootQueryConfig>(
   options: GroqBuilderOptions = {}
@@ -58,11 +71,25 @@ export function createGroqBuilder<TRootConfig extends RootQueryConfig>(
 /**
  * Creates the root `q` query builder.
  *
- * Includes all Zod validation methods attached to the `q` object,
- * like `q.string()` etc. This ensures an API that's backwards compatible with GroqD syntax.
+ * For convenience, includes all Zod validation methods attached to the `q` object, like `q.string()` etc.
+ * This ensures an API that's backwards compatible with GroqD syntax.
  *
- * The TRootConfig type argument is used to bind the query builder to the Sanity schema config.
- * If you specify `any`, then your schema will be loosely-typed, but the output types will still be strongly typed.
+ * If you want to use `zod` directly,
+ * or a different validation library,
+ * or don't need runtime validation,
+ * use `createGroqBuilder` instead.
+ *
+ * @example
+ * import { createGroqBuilderWithZod } from 'groq-builder';
+ * import {
+ *   AllSanitySchemaTypes,
+ *   internalGroqTypeReferenceTo,
+ * } from "./sanity.types.ts";
+ *
+ * export const q = createGroqBuilderWithZod<{
+ *   documentTypes: AllSanitySchemaTypes,
+ *   referenceSymbol: typeof internalGroqTypeReferenceTo;
+ * }>();
  */
 export function createGroqBuilderWithZod<TRootConfig extends RootQueryConfig>(
   options: GroqBuilderOptions = {}

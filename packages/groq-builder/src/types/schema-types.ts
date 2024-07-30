@@ -2,26 +2,13 @@ import { TypeMismatchError } from "./utils";
 
 export type QueryConfig = {
   /**
-   * This should be a union of all possible document types, according to your Sanity config.
-   *
-   * You can infer these values directly from your config using the @sanity-typed/types package,
-   * or you can manually specify the types.
-   *
-   * @example
-   * import config from "./sanity.config.ts";
-   * import { InferSchemaConfigValues, referenced } from "@sanity-typed/types";
-   * import { ExtractDocumentTypes } from "groq-builder";
-   *
-   * type InferredSchema = InferSchemaConfigValues<typeof config>;
-   * export type SanityConfig = {
-   *   documentTypes: ExtractDocumentTypes<InferredSchema>;
-   *   referenceSymbol: typeof referenced;
-   * }
+   * This is a union of all possible document types,
+   * according to your Sanity config.
    */
   documentTypes: { _type: string };
 
   /**
-   * This symbol is exported by @sanity-typed/types
+   * This symbol is exported by the generated Sanity types.
    * It's used to extract document types from a reference object.
    */
   referenceSymbol: symbol;
@@ -30,7 +17,7 @@ export type QueryConfig = {
    * Represents a map of input parameter names, and their types.
    * To set this, use the `q.parameters<{ id: string }>()` syntax
    */
-  parameters?: {};
+  parameters?: {}; // eslint-disable-line @typescript-eslint/ban-types
 };
 
 export type ExtractTypeNames<TResultItem> = Extract<
