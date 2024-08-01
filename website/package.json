@@ -30,6 +30,7 @@
     "glob": "^10.0.0",
     "groq-js": "^1.1.1",
     "groqd": "workspace:*",
+    "groq-builder": "workspace:*",
     "js-beautify": "^1.14.7",
     "lodash.debounce": "^4.0.8",
     "lodash.has": "^4.5.2",

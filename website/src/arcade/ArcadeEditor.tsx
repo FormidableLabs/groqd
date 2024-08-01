@@ -134,6 +134,7 @@ const runCode = async ({
     );
 
     const libs = {
+      "./groq-builder-playground/pokemon": groqBuilderPlaygroundPokemon,
       groqd: q,
       playground: createPlaygroundModule({
         dispatch,

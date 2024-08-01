@@ -6,6 +6,18 @@ import { runQuery } from "playground";
 import { q } from "groqd";
 `.trim();
 
+const wrapGroqBuilderQuery = (code: string) =>
+  beautify(
+    `
+      import { runQuery } from "playground";
+      import { q } from "playground/pokemon";
+      runQuery(
+        ${code.trim()}
+      );
+    `,
+    { indent_size: 2, brace_style: "preserve-inline" }
+  );
+
 const wrapStandardQuery = (code: string) =>
   beautify(
     `${BASIC_IMPORTS}
@@ -23,6 +35,18 @@ export type ExamplePayload = {
 };
 
 export const EXAMPLES = {
+  "groq-builder - Basic Query": {
+    dataset: "pokemon",
+    code: wrapGroqBuilderQuery(`
+      q.star
+        .filterByType("pokemon")
+        .slice(0, 8)
+        .project({
+          name: q.string(),
+          attack: ["base.Attack", q.number()],
+        })
+    `),
+  },
   "Basic Query": {
     dataset: "pokemon",
     code: wrapStandardQuery(`
@@ -35,7 +59,6 @@ export const EXAMPLES = {
         })
     `),
   },
-
   "Deref Related Data": {
     dataset: "pokemon",
     code: wrapStandardQuery(`
