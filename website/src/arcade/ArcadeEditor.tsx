@@ -1,10 +1,8 @@
 import * as React from "react";
 import * as monaco from "monaco-editor";
 import debounce from "lodash.debounce";
-import * as q from "groqd";
-import lzstring from "lz-string";
 import { MODELS } from "@site/src/arcade/models";
-import types from "@site/src/types.json";
+import * as q from "groqd";
 import {
   ArcadeDispatch,
   getStorageValue,
@@ -12,12 +10,13 @@ import {
   setStorageValue,
 } from "@site/src/arcade/state";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
+import lzstring from "lz-string";
+import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
-import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
-import * as groqBuilderPlaygroundPokemon from "./groq-builder-playground/pokemon";
-import { createPlaygroundModule } from "./playground";
+import { extraLibs } from "../types.json";
+import { createPlaygroundModule } from "./playground/index";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -134,7 +133,6 @@ const runCode = async ({
     );
 
     const libs = {
-      "./groq-builder-playground/pokemon": groqBuilderPlaygroundPokemon,
       groqd: q,
       playground: createPlaygroundModule({
         dispatch,
@@ -165,24 +163,4 @@ function executeCode(code: string, scope: Record<string, unknown>) {
 
   const fn = new Function(...keys, code);
   fn(...values);
-}
-
-/**
- * Adding in groqd types, and our custom playground.runQuery helper.
- */
-const extraLibs = [
-  ...getTypeLibs("groqd", types["groqd"]),
-  ...getTypeLibs("playground", types["playground"]),
-  ...getTypeLibs("groq-builder-playground", types["groq-builder-playground"]),
-  ...getTypeLibs("zod", types.zod),
-  ...getTypeLibs("groq-builder", types["groq-builder"]),
-];
-
-function getTypeLibs(moduleName: string, typeEntries: Record<string, string>) {
-  return Object.entries<string>(typeEntries).map(([filename, content]) => ({
-    content: content,
-    filePath: monaco.Uri.file(
-      `/node_modules/${moduleName}/${filename}`
-    ).toString(),
-  }));
 }
