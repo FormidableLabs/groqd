@@ -1,9 +1,10 @@
 import * as React from "react";
 import * as monaco from "monaco-editor";
 import debounce from "lodash.debounce";
+import * as q from "groqd";
+import lzstring from "lz-string";
 import { MODELS } from "@site/src/arcade/models";
 import types from "@site/src/types.json";
-import * as q from "groqd";
 import {
   ArcadeDispatch,
   getStorageValue,
@@ -11,11 +12,10 @@ import {
   setStorageValue,
 } from "@site/src/arcade/state";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
-import lzstring from "lz-string";
-import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
+import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
 import * as groqBuilderPlaygroundPokemon from "./groq-builder-playground/pokemon";
 import { createPlaygroundModule } from "./playground";
 
