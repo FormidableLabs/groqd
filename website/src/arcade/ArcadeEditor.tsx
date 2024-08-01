@@ -10,15 +10,14 @@ import {
   GroqdQueryParams,
   setStorageValue,
 } from "@site/src/arcade/state";
-import { evaluate, parse } from "groq-js";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
 import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
-import has from "lodash.has";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
-import toast from "react-hot-toast";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
+import * as groqBuilderPlaygroundPokemon from "./groq-builder-playground/pokemon";
+import { createPlaygroundModule } from "./playground/index";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -134,135 +133,45 @@ const runCode = async ({
       lzstring.compressToEncodedURIComponent(model.getValue())
     );
 
-    let playgroundRunQueryCount = 0;
     const libs = {
       groqd: q,
-      playground: {
-        runQuery: (
-          query: q.BaseQuery<any>,
-          params?: Record<string, string | number>
-        ) => {
-          playgroundRunQueryCount++;
-          if (playgroundRunQueryCount > 1) return;
-
-          try {
-            if (query instanceof q.BaseQuery) {
-              dispatch({
-                type: "INPUT_EVAL_SUCCESS",
-                payload: { query, params },
-              });
-
-              if (shouldRunQueryImmediately)
-                runQuery({ query, params, dispatch });
-            }
-          } catch {
-            toast.error("Failed to evaluate code.");
-          }
-        },
-      },
+      playground: createPlaygroundModule({
+        dispatch,
+        shouldRunQueryImmediately,
+      }),
     };
     const scope = {
       exports: {},
       require: (name: keyof typeof libs) => libs[name],
     };
-    const keys = Object.keys(scope);
-    new Function(...keys, code)(
-      ...keys.map((key) => scope[key as keyof typeof scope])
-    );
+    executeCode(code, scope);
   } catch {}
 };
 
-/**
- * Run a given query against dataset in the JSON model
- */
-const runQuery = async ({
-  query,
-  params,
-  dispatch,
-}: {
-  query: q.BaseQuery<any>;
-  dispatch: ArcadeDispatch;
-  params: GroqdQueryParams;
-}) => {
-  if (!query.query) return;
-  dispatch({ type: "START_QUERY_EXEC" });
+function executeCode(code, scope) {
+  const keys = Object.keys(scope);
+  const values = Object.values(scope);
 
-  try {
-    let json: unknown;
-    try {
-      json = JSON.parse(MODELS.json.getValue());
-    } catch {
-      throw new Error("Error parsing dataset JSON");
-    }
-
-    const runner = q.makeSafeQueryRunner(async (query: string) => {
-      const tree = parse(query, { params });
-      const _ = await evaluate(tree, { dataset: json });
-      const rawResponse = await _.get();
-      dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
-
-      return rawResponse;
-    });
-
-    const data = await runner(query);
-    dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
-  } catch (err) {
-    let errorPaths: Map<string, string> | undefined;
-
-    if (err instanceof q.GroqdParseError) {
-      errorPaths = new Map();
-      for (const e of err.zodError.errors) {
-        if (e.message === "Required" && !has(err.rawResponse, e.path)) {
-          errorPaths.set(
-            e.path
-              .slice(0, -1)
-              .map((v) => String(v))
-              .join("."),
-            `Field "${e.path.at(-1)}" is Required`
-          );
-        } else {
-          errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
-        }
-      }
-    }
-
-    dispatch({
-      type: "PARSE_FAILURE",
-      payload: { fetchParseError: err, errorPaths },
-    });
-  }
-};
+  const fn = new Function(...keys, code);
+  fn(...values);
+}
 
 /**
  * Adding in groqd types, and our custom playground.runQuery helper.
  */
 const extraLibs = [
-  {
-    content: `declare module "groqd" {${types.groqd["index.d.ts"]}`,
-    filePath: monaco.Uri.file(`/node_modules/groqd/dist/index.d.ts`).toString(),
-  },
-  {
-    content: `
-          declare module "playground" {
-            import type { infer, ZodType, ZodNumber } from "zod";
-            import type { BaseQuery } from "groqd";
-
-            export const runQuery: <T extends any>(
-              query: { schema: ZodType<T>; query: string },
-              params?: Record<string, string|number>
-             ) => T;
-          }
-        `,
-    filePath: monaco.Uri.file(
-      `/node_modules/groqd-playground/index.d.ts`
-    ).toString(),
-  },
+  ...getTypeLibs("groqd", types["groqd"]),
+  ...getTypeLibs("playground", types["playground"]),
+  ...getTypeLibs("groq-builder-playground", types["groq-builder-playground"]),
+  ...getTypeLibs("zod", types.zod),
+  ...getTypeLibs("groq-builder", types["groq-builder"]),
 ];
 
-// And don't forget the zod types.
-for (const [filename, content] of Object.entries<string>(types.zod)) {
-  extraLibs.push({
+function getTypeLibs(moduleName: string, typeEntries: Record<string, string>) {
+  return Object.entries<string>(typeEntries).map(([filename, content]) => ({
     content: content,
-    filePath: monaco.Uri.file(`/node_modules/zod/${filename}`).toString(),
-  });
+    filePath: monaco.Uri.file(
+      `/node_modules/${moduleName}/${filename}`
+    ).toString(),
+  }));
 }
