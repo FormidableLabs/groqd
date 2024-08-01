@@ -1,5 +1,4 @@
-import { referenced, SanitySchema } from "../schemas/nextjs-sanity-fe";
-import { decorator } from "../schemas/nextjs-sanity-fe.generated";
+import { ContentBlock, SanitySchema } from "../schemas/nextjs-sanity-fe";
 
 export class MockFactory {
   // Common helpers:
@@ -38,7 +37,7 @@ export class MockFactory {
       _ref: data._id,
       // This value is not actually needed, but it's required by TypeScript::
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      [referenced]: null as any,
+      [SanitySchema.internalGroqTypeReferenceTo]: null as any,
     };
   }
 
@@ -100,6 +99,12 @@ export class MockFactory {
       name: "ProductImage",
       description: "Product Image",
       asset: this.reference({ _id: "mock-image-id" }),
+      hotspot: {
+        _type: "sanity.imageHotspot",
+      },
+      crop: {
+        _type: "sanity.imageCrop",
+      },
       ...data,
     } satisfies Required<SanitySchema.ProductImage>;
   }
@@ -111,15 +116,11 @@ export class MockFactory {
     };
   }
 
-  contentBlock(
-    data: Partial<SanitySchema.ContentBlock>
-  ): SanitySchema.ContentBlock {
+  contentBlock(data: Partial<ContentBlock>): ContentBlock {
     return {
       _type: "block",
       _key: "",
-      children: [
-        { _type: "span", _key: "", text: "", marks: [], [decorator]: null },
-      ],
+      children: [{ _type: "span", _key: "", text: "", marks: [] }],
       markDefs: [],
       style: undefined,
       ...data,

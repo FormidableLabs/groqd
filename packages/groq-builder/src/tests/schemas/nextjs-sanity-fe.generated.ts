@@ -173,7 +173,7 @@ export type SchemaValues = {
       | {
           _ref: string;
           _type: "reference";
-          [referenced]: "categoryImage";
+          [referenced]?: "categoryImage";
           _key: string;
         }[]
       | undefined;
@@ -191,7 +191,7 @@ export type SchemaValues = {
       asset: {
         _ref: string;
         _type: "reference";
-        [referenced]: "sanity.imageAsset";
+        [referenced]?: "sanity.imageAsset";
       };
     };
     _type: "categoryImage";
@@ -236,7 +236,7 @@ export type SchemaValues = {
           asset: {
             _ref: string;
             _type: "reference";
-            [referenced]: "sanity.imageAsset";
+            [referenced]?: "sanity.imageAsset";
           };
           _type: "productImage";
           _key: string;
@@ -246,7 +246,7 @@ export type SchemaValues = {
       | {
           _ref: string;
           _type: "reference";
-          [referenced]: "category";
+          [referenced]?: "category";
           _key: string;
         }[]
       | undefined;
@@ -254,7 +254,7 @@ export type SchemaValues = {
       | {
           _ref: string;
           _type: "reference";
-          [referenced]: "variant";
+          [referenced]?: "variant";
           _key: string;
         }[]
       | undefined;
@@ -266,7 +266,7 @@ export type SchemaValues = {
     asset: {
       _ref: string;
       _type: "reference";
-      [referenced]: "sanity.imageAsset";
+      [referenced]?: "sanity.imageAsset";
     };
     _type: "productImage";
   };
@@ -294,7 +294,7 @@ export type SchemaValues = {
       | {
           _ref: string;
           _type: "reference";
-          [referenced]: "style";
+          [referenced]?: "style";
           _key: string;
         }[]
       | undefined;
@@ -310,7 +310,7 @@ export type SchemaValues = {
           asset: {
             _ref: string;
             _type: "reference";
-            [referenced]: "sanity.imageAsset";
+            [referenced]?: "sanity.imageAsset";
           };
           _type: "productImage";
           _key: string;
@@ -320,7 +320,7 @@ export type SchemaValues = {
       | {
           _ref: string;
           _type: "reference";
-          [referenced]: "flavour";
+          [referenced]?: "flavour";
           _key: string;
         }[]
       | undefined;

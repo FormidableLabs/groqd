@@ -82,7 +82,7 @@ Notice that this type is stronger than the example with `q.conditional`, because
 
 ## The `select` method
 
-Adds support for the `select` method:
+You can add conditional logic for a single field by using the `select` method:
 ```ts
 const qMovies = q.star.filterByType("movie").project({
   name: true,
@@ -115,10 +115,11 @@ type MoviesResult = Array<{
 }>
 ```
 
+> Note: just like `q.conditional`, the "conditions" (eg `"popularity > 20"`) are not strongly-typed; any string is allowed.  See the `selectByType` method for a better option.  
 
 ## The `selectByType` method
 
-Adds a `selectByType` helper, which facilitates type-based logic.  This is completely strongly-typed:
+You can also use the `selectByType` helper, which facilitates type-based logic.  The following example is completely strongly-typed:
 ```ts
 const qContent = q.star.filterByType("movie", "actor").project(q => ({
   name: q.selectByType({

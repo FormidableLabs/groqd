@@ -36,10 +36,9 @@ describe("deref", () => {
 
   it("should be an error if the item is not a reference", () => {
     const notAReference = qProduct.field("slug");
-    expectTypeOf<InferResultType<typeof notAReference>>().toEqualTypeOf<{
-      _type: "slug";
-      current: string;
-    }>();
+    expectTypeOf<
+      InferResultType<typeof notAReference>
+    >().toEqualTypeOf<SanitySchema.Slug>();
 
     const res = notAReference.deref();
     type ErrorResult = InferResultType<typeof res>;

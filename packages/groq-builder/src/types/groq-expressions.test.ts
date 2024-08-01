@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
-import { QueryConfig, RootQueryConfig } from "./schema-types";
+import { QueryConfig } from "./schema-types";
 import { Simplify } from "./utils";
 
 describe("Expressions", () => {
@@ -57,7 +57,7 @@ describe("Expressions", () => {
   });
 
   describe("with parameters", () => {
-    type WithVars<TVars> = RootQueryConfig & { parameters: TVars };
+    type WithVars<TVars> = QueryConfig & { parameters: TVars };
 
     it("a literal value can be compared to parameters with the same type", () => {
       expectTypeOf<

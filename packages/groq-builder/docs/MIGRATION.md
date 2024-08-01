@@ -126,11 +126,11 @@ Since `q` is strongly-typed to our Sanity schema, it knows the types of the prod
 
 ## Additional Improvements
 
-### Migrating from `grab -> project` and `grabOne-> field`
+### Migrating from `grab -> project` and `grabOne -> field`
 
 The `grab`, `grabOne`, `grab$`, and `grabOne$` methods still exist, but have been deprecated, and should be replaced with the `project` and `field` methods.
 
-Sanity's documentation uses the word "projection" to refer to grabbing specific fields, so we have renamed the `grab` method to `project` (pronounced *pruh-JEKT*, if that helps). It also uses the phrase "naked projection" to refer to grabbing a single field, but to keep things terse, we've renamed `grabOne` to `field`.  So we recommend migrating from `grab` to `project`, and from `grabOne` to `field`.
+Sanity's documentation uses the word "projection" to refer to grabbing specific fields, so we have renamed the `grab` method to `project` (pronounced *pruh-JEKT*, if that helps). Sanity also uses the phrase "naked projection" to refer to grabbing a single field, but to keep things terse, we've renamed `grabOne` to `field`.  So we recommend migrating from `grab` to `project`, and from `grabOne` to `field`.
 
 #### Alternatives for `grab$` and `grabOne$`
 
