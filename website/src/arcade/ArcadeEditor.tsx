@@ -17,7 +17,7 @@ import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
 import * as groqBuilderPlaygroundPokemon from "./groq-builder-playground/pokemon";
-import { createPlaygroundModule } from "./playground/index";
+import { createPlaygroundModule } from "./playground";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -142,13 +142,23 @@ const runCode = async ({
     };
     const scope = {
       exports: {},
-      require: (name: keyof typeof libs) => libs[name],
+      require(name: keyof typeof libs) {
+        if (!(name in libs)) {
+          const supported = Object.keys(libs);
+          throw new Error(
+            `Cannot import "${name}"; you can only import supported modules (${supported
+              .map((lib) => `"${lib}"`)
+              .join(", ")})`
+          );
+        }
+        return libs[name];
+      },
     };
     executeCode(code, scope);
   } catch {}
 };
 
-function executeCode(code, scope) {
+function executeCode(code: string, scope: Record<string, unknown>) {
   const keys = Object.keys(scope);
   const values = Object.values(scope);
 

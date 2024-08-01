@@ -3,7 +3,7 @@ import has from "lodash.has";
 
 import { MODELS } from "@site/src/arcade/models";
 
-import { ArcadeDispatch, GroqdQueryParams } from "../state";
+import type { ArcadeDispatch, GroqdQueryParams } from "../state";
 import toast from "react-hot-toast";
 import * as q from "groqd";
 
