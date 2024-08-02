@@ -29,10 +29,8 @@ export function createPlaygroundModule({
 
       try {
         if (!(query instanceof q.BaseQuery)) {
-          // This is a hack, so that we can use
-          // `groq-builder` with the existing `groqd` logic:
-          // @ts-expect-error --- this is a hack
-          query.schema = { parse: query.parser };
+          // @ts-expect-error --- this is a hack so we can use`groq-builder` with the existing `groqd` logic:
+          query.schema = { parse: query.parser || ((x) => x) };
         }
 
         dispatch({
