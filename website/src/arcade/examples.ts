@@ -2,14 +2,15 @@ import datasets from "@site/src/datasets.json";
 import beautify from "js-beautify";
 
 const BASIC_IMPORTS = `
-import { runQuery } from "playground";
-import { q } from "groqd";
+  import { runQuery } from "playground";
+  import { q } from "groqd";
 `.trim();
 
 const wrapGroqBuilderQuery = (code: string) =>
   beautify(
     `
       import { runQuery } from "playground";
+      import { z } from "zod";
       import { q } from "playground/pokemon";
       runQuery(
         ${code.trim()}
@@ -42,8 +43,8 @@ export const EXAMPLES = {
         .filterByType("pokemon")
         .slice(0, 8)
         .project({
-          name: q.string(),
-          attack: ["base.Attack", q.number()],
+          name: z.string(),
+          attack: ["base.Attack", z.number()],
         })
     `),
   },

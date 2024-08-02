@@ -36,6 +36,7 @@ export function Arcade() {
       parsedResponse,
       errorPaths,
       rawResponse,
+      inputParseError,
     },
     dispatch,
   ] = React.useReducer(reducer, defaultState);
@@ -190,7 +191,10 @@ export function Arcade() {
               <div className="relative flex-1">
                 <ArcadeEditor dispatch={dispatch} />
               </div>
-              <ArcadeQueryDisplay query={query.query} />
+              <ArcadeQueryDisplay
+                query={query.query}
+                inputParseError={inputParseError}
+              />
             </div>
           </ArcadeSection>
           <ArcadeSectionResizer

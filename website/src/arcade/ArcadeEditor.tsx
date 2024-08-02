@@ -3,6 +3,7 @@ import * as monaco from "monaco-editor";
 import debounce from "lodash.debounce";
 import { MODELS } from "@site/src/arcade/models";
 import * as q from "groqd";
+import * as z from "zod";
 import {
   ArcadeDispatch,
   getStorageValue,
@@ -16,6 +17,8 @@ import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
 import types from "../types.json";
 import { createPlaygroundModule } from "./playground/playground-implementation";
+import * as playgroundPokemonModule from "./playground/pokemon";
+import * as playgroundTodoListModule from "./playground/todo-list";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -131,12 +134,15 @@ const runCode = async ({
 
     const libs = {
       groqd: q,
+      zod: z,
       get playground() {
         return createPlaygroundModule({
           dispatch,
           shouldRunQueryImmediately,
         });
       },
+      "playground/pokemon": playgroundPokemonModule,
+      "playground/todo-list": playgroundTodoListModule,
     };
     const scope = {
       exports: {},
@@ -153,7 +159,12 @@ const runCode = async ({
       },
     };
     executeCode(code, scope);
-  } catch {}
+  } catch (err) {
+    dispatch({
+      type: "INPUT_EVAL_FAILURE",
+      payload: { inputParseError: err },
+    });
+  }
 };
 
 function executeCode(code: string, scope: Record<string, unknown>) {

@@ -1,13 +1,20 @@
 import * as React from "react";
 import { HiClipboard } from "react-icons/hi";
+import clsx from "clsx";
+
 import { copyToClipboard } from "@site/src/arcade/share";
 import toast from "react-hot-toast";
+import { State } from "./state";
 
 type ArcadeQueryDisplayProps = {
   query?: string;
+  inputParseError: State["inputParseError"];
 };
 
-export function ArcadeQueryDisplay({ query }: ArcadeQueryDisplayProps) {
+export function ArcadeQueryDisplay({
+  query,
+  inputParseError,
+}: ArcadeQueryDisplayProps) {
   const handleCopyQuery = () =>
     copyToClipboard(query, () => {
       toast.success("Copied query to clipboard.");
@@ -18,8 +25,13 @@ export function ArcadeQueryDisplay({ query }: ArcadeQueryDisplayProps) {
         Query
       </div>
       <div className="relative group">
-        <pre className="p-4 bg-transparent rounded-none w-full overflow-scroll pretty-scrollbar text-gray-700 dark:text-gray-200 mb-0">
-          {query || "..."}
+        <pre
+          className={clsx(
+            "p-4 bg-transparent rounded-none w-full overflow-scroll pretty-scrollbar text-gray-700 dark:text-gray-200 mb-0",
+            inputParseError && "text-red-700 dark:text-red-200"
+          )}
+        >
+          {inputParseError ? inputParseError.toString() : query || "..."}
         </pre>
         <div className="absolute right-0 inset-y-0 flex items-center pr-4">
           <button

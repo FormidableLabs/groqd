@@ -5,6 +5,6 @@ import type { ZodType } from "zod";
  * and shows the results in the side panel.
  */
 export const runQuery: <T>(
-  query: { schema: ZodType<T>; query: string },
+  query: { schema?: ZodType<T>; query: string },
   params?: Record<string, string | number>
 ) => void;
