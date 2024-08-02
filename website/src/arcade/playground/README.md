@@ -1,6 +1,6 @@
 # playground
 
-In the Arcade code window, you can import this `playground` folder.
+In the Arcade code window, you can import from this `playground` folder.
 
 ```ts
 import { runQuery } from "playground";
@@ -9,12 +9,10 @@ import { q } from "playground/pokemon"
 
 ### Compiling
 
-A few important things to note about how this gets compiled.
+This folder gets compiled when you run `npm run dev` or `npm run gather-types`.  If you make changes to these files, you must run this command again.  
 
-1. The `gather-types` script
+All `.d.ts` files must be committed in this folder.
 
-1. The type def files (`*.d.ts`) must exist; they don't get compiled.  These are 
-2. The actual code files (`*.ts`)
+Please note, that some standalone `.d.ts` files exist too, without a corresponding `.ts` file.
 
-This folder gets compiled by the `gather-types` script, so that
-it can be bundled
+After compiling the typescript, we read the contents of all `.d.ts` files, and store these contents into `./src/types.json`.  This allows us to load these types into the Monaco Editor in the browser.
