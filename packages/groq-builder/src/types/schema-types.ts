@@ -25,6 +25,11 @@ export type ExtractTypeNames<TResultItem> = Extract<
   { _type: string }
 >["_type"];
 
+export type ExtractDocumentTypes<AllSanitySchemaTypes> = Extract<
+  AllSanitySchemaTypes,
+  { _type: string }
+>;
+
 export type RefType<referenceSymbol extends symbol, TTypeName> = {
   [P in referenceSymbol]?: TTypeName;
 };

@@ -3,12 +3,13 @@ import {
   internalGroqTypeReferenceTo,
 } from "./nextjs-sanity-fe.sanity-typegen";
 import * as SanitySchema from "./nextjs-sanity-fe.sanity-typegen";
+import { ExtractDocumentTypes } from "../../types/schema-types";
+
+export { SanitySchema };
 
 export type SchemaConfig = {
-  documentTypes: Extract<AllSanitySchemaTypes, { _type: string }>;
+  documentTypes: ExtractDocumentTypes<AllSanitySchemaTypes>;
   referenceSymbol: typeof internalGroqTypeReferenceTo;
 };
 
 export type ContentBlock = SanitySchema.Description[number];
-
-export { SanitySchema };
