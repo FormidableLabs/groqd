@@ -11,7 +11,9 @@ const wrapGroqBuilderQuery = (code: string) =>
     `
       import { runQuery } from "playground";
       import { z } from "zod";
+     
       import { q } from "playground/pokemon";
+      
       runQuery(
         ${code.trim()}
       );
