@@ -6,6 +6,7 @@ import { MODELS } from "../models";
 import type { ArcadeDispatch, GroqdQueryParams } from "../state";
 import toast from "react-hot-toast";
 import * as q from "groqd";
+import { GroqBuilder } from "groq-builder";
 import type * as PlaygroundModule from "./index";
 
 /**
@@ -28,9 +29,12 @@ export function createPlaygroundModule({
       if (playgroundRunQueryCount > 1) return;
 
       try {
-        if (!(query instanceof q.BaseQuery)) {
+        if (query instanceof GroqBuilder) {
           // @ts-expect-error --- this is a hack so we can use`groq-builder` with the existing `groqd` logic:
           query.schema = { parse: query.parser || ((x) => x) };
+        } else if (query instanceof q.BaseQuery) {
+        } else {
+          throw new Error("runQuery requires a GroqD query");
         }
 
         dispatch({
