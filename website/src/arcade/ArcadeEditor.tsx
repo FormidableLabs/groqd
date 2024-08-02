@@ -6,7 +6,6 @@ import * as q from "groqd";
 import {
   ArcadeDispatch,
   getStorageValue,
-  GroqdQueryParams,
   setStorageValue,
 } from "@site/src/arcade/state";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
@@ -15,8 +14,8 @@ import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
-import { extraLibs } from "../types.json";
-import { createPlaygroundModule } from "./playground/index";
+import types from "../types.json";
+import { createPlaygroundModule } from "./playground/playground-implementation";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -53,16 +52,15 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
       esModuleInterop: true,
     });
 
-    monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
+    monaco.languages.typescript.typescriptDefaults.setExtraLibs(
+      types.extraLibs
+    );
     monaco.languages.registerInlayHintsProvider(
       "typescript",
       createTwoslashInlayProvider()
     );
 
-    const handleContentChange = debounce(
-      () => runCode({ editor, dispatch }),
-      500
-    );
+    const handleContentChange = debounce(() => runCode({ dispatch }), 500);
     const didChangeInstance = MODELS.ts.onDidChangeContent(handleContentChange);
 
     editorRef.current = monaco.editor.create(container, {
@@ -78,7 +76,7 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
     registerEditorShortcuts(editor);
 
     // Run code on start
-    runCode({ editor, dispatch }).catch(console.error);
+    runCode({ dispatch }).catch(console.error);
 
     return () => {
       handleContentChange.cancel();
@@ -91,7 +89,7 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
       (shouldRunQueryImmediately) => {
         const editor = editorRef.current;
         if (!editor) return;
-        return runCode({ dispatch, editor, shouldRunQueryImmediately });
+        return runCode({ dispatch, shouldRunQueryImmediately });
       }
     );
 
@@ -115,7 +113,6 @@ const runCode = async ({
   dispatch,
   shouldRunQueryImmediately = false,
 }: {
-  editor: monaco.editor.IStandaloneCodeEditor;
   dispatch: ArcadeDispatch;
   shouldRunQueryImmediately?: boolean;
 }) => {
@@ -134,10 +131,12 @@ const runCode = async ({
 
     const libs = {
       groqd: q,
-      playground: createPlaygroundModule({
-        dispatch,
-        shouldRunQueryImmediately,
-      }),
+      get playground() {
+        return createPlaygroundModule({
+          dispatch,
+          shouldRunQueryImmediately,
+        });
+      },
     };
     const scope = {
       exports: {},
@@ -158,9 +157,9 @@ const runCode = async ({
 };
 
 function executeCode(code: string, scope: Record<string, unknown>) {
-  const keys = Object.keys(scope);
-  const values = Object.values(scope);
+  const argNames = Object.keys(scope);
+  const args = Object.values(scope);
 
-  const fn = new Function(...keys, code);
-  fn(...values);
+  const fn = new Function(...argNames, code);
+  fn(...args);
 }

@@ -1,25 +1,29 @@
 import { evaluate, parse } from "groq-js";
 import has from "lodash.has";
 
-import { MODELS } from "@site/src/arcade/models";
+import { MODELS } from "../models";
 
 import type { ArcadeDispatch, GroqdQueryParams } from "../state";
 import toast from "react-hot-toast";
 import * as q from "groqd";
+import type * as PlaygroundModule from "./index";
 
+/**
+ * This returns
+ * @param dispatch
+ * @param shouldRunQueryImmediately
+ */
 export function createPlaygroundModule({
   dispatch,
   shouldRunQueryImmediately,
 }: {
   dispatch: ArcadeDispatch;
   shouldRunQueryImmediately?: boolean;
-}) {
+}): typeof PlaygroundModule {
   let playgroundRunQueryCount = 0;
-  return {
-    runQuery: (
-      query: q.BaseQuery<any>,
-      params?: Record<string, string | number>
-    ) => {
+
+  const moduleImplementation: typeof PlaygroundModule = {
+    runQuery(query, params?) {
       playgroundRunQueryCount++;
       if (playgroundRunQueryCount > 1) return;
 
@@ -27,6 +31,7 @@ export function createPlaygroundModule({
         if (!(query instanceof q.BaseQuery)) {
           // This is a hack, so that we can use
           // `groq-builder` with the existing `groqd` logic:
+          // @ts-expect-error --- this is a hack
           query.schema = { parse: query.parser };
         }
 
@@ -35,18 +40,26 @@ export function createPlaygroundModule({
           payload: { query, params },
         });
 
-        if (shouldRunQueryImmediately) runQuery({ query, params, dispatch });
+        if (shouldRunQueryImmediately) {
+          runQueryInternal({
+            query: query as q.BaseQuery<any>,
+            params,
+            dispatch,
+          });
+        }
       } catch {
         toast.error("Failed to evaluate code.");
       }
     },
   };
+
+  return moduleImplementation;
 }
 
 /**
  * Run a given query against dataset in the JSON model
  */
-const runQuery = async ({
+const runQueryInternal = async ({
   query,
   params,
   dispatch,
