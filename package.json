@@ -30,6 +30,6 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.4",
     "typescript": "^4.9.5",
-    "monaco-editor": "^0.37.1"
+    "monaco-editor": "^0.50.0"
   }
 }

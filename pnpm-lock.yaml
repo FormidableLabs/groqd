@@ -33,8 +33,8 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.38.0)(prettier@2.8.7)
       monaco-editor:
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.50.0
+        version: 0.50.0
       prettier:
         specifier: ^2.8.4
         version: 2.8.7
@@ -199,8 +199,8 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0
       monaco-editor:
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.50.0
+        version: 0.50.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -243,7 +243,7 @@ importers:
         version: 5.5.0(webpack@5.79.0)
       monaco-editor-webpack-plugin:
         specifier: ^7.0.1
-        version: 7.0.1(monaco-editor@0.37.1)(webpack@5.79.0)
+        version: 7.0.1(monaco-editor@0.50.0)(webpack@5.79.0)
       style-loader:
         specifier: ^3.3.2
         version: 3.3.2(webpack@5.79.0)
@@ -320,8 +320,8 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0
       monaco-editor:
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.50.0
+        version: 0.50.0
       prism-react-renderer:
         specifier: ^2.3.0
         version: 2.3.1(react@18.2.0)
@@ -340,6 +340,9 @@ importers:
       tailwindcss:
         specifier: ^3.3.2
         version: 3.3.2(ts-node@10.9.1)
+      type-fest:
+        specifier: ^4.10.1
+        version: 4.10.1
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -370,7 +373,7 @@ importers:
         version: 18.15.11
       monaco-editor-webpack-plugin:
         specifier: ^7.0.1
-        version: 7.0.1(monaco-editor@0.37.1)(webpack@5.91.0)
+        version: 7.0.1(monaco-editor@0.50.0)(webpack@5.91.0)
       nanoid:
         specifier: ^3.3.6
         version: 3.3.6
@@ -13487,30 +13490,30 @@ packages:
     resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
     dev: false
 
-  /monaco-editor-webpack-plugin@7.0.1(monaco-editor@0.37.1)(webpack@5.79.0):
+  /monaco-editor-webpack-plugin@7.0.1(monaco-editor@0.50.0)(webpack@5.79.0):
     resolution: {integrity: sha512-M8qIqizltrPlIbrb73cZdTWfU9sIsUVFvAZkL3KGjAHmVWEJ0hZKa/uad14JuOckc0GwnCaoGHvMoYtJjVyCzw==}
     peerDependencies:
       monaco-editor: '>= 0.31.0'
       webpack: ^4.5.0 || 5.x
     dependencies:
       loader-utils: 2.0.4
-      monaco-editor: 0.37.1
+      monaco-editor: 0.50.0
       webpack: 5.79.0(webpack-cli@5.0.1)
     dev: true
 
-  /monaco-editor-webpack-plugin@7.0.1(monaco-editor@0.37.1)(webpack@5.91.0):
+  /monaco-editor-webpack-plugin@7.0.1(monaco-editor@0.50.0)(webpack@5.91.0):
     resolution: {integrity: sha512-M8qIqizltrPlIbrb73cZdTWfU9sIsUVFvAZkL3KGjAHmVWEJ0hZKa/uad14JuOckc0GwnCaoGHvMoYtJjVyCzw==}
     peerDependencies:
       monaco-editor: '>= 0.31.0'
       webpack: ^4.5.0 || 5.x
     dependencies:
       loader-utils: 2.0.4
-      monaco-editor: 0.37.1
+      monaco-editor: 0.50.0
       webpack: 5.91.0
     dev: true
 
-  /monaco-editor@0.37.1:
-    resolution: {integrity: sha512-jLXEEYSbqMkT/FuJLBZAVWGuhIb4JNwHE9kPTorAVmsdZ4UzHAfgWxLsVtD7pLRFaOwYPhNG9nUCpmFL1t/dIg==}
+  /monaco-editor@0.50.0:
+    resolution: {integrity: sha512-8CclLCmrRRh+sul7C08BmPBP3P8wVWfBHomsTcndxg5NRCEPfu/mc2AGU8k37ajjDVXcXFc12ORAMUkmk+lkFA==}
 
   /mrmime@2.0.0:
     resolution: {integrity: sha512-eu38+hdgojoyq63s+yTpN4XMBdt5l8HhMhc4VKLO9KM5caLIBvUm4thi7fFaxyTmCKeNnXZ5pAlBwCUnhA09uw==}
