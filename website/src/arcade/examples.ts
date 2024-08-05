@@ -38,16 +38,34 @@ export type ExamplePayload = {
 };
 
 export const EXAMPLES = {
-  "groq-builder - Basic Query": {
+  "groq-builder - Basic Query (no validation)": {
     dataset: "pokemon",
     code: wrapGroqBuilderQuery(`
       q.star
-        .filterByType("pokemon")
-        .slice(0, 8)
-        .project({
-          name: z.string(),
-          attack: ["base.Attack", z.number()],
-        })
+       .filterByType("pokemon")
+       .slice(0, 8)
+       .project(p => ({
+         name: true,
+         attack: "base.Attack",
+         types: p.field("types[]").deref().project({
+           name: true,
+         }),
+       }))
+    `),
+  },
+  "groq-builder - Basic Query (with validation)": {
+    dataset: "pokemon",
+    code: wrapGroqBuilderQuery(`
+      q.star
+       .filterByType("pokemon")
+       .slice(0, 8)
+       .project(p => ({
+         name: z.string(),
+         attack: ["base.Attack", z.number()],
+         types: p.field("types[]").deref().project({
+           name: z.string(),
+         }),
+       }))
     `),
   },
   "Basic Query": {
