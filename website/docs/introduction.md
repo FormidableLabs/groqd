@@ -9,68 +9,35 @@ slug: /
 [![GROQD](https://oss.nearform.com/api/banner?badge=groqd&bg=c99f46)](https://commerce.nearform.com/open-source/groqd)
 
 
-`groqd` is a schema-unaware, runtime-safe query builder for [GROQ](https://www.sanity.io/docs/groq). **The goal of `groqd` is to give you (most of) the flexibility of GROQ, with the runtime/type safety of [Zod](https://github.com/colinhacks/zod) and TypeScript.**
+`groqd` is a **schema-aware**, strongly-typed GROQ query builder.  
+It enables you to write GROQ queries using **auto-completion**, **type-checking**, and **runtime validation**.
 
-`groqd` works by accepting a series of GROQ operations, and generating a query to be used by GROQ and a Zod schema to be used for parsing the associated GROQ response.
+The goal of `groqd` is to give you the _flexibility_ of GROQ, the [runtime safety of Zod](https://github.com/colinhacks/zod), and the best TypeScript developer experience possible. 
 
-An illustrative example:
+<details>
+<summary>What is GROQ?</summary>
 
-```ts
-import { q } from "groqd";
+[GROQ is Sanity's open-source query language.](https://www.sanity.io/docs/groq)
 
-// Get all of the Pokemon types, and the Pokemon associated to each type.
-const { query, schema } = q("*")
-  .filter("_type == 'poketype'")
-  .grab({
-    name: q.string(),
-    pokemons: q("*")
-      .filter("_type == 'pokemon' && references(^._id)")
-      .grab({ name: q.string() }),
-  });
+> "It's a powerful and intuitive language that's easy to learn. With GROQ you can describe exactly what information your application needs, join information from several sets of documents, and stitch together a very specific response with only the exact fields you need."
 
-// Use the schema and the query as you see fit, for example:
-const response = schema.parse(await sanityClient.fetch(query));
+</details>
 
-// At this point, response has a type of:
-// { name: string, pokemons: { name: string }[] }[]
-// 👆👆
-```
+## Why `GROQD` over raw `GROQ`?
 
-Since the primary use-case for `groqd` is actually executing GROQ queries and validating the response, we ship a utility to help you make your own fetching function. Here's an example of wrapping `@sanity/client`'s fetch function:
+Sanity's CLI can generate types from your raw `GROQ` queries. This works well for simple use-cases.  
+However, `GROQD` aims to maximize the developer experience, improve generated types, and ensure scalability. Namely, it adds:
 
-```ts
-import sanityClient from "@sanity/client";
-import { q, makeSafeQueryRunner } from "groqd";
+- **Auto-completion** - write queries quickly and confidently
+- **Runtime validation** - ensure data integrity, catch errors early
+- **Transformation** - map values at runtime, like parsing dates
+- **Fragments** - create reusable query fragments, and compose queries from other fragments
 
-const client = sanityClient({
-  /* ... */
-});
-// 👇 Safe query runner
-export const runQuery = makeSafeQueryRunner((query) => client.fetch(query));
-
-// ...
-
-// 👇 Now you can run queries and `data` is strongly-typed, and runtime-validated.
-const data = await runQuery(
-  q("*").filter("_type == 'pokemon'").grab({ name: q.string() }).slice(0, 150)
-);
-// data: { name: string }[]
-```
-
-Using `makeSafeQueryRunner` is totally optional; you might find using `q().schema` and `q().query` in your own abstractions works better for you.
 
 ## The Playground
 
-We also provide a [Vision](https://www.sanity.io/docs/the-vision-plugin)-like Sanity Studio tool for experimenting with groqd queries and running them against your actual dataset.
+We also provide a [Vision](https://www.sanity.io/docs/the-vision-plugin)-like Sanity Studio tool for experimenting with `groqd` queries and running them against your actual dataset.
 
 ![Screenshot of groqd playground in action](./img/groqd-playground-sample.png)
 
-The playground is a drop-in Sanity plugin, and is an easy way to test out groqd within your dataset. See [the playground docs](./groqd-playground.mdx) for more information on the playground.
-
-## Why `groqd`? 🤷‍
-
-GROQ's primary use is with [Sanity](https://www.sanity.io/). Sanity's Content Lake is fundamentally unstructured, and GROQ (and Sanity's GROQ API) do not have any sort of GraqhQL-like type contracts.
-
-We'd love to see advanced codegen for Sanity and GROQ. However, the end-result would likely not be as runtime type-safe as some might desire due to the flexibility of Sanity's Content Lake and the GROQ language in general.
-
-The goal of `groqd` is to work around these constraints by allowing _you_ to specify the runtime data schema for your query so that your data's type is _runtime safe_ – not just theoretically, but empirically.
+The playground is a drop-in Sanity plugin, and is an easy way to test out `groqd` within your dataset. See [the playground docs](./groqd-playground.mdx) for more information on the playground.
