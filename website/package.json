@@ -3,7 +3,6 @@
   "version": "0.0.8",
   "private": true,
   "scripts": {
-    "docusaurus": "docusaurus",
     "dev": "pnpm run gather-types && docusaurus start",
     "build": "pnpm run gather-types && docusaurus build --out-dir build/open-source/groqd",
     "build:vercel": "pnpm run gather-types && docusaurus build",
