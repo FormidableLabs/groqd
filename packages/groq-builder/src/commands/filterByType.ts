@@ -1,10 +1,10 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
-import { ExtractTypeNames } from "../types/schema-types";
+import { ExtractDocumentTypes } from "../types/schema-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
-    filterByType<TType extends ExtractTypeNames<ResultItem.Infer<TResult>>>(
+    filterByType<TType extends ExtractDocumentTypes<ResultItem.Infer<TResult>>>(
       ...type: TType[]
     ): GroqBuilder<
       ResultItem.Override<

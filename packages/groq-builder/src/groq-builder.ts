@@ -5,7 +5,7 @@ import {
   Parser,
   ParserFunction,
 } from "./types/public-types";
-import type { ExtractTypeNames, QueryConfig } from "./types/schema-types";
+import type { ExtractDocumentTypes, QueryConfig } from "./types/schema-types";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import type { Empty } from "./types/utils";
@@ -173,9 +173,9 @@ export class GroqBuilder<
    * with the specified document type.
    */
   public asType<
-    _type extends ExtractTypeNames<TQueryConfig["documentTypes"]>
+    _type extends ExtractDocumentTypes<TQueryConfig["schemaTypes"]>
   >(): GroqBuilder<
-    Extract<TQueryConfig["documentTypes"], { _type: _type }>,
+    Extract<TQueryConfig["schemaTypes"], { _type: _type }>,
     TQueryConfig
   > {
     return this as any;

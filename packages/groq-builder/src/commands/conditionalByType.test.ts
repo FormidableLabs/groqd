@@ -1,7 +1,7 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import {
   createGroqBuilder,
-  ExtractTypeNames,
+  ExtractDocumentTypes,
   GroqBuilder,
   IGroqBuilder,
   InferResultItem,
@@ -145,7 +145,7 @@ describe("conditionalByType", () => {
   it("a projection should return the correct types", () => {
     type QueryResult = InferResultType<typeof qAll>;
 
-    type DocTypes = ExtractTypeNames<SchemaConfig["documentTypes"]>;
+    type DocTypes = ExtractDocumentTypes<SchemaConfig["schemaTypes"]>;
     expectTypeOf<QueryResult>().toEqualTypeOf<
       Array<
         | {

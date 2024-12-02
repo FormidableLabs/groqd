@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
+import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
 import { ResultItem } from "../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -20,7 +20,7 @@ declare module "../groq-builder" {
       /**
        * Did we supply a condition for all possible _type values?
        */
-      TIsExhaustive extends boolean = ExtractTypeNames<
+      TIsExhaustive extends boolean = ExtractDocumentTypes<
         ResultItem.Infer<TResult>
       > extends keyof TConditionalProjections
         ? true

@@ -1,7 +1,7 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilder } from "../index";
+import { createGroqBuilder, SchemaDocument } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 
@@ -11,8 +11,9 @@ describe("star", () => {
   const star = q.star;
 
   it("should have the correct type, matching all documents", () => {
+    type SchemaDocs = Extract<SchemaConfig["schemaTypes"], SchemaDocument>;
     expectTypeOf<InferResultType<typeof star>>().toEqualTypeOf<
-      Array<SchemaConfig["documentTypes"]>
+      Array<SchemaDocs>
     >();
   });
   it("the query should be '*'", () => {

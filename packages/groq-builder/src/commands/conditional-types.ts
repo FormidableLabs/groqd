@@ -4,7 +4,7 @@ import {
   ProjectionMapOrCallback,
 } from "./projection-types";
 import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
-import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
+import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
 import { Expressions } from "../types/groq-expressions";
@@ -50,7 +50,7 @@ export type ConditionalByTypeProjectionMap<
   TResultItem,
   TQueryConfig extends QueryConfig
 > = {
-  [_type in ExtractTypeNames<TResultItem>]?: ProjectionMapOrCallback<
+  [_type in ExtractDocumentTypes<TResultItem>]?: ProjectionMapOrCallback<
     Extract<TResultItem, { _type: _type }>,
     TQueryConfig
   >;
