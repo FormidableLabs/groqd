@@ -27,7 +27,7 @@ The goal of `groqd` is to give you the _flexibility_ of GROQ, the [runtime safet
 `GROQD` uses a chaining syntax to build queries:
 
 ```ts
-import { q } from "./groq-builder-config";
+import { q } from "./groqd-client";
 
 const productsQuery = (
   q.star
