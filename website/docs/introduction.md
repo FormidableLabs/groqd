@@ -23,6 +23,56 @@ The goal of `groqd` is to give you the _flexibility_ of GROQ, the [runtime safet
 
 </details>
 
+## Usage Example
+`GROQD` uses a chaining syntax to build queries:
+
+```ts
+import { q } from "./groq-builder-config";
+
+const productsQuery = (
+  q.star
+   .filterByType("products")
+   .order("price desc")
+   .slice(0, 10)
+   .project(product => ({
+     name: q.string(),
+     price: q.number(),
+     slug: product.field("slug.current", q.string()),
+     imageUrls: product.field("images[]").deref().field("url", q.string())
+   }))
+);
+```
+
+Everything in the above query is strongly-typed, according to the Sanity schema defined in your `sanity.config.ts`.  This even includes all strings (like `"price desc"`).
+
+### Results
+
+The example above results in a GROQ query like this:
+
+```groq
+*[_type == "products"] | order(price desc) [0...10] {
+  name,
+  price,
+  "slug": slug.current,
+  "imageUrls": images[]->url
+}
+```
+
+and executing the query will return strongly-typed results:
+
+```ts
+const results = await runQuery(productsQuery);
+/*
+ * results: Array<{ 
+ *   name: string,
+ *   price: number,
+ *   slug: string,
+ *   imageUrls: Array<string>,
+ * }>
+ */
+```
+
+
 ## Why `GROQD` over raw `GROQ`?
 
 Sanity's CLI can generate types from your raw `GROQ` queries. This works well for simple use-cases.  
