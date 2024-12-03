@@ -1,13 +1,14 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # Configuration
 
-In your project, create a GroqBuilder instance, conventionally named `q`.  This instance will be bound to the types from your schema.
+## Configure the GroqBuilder
+
+In your project, create a file called `groqd-client.ts`:
 
 ```ts
-// ./groqd-client.ts
 import { createClient } from "@sanity/client";
 import { createGroqBuilderWithZod, makeSafeQueryRunner } from 'groq-builder';
 
@@ -22,13 +23,14 @@ const sanityClient = createClient({
 export const runQuery = makeSafeQueryRunner((query) => sanityClient.fetch(query));
 
 // 👇 Create a type-safe query builder
-export const q = createGroqBuilderWithZod<{
-  schemaTypes: AllSanitySchemaTypes;
+type SchemaConfig = {
+  schemaTypes: AllSanitySchemaTypes
   referenceSymbol: typeof internalGroqTypeReferenceTo;
-}>({});
+};
+export const q = createGroqBuilderWithZod<SchemaConfig>({});
 ```
 
-## Generating types from your Sanity Schema
+## Generating the types from your Sanity Schema
 
 The above example imports the Sanity Schema types from a generated `sanity.types.ts` file.  
 
@@ -47,7 +49,5 @@ If you don't want to, or can't, provide a schema, you can use `any` instead. You
 We highly recommend using the `validationRequired: true` option for this scenario, which forces runtime type checks.
 
 ```ts
-export const q = createGroqBuilderWithZod<any>({
-  validationRequired: true
-});
+export const q = createGroqBuilderWithZod<any>({ validationRequired: true });
 ```
