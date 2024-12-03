@@ -24,7 +24,7 @@ The goal of `groqd` is to give you the _flexibility_ of GROQ, the [runtime safet
 </details>
 
 ## Usage Example
-`GROQD` uses a chaining syntax to build queries:
+`GROQD` uses a strongly-typed chaining syntax to build queries:
 
 ```ts
 import { q } from "./groqd-client";
@@ -43,11 +43,11 @@ const productsQuery = (
 );
 ```
 
-Everything in the above query is strongly-typed, according to the Sanity schema defined in your `sanity.config.ts`.  This even includes all strings (like `"price desc"`).
+Everything in the above query is strongly-typed, according to the Sanity schema defined in your `sanity.config.ts`.  This means you get auto-complete for all strings, including `"price desc"` and `"slug.current"`!
 
 ### Results
 
-The example above results in a GROQ query like this:
+The example above generates a GROQ query like this:
 
 ```groq
 *[_type == "products"] | order(price desc) [0...10] {
