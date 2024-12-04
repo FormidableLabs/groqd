@@ -1,15 +1,15 @@
 # Fragments
 
-A "fragment" is a reusable projection. It is just a `groq-builder` concept, not a part of the Groq language.
+A "fragment" is a reusable projection. It is just a `groq-builder` concept, not a part of the GROQ language.
 
 Fragments can be reused across multiple queries, and they can be easily extended or combined.
 
 ## Defining a Fragment
 
-To create a fragment, you specify the "input type" for the fragment, then define the projection.  For example:
+To create a fragment, you specify the "input type" of the fragment, then define the projection.  For example:
 
 ```ts
-const productFragment = q.fragment<SanitySchema.Product>().project({
+const productFragment = q.fragmentForType<"product">().project({
   name: q.string(),
   price: q.number(),
   slug: ["slug.current", q.string()],
@@ -46,7 +46,7 @@ Fragments are just plain objects, with extra type information.  This makes it ea
 To extend a fragment:
 
 ```ts
-const productDetailsFragment = q.fragment<SanitySchema.Product>().project({
+const productDetailsFragment = q.fragmentForType<"product">().project({
   ...productFragment,
   description: q.string(),
   msrp: q.number(),
@@ -57,14 +57,14 @@ const productDetailsFragment = q.fragment<SanitySchema.Product>().project({
 To combine fragments:
 
 ```ts
-const productDetailsFragment = q.fragment<SanitySchema.Product>().project({
+const productDetailsFragment = q.fragmentForType<"product">().project({
   ...productFragment,
   ...productDescriptionFragment,
   ...productImagesFragment,
 });
 ```
 
-To infer the "result type" of any of these fragments, use `InferFragmentType`:
+To infer the "result type" for any of these fragments, use `InferFragmentType`:
 
 ```ts
 import { InferFragmentType } from './public-types';

@@ -23,6 +23,15 @@ describe("fragment", () => {
     }>();
   });
 
+  it("supports proper error reporting for invalid projections", () => {
+    // @ts-expect-error ---
+    q.fragment<SanitySchema.Variant>().project({ INVALID: true });
+    // @ts-expect-error ---
+    q.fragment<SanitySchema.Variant>().project({ name: "INVALID" });
+    // @ts-expect-error ---
+    q.fragment<SanitySchema.Variant>().project({ slug: "slug.INVALID" });
+  });
+
   const productFrag = q.fragment<SanitySchema.Product>().project((qP) => ({
     name: true,
     slug: "slug.current",
@@ -194,6 +203,23 @@ describe("fragment", () => {
             }
           }"
       `);
+    });
+  });
+
+  describe("fragmentForType", () => {
+    const variantFrag = q.fragmentForType<"variant">().project({
+      name: true,
+      price: true,
+      slug: "slug.current",
+    });
+    type VariantFragType = InferFragmentType<typeof variantFrag>;
+
+    it("simple named fragment should have the correct type", () => {
+      expectTypeOf<VariantFragType>().toEqualTypeOf<{
+        name: string;
+        price: number;
+        slug: string;
+      }>();
     });
   });
 });
