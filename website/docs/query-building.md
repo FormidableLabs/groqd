@@ -12,26 +12,40 @@ The `q` object (created in the [Configuration](./configuration) section) has 3 m
 2. Provide all of Zod's validation functions, like `q.string()` and `q.number()`.  These are identical to `zod.string()` and `zod.number()`, and are added to the `q` object for convenience.
 3. Creating reusable fragments, using `q.fragmentForType<...>()`.  See [the Fragments documentation for more details](./fragments)
 
-All GroqD query chains are **immutable**, so you can chain multiple queries from the same base query.
+All GroqD methods return a new chainable instance.  Chains are immutable, so they can be reused if needed.
 
-## Filter Methods
+## Filtering Methods
 
 ### `.star`
 
-Selects all documents, via GROQ's `*` symbol. This is how most queries start.
+Selects all documents, via GROQ's `*` selector.
+This is how most queries start.
 
 ```ts
 q.star.filter(...).project(...)
 ```
 
-### `.filterByType`
+### `.filterByType(...types)`
+
+Filters the query based on the document type.  
+Supports multiple type arguments.
 
 ```ts
 q.star.filterByType("pokemon");
-// translates to: *[_type == 'pokemon']
+// Result GROQ: *[_type == "pokemon"]
+// Result Type: Pokemon[]
 ```
 
-### `.filterBy`
+### `.filterBy(expression)`
+
+Filters the query based on a GROQ string.  
+This method is strongly-typed, but only supports a small subset of GROQ expressions. 
+
+```ts
+q.star
+ .filterByType("products")
+ .filterBy("price ")
+```
 
 ### `.filter`
 
