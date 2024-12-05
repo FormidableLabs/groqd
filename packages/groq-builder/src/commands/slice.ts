@@ -3,9 +3,25 @@ import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Returns a single item from the results, based on the index.
+     *
+     * @example
+     * q.star
+     *  .filterByType("product")
+     *  .slice(0)
+     * // Result GROQ: *[_type == "product"][0]
+     * // Result Type: Product
+     *
+     * @param index - Zero-based index to return
+     */
     slice(
       index: number
     ): GroqBuilder<ResultItem.InferMaybe<TResult>, TQueryConfig>;
+
+    /**
+     * Returns a range of items from the results.
+     */
     slice(
       /**
        * The first index to include in the slice

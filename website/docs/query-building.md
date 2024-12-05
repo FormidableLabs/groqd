@@ -38,40 +38,44 @@ q.star.filterByType("pokemon");
 
 ### `.filterBy(expression)`
 
-Filters the query based on a GROQ string.  
-This method is strongly-typed, but only supports a small subset of GROQ expressions. 
+Filters the query based on a GROQ expression.  
+The `expression` is a strongly-typed string, but only supports simple equality expressions. 
 
 ```ts
 q.star
- .filterByType("products")
- .filterBy("price ")
+ .filterByType("product")
+ .filterBy('category == "shoe"')
 ```
 
-### `.filter`
+> For more complex expressions, use `.filter(expression)`:
 
-Adds any GROQ filter to the query.  
-⚠️ Warning: this method allows any `string`, and the syntax is not type-checked.  Please use `.filterBy` for a strongly-typed
 
-    Receives a single string argument for the GROQ filter to be applied (without the surrounding `[` and `]`). Applies the GROQ filter to the query.
+### `.filter(expression)`
+
+Filters the query based on **any** GROQ expression.
+
+> ⚠️ This method allows any GROQ `string`, and the syntax is not checked.  Please use `.filterBy` for strongly-typed expressions.
 
 ```ts
-q.star.filter("_type == 'pokemon'");
-// translates to: *[_type == 'pokemon']
+q.star
+ .filterByType("product")
+ .filter("price >= 50");
+// Result GROQ: *[_type == "product"][price >= 50]
+// Result Type: Product[]
 ```
 
-### `.order`
+### `.order(...fields)`
 
-    ### `.order`
+Orders the results using a strongly-typed expression, such as `"name asc"` or `"slug.current desc"`.  Supports multiple sort expressions.
+
+```ts
+q.star
+ .filterByType("product")
+ .order("price asc", "slug.current desc")
+// Result GROQ: *[_type == "product"] | order(price asc, slug.current desc)
+// Result Type: Product[]
+```
     
-    Receives a list of ordering expression, such as `"name asc"`, and adds an order statement to the GROQ query.
-    
-    ```ts
-    q.star.filter("_type == 'pokemon'").order("name asc");
-    // translates to *[_type == 'pokemon']|order(name asc)
-    ```
-
-
-
 ### `.score`
     ### `.score`
     
@@ -90,22 +94,30 @@ q.star.filter("_type == 'pokemon'");
 
 
 
-### `.slice`
+### `.slice(index)`
 
-    ### `.slice`
-    
-    Creates a slice operation by taking a minimum index and an optional maximum index.
-    
-    ```ts
-    q.star.filter("_type == 'pokemon'").grab({ name: q.string() }).slice(0, 8);
-    // translates to *[_type == 'pokemon']{name}[0..8]
-    // -> { name: string }[]
-    ```
-    
-    :::note
-    Groq slices are "closed" intervals, so the maximum index is _included_ in the result. This can be a bit confusing when coming from JS `Array.slice`, since `q.star.slice(0, 8)` includes *nine* items – not eight.
-    :::
+Returns a single item from the results, based on the index.
 
+```ts
+q.star
+ .filterByType("product")
+ .slice(0)
+// Result GROQ: *[_type == "product"][0]
+// Result Type: Product
+```
+
+### `.slice(start, end, inclusive = false)`
+
+Returns a range of items from the results.  
+If `inclusive` is set, the `end` item will be included.
+
+```ts
+q.star
+ .filterByType("product")
+ .slice(10, 20)
+// Result GROQ: *[_type == "product"][10...20]
+// Result Type: Product[]
+```
 
 
 ## Projections
