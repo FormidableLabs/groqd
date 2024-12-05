@@ -23,8 +23,8 @@ declare module "../groq-builder" {
     /**
      * Performs an "object projection", returning an object with the fields specified.
      *
-     * @param projectionMap - The projection map is an object, mapping field names to projection values.
-     * @param __projectionMapTypeMismatchErrors - This is only used for reporting errors from the projection.
+     * @param projectionMap - The projection map is an object, mapping field names to projection values
+     * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
      */
     project<
       TProjection extends ProjectionMap<ResultItem.Infer<TResult>>,

@@ -82,9 +82,18 @@ export type IGroqBuilder<
    * @internal
    */
   readonly [GroqBuilderConfigType]: TQueryConfig;
-  query: string;
-  parser: ParserFunction | null;
-  parse: ParserFunction;
+  /**
+   * The GROQ query as a string
+   */
+  readonly query: string;
+  /**
+   * The parser function that should be used to parse result data
+   */
+  readonly parser: ParserFunction | null;
+  /**
+   * Parses and validates the query results, passing all data through the parsers.
+   */
+  readonly parse: ParserFunction;
 };
 /**
  * Extracts the Result type from a GroqBuilder query

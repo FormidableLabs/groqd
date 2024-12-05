@@ -120,7 +120,7 @@ export class GroqBuilder<
   /**
    * Returns a new GroqBuilder, extending the current one.
    *
-   * For internal use.
+   * @internal
    */
   protected chain<TResultNew = never>(
     query: string,
