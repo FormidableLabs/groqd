@@ -4,15 +4,13 @@ slug: /
 ---
 
 
-# Introduction
+# Overview
 
 [![GROQD](https://oss.nearform.com/api/banner?badge=groqd&bg=c99f46)](https://commerce.nearform.com/open-source/groqd)
 
+GroqD is a GROQ query builder, designed to give the _**best GROQ developer experience**_ possible. 
 
-`groqd` is a **schema-aware**, strongly-typed GROQ query builder.  
-It enables you to write GROQ queries using **auto-completion**, **type-checking**, and **runtime validation**.
-
-The goal of `groqd` is to give you the _flexibility_ of GROQ, the [runtime safety of Zod](https://github.com/colinhacks/zod), and the best TypeScript developer experience possible. 
+It gives you the **flexibility** of GROQ, the **runtime safety** of [Zod](https://github.com/colinhacks/zod), and provides schema-aware **auto-completion** and **type-checking**. 
 
 <details>
 <summary>What is GROQ?</summary>
@@ -44,8 +42,6 @@ const productsQuery = (
 ```
 
 Everything in the above query is strongly-typed, according to the Sanity schema defined in your `sanity.config.ts`.  This means you get auto-complete for all strings, including `"price desc"` and `"slug.current"`!
-
-### Results
 
 The example above generates a GROQ query like this:
 
@@ -88,6 +84,7 @@ However, `GROQD` aims to maximize the developer experience, improve generated ty
 
 We also provide a [Vision](https://www.sanity.io/docs/the-vision-plugin)-like Sanity Studio tool for experimenting with `groqd` queries and running them against your actual dataset.
 
+(TODO: update this screenshot for 1.0)
 ![Screenshot of groqd playground in action](./img/groqd-playground-sample.png)
 
 The playground is a drop-in Sanity plugin, and is an easy way to test out `groqd` within your dataset. See [the playground docs](./groqd-playground.mdx) for more information on the playground.
