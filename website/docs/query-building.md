@@ -25,7 +25,7 @@ This is how most queries start.
 q.star.filter(...).project(...)
 ```
 
-### `.filterByType(...types)`
+### `.filterByType(type)`
 
 Filters the query based on the document type.  
 Supports multiple type arguments.
@@ -64,7 +64,7 @@ q.star
 // Result Type: Product[]
 ```
 
-### `.order(...fields)`
+### `.order(field)`
 
 Orders the results using a strongly-typed expression, such as `"name asc"` or `"slug.current desc"`.  Supports multiple sort expressions.
 
@@ -76,8 +76,8 @@ q.star
 // Result Type: Product[]
 ```
     
-### `.score`
-    ### `.score`
+### `.score(expression)`
+    ### `.score(expression)`
     
     Used to pipe a list of results through the `score` GROQ function.
     
@@ -119,11 +119,81 @@ q.star
 // Result Type: Product[]
 ```
 
+## TODO
+### `.select`
+### `.parameters`
+### `.raw`
+### `.validate`
 
 ## Projections
 
-### `.project`
-### `.field`
+In GROQ, **projections** are how we select the data we want returned. 
+
+### `.project(sub => ProjectionMap)`
+
+The `sub` parameter is a strongly-typed GroqBuilder, so it knows the names and types of the fields in the current filters.
+
+The `ProjectionMap` is an object that maps keys to queries.
+
+Example:
+
+```ts
+q.star.filterByType("product").project(sub => ({
+  imageUrl: sub.field("image").deref().field("url", q.string()),
+  slug: sub.field("slug.current", q.string()),
+  price: sub.field("price", q.number()),
+}))
+// Result GROQ: 
+//   *[_type == "product"]{
+//     "imageUrl": image->url,
+//     "slug": slug.current,
+//     price,
+//   }
+```
+
+#### Shorthand Options
+
+Since it's extremely common to select a field, there are several shorthand methods to make this easy!  The fields above could be rewritten as follows:
+
+```ts
+  slug: ["slug.current", q.string()],
+  price: q.number(), // (when the key and field names are the same)
+```
+
+Since runtime validation is optional, you could also omit the validation functions, and use this very short syntax:
+```ts
+  slug: "slug.current",
+  price: true,
+```
+
+Finally, if you're only using these shorthands, and you're NOT using the `sub` parameter at all, you can remove it, and everything will still be strongly-typed:
+```ts
+q.star.filterByType("product").project({
+  slug: ["slug.current", q.string()],
+  price: q.number(), 
+})
+```
+
+### `q.fragment<T>().project(projectionMap)`
+### `q.fragmentForType<"type">().project(projectionMap)`
+
+### `.field(fieldName, parser?)`
+
+Sanity calls this a "naked projection". This selects a single field from the object.
+
+```ts
+// Select all product names:
+q.star.filterByType("product").field("name", q.string())
+// Result GROQ: *[_type == "product"].name
+// Result Type: Array<string>
+```
+
+### `q.conditional(conditionsMap)`
+
+
+## WIP
+
+### `.value`
 ### `.deref`
 
     ### `.deref`
