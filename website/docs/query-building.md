@@ -75,8 +75,9 @@ q.star
 // Result GROQ: *[_type == "product"] | order(price asc, slug.current desc)
 // Result Type: Product[]
 ```
-    
-### `.score(expression)`
+
+<!--    
+    ### `.score(expression)`
     ### `.score(expression)`
     
     Used to pipe a list of results through the `score` GROQ function.
@@ -90,7 +91,7 @@ q.star
       .order("_score desc")
       .grabOne("name", z.string());
     ```
-
+-->
 
 
 
@@ -119,12 +120,6 @@ q.star
 // Result Type: Product[]
 ```
 
-## TODO
-### `.select`
-### `.parameters`
-### `.raw`
-### `.validate`
-
 ## Projections
 
 In GROQ, **projections** are how we select the data we want returned. 
@@ -151,7 +146,7 @@ q.star.filterByType("product").project(sub => ({
 //   }
 ```
 
-#### Shorthand Options
+### Shorthand Syntax
 
 Since it's extremely common to select a field, there are several shorthand methods to make this easy!  The fields above could be rewritten as follows:
 
@@ -174,9 +169,6 @@ q.star.filterByType("product").project({
 })
 ```
 
-### `q.fragment<T>().project(projectionMap)`
-### `q.fragmentForType<"type">().project(projectionMap)`
-
 ### `.field(fieldName, parser?)`
 
 Sanity calls this a "naked projection". This selects a single field from the object.
@@ -188,7 +180,62 @@ q.star.filterByType("product").field("name", q.string())
 // Result Type: Array<string>
 ```
 
-### `q.conditional(conditionsMap)`
+
+## GroqD Utilities
+
+These utilities are GroqD-specific, and do not correspond to GROQ features.
+
+### `.raw(expression, parser?)`
+
+An "escape hatch" allowing you to write any GROQ query you want.
+
+This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
+
+```ts
+q.star.filterByType("product").project({
+  imageCount: q.raw("count(images[])", q.number())
+})
+```
+
+### `.parameters<Params>()`
+
+Defines the names and types of parameters that must be passed to the query. 
+
+This method is just for defining types; it has no runtime effects. However, it enables 2 great features: 
+
+- Strongly-typed methods (eg. `filterBy`) can reference these parameters.
+- The parameters will be required when executing the query.
+
+```ts
+const productsBySlug = (
+  q.parameters<{ slug: string }>()
+   .star.filterByType('product')
+   // You can now reference the $slug parameter:
+   .filterBy('slug.current == $slug')
+);
+const results = await runQuery(
+  productsBySlug,
+  // The 'slug' parameter is required:
+  { parameters: { slug: "123" } }
+)
+```
+
+### `.validate`
+
+
+### `.nullable`
+
+Marks a query as nullable – in case you are expecting a potential `null` value.
+
+```ts
+q.star
+  .filterByType("product")
+  .slice(0)
+  .project({ name: q.string() })
+  .nullable(); // 👈 we're okay with a null value here
+```
+
+
 
 
 ## WIP
@@ -196,57 +243,29 @@ q.star.filterByType("product").field("name", q.string())
 ### `.value`
 ### `.deref`
 
-    ### `.deref`
-    
-    Used to apply the de-referencing operator `->`.
-    
-    ```ts
-    q.star
-      .filter("_type == 'pokemon'")
-      .grab({
-        name: q.string(),
-        // example of grabbing types for a pokemon, and de-referencing to get name value.
-        types: q("types").filter().deref().grabOne("name", q.string()),
-      });
-    ```
-    
-    :::note
-    When using a subquery it can be easy to mistake using the `isArray` option for selecting the array in the GROQ query. The following subqueries produce the same output and show the correct way to dereference an array as a subquery.
-    
-    By using array select
-    
-    ```ts
-    hosts: q('hosts[]', { isArray: true })
-      .deref()
-      .grab({
-          _id: q.string(),
-          name: q.string(),
-      }),
-    
-    // translates to "hosts": hosts[]->{ _id,  name }
-    ```
-    
-    Or by using an empty `filter` method
-    
-    ```ts
-    hosts: q('hosts')
-      .filter()
-      .deref()
-      .grab({
-          _id: q.string(),
-          name: q.string(),
-      }),
-    
-    // translates to "hosts": hosts[]->{ _id,  name }
-    ```
-    :::
+Uses GROQ's dereference operator (`->`) to follow a reference.
 
+```ts
+q.star
+ .filterByType("product")
+ .field("image").deref().field("url")
+// GROQ: *[_type == "product"].image->url
+```
 
-
-
-
-
-
+```ts
+q.star.filterByType("product").project(sub => ({
+  category: sub.field("category").deref().field("title"),
+  images: sub.field("images[]").deref().project({
+    url: q.string(),
+    width: q.number(),
+    height: q.number(),
+  }),
+}))
+// GROQ: *[_type == "product"]{
+//  "category": category->title,
+//  "images": images[]->{ url, width, height }
+// }
+```
 
 
     ### `.grab`
@@ -539,18 +558,5 @@ q.star.filterByType("product").field("name", q.string())
     ```
     :::
     
-## Projections (cont'd)
-
-    ### `.nullable`
-    
-    A method on the base query class that allows you to mark a query's schema as nullable – in case you are expecting a potential null value.
-    
-    ```ts
-    q.star
-      .filter("_type == 'digimon'")
-      .slice(0)
-      .grab({ name: q.string() })
-      .nullable(); // 👈 we're okay with a null value here
-    ```
 
     
