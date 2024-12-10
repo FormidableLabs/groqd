@@ -1,11 +1,11 @@
-import { createGroqBuilder, ExtractDocumentTypes } from "groq-builder";
+import { createGroqBuilder } from "groq-builder";
 import type {
   AllSanitySchemaTypes,
   internalGroqTypeReferenceTo,
 } from "./pokemon.sanity.types";
 
 type SchemaConfig = {
-  documentTypes: ExtractDocumentTypes<AllSanitySchemaTypes>;
+  schemaTypes: AllSanitySchemaTypes;
   referenceSymbol: typeof internalGroqTypeReferenceTo;
 };
 

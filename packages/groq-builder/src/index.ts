@@ -25,7 +25,7 @@ export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
  * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
  * type SchemaConfig = {
- *   documentTypes: ExtractDocumentTypes<AllSanitySchemaTypes>;
+ *   schemaTypes: AllSanitySchemaTypes;
  *   referenceSymbol: typeof internalGroqTypeReferenceTo;
  * };
  * export const q = createGroqBuilder<SchemaConfig>();
@@ -57,7 +57,7 @@ export function createGroqBuilder<TRootConfig extends QueryConfig>(
  * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
  * type SchemaConfig = {
- *   documentTypes: ExtractDocumentTypes<AllSanitySchemaTypes>;
+ *   schemaTypes: AllSanitySchemaTypes;
  *   referenceSymbol: typeof internalGroqTypeReferenceTo;
  * };
  * export const q = createGroqBuilderWithZod<SchemaConfig>(); */
