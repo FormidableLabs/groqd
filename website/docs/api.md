@@ -180,67 +180,6 @@ q.star.filterByType("product").field("name", q.string())
 // Result Type: Array<string>
 ```
 
-
-## GroqD Utilities
-
-These utilities are GroqD-specific, and do not correspond to GROQ features.
-
-### `.raw(expression, parser?)`
-
-An "escape hatch" allowing you to write any GROQ query you want.
-
-This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
-
-```ts
-q.star.filterByType("product").project({
-  imageCount: q.raw("count(images[])", q.number())
-})
-```
-
-### `.parameters<Params>()`
-
-Defines the names and types of parameters that must be passed to the query. 
-
-This method is just for defining types; it has no runtime effects. However, it enables 2 great features: 
-
-- Strongly-typed methods (eg. `filterBy`) can reference these parameters.
-- The parameters will be required when executing the query.
-
-```ts
-const productsBySlug = (
-  q.parameters<{ slug: string }>()
-   .star.filterByType('product')
-   // You can now reference the $slug parameter:
-   .filterBy('slug.current == $slug')
-);
-const results = await runQuery(
-  productsBySlug,
-  // The 'slug' parameter is required:
-  { parameters: { slug: "123" } }
-)
-```
-
-### `.validate`
-
-
-### `.nullable`
-
-Marks a query as nullable – in case you are expecting a potential `null` value.
-
-```ts
-q.star
-  .filterByType("product")
-  .slice(0)
-  .project({ name: q.string() })
-  .nullable(); // 👈 we're okay with a null value here
-```
-
-
-
-
-## WIP
-
-### `.value`
 ### `.deref`
 
 Uses GROQ's dereference operator (`->`) to follow a reference.
@@ -268,104 +207,96 @@ q.star.filterByType("product").project(sub => ({
 ```
 
 
-    ### `.grab`
+## Validation methods
+
+### Zod methods
+
+The root `q` object contains many of [Zod's validation methods](https://zod.dev/?id=primitives). This is purely for convenience; `q.string()` is identical to `zod.string()`.
+
+This includes the following Zod methods:
+
+- Primitives
+  - `q.string()`
+  - `q.number()`
+  - `q.boolean()`
+  - `q.null()`
+  - `q.date()`
+- Composite types
+  - `q.union([ ...types ])`
+  - `q.array(type)`
+  - `q.object({ ...schema })`
+
+The Zod methods are chainable, like `q.number().min(0).max(10).default(0)`.
+
+### Zod Extras: `q.default(zod)`
+
+### `q.value(literal)`
+
+## Additional GroqD methods
+
+These utilities are GroqD-specific, and do not correspond to GROQ features.
+
+### `.nullable()`
+
+Marks a query as nullable – in case you are expecting a potential `null` value.
+
+```ts
+q.star
+  .filterByType("product")
+  .slice(0)
+  .project({ name: q.string() })
+  .nullable(); // 👈 we're okay with a null value here
+```
+
+### `.raw(expression, parser?)`
+
+An "escape hatch" allowing you to write any GROQ query you want.
+
+This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
+
+```ts
+q.star.filterByType("product").project({
+  imageCount: q.raw("count(images[])", q.number())
+})
+```
+
+### `.parameters<Params>()`
+
+Defines the names and types of parameters that must be passed to the query. 
+
+This method is just for defining types; it has no runtime effects. However, it enables 2 great features: 
+
+- Strongly-typed methods (eg. `filterBy`) can reference these parameters.
+- The parameters will be required when executing the query.
+
+```ts
+const productsBySlug = (
+  q.parameters<{ slug: string }>()
+   .star.filterByType("product")
+   // You can now reference the $slug parameter:
+   .filterBy("slug.current == $slug")
+);
+const results = await runQuery(
+  productsBySlug,
+  // The 'slug' parameter is required:
+  { parameters: { slug: "123" } }
+)
+```
+
+### `.transform(parser)`
+
+Manually adds a transformation (or validation) to the query results.  
+
+```ts
+q.star.filterByType("product").project(sub => ({
+  created: sub.field("_createdAt").transform(str => new Date(str)),
+}))
+```
+Also aliased as `.validate(parser)` for semantic reasons.
 
 
-    Available on `UnknownQuery`, `ArrayQuery`, and `EntityQuery`, handles [projections](https://www.sanity.io/docs/how-queries-work#727ecb6f5e15), or selecting fields from an existing set of documents. This is the primary mechanism for providing a schema for the data you expect to get.
-    
-    `q.grab` accepts a "selection" object as its sole argument, with three different forms:
-    
-    ```ts
-    q.star.grab({
-      // projection is `{ "name": name }`, and validates that `name` is a string.
-      name: ["name", q.string()],
-    
-      // shorthand for `description: ['description', q.string()]`,
-      //  projection is just `{ description }`
-      description: q.string(),
-    
-      // can also pass a sub-query for the field,
-      //  projection is `{ "types": types[]->{ name } }`
-      types: q("types").filter().deref().grab({ name: q.string() }),
-    });
-    ```
-    
-    See [Schema Types](/docs/schema-types) for available schema options, such as `q.string()`. These generally correspond to Zod primitives, so you can do something like:
-    
-    ```ts
-    q.star.grab({
-      name: q.string().optional().default("no name"),
-    });
-    ```
-    
-    #### Conditional selections with `.grab`
-    
-    Grab accepts a second "Conditions" argument that comes in the shape `{ [condition: string]: Selection }` . You can use this to create a union of possible selections that are merged with the base selection.
-    
-    ```ts
-    const pokemonQuery = q(*).filterByType('pokemon').grab(
-      // Base selection
-      {
-        _key: q.string(),
-        name: q.string()
-      },
-      // Conditional selections
-      {
-        'base.Attack > 60': {
-          attack: 'strong',
-          hp: ['base.HP', q.number()] 
-        },
-        'base.Attack <= 60': {
-          attack: 'weak',
-          defense: ['base.Defense', q.number()] 
-        }
-      }
-    )
-    
-    type SanityPokemon = InferType<typeof pokemonQuery>
-    //    ^? (
-    //         | { _key: string; name: string; }
-    //         | { _key: string; name: string; attack: 'strong'; hp: number}
-    //         | { _key: string; name: string; attack: 'weak'; defense: number}
-    //       )[]
-    ```
-    
-    If you find that you are using the conditional argument with an empty base selection, we recommend using the [.select](/docs/query-building#select) method instead.
-    
-    ### `.grab$`
-    
-    Just like `.grab`, but uses the `nullToUndefined` helper [outlined here](/docs/utility-methods#nulltoundefined) to convert `null` values to `undefined` which makes writing queries with "optional" values a bit easier.
-    
-    ```ts
-    q.star
-      .filter("_type == 'pokemon'")
-      .grab$({
-        name: q.string(),
-        // 👇 `foo` comes in as `null`, but gets preprocessed to `undefined` so we can use `.optional()`.
-        foo: q.string().optional().default("bar"),
-      })
-    ```
-    
-    ### `.grabOne`
-    
-    Similar to `q.grab`, but for ["naked" projections](https://www.sanity.io/docs/how-queries-work#dd66cae5ed8f) where you just need a single property (instead of an object of properties). Pass a property to be "grabbed", and a schema for the expected type.
-    
-    ```ts
-    q.star.filter("_type == 'pokemon'").grabOne("name", q.string());
-    // -> string[]
-    ```
-    
-    ### `.grabOne$`
-    
-    Just like `.grabOne`, but uses the `nullToUndefined` helper [outlined below](#nulltoundefined) to convert `null` values to `undefined` which makes writing queries with "optional" values a bit easier.
-    
-    ```ts
-    q.star
-      .filter("_type == 'pokemon'")
-      .grabOne$("name", q.string().optional());
-    ```
-    
-    ### `.select`
+
+##### `.select`
     
     GROQ offers a `select` operator that you can use at the field-level to conditionally select values, such as the following.
     
