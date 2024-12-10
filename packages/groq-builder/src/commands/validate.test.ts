@@ -1,12 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { createGroqBuilder, InferResultType } from "../index";
+import { createGroqBuilderWithZod, InferResultType } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { currencyFormat } from "../tests/utils";
-import { zod } from "../validation/zod";
 
-const q = createGroqBuilder<SchemaConfig>();
+const q = createGroqBuilderWithZod<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("parse", () => {
@@ -36,7 +35,7 @@ describe("parse", () => {
   });
   describe("Zod parsers", () => {
     const qPriceParse = qPrice.validate<string>(
-      zod.number().transform((p) => currencyFormat(p))
+      q.number().transform((p) => currencyFormat(p))
     );
 
     it("shouldn't affect the query at all", () => {

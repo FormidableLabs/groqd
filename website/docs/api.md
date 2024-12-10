@@ -221,6 +221,7 @@ This includes the following Zod methods:
   - `q.boolean()`
   - `q.null()`
   - `q.date()`
+  - `q.literal(value)`
 - Composite types
   - `q.union([ ...types ])`
   - `q.array(type)`

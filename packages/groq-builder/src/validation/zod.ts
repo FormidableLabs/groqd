@@ -8,6 +8,7 @@ const zodPrimitives = pick(z, [
   "boolean",
   "null",
   "date",
+  "literal",
   "union",
   "array",
   "object",
