@@ -10,7 +10,7 @@ The `q` object (created in the [Configuration](./configuration) section) has 3 m
 
 1. Start a query chain, using `q.star` or `q.project(...)`
 2. Provide all of Zod's validation functions, like `q.string()` and `q.number()`.  These are identical to `zod.string()` and `zod.number()`, and are added to the `q` object for convenience.
-3. Creating reusable fragments, using `q.fragmentForType<...>()`.  See [the Fragments documentation for more details](./fragments)
+3. Creating reusable fragments, using `q.fragment<...>()`.  See [the Fragments documentation for more details](./api-advanced#fragments)
 
 All GroqD methods return a new chainable instance.  Chains are immutable, so they can be reused if needed.
 
@@ -270,7 +270,7 @@ q.star.filterByType("product").project({
 
 #### `q.value(literal, parser?)`
 
-Selects a literal value. Especially useful with [conditional selections](./api-advanced).
+Selects a literal value. Especially useful with [conditional selections](./api-advanced#conditionals).
 
 > Not to be confused with `q.literal(literal)` which is a Zod validation function.
 
@@ -352,7 +352,7 @@ q.star.filterByType("product").project({
 ```
 
 
-
+<!--
 
 ##### `.select`
     
@@ -549,3 +549,4 @@ q.star.filterByType("product").project({
     
 
     
+-->
