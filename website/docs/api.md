@@ -180,7 +180,7 @@ q.star.filterByType("product").field("name", q.string())
 // Result Type: Array<string>
 ```
 
-### `.deref`
+### `.deref()`
 
 Uses GROQ's dereference operator (`->`) to follow a reference.
 
@@ -229,25 +229,63 @@ This includes the following Zod methods:
 
 The Zod methods are chainable, like `q.number().min(0).max(10).default(0)`.
 
-### Zod Extras: `q.default(zod)`
+### Zod Extras: 
 
-### Zod Extras: `q.slug(field)`
+In addition to the above Zod methods, a few extra validation methods are included:
+
+#### `q.default(parser, defaultValue)`
+
+Zod's chainable `.default()` method doesn't work well with GROQ, since GROQ only returns `null` and never `undefined`.
+
+So instead of chaining Zod's `default` method, use this `default` method instead.
+
+```ts
+// Before:
+q.number().default(0)
+// After:
+q.default(q.number(), 0)
+```
+
+```ts
+q.star.filterByType("product").project({
+  name: q.default(q.string(), "Product"),
+  price: q.default(q.number().min(0), 0),
+})
+```
+
+
+
+#### `q.slug(field)`
 
 Shorthand for accessing the current value for a slug.
 
 ```ts
-// Before:
 q.star.filterByType("product").project({
+  // Before:
   slug: ["slug.current", z.string()],
-})
-// After:
-q.star.filterByType("product").project({
+  // After:
   slug: q.slug("slug"),
 })
 ```
 
-### `q.value(literal)`
+#### `q.value(literal, parser?)`
 
+Selects a literal value. Especially useful with [conditional selections](./api-advanced).
+
+> Not to be confused with `q.literal(literal)` which is a Zod validation function.
+
+```ts
+q.star.filterByType("product").project({
+  a: q.value("LITERAL"),
+  b: q.value(true),
+  c: q.value(42),
+})
+// Result GROQ: *[_type == "product"]{
+//  "a": "LITERAL",
+//  "b": true,
+//  "c": 42,
+// }
+```
 
 ## Additional GroqD methods
 
