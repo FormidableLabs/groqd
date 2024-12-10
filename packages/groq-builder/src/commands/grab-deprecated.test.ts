@@ -1,10 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilder } from "../index";
+import { createGroqBuilderWithZod } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { zod } from "../validation/zod";
 
-const q = createGroqBuilder<SchemaConfig>();
+const q = createGroqBuilderWithZod<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("grab (backwards compatibility)", () => {
@@ -16,11 +15,11 @@ describe("grab (backwards compatibility)", () => {
   });
 
   it("should be type-safe", () => {
-    const qGrab = qVariants.grab((q) => ({
+    const qGrab = qVariants.grab((sub) => ({
       name: true,
       slug: "slug.current",
-      msrp: ["msrp", zod.number()],
-      styles: q.grabOne("style[]").deref().grabOne("name"),
+      msrp: ["msrp", q.number()],
+      styles: sub.grabOne("style[]").deref().grabOne("name"),
     }));
 
     expectTypeOf<InferResultType<typeof qGrab>>().toEqualTypeOf<
