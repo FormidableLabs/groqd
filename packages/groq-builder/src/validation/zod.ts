@@ -15,21 +15,11 @@ const zodPrimitives = pick(z, [
 
 const zodExtras = {
   /**
-   * Wraps a Zod method, but maps `null` to `undefined` first.
-   */
-  nullToUndefined<TZodSchema extends z.ZodType>(
-    schema: TZodSchema
-  ): ParserFunction<z.input<TZodSchema> | null, z.output<TZodSchema>> {
-    return (input) => {
-      return schema.parse(input ?? undefined);
-    };
-  },
-  /**
    * Zod's `.default()` method doesn't work well with GROQ,
    * since GROQ only returns `null` and never `undefined`.
    *
-   * So instead of chaining Zod's default method,
-   * use this default method instead.
+   * So instead of chaining Zod's `default` method,
+   * use this `default` method instead.
    *
    * @example
    * // Before:
@@ -40,18 +30,25 @@ const zodExtras = {
   default<TZodSchema extends z.ZodType<any, any, any>>(
     schema: TZodSchema,
     defaultValue: z.output<TZodSchema>
-  ): ParserFunction<
-    z.input<TZodSchema> | null | undefined,
-    z.output<TZodSchema>
-  > {
+  ): ParserFunction<z.input<TZodSchema> | null, z.output<TZodSchema>> {
     return (input) => {
-      if (input === null || input === undefined) return defaultValue;
+      if (input === null) return defaultValue;
       return schema.parse(input);
     };
   },
+
   /**
-   * TODO
-   * @param fieldName
+   * Shorthand for accessing the current value for a slug.
+   *
+   * @example
+   * // Before:
+   * q.star.filterByType("product").project({
+   *   slug: ["slug.current", z.string()],
+   * })
+   * // After:
+   * q.star.filterByType("product").project({
+   *   slug: q.slug("slug"),
+   * })
    */
   slug<TFieldName extends string>(fieldName: TFieldName) {
     return [`${fieldName}.current`, z.string()] as const;

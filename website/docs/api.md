@@ -230,7 +230,23 @@ The Zod methods are chainable, like `q.number().min(0).max(10).default(0)`.
 
 ### Zod Extras: `q.default(zod)`
 
+### Zod Extras: `q.slug(field)`
+
+Shorthand for accessing the current value for a slug.
+
+```ts
+// Before:
+q.star.filterByType("product").project({
+  slug: ["slug.current", z.string()],
+})
+// After:
+q.star.filterByType("product").project({
+  slug: q.slug("slug"),
+})
+```
+
 ### `q.value(literal)`
+
 
 ## Additional GroqD methods
 
