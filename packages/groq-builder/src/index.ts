@@ -4,13 +4,13 @@ import "./commands";
 
 import type { QueryConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
-import { zod } from "./validation/zod";
+import { zodMethods } from "./validation/zod";
 
 // Re-export all our public types:
 export * from "./groq-builder";
 export * from "./types/public-types";
 export * from "./types/schema-types";
-export { zod } from "./validation/zod";
+export { zodMethods as zod } from "./validation/zod";
 export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
 
 /**
@@ -65,5 +65,5 @@ export function createGroqBuilderWithZod<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
   const q = createGroqBuilder<TRootConfig>(options);
-  return Object.assign(q, zod);
+  return Object.assign(q, zodMethods);
 }

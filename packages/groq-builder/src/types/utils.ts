@@ -113,6 +113,17 @@ export function notNull<T>(value: T | null): value is T {
   return !!value;
 }
 
+export function pick<T, TKeys extends keyof T>(
+  obj: T,
+  keys: TKeys[]
+): Pick<T, TKeys> {
+  const res = {} as Pick<T, TKeys>;
+  for (const key of keys) {
+    res[key] = obj[key];
+  }
+  return res;
+}
+
 /**
  * Replaces undefined with null.
  * @example
