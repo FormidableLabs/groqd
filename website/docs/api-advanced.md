@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 24
 ---
 
 # API: Advanced
@@ -13,9 +13,7 @@ These advanced API methods are extremely useful for creating
 
 
 
-## Conditional fields
+## Conditionals
 ### `q.conditional(conditionsMap)`
 ### `.select`
-
-
 
