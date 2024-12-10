@@ -287,10 +287,6 @@ q.star.filterByType("product").project({
 // }
 ```
 
-## Additional GroqD methods
-
-These utilities are GroqD-specific, and do not correspond to GROQ features.
-
 ### `.nullable()`
 
 Marks a query as nullable – in case you are expecting a potential `null` value.
@@ -303,17 +299,10 @@ q.star
   .nullable(); // 👈 we're okay with a null value here
 ```
 
-### `.raw(expression, parser?)`
+## Additional GroqD methods
 
-An "escape hatch" allowing you to write any GROQ query you want.
+These utilities are GroqD-specific, and do not correspond to GROQ features.
 
-This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
-
-```ts
-q.star.filterByType("product").project({
-  imageCount: q.raw("count(images[])", q.number())
-})
-```
 
 ### `.parameters<Params>()`
 
@@ -348,6 +337,20 @@ q.star.filterByType("product").project(sub => ({
 }))
 ```
 Also aliased as `.validate(parser)` for semantic reasons.
+
+
+### `.raw(expression, parser?)`
+
+An "escape hatch" allowing you to write any GROQ query you want.
+
+This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
+
+```ts
+q.star.filterByType("product").project({
+  imageCount: q.raw("count(images[])", q.number())
+})
+```
+
 
 
 
