@@ -7,8 +7,32 @@ import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/util
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Creates a fragment for any type you specify.
+     * This is useful for inline types that do not have a top-level document type.
+     *
+     * @example
+     * const keyValueFragment = q.fragment<{ key: string, value: number }>().project({
+     *   key: q.string(),
+     *   value: q.number(),
+     * })
+     */
     fragment<TFragmentInput>(): FragmentUtil<TQueryConfig, TFragmentInput>;
 
+    /**
+     * Creates a fragment for a Document, based on the document type.
+     *
+     * @example
+     * const productFragment = q.fragmentForType<"product">().project(sub => ({
+     *   name: q.string(),
+     *   price: q.number(),
+     *   images: sub.field("images[]").deref().project({
+     *     width: q.number(),
+     *     height: q.number(),
+     *     url: q.string(),
+     *   }),
+     * }))
+     */
     fragmentForType<
       TFragmentType extends ExtractDocumentTypes<TQueryConfig["schemaTypes"]>
     >(): FragmentUtil<
