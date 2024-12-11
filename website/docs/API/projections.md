@@ -53,6 +53,21 @@ q.star.filterByType("product").project({
 })
 ```
 
+### The ellipsis operator `...`
+
+You can use the ellipsis operator in a projection as follows:
+
+```ts
+q.star.filterByType("product").project(sub => ({
+  "...": true,
+}))
+// GROQ: *[_type == "product"]{ ... }
+// Type: Array<Product>
+```
+
+This approach does have strongly-typed results.  
+However, it does NOT have runtime validation, so the results are not **guaranteed** to match the schema.  This could result in downstream errors that are harder to debug.  So please take this into consideration when using the `...` operator.
+
 ## Selecting Values
 
 ### `.field(fieldName, parser?)`
