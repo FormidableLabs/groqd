@@ -8,41 +8,51 @@ sidebar_position: 20
 
 The `q` object (created in the [Configuration](../configuration) section) has 3 main purposes:
 
-1. Start a query chain, using `q.star` or `q.project(...)`
-2. Provide all of Zod's validation functions, like `q.string()` and `q.number()`.  These are identical to `zod.string()` and `zod.number()`, and are added to the `q` object for convenience.
-3. Creating reusable fragments, using `q.fragment<...>()`.  See [the Fragments documentation for more details](./fragments)
+### Start a query chain
 
-All GroqD methods return a new chainable instance.  Chains are immutable, so they can be reused if needed.
+All query chains start with either `q.star` or `q.project(...)`.
+All methods of a query chain return a new chainable instance of `GroqBuilder`.  Every chain is immutable, and can be reused if needed.
+
+See the [Filters](./filters) and [Projections](./projections) documentation for more details.
+
+### Provide Zod's validation functions
+
+The root `q` object has shortcuts for Zod's validation functions, like `q.string()` and `q.number()`.  These are identical to `zod.string()` and `zod.number()`, and are added to the `q` object for convenience.
+
+See the [Validation documentation](./validation) for more details. 
+
+### Create reusable fragments
+
+You can also define reusable "projection fragments" using the `q.fragment<T>()` method.
+
+See the [Fragments documentation](./fragments) for more details.
 
 
+## An example query
 
-## Additional GroqD methods
+```ts
+const top10ProductsQuery = (
+   q.star
+    .filterByType("product")
+    .order("price asc")
+    .slice(0, 10)
+    .project(sub => ({
+      title: q.string(),
+      price: q.number(),
+      images: sub.field("images[]").deref().project({
+        width: q.number(),
+        height: q.number(),
+        url: q.string(),
+      })
+    }))
+);
+```
+
+
+## Special GroqD methods
 
 These utilities are GroqD-specific, and do not correspond to GROQ features.
 
-
-### `.parameters<Params>()`
-
-Defines the names and types of parameters that must be passed to the query. 
-
-This method is just for defining types; it has no runtime effects. However, it enables 2 great features: 
-
-- Strongly-typed methods (eg. `filterBy`) can reference these parameters.
-- The parameters will be required when executing the query.
-
-```ts
-const productsBySlug = (
-  q.parameters<{ slug: string }>()
-   .star.filterByType("product")
-   // You can now reference the $slug parameter:
-   .filterBy("slug.current == $slug")
-);
-const results = await runQuery(
-  productsBySlug,
-  // The 'slug' parameter is required:
-  { parameters: { slug: "123" } }
-)
-```
 
 ### `.transform(parser)`
 
