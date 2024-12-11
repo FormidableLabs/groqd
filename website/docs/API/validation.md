@@ -4,7 +4,23 @@ sidebar_position: 26
 
 # Validation
 
-## Zod methods
+In Sanity, there are no guarantees that your data matches your schema.  The Data Lake can contain draft content, migrated content, and legacy data.
+
+One key feature of `GroqD` is that it provides an easy way to **validate** the data coming from your queries.  It gives you extremely helpful error messages, letting you update your query to account for the mismatched data.  And ultimately, it gives you TypeScript types that you can trust.
+
+This runtime validation is powered by Zod.  Whenever querying a field, we pass a Zod validation function to verify the results.
+
+## Where to use validation methods
+
+The all field-level methods utilize a `validation` parameter:
+- `.project({ field: validation })`
+- `.project({ key: ["field", validation] })`
+- `.field("field", validation?)`
+- `.raw(groq, validation?)`
+- `.transform(validation)`
+
+
+## Supported Zod methods
 
 The root `q` object contains many of [Zod's validation methods](https://zod.dev/?id=primitives). This is purely for convenience; `q.string()` is identical to `zod.string()`.
 
@@ -24,9 +40,9 @@ This includes the following Zod methods:
 
 The Zod methods are chainable, like `q.number().min(0).max(10).default(0)`.
 
-## Zod Extras:
+## Zod extras
 
-In addition to the above Zod methods, a few extra validation methods are included:
+In addition to the above Zod methods, a few extra helpers are included:
 
 ### `q.default(parser, defaultValue)`
 
@@ -63,28 +79,9 @@ q.star.filterByType("product").project({
 })
 ```
 
-### `q.value(literal, parser?)`
+### `.nullable()`
 
-Selects a literal value. Especially useful with [conditional selections](api-advanced.md#conditionals).
-
-> Not to be confused with `q.literal(literal)` which is a Zod validation function.
-
-```ts
-q.star.filterByType("product").project({
-  a: q.value("LITERAL"),
-  b: q.value(true),
-  c: q.value(42),
-})
-// Result GROQ: *[_type == "product"]{
-//  "a": "LITERAL",
-//  "b": true,
-//  "c": 42,
-// }
-```
-
-## `.nullable()`
-
-Marks a query as nullable – in case you are expecting a potential `null` value.
+Marks any query chain as nullable – in case the query is expecting a potential `null` value.
 
 ```ts
 q.star
@@ -93,3 +90,30 @@ q.star
   .project({ name: q.string() })
   .nullable(); // 👈 we're okay with a null value here
 ```
+
+
+## Transformation
+
+In `GroqD`, **validation** is synonymous with **transformation**.  Any field-level `validation` parameter could also be used to transform the value at runtime.  For example, the `q.date()` validation automatically transforms an incoming `string` or `number` into a `Date`.
+
+```ts
+q.star.filterByType("product").project({
+  _createdAt: q.date(),
+  // Transform a 1 => "available", 2 => "out of stock"
+  status: q.number().transform((status) => (status === 1 ? "available" : "out of stock")),
+})
+```
+
+This works well for single fields, and you can also transform the results of an entire query:
+
+### `.transform(parser)`
+
+Manually adds a transformation to the query results.
+
+```ts
+q.star.filterByType("product").project(sub => ({
+  created: sub.field("_createdAt").transform(str => new Date(str)),
+}))
+```
+
+The `.transform` method is also aliased as `.validate` for semantic reasons. 

@@ -54,16 +54,6 @@ const top10ProductsQuery = (
 These utilities are GroqD-specific, and do not correspond to GROQ features.
 
 
-### `.transform(parser)`
-
-Manually adds a transformation (or validation) to the query results.  
-
-```ts
-q.star.filterByType("product").project(sub => ({
-  created: sub.field("_createdAt").transform(str => new Date(str)),
-}))
-```
-Also aliased as `.validate(parser)` for semantic reasons.
 
 
 ### `.raw(expression, parser?)`

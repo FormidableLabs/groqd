@@ -87,3 +87,23 @@ q.star.filterByType("product").project(sub => ({
 //  "images": images[]->{ url, width, height }
 // }
 ```
+
+### `q.value(literal, parser?)`
+
+Selects a literal value. Especially useful with [conditional selections](api-advanced.md#conditionals).
+
+> Not to be confused with `q.literal(literal)` which is a Zod validation function.
+
+```ts
+q.star.filterByType("product").project({
+  a: q.value("LITERAL"),
+  b: q.value(true),
+  c: q.value(42),
+})
+// Result GROQ: *[_type == "product"]{
+//  "a": "LITERAL",
+//  "b": true,
+//  "c": 42,
+// }
+```
+
