@@ -48,27 +48,6 @@ const top10ProductsQuery = (
 );
 ```
 
-
-## Special GroqD methods
-
-These utilities are GroqD-specific, and do not correspond to GROQ features.
-
-
-
-
-### `.raw(expression, parser?)`
-
-An "escape hatch" allowing you to write any GROQ query you want.
-
-This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
-
-```ts
-q.star.filterByType("product").project({
-  imageCount: q.raw("count(images[])", q.number())
-})
-```
-
-
 <!--
 
 ##### `.select`

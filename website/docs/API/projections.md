@@ -6,7 +6,9 @@ sidebar_position: 24
 
 In GROQ, **projections** are how we select the data we want returned.
 
-## `.project(sub => ProjectionMap)`
+## The `.project` method
+
+### `.project(sub => ProjectionMap)`
 
 The `sub` parameter is a strongly-typed GroqBuilder, so it knows the names and types of the fields in the current filters.
 
@@ -28,7 +30,7 @@ q.star.filterByType("product").project(sub => ({
 //   }
 ```
 
-## Shorthand Syntax
+### Shorthand Syntax Options
 
 Since it's extremely common to select a field, there are several shorthand methods to make this easy!  The fields above could be rewritten as follows:
 
@@ -51,7 +53,9 @@ q.star.filterByType("product").project({
 })
 ```
 
-## `.field(fieldName, parser?)`
+## Selecting Values
+
+### `.field(fieldName, parser?)`
 
 Sanity calls this a "naked projection". This selects a single field from the object.
 
@@ -62,7 +66,7 @@ q.star.filterByType("product").field("name", q.string())
 // Result Type: Array<string>
 ```
 
-## `.deref()`
+### `.deref()`
 
 Uses GROQ's dereference operator (`->`) to follow a reference.
 
@@ -107,3 +111,15 @@ q.star.filterByType("product").project({
 // }
 ```
 
+
+### `.raw(expression, parser?)`
+
+An "escape hatch" allowing you to write any GROQ query you want.
+
+This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
+
+```ts
+q.star.filterByType("product").project({
+  imageCount: q.raw("count(images[])", q.number())
+})
+```
