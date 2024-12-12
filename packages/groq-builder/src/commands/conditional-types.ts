@@ -65,9 +65,26 @@ export type ExtractConditionalByTypeProjectionResults<
   TConfig extends ConditionalConfig
 > = SpreadableConditionals<
   TConfig["key"],
-  | (TConfig["isExhaustive"] extends true ? never : Empty)
+  | (TConfig["isExhaustive"] extends true
+      ? never
+      : {
+          /**
+           * When using conditionalByType,
+           * this _type is automatically added to the query.
+           */
+          _type: Exclude<
+            ExtractDocumentTypes<TResultItem>,
+            keyof TConditionalByTypeProjectionMap
+          >;
+        })
   | ValueOf<{
-      [_type in keyof TConditionalByTypeProjectionMap]: ExtractProjectionResult<
+      [_type in keyof TConditionalByTypeProjectionMap]: {
+        /**
+         * When using conditionalByType,
+         * this _type is automatically added to the query.
+         */
+        _type: _type;
+      } & ExtractProjectionResult<
         Extract<TResultItem, { _type: _type }>,
         TConditionalByTypeProjectionMap[_type] extends (
           q: any

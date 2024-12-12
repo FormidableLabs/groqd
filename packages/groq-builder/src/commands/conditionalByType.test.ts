@@ -1,4 +1,4 @@
-import { describe, it, expect, expectTypeOf } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   createGroqBuilder,
   ExtractDocumentTypes,
@@ -11,7 +11,7 @@ import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { Empty, Simplify, SimplifyDeep } from "../types/utils";
+import { Simplify, SimplifyDeep } from "../types/utils";
 
 const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const data = mock.generateSeedData({
@@ -20,19 +20,20 @@ const data = mock.generateSeedData({
   ),
 });
 
+type AllDocTypes = ExtractDocumentTypes<SchemaConfig["schemaTypes"]>;
+
 describe("conditionalByType", () => {
   const conditionalByType = q.star.conditionalByType({
-    variant: { _type: true, name: true, price: true },
-    product: { _type: true, name: true, slug: "slug.current" },
+    variant: { name: true, price: true },
+    product: { name: true, slug: "slug.current" },
     category: (qC) => ({
-      _type: true,
       name: true,
       slug: qC.field("slug.current"),
     }),
   });
 
   type ExpectedConditionalUnion =
-    | Empty
+    | { _type: Exclude<AllDocTypes, "variant" | "product" | "category"> }
     | { _type: "variant"; name: string; price: number }
     | { _type: "product"; name: string; slug: string }
     | { _type: "category"; name: string; slug: string };
@@ -66,16 +67,18 @@ describe("conditionalByType", () => {
 
     it("should infer the correct type", () => {
       type ActualItem = Simplify<InferResultItem<typeof qMultiple>>;
+
       type ExpectedItem =
-        | Empty
-        | { price: number }
-        | { slug: string }
-        | { description: string | null }
-        | { name: string | null }
-        | { price: number; description: string | null }
-        | { price: number; name: string | null }
-        | { slug: string; description: string | null }
-        | { slug: string; name: string | null };
+        | {
+            _type: Exclude<
+              AllDocTypes,
+              "variant" | "product" | "category" | "style"
+            >;
+          }
+        | { _type: "variant"; price: number }
+        | { _type: "product"; slug: string }
+        | { _type: "category"; description: string | null }
+        | { _type: "style"; name: string | null };
 
       type Remainder = Exclude<ActualItem, ExpectedItem>;
       expectTypeOf<Remainder>().toEqualTypeOf<never>();
@@ -127,7 +130,7 @@ describe("conditionalByType", () => {
     >;
 
     expectTypeOf<ConditionalResults>().toEqualTypeOf<
-      | Empty
+      | { _type: Exclude<AllDocTypes, "variant" | "product" | "category"> }
       | { _type: "variant"; name: string; price: number }
       | { _type: "product"; name: string; slug: string }
       | { _type: "category"; name: string; slug: string }
@@ -135,9 +138,8 @@ describe("conditionalByType", () => {
   });
 
   const qAll = q.star.project((qA) => ({
-    _type: true,
     ...qA.conditionalByType({
-      product: { _type: true, name: true, slug: "slug.current" },
+      product: { name: true, slug: "slug.current" },
       variant: { name: true, price: true },
     }),
   }));
@@ -145,11 +147,10 @@ describe("conditionalByType", () => {
   it("a projection should return the correct types", () => {
     type QueryResult = InferResultType<typeof qAll>;
 
-    type DocTypes = ExtractDocumentTypes<SchemaConfig["schemaTypes"]>;
     expectTypeOf<QueryResult>().toEqualTypeOf<
       Array<
         | {
-            _type: DocTypes;
+            _type: Exclude<AllDocTypes, "product" | "variant">;
           }
         | {
             _type: "product";
@@ -157,7 +158,7 @@ describe("conditionalByType", () => {
             slug: string;
           }
         | {
-            _type: DocTypes;
+            _type: "variant";
             name: string;
             price: number;
           }
