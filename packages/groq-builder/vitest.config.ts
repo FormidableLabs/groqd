@@ -6,7 +6,6 @@ export default defineConfig({
       enabled: true,
       checker: "tsc",
       allowJs: false,
-      include: ["**.test.ts"],
     },
     exclude: [...configDefaults.exclude],
   },

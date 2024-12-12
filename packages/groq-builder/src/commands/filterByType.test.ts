@@ -40,7 +40,7 @@ describe("filterByType", () => {
       >();
     });
     it("query should be correct", () => {
-      expect(qProduct).toMatchObject({
+      expect(qMulti).toMatchObject({
         query: `*[_type == "product" || _type == "variant"]`,
       });
     });

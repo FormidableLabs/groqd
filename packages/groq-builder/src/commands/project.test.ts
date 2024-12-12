@@ -308,11 +308,11 @@ describe("project (object projections)", () => {
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID", zod.number()] });
+      qVariants.project({ NAME: ["INVALID", q.number()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["slug.INVALID", zod.string()] });
+      qVariants.project({ NAME: ["slug.INVALID", q.string()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID.current", zod.string()] });
+      qVariants.project({ NAME: ["INVALID.current", q.string()] });
     });
 
     it("query should be correct", () => {
