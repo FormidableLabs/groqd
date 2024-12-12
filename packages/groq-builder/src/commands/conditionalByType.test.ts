@@ -60,6 +60,8 @@ describe("conditionalByType", () => {
         {
           category: { description: true },
           style: { name: true },
+          // Overlapping conditional for "product":
+          product: { name: true },
         },
         { key: "unique-key" }
       ),
@@ -76,7 +78,7 @@ describe("conditionalByType", () => {
             >;
           }
         | { _type: "variant"; price: number }
-        | { _type: "product"; slug: string }
+        | { _type: "product"; slug: string; name: string }
         | { _type: "category"; description: string | null }
         | { _type: "style"; name: string | null };
 
@@ -99,6 +101,9 @@ describe("conditionalByType", () => {
                 description
               },
             _type == "style" => {
+                name
+              },
+            _type == "product" => {
                 name
               }
           }"
@@ -171,7 +176,6 @@ describe("conditionalByType", () => {
       "* {
           _type,
           _type == "product" => {
-              _type,
               name,
               "slug": slug.current
             },
