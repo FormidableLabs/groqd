@@ -10,6 +10,21 @@ import { IGroqBuilder, InferResultType } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Applies GROQ's `select` function, for conditional logic,
+     * based on the `_type` field.
+     *
+     * This is similar to `.select`,
+     * but provides stronger types and auto-completion.
+     *
+     * @example
+     * const qContent = q.star.filterByType("movie", "actor").project(sub => ({
+     *   name: sub.selectByType({
+     *     movie: sub => sub.field("title"),
+     *     actor: sub => sub.field("name"),
+     *   })
+     * }));
+     */
     selectByType<
       TSelectByTypeProjections extends SelectByTypeProjections<
         ResultItem.Infer<TResult>,

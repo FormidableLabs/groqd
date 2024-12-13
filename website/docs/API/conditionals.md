@@ -65,7 +65,9 @@ When any conditional expression evaluates to `true`, those fields will be includ
 
 ### `.conditionalByType(types)`
 
-It is VERY common for conditions to be based on the `_type` field, so this is a strongly-typed shortcut.  Instead of writing conditions like `_type == "product"`, you simply use the `_type` as the key:
+Creates an inline conditional projection, based on the `_type` field. This is similar to `.conditional`, but provides stronger types and auto-completion.
+
+Instead of writing conditions like `_type == "product"`, you simply use the `_type` as the key:
 
 ```ts
 q.star.filterByType("product", "category").project(sub => ({
@@ -121,6 +123,7 @@ GROQ's `select` function returns the first value where the condition is true.
 ### `.select(conditions, defaultValue?)`
 
 You can add conditional logic for a single field by using the `select` method:
+
 ```ts
 const qMovies = q.star.filterByType("movie").project({
   name: true,

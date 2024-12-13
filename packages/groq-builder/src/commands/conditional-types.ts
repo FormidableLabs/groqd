@@ -119,7 +119,7 @@ export type ConditionalConfig<
   /**
    * If the conditional statements cover all possible scenarios,
    * then setting `isExhaustive` to `true` will ensure stronger types,
-   * and can throw runtime errors if none of the conditions are satisfied.
+   * and will throw runtime errors if none of the conditions are satisfied.
    */
   isExhaustive: TIsExhaustive;
 };
