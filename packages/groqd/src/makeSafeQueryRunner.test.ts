@@ -6,7 +6,7 @@ import invariant from "tiny-invariant";
 
 describe("makeSafeQueryRunner", () => {
   it("should create a query runner with single argument", async () => {
-    const fn = vi.fn(() => Promise.resolve([]));
+    const fn = vi.fn(() => Promise.resolve<any[]>([]));
     const runQuery = makeSafeQueryRunner(fn);
 
     const res = await runQuery(q("*").filter().grab({ name: q.string() }));
@@ -17,7 +17,7 @@ describe("makeSafeQueryRunner", () => {
   it("should create a query runner with additional args defined by user", async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const fn = vi.fn((query: string, params: Record<string, unknown>) =>
-      Promise.resolve([])
+      Promise.resolve<any[]>([])
     );
     const runQuery = makeSafeQueryRunner(
       (query, params: Record<string, unknown>) => fn(query, params)

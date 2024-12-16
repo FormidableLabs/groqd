@@ -5,7 +5,10 @@ import type * as PlaygroundModule from "./index";
  * @param dispatch
  * @param shouldRunQueryImmediately
  */
-export declare function createPlaygroundModule({ dispatch, shouldRunQueryImmediately, }: {
-    dispatch: ArcadeDispatch;
-    shouldRunQueryImmediately?: boolean;
+export declare function createPlaygroundModule({
+  dispatch,
+  shouldRunQueryImmediately,
+}: {
+  dispatch: ArcadeDispatch;
+  shouldRunQueryImmediately?: boolean;
 }): typeof PlaygroundModule;
