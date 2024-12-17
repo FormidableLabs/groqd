@@ -50,10 +50,10 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@sanity/client": "^3.4.1",
+    "@sanity/client": "^6.24.1",
     "groq-js": "^1.1.9",
     "rimraf": "^5.0.5",
-    "typescript": "^5.0.4",
+    "typescript": "^5.7.2",
     "vitest": "^1.6.0"
   },
   "engines": {
