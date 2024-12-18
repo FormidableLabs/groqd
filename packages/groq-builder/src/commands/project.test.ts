@@ -6,7 +6,6 @@ import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
-import { zod } from "../validation/zod";
 
 const q = createGroqBuilderWithZod<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
@@ -184,8 +183,8 @@ describe("project (object projections)", () => {
 
   describe("projection with validation", () => {
     const qValidation = qVariants.project({
-      name: zod.string(),
-      price: zod.number(),
+      name: q.string(),
+      price: q.number(),
     });
     it("query should be typed correctly", () => {
       expect(qValidation.query).toMatchInlineSnapshot(
@@ -231,8 +230,8 @@ describe("project (object projections)", () => {
     it("we should not be able to use the wrong parser type", () => {
       // @ts-expect-error ---
       const qNameInvalid = qVariants.project({
-        name: zod.number(),
-        price: zod.string(),
+        name: q.number(),
+        price: q.string(),
       });
       expectTypeOf<InferResultType<typeof qNameInvalid>>().toEqualTypeOf<
         Array<{
@@ -302,18 +301,18 @@ describe("project (object projections)", () => {
 
   describe("a projection with naked, validated projections", () => {
     const qNakedProjections = qVariants.project({
-      NAME: ["name", zod.string()],
-      SLUG: ["slug.current", zod.string()],
-      msrp: ["msrp", zod.number()],
+      NAME: ["name", q.string()],
+      SLUG: ["slug.current", q.string()],
+      msrp: ["msrp", q.number()],
     });
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID", zod.number()] });
+      qVariants.project({ NAME: ["INVALID", q.number()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["slug.INVALID", zod.string()] });
+      qVariants.project({ NAME: ["slug.INVALID", q.string()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID.current", zod.string()] });
+      qVariants.project({ NAME: ["INVALID.current", q.string()] });
     });
 
     it("query should be correct", () => {
@@ -444,9 +443,7 @@ describe("project (object projections)", () => {
       name: variant.field("name"),
       images: variant.field("images[]").project((image) => ({
         name: true,
-        description: image
-          .field("description")
-          .validate(zod.nullToUndefined(zod.string().optional())),
+        description: image.field("description").validate(q.string().nullable()),
       })),
     }));
 
@@ -462,7 +459,7 @@ describe("project (object projections)", () => {
           name: string;
           images: Array<{
             name: string;
-            description: string | undefined;
+            description: string | null;
           }> | null;
         }>
       >();
@@ -586,10 +583,10 @@ describe("project (object projections)", () => {
       expect(qWithoutValidation.parser).toBeNull();
     });
 
-    const qParser = qVariants.project((q) => ({
+    const qParser = qVariants.project((sub) => ({
       name: true,
-      msrp: q.field("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: q.field("price").validate(zod.number()),
+      msrp: sub.field("msrp").validate((msrp) => currencyFormat(msrp)),
+      price: sub.field("price").validate(q.number()),
     }));
 
     it("the types should match", () => {

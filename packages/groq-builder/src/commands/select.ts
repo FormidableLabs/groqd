@@ -10,6 +10,20 @@ import {
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Applies GROQ's `select` function, for conditional logic.
+     *
+     * The Condition strings are NOT strongly-typed.  You can put any valid GROQ statement into these keys.  See `selectByType` for a strongly-typed option.
+     *
+     * @example
+     * const qMovies = q.star.filterByType("movie").project({
+     *   name: true,
+     *   popularity: q.select({
+     *     "popularity > 20": q.value("high"),
+     *     "popularity > 10": q.value("medium"),
+     *   }, q.value("low")),
+     * })
+     */
     select<
       TSelectProjections extends SelectProjections<
         ResultItem.Infer<TResult>,

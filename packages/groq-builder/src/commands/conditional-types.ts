@@ -4,7 +4,7 @@ import {
   ProjectionMapOrCallback,
 } from "./projection-types";
 import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
-import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
+import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
 import { Expressions } from "../types/groq-expressions";
@@ -50,7 +50,7 @@ export type ConditionalByTypeProjectionMap<
   TResultItem,
   TQueryConfig extends QueryConfig
 > = {
-  [_type in ExtractTypeNames<TResultItem>]?: ProjectionMapOrCallback<
+  [_type in ExtractDocumentTypes<TResultItem>]?: ProjectionMapOrCallback<
     Extract<TResultItem, { _type: _type }>,
     TQueryConfig
   >;
@@ -65,9 +65,26 @@ export type ExtractConditionalByTypeProjectionResults<
   TConfig extends ConditionalConfig
 > = SpreadableConditionals<
   TConfig["key"],
-  | (TConfig["isExhaustive"] extends true ? never : Empty)
+  | (TConfig["isExhaustive"] extends true
+      ? never
+      : {
+          /**
+           * When using conditionalByType,
+           * this _type is automatically added to the query.
+           */
+          _type: Exclude<
+            ExtractDocumentTypes<TResultItem>,
+            keyof TConditionalByTypeProjectionMap
+          >;
+        })
   | ValueOf<{
-      [_type in keyof TConditionalByTypeProjectionMap]: ExtractProjectionResult<
+      [_type in keyof TConditionalByTypeProjectionMap]: {
+        /**
+         * When using conditionalByType,
+         * this _type is automatically added to the query.
+         */
+        _type: _type;
+      } & ExtractProjectionResult<
         Extract<TResultItem, { _type: _type }>,
         TConditionalByTypeProjectionMap[_type] extends (
           q: any
@@ -102,7 +119,7 @@ export type ConditionalConfig<
   /**
    * If the conditional statements cover all possible scenarios,
    * then setting `isExhaustive` to `true` will ensure stronger types,
-   * and can throw runtime errors if none of the conditions are satisfied.
+   * and will throw runtime errors if none of the conditions are satisfied.
    */
   isExhaustive: TIsExhaustive;
 };

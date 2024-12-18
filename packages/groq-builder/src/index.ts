@@ -4,38 +4,14 @@ import "./commands";
 
 import type { QueryConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
-import { zod } from "./validation/zod";
-import type { Override } from "./types/utils";
+import { zodMethods } from "./validation/zod";
 
 // Re-export all our public types:
 export * from "./groq-builder";
 export * from "./types/public-types";
 export * from "./types/schema-types";
-export { zod } from "./validation/zod";
+export { zodMethods as zod } from "./validation/zod";
 export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
-
-export type RootQueryConfig = Override<
-  QueryConfig,
-  {
-    /**
-     * This is a union of all possible document types,
-     * according to your Sanity config.
-     *
-     * You can automatically generate these types using the
-     * `sanity typegen generate` command in your Sanity Studio project.
-     *
-     * Alternatively, you can use `any`, which disables schema-awareness,
-     * but still allows strongly-typed query results.
-     */
-    documentTypes: object; // We'll filter out non-documents later
-  }
->;
-type ExtractQueryConfig<TRootConfig extends RootQueryConfig> =
-  // Filter out all non-documents:
-  Override<
-    TRootConfig,
-    { documentTypes: Extract<TRootConfig["documentTypes"], { _type: string }> }
-  >;
 
 /**
  * Creates the root `q` query builder.
@@ -45,22 +21,19 @@ type ExtractQueryConfig<TRootConfig extends RootQueryConfig> =
  * see `createGroqBuilderWithZod` for more information.
  *
  * @example
- * import { createGroqBuilder } from 'groq-builder';
- * import {
- *   AllSanitySchemaTypes,
- *   internalGroqTypeReferenceTo,
- * } from "./sanity.types.ts";
+ * import { createGroqBuilder, ExtractDocumentTypes } from 'groq-builder';
+ * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
- * export const q = createGroqBuilder<{
- *   documentTypes: AllSanitySchemaTypes,
+ * type SchemaConfig = {
+ *   schemaTypes: AllSanitySchemaTypes;
  *   referenceSymbol: typeof internalGroqTypeReferenceTo;
- * }>();
+ * };
+ * export const q = createGroqBuilder<SchemaConfig>();
  */
-export function createGroqBuilder<TRootConfig extends RootQueryConfig>(
+export function createGroqBuilder<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
-  type TQueryConfig = ExtractQueryConfig<TRootConfig>;
-  const q = new GroqBuilder<RootResult, TQueryConfig>({
+  const q = new GroqBuilder<RootResult, TRootConfig>({
     query: "",
     parser: null,
     options,
@@ -80,20 +53,17 @@ export function createGroqBuilder<TRootConfig extends RootQueryConfig>(
  * use `createGroqBuilder` instead.
  *
  * @example
- * import { createGroqBuilderWithZod } from 'groq-builder';
- * import {
- *   AllSanitySchemaTypes,
- *   internalGroqTypeReferenceTo,
- * } from "./sanity.types.ts";
+ * import { createGroqBuilderWithZod, ExtractDocumentTypes } from 'groq-builder';
+ * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
- * export const q = createGroqBuilderWithZod<{
- *   documentTypes: AllSanitySchemaTypes,
+ * type SchemaConfig = {
+ *   schemaTypes: AllSanitySchemaTypes;
  *   referenceSymbol: typeof internalGroqTypeReferenceTo;
- * }>();
- */
-export function createGroqBuilderWithZod<TRootConfig extends RootQueryConfig>(
+ * };
+ * export const q = createGroqBuilderWithZod<SchemaConfig>(); */
+export function createGroqBuilderWithZod<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ) {
   const q = createGroqBuilder<TRootConfig>(options);
-  return Object.assign(q, zod);
+  return Object.assign(q, zodMethods);
 }

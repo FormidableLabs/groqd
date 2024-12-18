@@ -1,4 +1,4 @@
-import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
+import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
 import { StringKeys, ValueOf } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
@@ -24,7 +24,7 @@ export type SelectByTypeProjections<
   TResultItem,
   TQueryConfig extends QueryConfig
 > = {
-  [_type in ExtractTypeNames<TResultItem>]?:
+  [_type in ExtractDocumentTypes<TResultItem>]?:
     | IGroqBuilder
     | ((
         q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TQueryConfig>

@@ -133,16 +133,14 @@ In your application, you can create a strongly-typed `groq-builder` using the fo
 
 ```ts
 // ./q.ts
-import { createGroqBuilder } from 'groq-builder';
-import {
-  AllSanitySchemaTypes,
-  internalGroqTypeReferenceTo,
-} from "./sanity.types.ts";
+import { createGroqBuilder, ExtractDocumentTypes } from 'groq-builder';
+import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
 
-export const q = createGroqBuilder<{
-  documentTypes: AllSanitySchemaTypes,
+type SchemaConfig = {
+  documentTypes: ExtractDocumentTypes<AllSanitySchemaTypes>;
   referenceSymbol: typeof internalGroqTypeReferenceTo;
-}>();
+};
+export const q = createGroqBuilder<SchemaConfig>();
 ```
 
 And that's it!  Wherever you write queries, be sure to import this strongly-typed `q` and you'll get full auto-completion and type-safety! 

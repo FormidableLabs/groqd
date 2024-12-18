@@ -30,4 +30,19 @@ describe("filterByType", () => {
     const results = await executeBuilder(qProduct, data);
     expect(results).toEqual(data.products);
   });
+
+  describe("multiple types", () => {
+    const qMulti = q.star.filterByType("product", "variant");
+    type MultiResult = InferResultType<typeof qMulti>;
+    it("should have the correct type", () => {
+      expectTypeOf<MultiResult>().toEqualTypeOf<
+        Array<SanitySchema.Product | SanitySchema.Variant>
+      >();
+    });
+    it("query should be correct", () => {
+      expect(qMulti).toMatchObject({
+        query: `*[_type == "product" || _type == "variant"]`,
+      });
+    });
+  });
 });

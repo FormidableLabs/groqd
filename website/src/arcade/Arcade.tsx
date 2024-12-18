@@ -1,4 +1,8 @@
 import * as React from "react";
+import { HiPlay } from "react-icons/hi";
+import lzstring from "lz-string";
+import { DefaultToastOptions, Toaster } from "react-hot-toast";
+import clsx from "clsx";
 import { MODELS } from "@site/src/arcade/models";
 import {
   defaultState,
@@ -19,11 +23,7 @@ import {
 } from "@site/src/arcade/ArcadeSection";
 import { ArcadeDatasetEditor } from "@site/src/arcade/ArcadeDatasetEditor";
 import { ArcadeResponseView } from "@site/src/arcade/ArcadeResponseView";
-import lzstring from "lz-string";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
-import { DefaultToastOptions, Toaster } from "react-hot-toast";
-import { HiPlay } from "react-icons/hi";
-import clsx from "clsx";
 import { ArcadeActionList } from "@site/src/arcade/ArcadeActionList";
 import Abacus from "@site/src/arcade/abacus";
 
@@ -36,6 +36,7 @@ export function Arcade() {
       parsedResponse,
       errorPaths,
       rawResponse,
+      inputParseError,
     },
     dispatch,
   ] = React.useReducer(reducer, defaultState);
@@ -190,7 +191,10 @@ export function Arcade() {
               <div className="relative flex-1">
                 <ArcadeEditor dispatch={dispatch} />
               </div>
-              <ArcadeQueryDisplay query={query.query} />
+              <ArcadeQueryDisplay
+                query={query.query}
+                inputParseError={inputParseError}
+              />
             </div>
           </ArcadeSection>
           <ArcadeSectionResizer

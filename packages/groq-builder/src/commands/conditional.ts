@@ -13,6 +13,26 @@ import { ProjectionMap } from "./projection-types";
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Creates an inline conditional projection.
+     *
+     * The Condition strings are NOT strongly-typed.  You can put any valid GROQ statement into these keys.  See `conditionalByType` for a strongly-typed option.
+     *
+     * @example
+     * q.star.filterByType("product").project(sub => ({
+     *   name: q.string(),
+     *   ...sub.conditional({
+     *     "price == msrp": {
+     *       onSale: q.value(false),
+     *     },
+     *     "price < msrp": {
+     *       onSale: q.value(true),
+     *       price: q.number(),
+     *       msrp: q.number(),
+     *     },
+     *   }),
+     * }))
+     */
     conditional<
       TConditionalProjections extends ConditionalProjectionMap<
         ResultItem.Infer<TResult>,

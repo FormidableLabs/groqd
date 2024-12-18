@@ -5,18 +5,9 @@ import { referenced, SchemaValues } from "./nextjs-sanity-fe.generated";
 export { referenced };
 
 export type SchemaConfigOld = {
-  documentTypes: ExtractDocumentTypes<SanitySchemaOld.Reconstructed>;
+  schemaTypes: SanitySchemaOld.Reconstructed;
   referenceSymbol: typeof referenced;
 };
-
-/**
- * Extracts all document types from an inferred schema.
- * The inferred schema type should look like { [string]: Document }
- */
-type ExtractDocumentTypes<TInferredSchemaConfigValues> = Extract<
-  TInferredSchemaConfigValues[keyof TInferredSchemaConfigValues],
-  { _type: string }
->;
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace SanitySchemaOld {

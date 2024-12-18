@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractTypeNames, QueryConfig } from "../types/schema-types";
+import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
 import { ResultItem } from "../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -8,9 +8,29 @@ import {
   ConditionalConfig,
 } from "./conditional-types";
 import { ProjectionMap } from "./projection-types";
+import { keys } from "../types/utils";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Creates an inline conditional projection, based on the `_type` field.
+     *
+     * This is similar to `.conditional`,
+     * but provides stronger types and auto-completion.
+     *
+     * @example
+     * q.star.filterByType("product", "category").project(sub => ({
+     *   name: q.string(),
+     *   ...sub.conditionalByType({
+     *     product: {
+     *       price: q.number(),
+     *     },
+     *     category: {
+     *       title: q.string(),
+     *     },
+     *   }),
+     * }))
+     */
     conditionalByType<
       TConditionalProjections extends ConditionalByTypeProjectionMap<
         ResultItem.Infer<TResult>,
@@ -20,7 +40,7 @@ declare module "../groq-builder" {
       /**
        * Did we supply a condition for all possible _type values?
        */
-      TIsExhaustive extends boolean = ExtractTypeNames<
+      TIsExhaustive extends boolean = ExtractDocumentTypes<
         ResultItem.Infer<TResult>
       > extends keyof TConditionalProjections
         ? true
@@ -47,12 +67,12 @@ GroqBuilder.implement({
     conditionalProjections: TConditionalProjections,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {
-    const typeNames = Object.keys(conditionalProjections);
+    const typeNames = keys(conditionalProjections);
 
     const root = this.root;
     const conditions = typeNames.map((_type) => {
       const projectionMap = conditionalProjections[
-        _type as keyof typeof conditionalProjections
+        _type
       ] as ProjectionMap<unknown>;
       const conditionQuery = root
         .chain(`_type == "${_type}" =>`)

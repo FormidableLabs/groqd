@@ -2,23 +2,23 @@ import * as React from "react";
 import * as monaco from "monaco-editor";
 import debounce from "lodash.debounce";
 import { MODELS } from "@site/src/arcade/models";
-import types from "@site/src/types.json";
 import * as q from "groqd";
+import * as z from "zod";
 import {
   ArcadeDispatch,
   getStorageValue,
-  GroqdQueryParams,
   setStorageValue,
 } from "@site/src/arcade/state";
-import { evaluate, parse } from "groq-js";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import lzstring from "lz-string";
 import { createTwoslashInlayProvider } from "../../../shared/util/twoslashInlays";
-import has from "lodash.has";
 import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
-import toast from "react-hot-toast";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
+import types from "../types.json";
+import { createPlaygroundModule } from "./playground/playground-implementation";
+import * as playgroundPokemonModule from "./playground/pokemon";
+import * as playgroundTodoListModule from "./playground/todo-list";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -55,16 +55,15 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
       esModuleInterop: true,
     });
 
-    monaco.languages.typescript.typescriptDefaults.setExtraLibs(extraLibs);
+    monaco.languages.typescript.typescriptDefaults.setExtraLibs(
+      types.extraLibs
+    );
     monaco.languages.registerInlayHintsProvider(
       "typescript",
       createTwoslashInlayProvider()
     );
 
-    const handleContentChange = debounce(
-      () => runCode({ editor, dispatch }),
-      500
-    );
+    const handleContentChange = debounce(() => runCode({ dispatch }), 500);
     const didChangeInstance = MODELS.ts.onDidChangeContent(handleContentChange);
 
     editorRef.current = monaco.editor.create(container, {
@@ -80,7 +79,7 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
     registerEditorShortcuts(editor);
 
     // Run code on start
-    runCode({ editor, dispatch }).catch(console.error);
+    runCode({ dispatch }).catch(console.error);
 
     return () => {
       handleContentChange.cancel();
@@ -93,7 +92,7 @@ export const ArcadeEditor = ({ dispatch }: ArcadeEditorProps) => {
       (shouldRunQueryImmediately) => {
         const editor = editorRef.current;
         if (!editor) return;
-        return runCode({ dispatch, editor, shouldRunQueryImmediately });
+        return runCode({ dispatch, shouldRunQueryImmediately });
       }
     );
 
@@ -117,7 +116,6 @@ const runCode = async ({
   dispatch,
   shouldRunQueryImmediately = false,
 }: {
-  editor: monaco.editor.IStandaloneCodeEditor;
   dispatch: ArcadeDispatch;
   shouldRunQueryImmediately?: boolean;
 }) => {
@@ -134,135 +132,45 @@ const runCode = async ({
       lzstring.compressToEncodedURIComponent(model.getValue())
     );
 
-    let playgroundRunQueryCount = 0;
     const libs = {
       groqd: q,
-      playground: {
-        runQuery: (
-          query: q.BaseQuery<any>,
-          params?: Record<string, string | number>
-        ) => {
-          playgroundRunQueryCount++;
-          if (playgroundRunQueryCount > 1) return;
-
-          try {
-            if (query instanceof q.BaseQuery) {
-              dispatch({
-                type: "INPUT_EVAL_SUCCESS",
-                payload: { query, params },
-              });
-
-              if (shouldRunQueryImmediately)
-                runQuery({ query, params, dispatch });
-            }
-          } catch {
-            toast.error("Failed to evaluate code.");
-          }
-        },
+      zod: z,
+      get playground() {
+        return createPlaygroundModule({
+          dispatch,
+          shouldRunQueryImmediately,
+        });
       },
+      "playground/pokemon": playgroundPokemonModule,
+      "playground/todo-list": playgroundTodoListModule,
     };
     const scope = {
       exports: {},
-      require: (name: keyof typeof libs) => libs[name],
-    };
-    const keys = Object.keys(scope);
-    new Function(...keys, code)(
-      ...keys.map((key) => scope[key as keyof typeof scope])
-    );
-  } catch {}
-};
-
-/**
- * Run a given query against dataset in the JSON model
- */
-const runQuery = async ({
-  query,
-  params,
-  dispatch,
-}: {
-  query: q.BaseQuery<any>;
-  dispatch: ArcadeDispatch;
-  params: GroqdQueryParams;
-}) => {
-  if (!query.query) return;
-  dispatch({ type: "START_QUERY_EXEC" });
-
-  try {
-    let json: unknown;
-    try {
-      json = JSON.parse(MODELS.json.getValue());
-    } catch {
-      throw new Error("Error parsing dataset JSON");
-    }
-
-    const runner = q.makeSafeQueryRunner(async (query: string) => {
-      const tree = parse(query, { params });
-      const _ = await evaluate(tree, { dataset: json });
-      const rawResponse = await _.get();
-      dispatch({ type: "RAW_RESPONSE_RECEIVED", payload: { rawResponse } });
-
-      return rawResponse;
-    });
-
-    const data = await runner(query);
-    dispatch({ type: "PARSE_SUCCESS", payload: { parsedResponse: data } });
-  } catch (err) {
-    let errorPaths: Map<string, string> | undefined;
-
-    if (err instanceof q.GroqdParseError) {
-      errorPaths = new Map();
-      for (const e of err.zodError.errors) {
-        if (e.message === "Required" && !has(err.rawResponse, e.path)) {
-          errorPaths.set(
-            e.path
-              .slice(0, -1)
-              .map((v) => String(v))
-              .join("."),
-            `Field "${e.path.at(-1)}" is Required`
+      require(name: keyof typeof libs) {
+        if (!(name in libs)) {
+          const supported = Object.keys(libs);
+          throw new Error(
+            `Cannot import "${name}"; you can only import supported modules (${supported
+              .map((lib) => `"${lib}"`)
+              .join(", ")})`
           );
-        } else {
-          errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
         }
-      }
-    }
-
+        return libs[name];
+      },
+    };
+    executeCode(code, scope);
+  } catch (err) {
     dispatch({
-      type: "PARSE_FAILURE",
-      payload: { fetchParseError: err, errorPaths },
+      type: "INPUT_EVAL_FAILURE",
+      payload: { inputParseError: err },
     });
   }
 };
 
-/**
- * Adding in groqd types, and our custom playground.runQuery helper.
- */
-const extraLibs = [
-  {
-    content: `declare module "groqd" {${types.groqd["index.d.ts"]}`,
-    filePath: monaco.Uri.file(`/node_modules/groqd/dist/index.d.ts`).toString(),
-  },
-  {
-    content: `
-          declare module "playground" {
-            import type { infer, ZodType, ZodNumber } from "zod";
-            import type { BaseQuery } from "groqd";
+function executeCode(code: string, scope: Record<string, unknown>) {
+  const argNames = Object.keys(scope);
+  const args = Object.values(scope);
 
-            export const runQuery: <T extends any>(
-              query: { schema: ZodType<T>; query: string },
-              params?: Record<string, string|number>
-             ) => T;
-          }
-        `,
-    filePath: monaco.Uri.file(
-      `/node_modules/groqd-playground/index.d.ts`
-    ).toString(),
-  },
-];
-
-// And don't forget the zod types.
-for (const [filename, content] of Object.entries<string>(types.zod)) {
-  extraLibs.push({
-    content: content,
-    filePath: monaco.Uri.file(`/node_modules/zod/${filename}`).toString(),
-  });
+  const fn = new Function(...argNames, code);
+  fn(...args);
 }

@@ -23,8 +23,8 @@ declare module "../groq-builder" {
     /**
      * Performs an "object projection", returning an object with the fields specified.
      *
-     * @param projectionMap - The projection map is an object, mapping field names to projection values.
-     * @param ProjectionMapTypeMismatchErrors - This is only used for reporting errors from the projection.
+     * @param projectionMap - The projection map is an object, mapping field names to projection values
+     * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
      */
     project<
       TProjection extends ProjectionMap<ResultItem.Infer<TResult>>,
@@ -38,7 +38,7 @@ declare module "../groq-builder" {
         | ((
             q: GroqBuilder<ResultItem.Infer<TResult>, TQueryConfig>
           ) => TProjection),
-      ...ProjectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
+      ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
     ): GroqBuilder<
       ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
       TQueryConfig
@@ -50,8 +50,7 @@ GroqBuilder.implement({
   project(
     this: GroqBuilder,
     projectionMapArg: object | ((q: any) => object),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ...ProjectionMapTypeMismatchErrors
+    ...__projectionMapTypeMismatchErrors
   ): GroqBuilder<any> {
     // Retrieve the projectionMap:
     let projectionMap: object;

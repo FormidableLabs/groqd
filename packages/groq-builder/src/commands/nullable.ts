@@ -3,6 +3,9 @@ import { QueryConfig } from "../types/schema-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Marks a query as nullable – in case you are expecting a potential `null` value.
+     */
     nullable(): GroqBuilder<TResult | null, TQueryConfig>;
   }
 }

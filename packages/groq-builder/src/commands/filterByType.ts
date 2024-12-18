@@ -1,10 +1,19 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
-import { ExtractTypeNames } from "../types/schema-types";
+import { ExtractDocumentTypes } from "../types/schema-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
-    filterByType<TType extends ExtractTypeNames<ResultItem.Infer<TResult>>>(
+    /**
+     * Filters the query based on the document type.
+     * Supports multiple type arguments.
+     *
+     * @example
+     * q.star.filterByType("pokemon");
+     * // Result GROQ: *[_type == 'pokemon']
+     * // Result Type: Pokemon[]
+     */
+    filterByType<TType extends ExtractDocumentTypes<ResultItem.Infer<TResult>>>(
       ...type: TType[]
     ): GroqBuilder<
       ResultItem.Override<

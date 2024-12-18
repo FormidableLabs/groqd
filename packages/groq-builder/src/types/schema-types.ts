@@ -3,9 +3,9 @@ import { TypeMismatchError } from "./utils";
 export type QueryConfig = {
   /**
    * This is a union of all possible document types,
-   * according to your Sanity config.
+   * coming from your Sanity-generated types.
    */
-  documentTypes: { _type: string };
+  schemaTypes: {};
 
   /**
    * This symbol is exported by the generated Sanity types.
@@ -20,9 +20,11 @@ export type QueryConfig = {
   parameters?: {}; // eslint-disable-line @typescript-eslint/ban-types
 };
 
-export type ExtractTypeNames<TResultItem> = Extract<
+export type SchemaDocument = { _type: string };
+
+export type ExtractDocumentTypes<TResultItem> = Extract<
   TResultItem,
-  { _type: string }
+  SchemaDocument
 >["_type"];
 
 export type RefType<referenceSymbol extends symbol, TTypeName> = {
@@ -32,12 +34,12 @@ export type RefType<referenceSymbol extends symbol, TTypeName> = {
 export type ExtractRefType<TResultItem, TQueryConfig extends QueryConfig> =
   //
   TResultItem extends RefType<TQueryConfig["referenceSymbol"], infer TTypeName>
-    ? Extract<TQueryConfig["documentTypes"], { _type: TTypeName }>
+    ? Extract<TQueryConfig["schemaTypes"], { _type: TTypeName }>
     : TypeMismatchError<{
         error: "⛔️ Expected the object to be a reference type ⛔️";
         expected: RefType<
           TQueryConfig["referenceSymbol"],
-          TQueryConfig["documentTypes"]["_type"]
+          ExtractDocumentTypes<TQueryConfig["schemaTypes"]>
         >;
         actual: TResultItem;
       }>;

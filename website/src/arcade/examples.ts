@@ -2,9 +2,24 @@ import datasets from "@site/src/datasets.json";
 import beautify from "js-beautify";
 
 const BASIC_IMPORTS = `
-import { runQuery } from "playground";
-import { q } from "groqd";
+  import { runQuery } from "playground";
+  import { q } from "groqd";
 `.trim();
+
+const wrapGroqBuilderQuery = (code: string) =>
+  beautify(
+    `
+      import { runQuery } from "playground";
+      import { z } from "zod";
+     
+      import { q } from "playground/pokemon";
+      
+      runQuery(
+        ${code.trim()}
+      );
+    `,
+    { indent_size: 2, brace_style: "preserve-inline" }
+  );
 
 const wrapStandardQuery = (code: string) =>
   beautify(
@@ -23,6 +38,36 @@ export type ExamplePayload = {
 };
 
 export const EXAMPLES = {
+  "groq-builder - Basic Query (no validation)": {
+    dataset: "pokemon",
+    code: wrapGroqBuilderQuery(`
+      q.star
+       .filterByType("pokemon")
+       .slice(0, 8)
+       .project(p => ({
+         name: true,
+         attack: "base.Attack",
+         types: p.field("types[]").deref().project({
+           name: true,
+         }),
+       }))
+    `),
+  },
+  "groq-builder - Basic Query (with validation)": {
+    dataset: "pokemon",
+    code: wrapGroqBuilderQuery(`
+      q.star
+       .filterByType("pokemon")
+       .slice(0, 8)
+       .project(p => ({
+         name: z.string(),
+         attack: ["base.Attack", z.number()],
+         types: p.field("types[]").deref().project({
+           name: z.string(),
+         }),
+       }))
+    `),
+  },
   "Basic Query": {
     dataset: "pokemon",
     code: wrapStandardQuery(`
@@ -35,7 +80,6 @@ export const EXAMPLES = {
         })
     `),
   },
-
   "Deref Related Data": {
     dataset: "pokemon",
     code: wrapStandardQuery(`
