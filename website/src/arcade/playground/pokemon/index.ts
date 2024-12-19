@@ -1,4 +1,4 @@
-import { createGroqBuilder } from "groq-builder";
+import { createGroqBuilderWithZod } from "groq-builder";
 import type {
   AllSanitySchemaTypes,
   internalGroqTypeReferenceTo,
@@ -9,4 +9,4 @@ type SchemaConfig = {
   referenceSymbol: typeof internalGroqTypeReferenceTo;
 };
 
-export const q = createGroqBuilder<SchemaConfig>({});
+export const q = createGroqBuilderWithZod<SchemaConfig>({});
