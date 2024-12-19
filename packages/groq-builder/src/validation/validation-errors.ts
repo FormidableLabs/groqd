@@ -9,7 +9,7 @@ export type ErrorDetails = {
 export class ValidationErrors extends TypeError {
   constructor(
     message = "Validation Errors",
-    protected errors: ErrorDetails[] = []
+    private _errors: ErrorDetails[] = []
   ) {
     super(message);
     this.name = "ValidationErrors";
@@ -17,7 +17,7 @@ export class ValidationErrors extends TypeError {
 
   public add(path: string, value: unknown, error: Error) {
     if (isZodError(error)) {
-      this.errors.push(
+      this._errors.push(
         ...error.errors.map((e) => ({
           path: joinPath(
             path,
@@ -28,25 +28,30 @@ export class ValidationErrors extends TypeError {
         }))
       );
     } else if (error instanceof ValidationErrors) {
-      error.errors.forEach((e) => {
+      const childErrors = error._errors;
+      childErrors.forEach((e) => {
         e.path = joinPath(path, e.path);
       });
-      this.errors.push(...error.errors);
+      this._errors.push(...childErrors);
     } else {
-      this.errors.push({ path, value, message: error.message });
+      this._errors.push({ path, value, message: error.message });
     }
   }
 
   public get length() {
-    return this.errors.length;
+    return this._errors.length;
+  }
+
+  public get errors(): ReadonlyArray<ErrorDetails> {
+    return this._errors;
   }
 
   /**
    * Returns the error with an updated message
    */
   withMessage() {
-    const l = this.errors.length;
-    const message = `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this.errors
+    const l = this._errors.length;
+    const message = `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this._errors
       .map((e) => `${joinPath("result", e.path)}: ${e.message}`)
       .join("\n")}`;
     this.message = message;
