@@ -4,7 +4,7 @@ import "./commands";
 
 import type { QueryConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
-import { zodMethods } from "./validation/zod";
+import { ZodMethods, zodMethods } from "./validation/zod";
 
 // Re-export all our public types:
 export * from "./groq-builder";
@@ -33,7 +33,7 @@ export * from "./validation/validation-errors";
  */
 export function createGroqBuilder<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
-) {
+): GroqBuilder<RootResult, TRootConfig> {
   const q = new GroqBuilder<RootResult, TRootConfig>({
     query: "",
     parser: null,
@@ -64,7 +64,13 @@ export function createGroqBuilder<TRootConfig extends QueryConfig>(
  * export const q = createGroqBuilderWithZod<SchemaConfig>(); */
 export function createGroqBuilderWithZod<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
-) {
+): GroqBuilderWithZod<TRootConfig> {
   const q = createGroqBuilder<TRootConfig>(options);
   return Object.assign(q, zodMethods);
 }
+
+export type GroqBuilderWithZod<TRootConfig extends QueryConfig> = GroqBuilder<
+  RootResult,
+  TRootConfig
+> &
+  ZodMethods;
