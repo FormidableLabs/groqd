@@ -6,7 +6,7 @@ import { MODELS } from "../models";
 import type { ArcadeDispatch, GroqdQueryParams } from "../state";
 import toast from "react-hot-toast";
 import * as q from "groqd";
-import { GroqBuilder } from "groq-builder";
+import { GroqBuilder, ValidationErrors } from "groq-builder";
 import type * as PlaygroundModule from "./index";
 
 /**
@@ -95,7 +95,12 @@ const runQueryInternal = async ({
   } catch (err) {
     let errorPaths: Map<string, string> | undefined;
 
-    if (err instanceof q.GroqdParseError) {
+    if (err instanceof ValidationErrors) {
+      errorPaths = new Map();
+      for (const e of err.errors) {
+        errorPaths.set(e.path, e.message);
+      }
+    } else if (err instanceof q.GroqdParseError) {
       errorPaths = new Map();
       for (const e of err.zodError.errors) {
         if (e.message === "Required" && !has(err.rawResponse, e.path)) {
