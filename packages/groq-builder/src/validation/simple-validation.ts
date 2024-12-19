@@ -115,3 +115,44 @@ export function simpleObjectParser<TMap extends ObjectValidationMap>(
 }
 
 export type ObjectValidationMap = Record<string, Parser | null>;
+
+type UnknownObject = Record<string, unknown>;
+type UnknownObjectParser = (input: UnknownObject) => UnknownObject;
+
+/**
+ * Combines multiple object parsers into a single parser
+ */
+export function combineObjectParsers(
+  ...objectParsers: UnknownObjectParser[]
+): UnknownObjectParser {
+  if (objectParsers.length === 1) return objectParsers[0];
+  return function combinedObjectParser(input) {
+    const validationErrors = new ValidationErrors();
+    const result = {};
+    for (const p of objectParsers) {
+      try {
+        const parsed = p(input);
+        Object.assign(result, parsed);
+      } catch (err) {
+        validationErrors.add("", input, err as Error);
+      }
+    }
+
+    if (validationErrors.length) throw validationErrors;
+
+    return result;
+  };
+}
+
+/**
+ * Returns a parser that works against an array or a single item.
+ */
+export function maybeArrayParser<TItemInput, TItemOutput>(
+  parser: null | ParserFunction<TItemInput, TItemOutput>
+) {
+  if (!parser) return null;
+  const arrayParser = simpleArrayParser(parser);
+  return function maybeArrayParser(input: TItemInput | Array<TItemInput>) {
+    return Array.isArray(input) ? arrayParser(input) : parser(input);
+  };
+}
