@@ -4,7 +4,7 @@ export type ErrorDetails = {
   /**
    * The path where the error occurred
    */
-  path: string; // Will be overridden as errors bubble up
+  path: PathSegment[]; // Will be appended as errors bubble up
   /**
    * The actual (invalid) value
    */
@@ -34,14 +34,11 @@ export class ValidationErrors extends TypeError {
    * @param value - Actual value at this path
    * @param error - The error - can be a ZodError, another ValidationError, or just any Error object
    */
-  public add(path: string, value: unknown, error: Error) {
+  public add(path: PathSegment, value: unknown, error: Error) {
     if (isZodError(error)) {
       this._errors.push(
         ...error.errors.map((e) => ({
-          path: joinPath(
-            path,
-            ...e.path.map((p) => (typeof p === "number" ? `[${p}]` : p))
-          ),
+          path: [path, ...e.path],
           value: value,
           message: e.message,
         }))
@@ -49,11 +46,11 @@ export class ValidationErrors extends TypeError {
     } else if (error instanceof ValidationErrors) {
       const childErrors = error._errors;
       childErrors.forEach((e) => {
-        e.path = joinPath(path, e.path);
+        e.path.unshift(path);
       });
       this._errors.push(...childErrors);
     } else {
-      this._errors.push({ path, value, message: error.message });
+      this._errors.push({ path: [path], value, message: error.message });
     }
   }
 
@@ -81,21 +78,28 @@ export class ValidationErrors extends TypeError {
   withMessage() {
     const l = this._errors.length;
     const message = `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this._errors
-      .map((e) => `${joinPath("result", e.path)}: ${e.message}`)
+      .map((e) => `${formatPath(["result", ...e.path])}: ${e.message}`)
       .join("\n")}`;
     this.message = message;
     return this;
   }
 }
 
-function joinPath(path1: string, ...paths: string[]) {
-  let result = path1;
+type PathSegment = number | string | null;
+function formatPath(paths: PathSegment[]) {
+  let res = "";
   for (const p of paths) {
-    const needsDot = result && p && !p.startsWith("[");
-    if (needsDot) result += ".";
-    result += p;
+    if (p === null) continue;
+    const needsBrace = typeof p === "number" || p === "";
+    if (needsBrace) {
+      const value = typeof p === "number" ? String(p) : JSON.stringify(p);
+      res += "[" + value + "]";
+    } else {
+      if (!res) res = p;
+      else res += "." + p;
+    }
   }
-  return result;
+  return res;
 }
 
 /**

@@ -44,7 +44,7 @@ export function simpleArrayParser<TItemInput, TItemOutput>(
       try {
         return itemParser(value);
       } catch (err) {
-        validationErrors.add(`[${i}]`, value, err as Error);
+        validationErrors.add(i, value, err as Error);
         return null as never;
       }
     });
@@ -134,7 +134,7 @@ export function combineObjectParsers(
         const parsed = p(input);
         Object.assign(result, parsed);
       } catch (err) {
-        validationErrors.add("", input, err as Error);
+        validationErrors.add(null, input, err as Error);
       }
     }
 
