@@ -98,7 +98,8 @@ const runQueryInternal = async ({
     if (err instanceof ValidationErrors) {
       errorPaths = new Map();
       for (const e of err.errors) {
-        errorPaths.set(e.path, e.message);
+        const pathId = e.path.map((v) => String(v)).join(".");
+        errorPaths.set(pathId, e.message);
       }
     } else if (err instanceof q.GroqdParseError) {
       errorPaths = new Map();
