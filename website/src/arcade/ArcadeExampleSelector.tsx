@@ -10,7 +10,7 @@ export function ArcadeExampleSelector({
 }: ArcadeExampleSelectorProps) {
   return (
     <div>
-      <div>Examples</div>
+      <div>Load an Example</div>
       <div>
         {Object.entries(EXAMPLES).map(([title, value]) => (
           <button key={title} onClick={() => loadExample(value)}>

@@ -1,11 +1,18 @@
 import datasets from "@site/src/datasets.json";
 import beautify from "js-beautify";
 
-const BASIC_IMPORTS = `
-  import { runQuery } from "playground";
-  import { q } from "groqd";
-`.trim();
-
+const wrapQueryTodos = (code: string) =>
+  beautify(
+    `
+      import { runQuery } from "playground";
+      import { q } from "playground/todo-list";
+      
+      runQuery(
+        ${code.trim()}
+      );
+    `,
+    { indent_size: 2, brace_style: "preserve-inline" }
+  );
 const wrapGroqBuilderQuery = (code: string) =>
   beautify(
     `
@@ -16,16 +23,6 @@ const wrapGroqBuilderQuery = (code: string) =>
         ${code.trim()}
       );
     `,
-    { indent_size: 2, brace_style: "preserve-inline" }
-  );
-
-const wrapStandardQuery = (code: string) =>
-  beautify(
-    `${BASIC_IMPORTS}
-
-runQuery(
-  ${code.trim()}
-);`,
     { indent_size: 2, brace_style: "preserve-inline" }
   );
 
@@ -163,4 +160,43 @@ export const EXAMPLES = {
     `),
   },
    */
+} satisfies Record<string, ExamplePayload>;
+export const EXAMPLES_TODOS = {
+  "Basic Query": {
+    dataset: "todo-list",
+    code: wrapQueryTodos(`
+      q.star
+       .filterByType("todo")
+       .project(sub => ({
+         user: sub.field("user").deref().field("name", q.string()),
+         title: q.string(),
+         completed: q.boolean(),
+       }))
+    `),
+  },
+  "Basic Query with VALIDATION ERRORS": {
+    dataset: "todo-list-draft",
+    code: wrapQueryTodos(`
+      q.star
+       .filterByType("todo")
+       .project(sub => ({
+         user: sub.field("user").deref().field("name", q.string()),
+         title: q.string(),
+         completed: q.boolean(),
+       }))
+    `),
+  },
+  "Basic Query with fixed validation errors": {
+    dataset: "todo-list-draft",
+    code: wrapQueryTodos(`
+      q.star
+       .filterByType("todo")
+       .project(sub => ({
+         user: sub.field("user").deref().field("name", q.default(q.string(), "")),
+         title: q.default(q.string(), ""),
+         completed: q.default(q.boolean().or(q.number().transform(x => x > 0)), false),
+         completedRaw: "completed",
+       }))
+    `),
+  },
 } satisfies Record<string, ExamplePayload>;

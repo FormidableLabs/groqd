@@ -98,7 +98,7 @@ const mock = {
       draftItem({ title: null }),
     ];
 
-    return [...data, ...draftData];
+    return [...draftData, ...data];
   },
 };
 
