@@ -9,4 +9,6 @@ type SchemaConfig = {
   referenceSymbol: typeof internalGroqTypeReferenceTo;
 };
 
-export const q = createGroqBuilderWithZod<SchemaConfig>({});
+export const q = createGroqBuilderWithZod<SchemaConfig>({
+  indent: "  ",
+});
