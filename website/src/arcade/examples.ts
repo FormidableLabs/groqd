@@ -120,36 +120,32 @@ export const EXAMPLES = {
     `),
   },
 
-  "Conditional projections using 'select'": {
+  "Conditional projections": {
     dataset: "pokemon",
     code: wrapGroqBuilderQuery(`
       q.star
         .filterByType("pokemon")
         .filter("name in ['Bulbasaur', 'Charmander']")
-        .select({
-          // For Bulbasaur, grab the HP
-          'name == "Bulbasaur"': {
-            _id: q.string(),
-            name: q.literal("Bulbasaur"),
-            hp: ["base.HP", q.number()],
-          },
-          // For Charmander, grab the Attack
-          'name == "Charmander"': {
-            _id: q.string(),
-            name: q.literal("Charmander"),
-            attack: ["base.Attack", q.number()],
-          },
-          // For all other pokemon, cast them into a custom "unsupported selection" type
-          // while retaining useful information for run-time logging
-          default: {
-            _id: q.string(),
-            name: q.value("unsupported pokemon", q.literal("unsupported pokemon")),
-            unsupportedName: ["name", q.string()]
-          }
-        })
+        .project(sub => ({
+          _id: q.string(),
+          ...sub.conditional({
+            // For Bulbasaur, grab the HP
+            'name == "Bulbasaur"': {
+              name: q.literal("Bulbasaur"),
+              hp: ["base.HP", q.number()],
+            },
+            // For Charmander, grab the Attack
+            'name == "Charmander"': {
+              name: q.literal("Charmander"),
+              attack: ["base.Attack", q.number()],
+            },
+          }),
+        }))
     `),
   },
 
+  /*
+  // TODO: Add support for `.score` method
   "Using the .score method": {
     dataset: "pokemon",
     code: wrapGroqBuilderQuery(`
@@ -166,4 +162,5 @@ export const EXAMPLES = {
         }))
     `),
   },
+   */
 } satisfies Record<string, ExamplePayload>;
