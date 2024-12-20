@@ -14,7 +14,7 @@ const qVariants = q.star.filterByType("variant");
 
 describe("conditional", () => {
   describe("by itself", () => {
-    const conditionalResult = q.star.filterByType("variant").conditional({
+    const conditionalResult = q.asType<"variant">().conditional({
       "price == msrp": {
         onSale: q.value(false),
       },
@@ -198,5 +198,45 @@ describe("conditional", () => {
         `);
       });
     });
+  });
+
+  describe("isExhaustive", () => {
+    const exhaustiveQuery = qVariants.project((sub) => ({
+      name: true,
+      ...sub.conditional(
+        {
+          "price >= msrp": {
+            onSale: q.value(false),
+          },
+          "price < msrp": {
+            onSale: q.value(true),
+            price: true,
+            msrp: true,
+          },
+        },
+        // Use this parameter when you know that
+        // at least one condition must be true:
+        { isExhaustive: true }
+      ),
+    }));
+
+    type Result = InferResultType<typeof exhaustiveQuery>;
+    type ExpectedResultItem =
+      | {
+          name: string;
+          onSale: false;
+        }
+      | {
+          name: string;
+          onSale: true;
+          price: number;
+          msrp: number;
+        };
+    expectTypeOf<Result>().toEqualTypeOf<Array<ExpectedResultItem>>();
+
+    // The "isExhaustive" parameter ensures we don't
+    // include the "empty" types:
+    type NonExhaustiveResult = { name: string } & ExpectedResultItem;
+    expectTypeOf<Result>().not.toEqualTypeOf<Array<NonExhaustiveResult>>();
   });
 });
