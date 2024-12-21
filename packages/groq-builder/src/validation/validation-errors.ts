@@ -4,7 +4,7 @@ export type ErrorDetails = {
   /**
    * The path where the error occurred
    */
-  path: PathSegment[]; // Will be appended as errors bubble up
+  readonly path: PathSegment[]; // Will be appended as errors bubble up
   /**
    * The actual (invalid) value
    */
@@ -21,7 +21,7 @@ export type ErrorDetails = {
 export class ValidationErrors extends TypeError {
   constructor(
     message = "Validation Errors",
-    private _errors: ErrorDetails[] = []
+    public readonly errors: ErrorDetails[] = []
   ) {
     super(message);
     this.name = "ValidationErrors";
@@ -36,7 +36,7 @@ export class ValidationErrors extends TypeError {
    */
   public add(path: PathSegment, value: unknown, error: Error) {
     if (isZodError(error)) {
-      this._errors.push(
+      this.errors.push(
         ...error.errors.map((e) => ({
           path: [path, ...e.path],
           value: value,
@@ -44,13 +44,13 @@ export class ValidationErrors extends TypeError {
         }))
       );
     } else if (error instanceof ValidationErrors) {
-      const childErrors = error._errors;
+      const childErrors = error.errors;
       childErrors.forEach((e) => {
         e.path.unshift(path);
       });
-      this._errors.push(...childErrors);
+      this.errors.push(...childErrors);
     } else {
-      this._errors.push({ path: [path], value, message: error.message });
+      this.errors.push({ path: [path], value, message: error.message });
     }
   }
 
@@ -58,14 +58,7 @@ export class ValidationErrors extends TypeError {
    * Returns the number of validation errors
    */
   public get length() {
-    return this._errors.length;
-  }
-
-  /**
-   * Returns a list of all validation errors
-   */
-  public get errors(): ReadonlyArray<ErrorDetails> {
-    return this._errors;
+    return this.errors.length;
   }
 
   /**
@@ -76,8 +69,8 @@ export class ValidationErrors extends TypeError {
    * if (validationErrors.length) throw validationErrors.withMessage()
    */
   withMessage() {
-    const l = this._errors.length;
-    const message = `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this._errors
+    const l = this.errors.length;
+    const message = `${l} Parsing Error${l === 1 ? "" : "s"}:\n${this.errors
       .map((e) => `${formatPath(["result", ...e.path])}: ${e.message}`)
       .join("\n")}`;
     this.message = message;
