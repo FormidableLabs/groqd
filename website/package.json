@@ -13,7 +13,8 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "pnpm run gather-types && tsc --noEmit",
-    "gather-types": "(cd src/arcade/playground && tsc) && node ./scripts/gather-types.js"
+    "gather-types": "(cd src/arcade/playground && tsc) && ./scripts/gather-types.js",
+    "generate-dataset-presets": "./scripts/generate-dataset-presets.js"
   },
   "dependencies": {
     "@docusaurus/core": "^3.6.3",

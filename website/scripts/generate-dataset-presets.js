@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const fs = require("node:fs/promises");
 const path = require("node:path");
 
@@ -7,7 +8,7 @@ const main = async () => {
   const datasetData = {};
   for (const ds of allDatasets) {
     const id = path.parse(ds).name;
-    if (name.endsWith(".ts")) continue;
+    if (id.endsWith(".ts")) continue;
     const { title, data } = require(path.resolve(__dirname, "datasets", ds))();
     datasetData[id] = { title, data: JSON.stringify(data, null, 2) };
   }

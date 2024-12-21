@@ -112,7 +112,7 @@ export class GroqBuilder<
         throw err.withMessage();
       }
       const v = new ValidationErrors();
-      v.add("", data, err as Error);
+      v.add(null, data, err as Error);
       throw v.withMessage();
     }
   }

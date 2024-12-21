@@ -6,6 +6,8 @@ import {
   ValidateParserInput,
 } from "./projection-types";
 import { Parser, ParserWithWidenedInput } from "../types/public-types";
+import { maybeArrayParser } from "../validation/simple-validation";
+import { normalizeValidationFunction } from "./validate-utils";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -64,6 +66,9 @@ GroqBuilder.implement({
       fieldName = "." + fieldName;
     }
 
-    return this.chain(fieldName, parser);
+    // Finally, transparently handle arrays or objects:
+    const arrayParser = maybeArrayParser(normalizeValidationFunction(parser));
+
+    return this.chain(fieldName, arrayParser);
   },
 });

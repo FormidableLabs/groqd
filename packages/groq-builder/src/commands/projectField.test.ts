@@ -141,5 +141,32 @@ describe("field (naked projections)", () => {
         result: Expected number, received string]
       `);
     });
+
+    describe("with arrays of data", () => {
+      const qPrices = qVariants.field("price", zod.number());
+      it("should execute correctly", async () => {
+        const results = await executeBuilder(qPrices, data);
+        expect(results).toMatchInlineSnapshot(`
+          [
+            55,
+            56,
+            57,
+            58,
+            59,
+          ]
+        `);
+      });
+      it("should throw for invalid values", () => {
+        expect(qPrices.parse([55, 56])).toEqual([55, 56]);
+        expect(qPrices.parse(56)).toEqual(56);
+
+        expect(() => {
+          qPrices.parse([55, "56"]);
+        }).toThrowErrorMatchingInlineSnapshot(`
+          [ValidationErrors: 1 Parsing Error:
+          result[1]: Expected number, received string]
+        `);
+      });
+    });
   });
 });

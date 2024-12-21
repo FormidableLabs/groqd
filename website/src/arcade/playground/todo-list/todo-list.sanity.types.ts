@@ -20,7 +20,7 @@ export type User = {
 
 export type Todo = {
   _id: string;
-  _type: "poketype";
+  _type: "todo";
   user: {
     type: "reference";
     _ref: string;
