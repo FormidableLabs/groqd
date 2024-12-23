@@ -87,4 +87,4 @@ We also provide a [Vision](https://www.sanity.io/docs/the-vision-plugin)-like Sa
 (TODO: update this screenshot for 1.0)
 ![Screenshot of groqd playground in action](./img/groqd-playground-sample.png)
 
-The playground is a drop-in Sanity plugin, and is an easy way to test out `groqd` within your dataset. See [the playground docs](./legacy/groqd-playground.mdx) for more information on the playground.
+The playground is a drop-in Sanity plugin, and is an easy way to test out `groqd` within your dataset. See [the playground docs](./groqd-playground.mdx) for more information on the playground.
