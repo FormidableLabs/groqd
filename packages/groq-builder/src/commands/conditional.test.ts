@@ -220,23 +220,25 @@ describe("conditional", () => {
       ),
     }));
 
-    type Result = InferResultType<typeof exhaustiveQuery>;
-    type ExpectedResultItem =
-      | {
-          name: string;
-          onSale: false;
-        }
-      | {
-          name: string;
-          onSale: true;
-          price: number;
-          msrp: number;
-        };
-    expectTypeOf<Result>().toEqualTypeOf<Array<ExpectedResultItem>>();
+    it("should have the correct result type", () => {
+      type Result = InferResultType<typeof exhaustiveQuery>;
+      type ExpectedResultItem =
+        | {
+            name: string;
+            onSale: false;
+          }
+        | {
+            name: string;
+            onSale: true;
+            price: number;
+            msrp: number;
+          };
+      expectTypeOf<Result>().toEqualTypeOf<Array<ExpectedResultItem>>();
 
-    // The "isExhaustive" parameter ensures we don't
-    // include the "empty" types:
-    type NonExhaustiveResult = { name: string } & ExpectedResultItem;
-    expectTypeOf<Result>().not.toEqualTypeOf<Array<NonExhaustiveResult>>();
+      // The "isExhaustive" parameter ensures we don't
+      // include the "empty" types:
+      type NonExhaustiveResult = { name: string } & ExpectedResultItem;
+      expectTypeOf<Result>().not.toEqualTypeOf<Array<NonExhaustiveResult>>();
+    });
   });
 });
