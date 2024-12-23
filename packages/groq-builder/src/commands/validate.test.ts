@@ -1,11 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { createGroqBuilderWithZod, InferResultType } from "../index";
+import { q } from "../tests/schemas/nextjs-sanity-fe";
+import { InferResultType } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { currencyFormat } from "../tests/utils";
 
-const q = createGroqBuilderWithZod<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("parse", () => {

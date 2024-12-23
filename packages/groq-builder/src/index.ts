@@ -22,16 +22,16 @@ export * from "./validation/validation-errors";
  * see `createGroqBuilderWithZod` for more information.
  *
  * @example
- * import { createGroqBuilder, ExtractDocumentTypes } from 'groq-builder';
+ * import { createGroqBuilderLite, ExtractDocumentTypes } from 'groq-builder';
  * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
  * type SchemaConfig = {
  *   schemaTypes: AllSanitySchemaTypes;
  *   referenceSymbol: typeof internalGroqTypeReferenceTo;
  * };
- * export const q = createGroqBuilder<SchemaConfig>();
+ * export const q = createGroqBuilderLite<SchemaConfig>();
  */
-export function createGroqBuilder<TRootConfig extends QueryConfig>(
+export function createGroqBuilderLite<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ): GroqBuilder<RootResult, TRootConfig> {
   const q = new GroqBuilder<RootResult, TRootConfig>({
@@ -51,7 +51,7 @@ export function createGroqBuilder<TRootConfig extends QueryConfig>(
  * If you want to use `zod` directly,
  * or a different validation library,
  * or don't need runtime validation,
- * use `createGroqBuilder` instead.
+ * use `createGroqBuilderLite` instead.
  *
  * @example
  * import { createGroqBuilderWithZod, ExtractDocumentTypes } from 'groq-builder';
@@ -65,12 +65,9 @@ export function createGroqBuilder<TRootConfig extends QueryConfig>(
 export function createGroqBuilderWithZod<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ): GroqBuilderWithZod<TRootConfig> {
-  const q = createGroqBuilder<TRootConfig>(options);
+  const q = createGroqBuilderLite<TRootConfig>(options);
   return Object.assign(q, zodMethods);
 }
 
-export type GroqBuilderWithZod<TRootConfig extends QueryConfig> = GroqBuilder<
-  RootResult,
-  TRootConfig
-> &
-  ZodMethods;
+export type GroqBuilderWithZod<TRootConfig extends QueryConfig> = ZodMethods &
+  GroqBuilder<RootResult, TRootConfig>;

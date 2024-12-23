@@ -1,10 +1,7 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { InferFragmentType, InferResultType } from "../types/public-types";
-import { createGroqBuilder } from "../index";
 import { TypeMismatchError } from "../types/utils";
-
-const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
 describe("fragment", () => {
   // define a fragment:

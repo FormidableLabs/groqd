@@ -1,11 +1,9 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { SchemaConfig, q } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilder, SchemaDocument } from "../index";
+import { SchemaDocument } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-
-const q = createGroqBuilder<SchemaConfig>();
 
 describe("star", () => {
   const star = q.star;

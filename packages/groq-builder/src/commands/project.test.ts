@@ -8,6 +8,7 @@ import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
 
 const q = createGroqBuilderWithZod<SchemaConfig>();
+
 const qVariants = q.star.filterByType("variant");
 
 describe("project (object projections)", () => {

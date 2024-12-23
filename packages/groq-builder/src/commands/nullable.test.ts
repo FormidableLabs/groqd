@@ -1,11 +1,9 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilderWithZod } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 
-const q = createGroqBuilderWithZod<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("nullable", () => {

@@ -1,10 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { createGroqBuilder, InferParametersType } from "../index";
+import { q } from "../tests/schemas/nextjs-sanity-fe";
+import { InferParametersType } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-
-const q = createGroqBuilder<SchemaConfig>();
 
 describe("parameters", () => {
   const data = mock.generateSeedData({

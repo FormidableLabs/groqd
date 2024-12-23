@@ -1,9 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilderWithZod } from "../index";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { q } from "../tests/schemas/nextjs-sanity-fe";
 
-const q = createGroqBuilderWithZod<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("grab (backwards compatibility)", () => {
