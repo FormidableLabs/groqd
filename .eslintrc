@@ -27,6 +27,6 @@
     "**/node_modules/**/*",
     "**/public/**/*",
     "**/.docusaurus/**/*",
-    "website/src/arcade/**/*.d.ts"
+    "**/*.d.ts"
   ]
 }
