@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import * as q from "groqd";
 import { GroqBuilder, ValidationErrors } from "groq-builder";
 import type * as PlaygroundModule from "./index";
+import { getPathId } from "../../../../shared/util/jsonExplorerUtils";
 
 /**
  * This returns
@@ -98,7 +99,7 @@ const runQueryInternal = async ({
     if (err instanceof ValidationErrors) {
       errorPaths = new Map();
       for (const e of err.errors) {
-        const pathId = e.path.map((v) => String(v)).join(".");
+        const pathId = getPathId(e.path);
         errorPaths.set(pathId, e.message);
       }
     } else if (err instanceof q.GroqdParseError) {
@@ -106,14 +107,11 @@ const runQueryInternal = async ({
       for (const e of err.zodError.errors) {
         if (e.message === "Required" && !has(err.rawResponse, e.path)) {
           errorPaths.set(
-            e.path
-              .slice(0, -1)
-              .map((v) => String(v))
-              .join("."),
+            getPathId(e.path.slice(0, -1)),
             `Field "${e.path.at(-1)}" is Required`
           );
         } else {
-          errorPaths.set(e.path.map((v) => String(v)).join("."), e.message);
+          errorPaths.set(getPathId(e.path), e.message);
         }
       }
     }
