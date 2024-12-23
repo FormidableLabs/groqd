@@ -38,6 +38,8 @@
     "dist"
   ],
   "scripts": {
+    "checks": "pnpm run lint && pnpm run typecheck && pnpm run test",
+    "lint": "eslint src --quiet",
     "test:watch": "vitest",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
