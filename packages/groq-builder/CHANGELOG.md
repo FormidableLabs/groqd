@@ -1,5 +1,15 @@
 # groq-builder
 
+## 0.10.1
+
+### Patch Changes
+
+- # This package is now deprecated. Use `groqd` instead! ([#305](https://github.com/FormidableLabs/groqd/pull/305))
+
+  Great news! This `groq-builder` codebase has been merged into the official `groqd` project, and is now available as `groqd@1`.
+
+  Please discontinue using `groq-builder` and use `groqd` instead.
+
 ## 0.10.0
 
 ### Minor Changes
