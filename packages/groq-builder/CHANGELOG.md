@@ -1,5 +1,18 @@
 # groq-builder
 
+## 0.10.0
+
+### Minor Changes
+
+- This is the final release before v1.0 ([#306](https://github.com/FormidableLabs/groqd/pull/306))
+
+  ## Minor changes
+
+  - Configuration: renamed main method from `createGroqBuilder` to `createGroqBuilderLite`
+  - Configuration: eliminated need for `ExtractDocumentTypes`
+  - Fix: `field` projections handle arrays properly
+  - Improvement: better typings for Zod methods
+
 ## 0.9.2
 
 ### Patch Changes
