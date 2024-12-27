@@ -2,11 +2,8 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultType } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 
-import { createGroqBuilder } from "../index";
-
-const q = createGroqBuilder<SchemaConfig>();
 const data = mock.generateSeedData({});
 
 describe("deref", () => {

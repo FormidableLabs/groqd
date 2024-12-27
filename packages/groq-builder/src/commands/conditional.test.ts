@@ -1,20 +1,14 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import {
-  createGroqBuilder,
-  GroqBuilder,
-  InferResultItem,
-  InferResultType,
-} from "../index";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { GroqBuilder, InferResultItem, InferResultType } from "../index";
+import { q } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { Empty, Simplify } from "../types/utils";
 
-const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const qVariants = q.star.filterByType("variant");
 
 describe("conditional", () => {
   describe("by itself", () => {
-    const conditionalResult = q.star.filterByType("variant").conditional({
+    const conditionalResult = q.asType<"variant">().conditional({
       "price == msrp": {
         onSale: q.value(false),
       },
@@ -197,6 +191,48 @@ describe("conditional", () => {
             }"
         `);
       });
+    });
+  });
+
+  describe("isExhaustive", () => {
+    const exhaustiveQuery = qVariants.project((sub) => ({
+      name: true,
+      ...sub.conditional(
+        {
+          "price >= msrp": {
+            onSale: q.value(false),
+          },
+          "price < msrp": {
+            onSale: q.value(true),
+            price: true,
+            msrp: true,
+          },
+        },
+        // Use this parameter when you know that
+        // at least one condition must be true:
+        { isExhaustive: true }
+      ),
+    }));
+
+    it("should have the correct result type", () => {
+      type Result = InferResultType<typeof exhaustiveQuery>;
+      type ExpectedResultItem =
+        | {
+            name: string;
+            onSale: false;
+          }
+        | {
+            name: string;
+            onSale: true;
+            price: number;
+            msrp: number;
+          };
+      expectTypeOf<Result>().toEqualTypeOf<Array<ExpectedResultItem>>();
+
+      // The "isExhaustive" parameter ensures we don't
+      // include the "empty" types:
+      type NonExhaustiveResult = { name: string } & ExpectedResultItem;
+      expectTypeOf<Result>().not.toEqualTypeOf<Array<NonExhaustiveResult>>();
     });
   });
 });

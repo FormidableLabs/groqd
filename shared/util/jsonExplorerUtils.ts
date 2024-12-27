@@ -8,5 +8,10 @@ export const isObject = (data: unknown): data is Record<string, unknown> =>
   data !== null &&
   !Array.isArray(data) &&
   !(data instanceof Date);
+
 export const addToPath = (existingPath: string, newSegment: string) =>
   existingPath ? `${existingPath}.${newSegment}` : newSegment;
+
+export function getPathId(paths: Array<string | number>) {
+  return paths.map((v) => String(v)).join(".");
+}

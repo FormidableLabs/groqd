@@ -14,7 +14,8 @@ import {
 } from "./projection-types";
 import { isConditional } from "./conditional-types";
 import {
-  simpleArrayParser,
+  combineObjectParsers,
+  maybeArrayParser,
   simpleObjectParser,
 } from "../validation/simple-validation";
 
@@ -137,8 +138,6 @@ function normalizeProjectionField(
   }
 }
 
-type UnknownObject = Record<string, unknown>;
-
 type NormalizedProjectionField = {
   key: string;
   query: string;
@@ -167,26 +166,11 @@ function createProjectionParser(
     .filter(notNull);
 
   // Combine normal and conditional parsers:
-  const combinedParsers = [objectParser, ...conditionalParsers];
-  const combinedParser = (input: Record<string, unknown>) => {
-    const result = {};
-    for (const p of combinedParsers) {
-      const parsed = p(input);
-      Object.assign(result, parsed);
-    }
-    return result;
-  };
+  const combinedParser = combineObjectParsers(
+    objectParser,
+    ...conditionalParsers
+  );
 
   // Finally, transparently handle arrays or objects:
-  const arrayParser = simpleArrayParser(combinedParser);
-  return function projectionParser(
-    input: UnknownObject | Array<UnknownObject>
-  ) {
-    // Operates against either an array or a single item:
-    if (!Array.isArray(input)) {
-      return combinedParser(input);
-    }
-
-    return arrayParser(input);
-  };
+  return maybeArrayParser(combinedParser);
 }

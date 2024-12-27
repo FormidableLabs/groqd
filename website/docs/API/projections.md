@@ -109,7 +109,7 @@ q.star.filterByType("product").project(sub => ({
 
 ### `q.value(literal, parser?)`
 
-Selects a literal value. Especially useful with [conditional selections](api-advanced.md#conditionals).
+Selects a literal value. Especially useful with [conditional selections](./conditionals).
 
 > Not to be confused with `q.literal(literal)` which is a Zod validation function.
 

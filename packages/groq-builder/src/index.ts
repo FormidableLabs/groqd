@@ -4,7 +4,7 @@ import "./commands";
 
 import type { QueryConfig } from "./types/schema-types";
 import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
-import { zodMethods } from "./validation/zod";
+import { ZodMethods, zodMethods } from "./validation/zod";
 
 // Re-export all our public types:
 export * from "./groq-builder";
@@ -12,6 +12,7 @@ export * from "./types/public-types";
 export * from "./types/schema-types";
 export { zodMethods as zod } from "./validation/zod";
 export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
+export * from "./validation/validation-errors";
 
 /**
  * Creates the root `q` query builder.
@@ -21,18 +22,18 @@ export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
  * see `createGroqBuilderWithZod` for more information.
  *
  * @example
- * import { createGroqBuilder, ExtractDocumentTypes } from 'groq-builder';
+ * import { createGroqBuilderLite, ExtractDocumentTypes } from 'groq-builder';
  * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
  * type SchemaConfig = {
  *   schemaTypes: AllSanitySchemaTypes;
  *   referenceSymbol: typeof internalGroqTypeReferenceTo;
  * };
- * export const q = createGroqBuilder<SchemaConfig>();
+ * export const q = createGroqBuilderLite<SchemaConfig>();
  */
-export function createGroqBuilder<TRootConfig extends QueryConfig>(
+export function createGroqBuilderLite<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
-) {
+): GroqBuilder<RootResult, TRootConfig> {
   const q = new GroqBuilder<RootResult, TRootConfig>({
     query: "",
     parser: null,
@@ -50,7 +51,7 @@ export function createGroqBuilder<TRootConfig extends QueryConfig>(
  * If you want to use `zod` directly,
  * or a different validation library,
  * or don't need runtime validation,
- * use `createGroqBuilder` instead.
+ * use `createGroqBuilderLite` instead.
  *
  * @example
  * import { createGroqBuilderWithZod, ExtractDocumentTypes } from 'groq-builder';
@@ -63,7 +64,10 @@ export function createGroqBuilder<TRootConfig extends QueryConfig>(
  * export const q = createGroqBuilderWithZod<SchemaConfig>(); */
 export function createGroqBuilderWithZod<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
-) {
-  const q = createGroqBuilder<TRootConfig>(options);
+): GroqBuilderWithZod<TRootConfig> {
+  const q = createGroqBuilderLite<TRootConfig>(options);
   return Object.assign(q, zodMethods);
 }
+
+export type GroqBuilderWithZod<TRootConfig extends QueryConfig> = ZodMethods &
+  GroqBuilder<RootResult, TRootConfig>;

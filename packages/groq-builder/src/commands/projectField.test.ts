@@ -1,11 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { InferResultType } from "../types/public-types";
-import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
-import { createGroqBuilder, zod } from "../index";
+import { zod } from "../index";
 
-const q = createGroqBuilder<SchemaConfig>();
 const qVariants = q.star.filterByType("variant");
 
 describe("field (naked projections)", () => {
@@ -140,6 +139,33 @@ describe("field (naked projections)", () => {
         [ValidationErrors: 1 Parsing Error:
         result: Expected number, received string]
       `);
+    });
+
+    describe("with arrays of data", () => {
+      const qPrices = qVariants.field("price", zod.number());
+      it("should execute correctly", async () => {
+        const results = await executeBuilder(qPrices, data);
+        expect(results).toMatchInlineSnapshot(`
+          [
+            55,
+            56,
+            57,
+            58,
+            59,
+          ]
+        `);
+      });
+      it("should throw for invalid values", () => {
+        expect(qPrices.parse([55, 56])).toEqual([55, 56]);
+        expect(qPrices.parse(56)).toEqual(56);
+
+        expect(() => {
+          qPrices.parse([55, "56"]);
+        }).toThrowErrorMatchingInlineSnapshot(`
+          [ValidationErrors: 1 Parsing Error:
+          result[1]: Expected number, received string]
+        `);
+      });
     });
   });
 });

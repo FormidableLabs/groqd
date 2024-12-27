@@ -1,11 +1,9 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { q } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../types/public-types";
-import { createGroqBuilder, zod } from "../index";
+import { zod } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-
-const q = createGroqBuilder<SchemaConfig>();
 
 describe("raw", () => {
   const qVariants = q.star.slice(0, 2);

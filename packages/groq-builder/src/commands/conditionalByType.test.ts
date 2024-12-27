@@ -1,19 +1,17 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
-  createGroqBuilder,
   ExtractDocumentTypes,
   GroqBuilder,
   IGroqBuilder,
   InferResultItem,
   InferResultType,
 } from "../index";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { q, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { Simplify, SimplifyDeep } from "../types/utils";
 
-const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 const data = mock.generateSeedData({
   products: mock.array(5, (i) =>
     mock.product({ slug: mock.slug({ current: `product-slug-${i}` }) })

@@ -6,6 +6,7 @@ import { executeBuilder } from "../tests/mocks/executeQuery";
 import { TypeMismatchError } from "../types/utils";
 
 const q = createGroqBuilderWithZod<SchemaConfig>();
+
 const qVariants = q.star.filterByType("variant");
 
 describe("with zod", () => {

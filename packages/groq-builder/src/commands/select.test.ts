@@ -1,10 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createGroqBuilder, InferResultType, zod } from "../index";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { InferResultType, zod } from "../index";
+import { q } from "../tests/schemas/nextjs-sanity-fe";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
-
-const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
 describe("select", () => {
   const qBase = q.star.filterByType("variant", "product", "category");

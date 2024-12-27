@@ -1,9 +1,6 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SchemaConfig } from "./tests/schemas/nextjs-sanity-fe";
-import { createGroqBuilder } from "./index";
+import { q } from "./tests/schemas/nextjs-sanity-fe";
 import { makeSafeQueryRunner } from "./makeSafeQueryRunner";
-
-const q = createGroqBuilder<SchemaConfig>({ indent: "  " });
 
 describe("makeSafeQueryRunner", () => {
   it("should have correctly-typed parameters", () => {
