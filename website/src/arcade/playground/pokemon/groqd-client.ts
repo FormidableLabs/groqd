@@ -1,4 +1,4 @@
-import { createGroqBuilderWithZod } from "groqd";
+import { createGroqBuilderWithZod, makeSafeQueryRunner } from "groqd";
 import type {
   AllSanitySchemaTypes,
   internalGroqTypeReferenceTo,
@@ -12,3 +12,6 @@ type SchemaConfig = {
 export const q = createGroqBuilderWithZod<SchemaConfig>({
   indent: "  ",
 });
+
+/** This method will be overridden by the arcade, it is only here for the types. */
+export const runQuery = makeSafeQueryRunner(() => null);

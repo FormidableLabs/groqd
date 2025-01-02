@@ -17,8 +17,8 @@ import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
 import types from "../types.json";
 import { createPlaygroundModule } from "./playground/playground-implementation";
-import * as playgroundPokemonModule from "./playground/pokemon";
-import * as playgroundTodoListModule from "./playground/todo-list";
+import * as playgroundPokemonModule from "./playground/pokemon/groqd-client";
+import * as playgroundTodoListModule from "./playground/todo-list/groqd-client";
 
 export type ArcadeEditorProps = {
   dispatch: ArcadeDispatch;
@@ -132,17 +132,16 @@ const runCode = async ({
       lzstring.compressToEncodedURIComponent(model.getValue())
     );
 
+    const playgroundModule = createPlaygroundModule({
+      dispatch,
+      shouldRunQueryImmediately,
+    });
     const libs = {
       groqd: q,
       zod: z,
-      get playground() {
-        return createPlaygroundModule({
-          dispatch,
-          shouldRunQueryImmediately,
-        });
-      },
-      "playground/pokemon": playgroundPokemonModule,
-      "playground/todo-list": playgroundTodoListModule,
+      playground: playgroundModule,
+      "./pokemon/groqd-client": playgroundPokemonModule,
+      "./todo-list/groqd-client": playgroundTodoListModule,
     };
     const scope = {
       exports: {},
