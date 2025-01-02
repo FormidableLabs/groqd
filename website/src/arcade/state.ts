@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BaseQuery, q } from "groqd";
+import { BaseQuery, q } from "groqd-legacy";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import datasets from "@site/src/datasets.json";
 

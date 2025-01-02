@@ -1,4 +1,4 @@
-import { createGroqBuilderWithZod } from "groq-builder";
+import { createGroqBuilderWithZod } from "groqd";
 import type {
   AllSanitySchemaTypes,
   internalGroqTypeReferenceTo,

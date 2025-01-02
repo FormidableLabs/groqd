@@ -5,8 +5,8 @@ import { MODELS } from "../models";
 
 import type { ArcadeDispatch, GroqdQueryParams } from "../state";
 import toast from "react-hot-toast";
-import * as q from "groqd";
-import { GroqBuilder, ValidationErrors } from "groq-builder";
+import * as q from "groqd-legacy";
+import { GroqBuilder, ValidationErrors } from "groqd";
 import type * as PlaygroundModule from "./index";
 import { getPathId } from "../../../../shared/util/jsonExplorerUtils";
 

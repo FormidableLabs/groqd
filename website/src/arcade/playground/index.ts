@@ -1,5 +1,5 @@
 import type { ZodType } from "zod";
-import type { GroqBuilder } from "groq-builder";
+import type { GroqBuilder } from "groqd";
 
 /**
  * Runs the query against the provided dataset,

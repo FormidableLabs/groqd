@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "@uiw/react-split": "^5.8.10",
-    "groqd": "workspace:*",
+    "groqd": "workspace:groqd-legacy@*",
     "lodash.has": "^4.5.2",
     "zod": "^3.22.4"
   },

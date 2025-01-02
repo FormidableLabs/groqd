@@ -2,7 +2,7 @@ import * as monaco from "monaco-editor";
 
 const DEFAULT_INIT_CODE = `
 import { runQuery } from "playground";
-import { q } from "groqd";
+import { q } from "groqd-legacy";
 
 runQuery(
   q("*")

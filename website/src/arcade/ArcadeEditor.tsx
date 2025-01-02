@@ -2,7 +2,7 @@ import * as React from "react";
 import * as monaco from "monaco-editor";
 import debounce from "lodash.debounce";
 import { MODELS } from "@site/src/arcade/models";
-import * as q from "groqd";
+import * as q from "groqd-legacy";
 import * as z from "zod";
 import {
   ArcadeDispatch,
