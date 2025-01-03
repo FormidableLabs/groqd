@@ -1,5 +1,6 @@
 {
   "name": "groqd-legacy",
+  "private": true,
   "version": "0.15.12",
   "license": "MIT",
   "author": {
