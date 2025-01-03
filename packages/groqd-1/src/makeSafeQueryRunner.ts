@@ -1,4 +1,4 @@
-import type { IsUnknown, HasRequiredKeys } from "type-fest";
+import type { IsUnknown, HasRequiredKeys, EmptyObject } from "type-fest";
 import type { QueryConfig } from "./types/schema-types";
 
 import type { IGroqBuilder } from "./types/public-types";
@@ -10,7 +10,7 @@ export type QueryRunnerOptions<TQueryConfig extends QueryConfig = QueryConfig> =
          * This query does not have any parameters defined.
          * Please use `q.parameters<...>()` to define the required input parameters.
          */
-        parameters?: never;
+        parameters?: EmptyObject;
       }
     : {
         /**

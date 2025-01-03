@@ -27,7 +27,7 @@ describe("makeSafeQueryRunner", () => {
     });
   });
 
-  const query = q.star.filterByType("variant").project({ name: true });
+  const queryNoParams = q.star.filterByType("variant").project({ name: true });
   const queryWithVars = q
     .parameters<{ foo: string }>()
     .star.filterByType("variant")
@@ -45,7 +45,7 @@ describe("makeSafeQueryRunner", () => {
     expect(runner).toBeTypeOf("function");
   });
   it("the function should be strongly-typed", async () => {
-    const result = await runner(query);
+    const result = await runner(queryNoParams);
     expectTypeOf(result).toEqualTypeOf<Array<{ name: string }>>();
     // But for this test, our result echos the query and options:
     expect(result).toMatchInlineSnapshot(`
@@ -56,6 +56,17 @@ describe("makeSafeQueryRunner", () => {
         {},
       ]
     `);
+  });
+  it("should not allow parameters if not present", () => {
+    async function _onlyCheckTypes() {
+      // These are all fine, we allow empty parameters:
+      await runner(queryNoParams);
+      await runner(queryNoParams, {});
+      await runner(queryNoParams, { parameters: {} });
+
+      // @ts-expect-error --- foo does not exist in type EmptyObject
+      await runner(queryNoParams, { parameters: { foo: "" } });
+    }
   });
   it("should require parameters when present", () => {
     async function _onlyCheckTypes() {
@@ -84,18 +95,18 @@ describe("makeSafeQueryRunner", () => {
   it("should require extra parameters if defined", () => {
     async function _onlyCheckTypes() {
       // @ts-expect-error --- expected 2 arguments
-      await runnerWithExtraParams(query);
+      await runnerWithExtraParams(queryNoParams);
       await runnerWithExtraParams(
-        query,
+        queryNoParams,
         // @ts-expect-error -- property 'extraParameter' is missing
         {}
       );
-      await runnerWithExtraParams(query, {
+      await runnerWithExtraParams(queryNoParams, {
         // @ts-expect-error -- null is not assignable to string
         extraParameter: null,
       });
 
-      await runnerWithExtraParams(query, {
+      await runnerWithExtraParams(queryNoParams, {
         extraParameter: "valid",
       });
     }
