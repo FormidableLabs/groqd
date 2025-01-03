@@ -1,12 +1,9 @@
 import { createGroqBuilderWithZod, makeSafeQueryRunner } from "groqd";
-import type {
-  AllSanitySchemaTypes,
-  internalGroqTypeReferenceTo,
-} from "./todo-list.sanity.types";
+import type * as SanityTypes from "./todo-list.sanity.types";
 
 type SchemaConfig = {
-  schemaTypes: AllSanitySchemaTypes;
-  referenceSymbol: typeof internalGroqTypeReferenceTo;
+  schemaTypes: SanityTypes.AllSanitySchemaTypes;
+  referenceSymbol: typeof SanityTypes.internalGroqTypeReferenceTo;
 };
 
 export const q = createGroqBuilderWithZod<SchemaConfig>({

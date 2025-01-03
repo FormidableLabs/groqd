@@ -17,9 +17,9 @@ The root `q` object is no longer exported by GroqD.  Instead, you'll need to cre
 
 Create a file `./groqd-client.ts` with these contents:
 ```ts
-import { createGroqBuilderWithZod } from 'groqd';
+import { createGroqBuilder } from 'groqd';
 type SchemaConfig = any; // TODO: use generated Sanity Schema types
-export const q = createGroqBuilderWithZod<SchemaConfig>();
+export const q = createGroqBuilder<SchemaConfig>();
 ```
 
 By creating the root `q` this way, we'll be able to bind it to our `SchemaConfig`.  We'll bind it to `any` for now, so our `q` will be schema-unaware -- same as `v0.x`.  
