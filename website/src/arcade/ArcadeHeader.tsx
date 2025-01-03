@@ -1,6 +1,10 @@
 import * as React from "react";
 import { ArcadeActionList } from "@site/src/arcade/ArcadeActionList";
-import { ExamplePayload, EXAMPLES } from "@site/src/arcade/examples";
+import {
+  ExamplePayload,
+  EXAMPLES,
+  EXAMPLES_TODOS,
+} from "@site/src/arcade/examples";
 import clsx from "clsx";
 import { HiShare } from "react-icons/hi";
 import { copyShareUrl } from "@site/src/arcade/share";
@@ -27,8 +31,19 @@ export function ArcadeHeader({
           </a>
 
           <ArcadeActionList
-            title="Example"
-            items={ExampleItems}
+            title="Pokemon Examples"
+            items={Object.entries(EXAMPLES).map(([title, value]) => ({
+              title,
+              value,
+            }))}
+            onSelectItem={selectExample}
+          />
+          <ArcadeActionList
+            title="To-Do List Examples"
+            items={Object.entries(EXAMPLES_TODOS).map(([title, value]) => ({
+              title,
+              value,
+            }))}
             onSelectItem={selectExample}
           />
         </div>
@@ -50,8 +65,3 @@ export function ArcadeHeader({
     </div>
   );
 }
-
-const ExampleItems = Object.entries(EXAMPLES).map(([title, value]) => ({
-  title,
-  value,
-}));

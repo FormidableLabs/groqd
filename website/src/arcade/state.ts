@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BaseQuery, q } from "groqd";
+import { BaseQuery, q } from "groqd-legacy";
 import { ARCADE_STORAGE_KEYS } from "@site/src/arcade/consts";
 import datasets from "@site/src/datasets.json";
 
@@ -26,6 +26,10 @@ export type Action =
       payload: { query: BaseQuery<any>; params?: GroqdQueryParams };
     }
   | {
+      type: "INPUT_EVAL_FAILURE";
+      payload: Required<Pick<State, "inputParseError">>;
+    }
+  | {
       type: "START_QUERY_EXEC";
     }
   | { type: "RAW_RESPONSE_RECEIVED"; payload: { rawResponse: unknown } }
@@ -48,6 +52,11 @@ export const reducer = (state: State, action: Action): State => {
         query: action.payload.query,
         params: action.payload.params,
         inputParseError: undefined,
+      };
+    case "INPUT_EVAL_FAILURE":
+      return {
+        ...state,
+        inputParseError: action.payload.inputParseError,
       };
     case "START_QUERY_EXEC":
       return { ...state, isExecutingQuery: true };

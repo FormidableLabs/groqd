@@ -1,19 +1,8 @@
 import * as monaco from "monaco-editor";
 
 const DEFAULT_INIT_CODE = `
-import { runQuery } from "playground";
-import { q } from "groqd";
-
 runQuery(
-  q("*")
-    .filterByType("pokemon")
-    .slice(0, 5)
-    .grab$({
-      _id: q.string(),
-      name: q.string()
-    }),
-	// params (optional)
-  {}
+  // TODO: Update DEFAULT_INIT_CODE
 );
 
 `.trim();

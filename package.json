@@ -8,15 +8,15 @@
     "typecheck:shared": "tsc --project tsconfig.shared.json --noEmit",
     "typecheck": "pnpm run typecheck:shared && pnpm run -r typecheck",
     "check:ci": "pnpm run typecheck && pnpm run lint && pnpm run test",
-    "build:lib": "pnpm run --filter groqd --filter groq-builder build",
-    "build:packages": "pnpm run --filter groqd --filter groqd-playground build",
+    "build:lib": "pnpm run --filter groqd --filter groqd-legacy build",
+    "build:packages": "pnpm run --filter groqd --filter groqd-legacy --filter groqd-playground build",
     "build": "pnpm run -r build",
     "changeset": "changeset",
     "version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
     "dev:docs": "pnpm run --filter website dev",
     "build:docs": "pnpm run build:lib && pnpm run --filter website build",
     "build:docs:vercel": "pnpm run build:lib && pnpm run --filter website build:vercel",
-    "dev:playground": "concurrently \"pnpm run --filter groqd dev\" \"pnpm run --filter groqd-playground-editor dev\" \"pnpm run --filter groqd-playground dev\" \"pnpm run --filter playground-example dev\"",
+    "dev:playground": "concurrently \"pnpm run --filter groqd-legacy dev\" \"pnpm run --filter groqd-playground-editor dev\" \"pnpm run --filter groqd-playground dev\" \"pnpm run --filter playground-example dev\"",
     "dev:editor": "pnpm run --filter playground-editor dev"
   },
   "devDependencies": {
@@ -30,7 +30,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.4",
     "typescript": "^4.9.5",
-    "monaco-editor": "^0.37.1"
+    "monaco-editor": "^0.50.0"
   },
   "engines": {
     "node": ">=18.0.0"

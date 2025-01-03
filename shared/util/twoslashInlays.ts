@@ -1,4 +1,5 @@
 // This file is a modification of https://github.com/microsoft/TypeScript-Website/blob/afc55042b542f71e4f8341724294a5e35eb83ee7/packages/playground/src/twoslashInlays.ts
+// It has been modified to search for 'runQuery' instead of "// ^?"
 import * as monaco from "monaco-editor";
 
 export const createTwoslashInlayProvider = () => {
