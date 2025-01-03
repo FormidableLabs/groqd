@@ -11,7 +11,7 @@ export * from "./groq-builder";
 export * from "./types/public-types";
 export * from "./types/schema-types";
 export { zodMethods as zod } from "./validation/zod";
-export { makeSafeQueryRunner } from "./makeSafeQueryRunner";
+export * from "./makeSafeQueryRunner";
 export * from "./validation/validation-errors";
 
 /**
