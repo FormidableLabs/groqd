@@ -71,3 +71,5 @@ export function createGroqBuilderWithZod<TRootConfig extends QueryConfig>(
 
 export type GroqBuilderWithZod<TRootConfig extends QueryConfig> = ZodMethods &
   GroqBuilder<RootResult, TRootConfig>;
+
+export const createGroqBuilder = createGroqBuilderWithZod;
