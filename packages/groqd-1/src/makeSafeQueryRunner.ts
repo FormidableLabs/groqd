@@ -1,7 +1,7 @@
-import type { HasRequiredKeys, IsUnknown } from "type-fest";
+import type { IsUnknown, HasRequiredKeys } from "type-fest";
 import type { QueryConfig } from "./types/schema-types";
 
-import { IGroqBuilder } from "./types/public-types";
+import type { IGroqBuilder } from "./types/public-types";
 
 export type QueryRunnerOptions<TQueryConfig extends QueryConfig = QueryConfig> =
   IsUnknown<TQueryConfig["parameters"]> extends true
@@ -18,6 +18,18 @@ export type QueryRunnerOptions<TQueryConfig extends QueryConfig = QueryConfig> =
          */
         parameters: TQueryConfig["parameters"];
       };
+
+/**
+ * Executes a query and returns strongly-typed results.
+ */
+export type QueryRunnerFunction<TCustomOptions> = {
+  <TResult, TQueryConfig extends QueryConfig>(
+    builder: IGroqBuilder<TResult, TQueryConfig>,
+    ..._options: MaybeRequired<
+      QueryRunnerOptions<TQueryConfig> & TCustomOptions
+    >
+  ): Promise<TResult>;
+};
 
 /**
  * Utility to create a "query runner" that consumes the result of the `q` chain.
@@ -44,17 +56,8 @@ export function makeSafeQueryRunner<TCustomOptions>(
     query: string,
     options: QueryRunnerOptions & TCustomOptions
   ) => Promise<any>
-) {
-  /**
-   * This queryRunner will execute a query and return strongly-typed results.
-   * If the query has any parameters, you can pass them here too.
-   */
-  return async function queryRunner<TResult, TQueryConfig extends QueryConfig>(
-    builder: IGroqBuilder<TResult, TQueryConfig>,
-    ..._options: MaybeRequired<
-      QueryRunnerOptions<TQueryConfig> & TCustomOptions
-    >
-  ): Promise<TResult> {
+): QueryRunnerFunction<TCustomOptions> {
+  return async function queryRunner(builder, ..._options) {
     const options: any = _options[0] || {};
     const results = await execute(builder.query, options);
 

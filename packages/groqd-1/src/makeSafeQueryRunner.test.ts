@@ -47,7 +47,7 @@ describe("makeSafeQueryRunner", () => {
   it("the function should be strongly-typed", async () => {
     const result = await runner(query);
     expectTypeOf(result).toEqualTypeOf<Array<{ name: string }>>();
-    // But actually, our result contains the query and options:
+    // But for this test, our result echos the query and options:
     expect(result).toMatchInlineSnapshot(`
       [
         "*[_type == "variant"] {
@@ -58,8 +58,7 @@ describe("makeSafeQueryRunner", () => {
     `);
   });
   it("should require parameters when present", () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async function onlyCheckTypes() {
+    async function _onlyCheckTypes() {
       // @ts-expect-error --- requires 2 parameters
       await runner(queryWithVars);
 
@@ -83,8 +82,7 @@ describe("makeSafeQueryRunner", () => {
   });
 
   it("should require extra parameters if defined", () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async function onlyCheckTypes() {
+    async function _onlyCheckTypes() {
       // @ts-expect-error --- expected 2 arguments
       await runnerWithExtraParams(query);
       await runnerWithExtraParams(
