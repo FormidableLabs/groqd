@@ -76,7 +76,7 @@ GroqBuilder.implement({
       const invalidFields = fields.filter((f) => !f.parser);
       if (invalidFields.length) {
         throw new TypeError(
-          "[groq-builder] Because 'validationRequired' is enabled, " +
+          "[groqd] Because 'validationRequired' is enabled, " +
             "every field must have validation (like `q.string()`), " +
             "but the following fields are missing it: " +
             `${invalidFields.map((f) => `"${f.key}"`)}`

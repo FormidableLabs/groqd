@@ -1,4 +1,4 @@
-# groq-builder
+# groqd
 
 ## 1.0.0
 
@@ -16,6 +16,8 @@
   - **Fragments** - create reusable query fragments, and compose queries from other fragments
 
   This release does include breaking API changes. Please see the [migration docs](https://commerce.nearform.com/open-source/groqd/docs/migration) for more information.
+
+# groq-builder
 
 ## 0.10.1
 

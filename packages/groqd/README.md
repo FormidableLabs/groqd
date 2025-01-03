@@ -18,7 +18,7 @@ It gives you the **flexibility** of GROQ, the **runtime safety** of [Zod](https:
 Read the official documentation at https://commerce.nearform.com/open-source/groqd/docs/
 
 ## Usage Example
-`GROQD` uses a strongly-typed chaining syntax to build queries:
+`GroqD` uses a strongly-typed chaining syntax to build queries:
 
 ```ts
 import { q } from "./groqd-client";

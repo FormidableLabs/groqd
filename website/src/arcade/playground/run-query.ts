@@ -29,7 +29,7 @@ export function createRunQuery({
 
     try {
       if (query instanceof GroqBuilder) {
-        // @ts-expect-error --- this is a hack so we can use`groq-builder` with the existing `groqd` logic:
+        // @ts-expect-error --- this is a hack so we can use`groqd` with the previous `groqd-legacy` logic:
         query.schema = { parse: query.parser || ((x) => x) };
       } else if (query instanceof q.BaseQuery) {
       } else {

@@ -22,7 +22,7 @@ export * from "./validation/validation-errors";
  * see `createGroqBuilderWithZod` for more information.
  *
  * @example
- * import { createGroqBuilderLite, ExtractDocumentTypes } from 'groq-builder';
+ * import { createGroqBuilderLite, ExtractDocumentTypes } from 'groqd';
  * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
  * type SchemaConfig = {
@@ -54,7 +54,7 @@ export function createGroqBuilderLite<TRootConfig extends QueryConfig>(
  * use `createGroqBuilderLite` instead.
  *
  * @example
- * import { createGroqBuilderWithZod, ExtractDocumentTypes } from 'groq-builder';
+ * import { createGroqBuilderWithZod, ExtractDocumentTypes } from 'groqd';
  * import { AllSanitySchemaTypes, internalGroqTypeReferenceTo } from "./sanity.types.ts";
  *
  * type SchemaConfig = {
