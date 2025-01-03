@@ -7,7 +7,6 @@ import type { ArcadeDispatch, GroqdQueryParams } from "../state";
 import toast from "react-hot-toast";
 import * as q from "groqd-legacy";
 import { GroqBuilder, ValidationErrors } from "groqd";
-import type * as PlaygroundModule from "./index";
 import { getPathId } from "../../../../shared/util/jsonExplorerUtils";
 
 /**
@@ -15,48 +14,44 @@ import { getPathId } from "../../../../shared/util/jsonExplorerUtils";
  * @param dispatch
  * @param shouldRunQueryImmediately
  */
-export function createPlaygroundModule({
+export function createRunQuery({
   dispatch,
   shouldRunQueryImmediately,
 }: {
   dispatch: ArcadeDispatch;
   shouldRunQueryImmediately?: boolean;
-}): typeof PlaygroundModule {
+}) {
   let playgroundRunQueryCount = 0;
 
-  const moduleImplementation: typeof PlaygroundModule = {
-    runQuery(query, params?) {
-      playgroundRunQueryCount++;
-      if (playgroundRunQueryCount > 1) return;
+  return function runQuery(query, params?) {
+    playgroundRunQueryCount++;
+    if (playgroundRunQueryCount > 1) return;
 
-      try {
-        if (query instanceof GroqBuilder) {
-          // @ts-expect-error --- this is a hack so we can use`groq-builder` with the existing `groqd` logic:
-          query.schema = { parse: query.parser || ((x) => x) };
-        } else if (query instanceof q.BaseQuery) {
-        } else {
-          throw new Error("runQuery requires a GroqD query");
-        }
-
-        dispatch({
-          type: "INPUT_EVAL_SUCCESS",
-          payload: { query, params },
-        });
-
-        if (shouldRunQueryImmediately) {
-          runQueryInternal({
-            query: query as q.BaseQuery<any>,
-            params,
-            dispatch,
-          });
-        }
-      } catch {
-        toast.error("Failed to evaluate code.");
+    try {
+      if (query instanceof GroqBuilder) {
+        // @ts-expect-error --- this is a hack so we can use`groq-builder` with the existing `groqd` logic:
+        query.schema = { parse: query.parser || ((x) => x) };
+      } else if (query instanceof q.BaseQuery) {
+      } else {
+        throw new Error("runQuery requires a GroqD query");
       }
-    },
-  };
 
-  return moduleImplementation;
+      dispatch({
+        type: "INPUT_EVAL_SUCCESS",
+        payload: { query, params },
+      });
+
+      if (shouldRunQueryImmediately) {
+        runQueryInternal({
+          query: query as q.BaseQuery<any>,
+          params,
+          dispatch,
+        });
+      }
+    } catch {
+      toast.error("Failed to evaluate code.");
+    }
+  };
 }
 
 /**

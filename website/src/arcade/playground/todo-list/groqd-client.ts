@@ -13,5 +13,8 @@ export const q = createGroqBuilderWithZod<SchemaConfig>({
   indent: "  ",
 });
 
-/** This method will be overridden by the arcade, it is only here for the types. */
+/**
+ * Runs the query against the provided dataset,
+ * and shows the results in the side panel.
+ */
 export const runQuery = makeSafeQueryRunner(() => null);

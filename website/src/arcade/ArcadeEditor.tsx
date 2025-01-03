@@ -2,7 +2,8 @@ import * as React from "react";
 import * as monaco from "monaco-editor";
 import debounce from "lodash.debounce";
 import { MODELS } from "@site/src/arcade/models";
-import * as q from "groqd-legacy";
+import * as groqdLegacy from "groqd-legacy";
+import * as groqd from "groqd";
 import * as z from "zod";
 import {
   ArcadeDispatch,
@@ -16,7 +17,7 @@ import { runCodeEmitter } from "@site/src/arcade/eventEmitters";
 import { registerEditorShortcuts } from "@site/src/arcade/editorShortcuts";
 import { useIsDarkMode } from "@site/src/arcade/useIsDarkMode";
 import types from "../types.json";
-import { createPlaygroundModule } from "./playground/playground-implementation";
+import { createRunQuery } from "./playground/run-query";
 import * as playgroundPokemonModule from "./playground/pokemon/groqd-client";
 import * as playgroundTodoListModule from "./playground/todo-list/groqd-client";
 
@@ -132,16 +133,22 @@ const runCode = async ({
       lzstring.compressToEncodedURIComponent(model.getValue())
     );
 
-    const playgroundModule = createPlaygroundModule({
+    const runQuery = createRunQuery({
       dispatch,
       shouldRunQueryImmediately,
     });
     const libs = {
-      groqd: q,
+      "groqd-legacy": groqdLegacy,
+      groqd: groqd,
       zod: z,
-      playground: playgroundModule,
-      "./pokemon/groqd-client": playgroundPokemonModule,
-      "./todo-list/groqd-client": playgroundTodoListModule,
+      "./pokemon/groqd-client": {
+        ...playgroundPokemonModule,
+        runQuery,
+      },
+      "./todo-list/groqd-client": {
+        ...playgroundTodoListModule,
+        runQuery,
+      },
     };
     const scope = {
       exports: {},
