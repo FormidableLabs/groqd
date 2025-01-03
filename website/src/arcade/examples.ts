@@ -4,8 +4,7 @@ import beautify from "js-beautify";
 const wrapQueryTodos = (code: string) =>
   beautify(
     `
-      import { runQuery } from "playground";
-      import { q } from "playground/todo-list";
+      import { q, runQuery } from "./todo-list/groqd-client";
       
       runQuery(
         ${code.trim()}
@@ -16,8 +15,7 @@ const wrapQueryTodos = (code: string) =>
 const wrapGroqBuilderQuery = (code: string) =>
   beautify(
     `
-      import { runQuery } from "playground";
-      import { q } from "playground/pokemon";
+      import { q, runQuery } from "./pokemon/groqd-client";
       
       runQuery(
         ${code.trim()}

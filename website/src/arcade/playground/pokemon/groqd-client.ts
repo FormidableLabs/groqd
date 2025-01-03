@@ -1,8 +1,8 @@
-import { createGroqBuilderWithZod } from "groq-builder";
+import { createGroqBuilderWithZod, makeSafeQueryRunner } from "groqd";
 import type {
   AllSanitySchemaTypes,
   internalGroqTypeReferenceTo,
-} from "./todo-list.sanity.types";
+} from "./pokemon.sanity.types";
 
 type SchemaConfig = {
   schemaTypes: AllSanitySchemaTypes;
@@ -12,3 +12,9 @@ type SchemaConfig = {
 export const q = createGroqBuilderWithZod<SchemaConfig>({
   indent: "  ",
 });
+
+/**
+ * Runs the query against the provided dataset,
+ * and shows the results in the side panel.
+ */
+export const runQuery = makeSafeQueryRunner(() => null);

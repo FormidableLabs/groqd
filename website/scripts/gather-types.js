@@ -13,11 +13,11 @@ const { globSync } = require("glob");
     extraLibs: [
       ...(await readExtraLibs("zod", "zod")),
       ...(await readExtraLibs("groqd/dist", "groqd")),
-      ...(await readExtraLibs("groq-builder/dist", "groq-builder")),
+      ...(await readExtraLibs("groqd-legacy/dist", "groqd-legacy")),
       ...(await readExtraLibs("type-fest", "type-fest", {
         trimComments: true,
       })),
-      ...(await readExtraLibs("../src/arcade/playground", "playground")),
+      ...(await readExtraLibs("../src/arcade/playground", ".")),
     ],
   };
 
@@ -40,19 +40,16 @@ async function readExtraLibs(
   for (const typeFile of typeFiles) {
     let typeDefContents = await fs.readFile(typeFile, "utf8");
     if (trimComments) {
-      const blockComment = /\/\*(.|\s)*?\*\//gs;
-      const lineComment = /\s*\/\/.*$/gm;
-      const emptyLines = /^\s*$/gm;
-      const trimmed = typeDefContents
-        .replace(blockComment, "")
-        .replace(lineComment, "")
-        .replace(emptyLines, "");
-
-      typeDefContents = trimmed;
+      typeDefContents = removeComments(typeDefContents);
     }
     const relative = path.relative(ROOT, typeFile);
-    const filePath = `file:///node_modules/${packageName}/${relative}`;
-    // These results be passed to the Monaco editor:
+
+    const isNodeModule = !packageName.startsWith(".");
+    const filePath =
+      (isNodeModule ? "file:///node_modules/" : "file:///") +
+      path.posix.join(packageName, relative);
+
+    // These results get bundled with the Monaco editor:
     results.push({
       filePath,
       content: typeDefContents,
@@ -60,4 +57,16 @@ async function readExtraLibs(
   }
 
   return results;
+}
+
+function removeComments(typescriptCode) {
+  const blockComment = /\/\*(.|\s)*?\*\//gs;
+  const lineComment = /\s*\/\/.*$/gm;
+  const emptyLines = /^\s*$/gm;
+  const trimmed = typescriptCode
+    .replace(blockComment, "")
+    .replace(lineComment, "")
+    .replace(emptyLines, "");
+
+  return trimmed;
 }

@@ -85,7 +85,7 @@ importers:
         specifier: ^4.0.0
         version: 4.9.5
 
-  packages/groq-builder:
+  packages/groqd-1:
     dependencies:
       type-fest:
         specifier: ^4.10.1
@@ -110,7 +110,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@18.15.11)(jsdom@20.0.3)(terser@5.31.0)
 
-  packages/groqd:
+  packages/groqd-legacy:
     dependencies:
       zod:
         specifier: 3.22.4
@@ -147,8 +147,8 @@ importers:
         specifier: ^5.8.10
         version: 5.9.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       groqd:
-        specifier: workspace:*
-        version: link:../groqd
+        specifier: workspace:groqd-legacy@*
+        version: link:../groqd-legacy
       lodash.has:
         specifier: ^4.5.2
         version: 4.5.2
@@ -298,15 +298,15 @@ importers:
       glob:
         specifier: ^10.0.0
         version: 10.3.10
-      groq-builder:
-        specifier: workspace:*
-        version: link:../packages/groq-builder
       groq-js:
         specifier: ^1.1.1
         version: 1.1.9
       groqd:
         specifier: workspace:*
-        version: link:../packages/groqd
+        version: link:../packages/groqd-1
+      groqd-legacy:
+        specifier: workspace:*
+        version: link:../packages/groqd-legacy
       js-beautify:
         specifier: ^1.14.7
         version: 1.14.7
