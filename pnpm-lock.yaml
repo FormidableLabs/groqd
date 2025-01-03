@@ -85,7 +85,7 @@ importers:
         specifier: ^4.0.0
         version: 4.9.5
 
-  packages/groqd-1:
+  packages/groqd:
     dependencies:
       type-fest:
         specifier: ^4.10.1
@@ -303,7 +303,7 @@ importers:
         version: 1.1.9
       groqd:
         specifier: workspace:*
-        version: link:../packages/groqd-1
+        version: link:../packages/groqd
       groqd-legacy:
         specifier: workspace:*
         version: link:../packages/groqd-legacy

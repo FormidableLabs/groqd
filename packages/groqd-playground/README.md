@@ -1,6 +1,6 @@
 ## Groqd Playground
 
-Groqd Playground is a plugin for Sanity Studio for testing [groqd](https://formidable.com/open-source/groqd/) queries, featuring:
+Groqd Playground is a plugin for Sanity Studio for testing [groqd](https://commerce.nearform.com/open-source/groqd/) queries, featuring:
 
 - a TypeScript editor experience with syntax/type highlighting;
 - parsed response and error messages for when responses fail to pass Zod validation;
@@ -20,4 +20,4 @@ export default defineConfig({
 });
 ```
 
-### [See the docs for more information!](https://formidable.com/open-source/groqd/groqd-playground)
+### [See the docs for more information!](https://commerce.nearform.com/open-source/groqd/groqd-playground)
