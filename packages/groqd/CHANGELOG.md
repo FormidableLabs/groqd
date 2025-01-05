@@ -1,5 +1,12 @@
 # groqd
 
+## 1.0.1
+
+### Patch Changes
+
+- Added: export `createGroqBuilder` as shortcut for `createGroqBuilderWithZod` ([#314](https://github.com/FormidableLabs/groqd/pull/314))
+  Docs: updated sample code
+
 ## 1.0.0
 
 ### Major Changes
