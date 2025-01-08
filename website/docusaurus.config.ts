@@ -3,9 +3,12 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import MonacoEditorWebpackPlugin from "monaco-editor-webpack-plugin";
 
+const title = "GROQD";
+const tagline = "Typesafe GROQ Query Builder";
+
 const config: Config = {
-  title: "GROQD",
-  tagline: "Typesafe GROQ Query Builder",
+  title,
+  tagline,
   url: "https://commerce.nearform.com/",
   favicon: "img/nearform-icon.svg",
   baseUrl: process.env.VERCEL_ENV === "preview" ? "/" : "/open-source/groqd",
@@ -79,8 +82,54 @@ const config: Config = {
   themeConfig: {
     metadata: [
       {
+        name: "title",
+        content: title,
+      },
+      {
+        name: "description",
+        content: tagline,
+      },
+      {
         name: "viewport",
         content: "width=device-width, initial-scale=1, maximum-scale=1",
+      },
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        property: "og:url",
+        content: "https://commerce.nearform.com/open-source/groqd/",
+      },
+      {
+        property: "og:title",
+        content: title,
+      },
+      {
+        property: "og:description",
+        content: tagline,
+      },
+      {
+        property: "og:image",
+        content:
+          "https://commerce.nearform.com/open-source/groqd/open-graph.png",
+      },
+      {
+        property: "twitter:card",
+        content: "summary_large_image",
+      },
+      {
+        property: "twitter:title",
+        content: title,
+      },
+      {
+        property: "twitter:description",
+        content: tagline,
+      },
+      {
+        property: "twitter:image",
+        content:
+          "https://commerce.nearform.com/open-source/groqd/open-graph.png",
       },
     ],
     docs: {
