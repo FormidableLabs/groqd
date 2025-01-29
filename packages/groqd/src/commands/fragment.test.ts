@@ -1,7 +1,7 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { InferFragmentType, InferResultType } from "../types/public-types";
-import { TypeMismatchError } from "../types/utils";
+import { TypeMismatchError } from "../types/type-mismatch-error";
 
 describe("fragment", () => {
   // define a fragment:

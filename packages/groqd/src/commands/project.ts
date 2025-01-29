@@ -1,8 +1,5 @@
-import {
-  notNull,
-  RequireAFakeParameterIfThereAreTypeMismatchErrors,
-  Simplify,
-} from "../types/utils";
+import { notNull, Simplify } from "../types/utils";
+import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";
 import { GroqBuilder } from "../groq-builder";
 import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";

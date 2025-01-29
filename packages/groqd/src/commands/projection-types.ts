@@ -7,10 +7,10 @@ import {
   Simplify,
   SimplifyDeep,
   StringKeys,
-  TypeMismatchError,
   UndefinedToNull,
   ValueOf,
 } from "../types/utils";
+import { TypeMismatchError } from "../types/type-mismatch-error";
 import {
   FragmentInputTypeTag,
   IGroqBuilder,

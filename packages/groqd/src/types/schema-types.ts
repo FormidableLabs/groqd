@@ -1,4 +1,4 @@
-import { TypeMismatchError } from "./utils";
+import { TypeMismatchError } from "./type-mismatch-error";
 
 export type QueryConfig = {
   /**
