@@ -2,4 +2,5 @@
 "groqd": patch
 ---
 
-Fixed: improve types for ellipsis operator (`...`) when using overrides
+Fixed: improve support for ellipsis operator (`...`) when using overrides
+Fixes #317
