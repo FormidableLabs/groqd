@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultType } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
+import { q, SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 
 const data = mock.generateSeedData({});
 
@@ -51,5 +51,19 @@ describe("deref", () => {
   it("should execute correctly (multiple)", async () => {
     const results = await executeBuilder(qVariants, data);
     expect(results).toEqual(data.variants);
+  });
+
+  describe("as part of a projection", () => {
+    it("should deref an array of fields", () => {
+      const query = q.star.filterByType("product").project((sub) => ({
+        categories: sub.field("categories[]").deref(),
+      }));
+
+      expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<
+        Array<{
+          categories: SanitySchema.Category[] | null;
+        }>
+      >();
+    });
   });
 });
