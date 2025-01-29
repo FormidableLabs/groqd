@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultType } from "../types/public-types";
+import { InferResultItem, InferResultType } from "../types/public-types";
 import { Simplify, TypeMismatchError } from "../types/utils";
 import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -755,6 +755,26 @@ describe("project (object projections)", () => {
           return v;
         })
       );
+    });
+
+    it("fields should be overridable", () => {
+      const overridden = qVariants.project((sub) => ({
+        "...": true,
+        style: sub.field("style[]").deref(),
+      }));
+
+      type Item = InferResultItem<typeof overridden>;
+
+      // Properties like flavour should be included by "...":
+      expectTypeOf<Item["flavour"]>().toEqualTypeOf<
+        SanitySchema.Variant["flavour"]
+      >();
+
+      // style should be overridden:
+      type StyleReferences = SanitySchema.Variant["style"];
+      expectTypeOf<Item["style"]>().not.toEqualTypeOf<StyleReferences>();
+      type OverriddenStyle = SanitySchema.Style[] | null;
+      expectTypeOf<Item["style"]>().toEqualTypeOf<OverriddenStyle>();
     });
   });
 });

@@ -3,6 +3,7 @@ import {
   Empty,
   IsAny,
   LiteralUnion,
+  Override,
   Simplify,
   SimplifyDeep,
   StringKeys,
@@ -69,14 +70,14 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use a GroqBuilder instance to create a nested projection
   | IGroqBuilder;
 
-export type ExtractProjectionResult<TResultItem, TProjectionMap> =
+export type ExtractProjectionResult<TResultItem, TProjectionMap> = Override<
   // Extract the "..." operator:
   (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
     (TProjectionMap extends { "...": Parser<TResultItem, infer TOutput> }
       ? TOutput
-      : Empty) &
-    // Extract any conditional expressions:
-    ExtractConditionalProjectionTypes<TProjectionMap> &
+      : Empty),
+  // Extract any conditional expressions:
+  ExtractConditionalProjectionTypes<TProjectionMap> &
     // Extract all the fields:
     ExtractProjectionResultFields<
       TResultItem,
@@ -85,7 +86,8 @@ export type ExtractProjectionResult<TResultItem, TProjectionMap> =
         TProjectionMap,
         "..." | typeof FragmentInputTypeTag | ConditionalKey<string>
       >
-    >;
+    >
+>;
 
 type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
   [P in keyof TProjectionMap]: TProjectionMap[P] extends IGroqBuilder<
