@@ -219,4 +219,18 @@ describe("fragment", () => {
       }>();
     });
   });
+
+  describe("fragment<any>", () => {
+    const anyFrag = q.fragment<any>().project({
+      foo: q.string(),
+      bar: q.number(),
+    });
+    type AnyFragType = InferFragmentType<typeof anyFrag>;
+    it("simple fragment should have the correct type", () => {
+      expectTypeOf<AnyFragType>().toEqualTypeOf<{
+        foo: string;
+        bar: number;
+      }>();
+    });
+  });
 });
