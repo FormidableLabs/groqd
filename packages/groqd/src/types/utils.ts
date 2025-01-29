@@ -1,4 +1,3 @@
-import type { Simplify } from "type-fest";
 import { TypeMismatchError } from "./type-mismatch-error";
 
 export type { Simplify, Primitive, LiteralUnion, IsAny } from "type-fest";
