@@ -65,18 +65,26 @@ describe("project (object projections)", () => {
   });
 
   describe("a single plain property", () => {
-    it("cannot use 'true' to project unknown properties", () => {
+    it("cannot use 'true' or a parser to project unknown properties", () => {
       // @ts-expect-error ---
       const qInvalid = qVariants.project({
+        name: true,
         INVALID: true,
+        INVALID_PARSER: q.string(),
       });
 
       expectTypeOf<InferResultType<typeof qInvalid>>().toEqualTypeOf<
         Array<{
+          name: string;
           INVALID: TypeMismatchError<{
             error: `⛔️ 'true' can only be used for known properties ⛔️`;
             expected: keyof SanitySchema.Variant;
             actual: "INVALID";
+          }>;
+          INVALID_PARSER: TypeMismatchError<{
+            error: `⛔️ Parser can only be used with known properties ⛔️`;
+            expected: keyof SanitySchema.Variant;
+            actual: "INVALID_PARSER";
           }>;
         }>
       >();
