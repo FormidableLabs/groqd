@@ -81,15 +81,8 @@ export function simpleObjectParser<TMap extends ObjectValidationMap>(
     };
   }
 
-  const keys = Object.keys(objectMapper) as Array<string>;
-  const entries = keys.map(
-    (key) =>
-      [
-        key,
-        normalizeValidationFunction(
-          objectMapper[key as keyof typeof objectMapper]
-        ),
-      ] as const
+  const entries = Object.entries(objectMapper).map(
+    ([key, parser]) => [key, normalizeValidationFunction(parser)] as const
   );
 
   return (input) => {
@@ -117,7 +110,7 @@ export function simpleObjectParser<TMap extends ObjectValidationMap>(
 export type ObjectValidationMap = Record<string, Parser | null>;
 
 type UnknownObject = Record<string, unknown>;
-type UnknownObjectParser = (input: UnknownObject) => UnknownObject;
+export type UnknownObjectParser = (input: UnknownObject) => UnknownObject;
 
 /**
  * Combines multiple object parsers into a single parser
@@ -125,7 +118,9 @@ type UnknownObjectParser = (input: UnknownObject) => UnknownObject;
 export function combineObjectParsers(
   ...objectParsers: UnknownObjectParser[]
 ): UnknownObjectParser {
+  // This is the most common use-case:
   if (objectParsers.length === 1) return objectParsers[0];
+
   return function combinedObjectParser(input) {
     const validationErrors = new ValidationErrors();
     const result = {};

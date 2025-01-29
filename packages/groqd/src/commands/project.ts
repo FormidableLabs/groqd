@@ -14,6 +14,7 @@ import {
   combineObjectParsers,
   maybeArrayParser,
   simpleObjectParser,
+  UnknownObjectParser,
 } from "../validation/simple-validation";
 
 declare module "../groq-builder" {
@@ -145,12 +146,23 @@ function createProjectionParser(
   fields: NormalizedProjectionField[]
 ): ParserFunction | null {
   if (!fields.some((f) => f.parser)) {
-    // No nested parsers!
+    // No parsers found for any keys
     return null;
   }
 
+  // Parse the ellipsis operator ("..."):
+  const ellipsisField = fields.find((f) => isEllipsis(f.key));
+  const ellipsisParser: UnknownObjectParser | null = ellipsisField
+    ? // Allow a custom parser:
+      ellipsisField.parser ||
+      // Or just pass-through the whole object:
+      ((obj) => obj)
+    : null;
+
   // Parse all normal fields:
-  const normalFields = fields.filter((f) => !isConditional(f.key));
+  const normalFields = fields.filter(
+    (f) => !isEllipsis(f.key) && !isConditional(f.key)
+  );
   const objectShape = Object.fromEntries(
     normalFields.map((f) => [f.key, f.parser])
   );
@@ -164,10 +176,15 @@ function createProjectionParser(
 
   // Combine normal and conditional parsers:
   const combinedParser = combineObjectParsers(
+    ...[ellipsisParser].filter(notNull),
     objectParser,
     ...conditionalParsers
   );
 
   // Finally, transparently handle arrays or objects:
   return maybeArrayParser(combinedParser);
+}
+
+function isEllipsis(key: string) {
+  return key === "...";
 }
