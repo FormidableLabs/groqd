@@ -145,6 +145,20 @@ export class GroqBuilder<
   }
 
   /**
+   * Wraps the current expression with a prefix + suffix.
+   */
+  protected wrap(
+    prefix: string,
+    suffix: string
+  ): GroqBuilder<TResult, TQueryConfig> {
+    return new GroqBuilder<TResult, TQueryConfig>({
+      query: prefix + this.internal.query + suffix,
+      parser: this.internal.parser,
+      options: this.internal.options,
+    });
+  }
+
+  /**
    * Returns an empty GroqBuilder
    */
   public get root() {
