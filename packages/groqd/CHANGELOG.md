@@ -1,5 +1,11 @@
 # groqd
 
+## 1.0.3
+
+### Patch Changes
+
+- Chore: improved error messages for `project` to make them more helpful ([#326](https://github.com/FormidableLabs/groqd/pull/326))
+
 ## 1.0.2
 
 ### Patch Changes
