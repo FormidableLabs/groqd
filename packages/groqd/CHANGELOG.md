@@ -1,5 +1,12 @@
 # groqd
 
+## 1.0.2
+
+### Patch Changes
+
+- Fixed: improve support for ellipsis operator (`...`) when using overrides ([#324](https://github.com/FormidableLabs/groqd/pull/324))
+  Fixes #317
+
 ## 1.0.1
 
 ### Patch Changes
