@@ -77,7 +77,7 @@ describe("with zod", () => {
   });
   describe("q.default helper", () => {
     it('should have a type error if zod.string().default("") is used', () => {
-      // @ts-expect-error --- Parser expects a different input type
+      // @ts-expect-error --- The parser for the 'id' field expects the wrong input type
       const qErr = qVariants.project({
         id: q.string().default("DEFAULT"),
       });
@@ -86,14 +86,14 @@ describe("with zod", () => {
           id:
             | string
             | TypeMismatchError<{
-                error: "⛔️ Parser expects a different input type ⛔️";
+                error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
                 expected: string | undefined;
                 actual: null;
               }>;
         }>
       >();
 
-      // @ts-expect-error --- Parser expects a different input type
+      // @ts-expect-error --- The parser for the 'id' field expects the wrong input type
       const qRes = qVariants.project({
         id: q.string(),
       });
@@ -102,7 +102,7 @@ describe("with zod", () => {
           id:
             | string
             | TypeMismatchError<{
-                error: "⛔️ Parser expects a different input type ⛔️";
+                error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
                 expected: string;
                 actual: null;
               }>;
@@ -204,7 +204,7 @@ describe("with zod", () => {
         id:
           | string
           | TypeMismatchError<{
-              error: "⛔️ Parser expects a different input type ⛔️";
+              error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
               expected: string;
               actual: null;
             }>;

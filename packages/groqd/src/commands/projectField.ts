@@ -46,7 +46,8 @@ declare module "../groq-builder" {
           ? ValidateParserInput<
               ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>,
               TParserInput,
-              TParserOutput
+              TParserOutput,
+              TProjectionKey
             >
           : never
       >,

@@ -1,4 +1,5 @@
 import { TypeMismatchError } from "./type-mismatch-error";
+import { UnionToIntersection } from "type-fest";
 
 export type { Simplify, Primitive, LiteralUnion, IsAny } from "type-fest";
 
@@ -67,6 +68,7 @@ export type IntersectionOfValues<T> = {
  * Excludes symbol and number from keys, so that you only have strings.
  */
 export type StringKeys<T> = Exclude<T, symbol | number>;
+export type ExtractString<T> = Extract<T, string>;
 
 /**
  * Excludes the first item in a tuple
@@ -108,3 +110,18 @@ export function pick<T, TKeys extends keyof T>(
 export type UndefinedToNull<T> = T extends undefined
   ? NonNullable<T> | null
   : T;
+
+/**
+ * Returns just one type from a union of types.
+ *
+ * Note: ⚠️ the order is determined by compiler internals, and is NOT very stable!  Tread carefully!
+ *
+ * @example
+ * JustOneOf<'a' | 'b' | 'c'> === 'c' (probably)
+ * JustOneOf<1 | 2> === 1 (probably)
+ */
+export type JustOneOf<TUnion> = UnionToIntersection<
+  TUnion extends any ? () => TUnion : never
+> extends () => infer R
+  ? R
+  : never;
