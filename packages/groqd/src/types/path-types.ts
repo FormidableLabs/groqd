@@ -1,5 +1,7 @@
 // Source: https://github.com/toonvanstrijp/nestjs-i18n/blob/1a86bb46e9386c6450d10c9c9e609f78315752d0/src/types.ts
 
+import { ValueOf } from "./utils";
+
 /**
  * Extracts all deep paths of nested types.
  *
@@ -43,6 +45,24 @@ export type PathValue<
 export type PathEntries<TResultItem> = {
   [P in Path<TResultItem>]: PathValue<TResultItem, P>;
 };
+
+/**
+ * Returns all keys that match the specified type.
+ *
+ * @example
+ * PathKeysWithType<{ a: { b: "B", c: 3 }, d: 4}, number> === "a.c" | "d"
+ */
+export type PathKeysWithType<
+  TResultItem,
+  TFilterByType,
+  _Entries = PathEntries<TResultItem>
+> = ValueOf<{
+  [P in keyof _Entries]: _Entries[P] extends TFilterByType
+    ? P
+    : TFilterByType extends _Entries[P]
+    ? P
+    : never;
+}>;
 
 type IsAny<T> = unknown extends T
   ? [keyof T] extends [never]

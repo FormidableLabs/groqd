@@ -1,7 +1,7 @@
 import { QueryConfig } from "./schema-types";
 import type { IsLiteral, LiteralUnion } from "type-fest";
 import { StringKeys, UndefinedToNull, ValueOf } from "./utils";
-import { Path, PathValue } from "./path-types";
+import { Path, PathKeysWithType, PathValue } from "./path-types";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Expressions {
@@ -27,7 +27,7 @@ export namespace Expressions {
    * */
   export type Conditional<TResultItem, TQueryConfig extends QueryConfig> =
     // Currently we only support equality expressions:
-    Equality<TResultItem, TQueryConfig>;
+    Equality<TResultItem, TQueryConfig> | Booleans<TResultItem>;
 
   export type Equality<
     TResultItem,
@@ -39,6 +39,10 @@ export namespace Expressions {
       _ParameterEntries,
       SuggestedKeysValue<TResultItem, Key>
     >}`;
+  }>;
+
+  type Booleans<TResultItem> = ValueOf<{
+    [Key in PathKeysWithType<TResultItem, boolean>]: Key | `!${Key}`;
   }>;
 
   // Escape literal values:
