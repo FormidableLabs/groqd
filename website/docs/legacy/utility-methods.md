@@ -79,7 +79,7 @@ q("*")
 ```
 
 :::tip
-The [`.grab$`](/docs/query-building#grab-1) and [`.grabOne$`](/docs/query-building#grabone-1) methods use this under the hood – in most instances, we recommend you just use `.grab$` and `.grabOne$` instead of this utility.
+The [`.grab$`](./query-building#grab-1) and [`.grabOne$`](./query-building#grabone-1) methods use this under the hood – in most instances, we recommend you just use `.grab$` and `.grabOne$` instead of this utility.
 :::
 
 ## `sanityImage`
