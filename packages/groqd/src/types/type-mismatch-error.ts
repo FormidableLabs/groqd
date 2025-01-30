@@ -1,5 +1,5 @@
 import type { IsNever, Simplify } from "type-fest";
-import { StringKeys, ValueOf } from "./utils";
+import { JustOneOf, StringKeys, ValueOf } from "./utils";
 
 export type TypeMismatchError<
   TError extends { error: string; actual: any; expected: any } = any
@@ -18,12 +18,17 @@ export type ExtractTypeMismatchErrors<TProjectionResult> = ValueOf<{
   [TKey in StringKeys<
     keyof TProjectionResult
   >]: TypeMismatchError extends TProjectionResult[TKey]
-    ? `Error in "${TKey}": ${Extract<
-        TProjectionResult[TKey],
-        TypeMismatchError
-      >["error"]}`
+    ? Extract<TProjectionResult[TKey], TypeMismatchError>["error"]
     : never;
 }>;
+export type ExtractTypeMismatchErrorDetails<TProjectionResult> = ValueOf<{
+  [TKey in StringKeys<
+    keyof TProjectionResult
+  >]: TypeMismatchError extends TProjectionResult[TKey]
+    ? Simplify<TProjectionResult[TKey]>
+    : never;
+}>;
+
 /**
  * When we map projection results, we return TypeMismatchError's
  * for any fields that have an invalid mapping configuration.
@@ -37,7 +42,10 @@ export type RequireAFakeParameterIfThereAreTypeMismatchErrors<
   _Errors extends string = ExtractTypeMismatchErrors<TProjectionResult>
 > = IsNever<_Errors> extends true
   ? [] // No errors, yay! Do not require any extra parameters.
-  : // We've got errors; let's require an extra parameter, with the error message:
-    | [_Errors]
-      // And this extra error message causes TypeScript to always log the entire list of errors:
-      | ["⛔️ Error: this projection has type mismatches: ⛔️"];
+  : // | [ExtractTypeMismatchErrorDetails<TProjectionResult>]
+
+    // And this extra error message causes TypeScript to always log the entire list of errors:
+    | ["⛔️ Error: this projection has an invalid property ⛔️"]
+      // We've got errors; let's require an extra parameter, with the first error message:
+      | [JustOneOf<_Errors>];
+// [_Errors];

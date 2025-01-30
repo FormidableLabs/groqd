@@ -100,7 +100,7 @@ describe("fragment", () => {
       InferResultType<typeof qInvalid>[number]["price"]
     >().toEqualTypeOf<
       TypeMismatchError<{
-        error: "⛔️ 'true' can only be used for known properties ⛔️";
+        error: "⛔️ 'true' can only be used for known properties; 'price' is not known ⛔️";
         expected: keyof SanitySchema.Product;
         actual: "price";
       }>

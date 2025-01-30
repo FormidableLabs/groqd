@@ -25,9 +25,7 @@ describe("ExtractTypeMismatchErrors", () => {
     type Result = ExtractTypeMismatchErrors<TestObject>;
 
     expectTypeOf<Result>().toEqualTypeOf<
-      | 'Error in "FOO": foo-error'
-      | 'Error in "BAR": bar-error'
-      | 'Error in "BAZ": baz-error'
+      "foo-error" | "bar-error" | "baz-error"
     >();
   });
   it("should return 'never' when there's no errors", () => {
@@ -64,8 +62,7 @@ describe("RequireAFakeParameterIfThereAreTypeMismatchErrors", () => {
   it("should return errors in the parameter list when there are errors", () => {
     type Params = RequireAFakeParameterIfThereAreTypeMismatchErrors<WithErrors>;
     expectTypeOf<Params>().toEqualTypeOf<
-      | ["⛔️ Error: this projection has type mismatches: ⛔️"]
-      | ['Error in "invalid": ERROR' | 'Error in "alsoInvalid": ERROR']
+      ["⛔️ Error: this projection has an invalid property ⛔️"] | ["ERROR"]
     >();
   });
 });

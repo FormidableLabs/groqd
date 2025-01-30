@@ -78,12 +78,12 @@ describe("project (object projections)", () => {
         Array<{
           name: string;
           INVALID: TypeMismatchError<{
-            error: `⛔️ 'true' can only be used for known properties ⛔️`;
+            error: `⛔️ 'true' can only be used for known properties; 'INVALID' is not known ⛔️`;
             expected: keyof SanitySchema.Variant;
             actual: "INVALID";
           }>;
           INVALID_PARSER: TypeMismatchError<{
-            error: `⛔️ Parser can only be used with known properties ⛔️`;
+            error: `⛔️ A parser can only be used for known properties; 'INVALID_PARSER' is not known ⛔️`;
             expected: keyof SanitySchema.Variant;
             actual: "INVALID_PARSER";
           }>;
@@ -246,12 +246,12 @@ describe("project (object projections)", () => {
       expectTypeOf<InferResultType<typeof qNameInvalid>>().toEqualTypeOf<
         Array<{
           name: TypeMismatchError<{
-            error: "⛔️ Parser expects a different input type ⛔️";
+            error: `⛔️ The 'name' field has a data type that is not fully compatible with the specified parser ⛔️`;
             expected: number;
             actual: string;
           }>;
           price: TypeMismatchError<{
-            error: "⛔️ Parser expects a different input type ⛔️";
+            error: `⛔️ The 'price' field has a data type that is not fully compatible with the specified parser ⛔️`;
             expected: string;
             actual: number;
           }>;
@@ -267,7 +267,7 @@ describe("project (object projections)", () => {
           id:
             | string
             | TypeMismatchError<{
-                error: "⛔️ Parser expects a different input type ⛔️";
+                error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
                 expected: string;
                 actual: null;
               }>;
