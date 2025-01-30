@@ -26,20 +26,31 @@ export namespace Expressions {
    * like '_type == "product"' or 'slug.current == $slug'.
    * */
   export type Conditional<TResultItem, TQueryConfig extends QueryConfig> =
-    // Currently we only support equality expressions:
+    // Currently we only support simple expressions:
     Equality<TResultItem, TQueryConfig> | Booleans<TResultItem>;
 
-  export type Equality<
+  type Comparison<
     TResultItem,
     TQueryConfig extends QueryConfig,
+    _Comparison extends string = "==",
     /** (local use only) Calculate our Parameter entries once, and reuse across suggestions */
     _ParameterEntries = ParameterEntries<TQueryConfig["parameters"]>
   > = ValueOf<{
-    [Key in SuggestedKeys<TResultItem>]: `${Key} == ${SuggestedValues<
+    [Key in SuggestedKeys<TResultItem>]: `${Key} ${_Comparison} ${SuggestedValues<
       _ParameterEntries,
       SuggestedKeysValue<TResultItem, Key>
     >}`;
   }>;
+
+  export type Equality<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = Comparison<TResultItem, TQueryConfig, "==">;
+
+  export type Inequality<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = Comparison<TResultItem, TQueryConfig, "!=">;
 
   type Booleans<TResultItem> = ValueOf<{
     [Key in PathKeysWithType<TResultItem, boolean>]: Key | `!${Key}`;
