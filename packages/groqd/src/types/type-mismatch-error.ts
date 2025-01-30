@@ -21,13 +21,6 @@ export type ExtractTypeMismatchErrors<TProjectionResult> = ValueOf<{
     ? Extract<TProjectionResult[TKey], TypeMismatchError>["error"]
     : never;
 }>;
-export type ExtractTypeMismatchErrorDetails<TProjectionResult> = ValueOf<{
-  [TKey in StringKeys<
-    keyof TProjectionResult
-  >]: TypeMismatchError extends TProjectionResult[TKey]
-    ? Simplify<TProjectionResult[TKey]>
-    : never;
-}>;
 
 /**
  * When we map projection results, we return TypeMismatchError's
@@ -42,10 +35,10 @@ export type RequireAFakeParameterIfThereAreTypeMismatchErrors<
   _Errors extends string = ExtractTypeMismatchErrors<TProjectionResult>
 > = IsNever<_Errors> extends true
   ? [] // No errors, yay! Do not require any extra parameters.
-  : // | [ExtractTypeMismatchErrorDetails<TProjectionResult>]
-
-    // And this extra error message causes TypeScript to always log the entire list of errors:
+  : // We've detected errors in the projection;
+    // let's require a fake extra parameter,
+    // which includes these error messages:
     | ["⛔️ Error: this projection has an invalid property ⛔️"]
-      // We've got errors; let's require an extra parameter, with the first error message:
+      // We only include ONE of the actual error messages,
+      // because if we include too many, TS doesn't show them properly
       | [JustOneOf<_Errors>];
-// [_Errors];
