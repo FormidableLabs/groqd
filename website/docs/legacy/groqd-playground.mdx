@@ -1,0 +1,173 @@
+---
+sidebar_position: 907
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Groqd Playground (Plugin)
+
+Groqd Playground is a plugin for Sanity Studio for testing groqd queries, featuring:
+
+- a TypeScript editor experience with syntax/type highlighting;
+- parsed response and error messages for when responses fail to pass Zod validation;
+- dataset/api version switchers.
+
+![Sample of groqd playground in use](./img/groqd-playground-sample.png)
+
+## Installation
+
+In your Sanity Studio project, install `groqd-playground` using your favorite package registry tool.
+
+<Tabs>
+<TabItem value="npm" label="NPM">
+
+```sh
+npm install groqd-playground
+```
+
+</TabItem>
+<TabItem value="yarn" label="Yarn">
+
+```sh
+yarn add groqd-playground
+```
+
+</TabItem>
+<TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add groqd-playground
+```
+
+</TabItem>
+</Tabs>
+
+The playground tool has the following peer dependencies which are typically already a part of most Sanity Studio implementations:
+
+```text
+sanity @sanity/ui @sanity/icons styled-components
+```
+
+:::caution
+This plugin is Studio V3-compatible, and likely will not work in a Studio V2 setup.
+:::
+
+### Usage with Next.js
+
+Currently, `groqd-playground` has a dependency on `@uiw/react-split` which imports its own CSS. This can cause some hiccups in Next.js-embedded studios.
+
+<Tabs>
+<TabItem value="appDir" label="/app Directory">
+
+The new `/app` directory supports global CSS imports, so no extra configuration is needed.
+
+</TabItem>
+
+<TabItem value="geq13.1" label="Next.js >= 13.1">
+
+With 13.1, Next.js [started offering a transpilePackages](https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable) option, and you can configure it to transpile `@uiw/react-split`:
+
+```js
+const nextConfig = {
+  reactStrictMode: true,
+  transpilePackages: ["@uiw/react-split"]
+}
+```
+
+</TabItem>
+
+<TabItem value="lt13.1" label="Next.js < 13.1">
+
+For version of Next below 13.1, you'll likely be stuck using [`next-transpile-modules`](https://www.npmjs.com/package/next-transpile-modules) to transpile `@uiw/react-split`:
+
+```js
+const withTM = require("next-transpile-modules")(["@uiw/react-split"]);
+
+const nextConfig = { /* ... */ };
+
+module.exports = withTM(nextConfig);
+```
+
+</TabItem>
+</Tabs>
+
+## Configuration
+
+Once installed, just add the groqd playground tool to your list of Sanity plugins:
+
+```ts
+import { defineConfig } from "sanity";
+import { groqdPlaygroundTool } from "groqd-playground";
+
+export default defineConfig({
+	/* ... */
+  plugins: [groqdPlaygroundTool()],
+});
+```
+
+The `groqdPlaygroundTool` method takes a configuration option as its sole, optional argument with the following options.
+
+| key                 | description                              | default              |
+|---------------------|------------------------------------------|----------------------|
+| `name`              | Name of the plugin                       | `"groqd-playground"` |
+| `title`             | Title to show in navbar of Studio        | `"GROQD"`            |
+| `icon`              | Icon to show in navbar of Studio         | `CodeIcon`           |
+| `defaultDataset`    | Default dataset to use in playground     | `"production"`       |
+| `defaultApiVersion` | Default API version to use in playground | `"v2021-10-21"`      |
+
+## How to use
+
+Groqd Playground behaves very similar to Sanity's Vision Tool, but by writing a groqd query instead of a standard GROQ query.
+
+The standard workflow is:
+
+1. Pass a groqd query to the playground's `runQuery` function. For example:
+  ```ts
+  import { runQuery } from "playground";
+  import { q } from "groqd";
+
+  runQuery(
+	  q("*")
+	  .filterByType("pokemon")
+	  .slice(0, 10)
+	  .grab$({
+		  name: q.string()
+	  })
+  );
+  ```
+2. Press the `Fetch` button to run the generated query against your Studio's dataset.
+3. If the response comes back and is parsed successfully, you can inspect the parsed response.
+4. If the response fails validation, the playground will show the validation error(s) and the raw groq response for you to inspect.
+
+
+### Passing parameters to the query
+
+To pass parameter values to your query, pass an object as the second argument to `runQuery`:
+
+```ts
+import { runQuery } from "playground";
+import { q } from "groqd";
+
+runQuery(
+  q("*")
+  .filterByType("pokemon")
+  .filter("name == $name")
+  .slice(0, 10)
+  .grab$({
+    name: q.string()
+  }),
+  // 👇 Pass your parameters here
+  {
+    name: "Bulbasaur"
+  }
+);
+```
+
+
+### Editor Keyboard shortcuts
+
+When the editor is focused, the following keyboard shortcuts are available:
+
+- `Cmd + Enter` to trigger a fetch call.
+- `Cmd + S` to copy the share URL to your clipboard.
