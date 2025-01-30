@@ -1,7 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultType } from "../types/public-types";
-import { Simplify, TypeMismatchError } from "../types/utils";
+import { InferResultItem, InferResultType } from "../types/public-types";
+import { Simplify } from "../types/utils";
+import { TypeMismatchError } from "../types/type-mismatch-error";
 import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -65,18 +66,26 @@ describe("project (object projections)", () => {
   });
 
   describe("a single plain property", () => {
-    it("cannot use 'true' to project unknown properties", () => {
+    it("cannot use 'true' or a parser to project unknown properties", () => {
       // @ts-expect-error ---
       const qInvalid = qVariants.project({
+        name: true,
         INVALID: true,
+        INVALID_PARSER: q.string(),
       });
 
       expectTypeOf<InferResultType<typeof qInvalid>>().toEqualTypeOf<
         Array<{
+          name: string;
           INVALID: TypeMismatchError<{
             error: `⛔️ 'true' can only be used for known properties ⛔️`;
             expected: keyof SanitySchema.Variant;
             actual: "INVALID";
+          }>;
+          INVALID_PARSER: TypeMismatchError<{
+            error: `⛔️ Parser can only be used with known properties ⛔️`;
+            expected: keyof SanitySchema.Variant;
+            actual: "INVALID_PARSER";
           }>;
         }>
       >();
@@ -722,31 +731,147 @@ describe("project (object projections)", () => {
   });
 
   describe("ellipsis ... operator", () => {
-    const qEllipsis = qVariants.project((q) => ({
-      "...": true,
-      OTHER: q.field("name"),
-    }));
-    it("query should be correct", () => {
-      expect(qEllipsis.query).toMatchInlineSnapshot(
-        `"*[_type == "variant"] { ..., "OTHER": name }"`
-      );
+    describe("when set to 'true'", () => {
+      const qEllipsis = qVariants.project((sub) => ({
+        "...": true,
+        OTHER: sub.field("name"),
+      }));
+
+      it("query should be correct", () => {
+        expect(qEllipsis.query).toMatchInlineSnapshot(
+          `"*[_type == "variant"] { ..., "OTHER": name }"`
+        );
+      });
+
+      it("types should be correct", () => {
+        expectTypeOf<InferResultType<typeof qEllipsis>>().toEqualTypeOf<
+          Array<
+            Simplify<
+              SanitySchema.Variant & {
+                OTHER: string;
+              }
+            >
+          >
+        >();
+      });
+
+      it("should not need to introduce runtime parsing", () => {
+        expect(qEllipsis.parser).toBeNull();
+      });
+
+      it("should execute correctly", async () => {
+        const results = await executeBuilder(qEllipsis, data);
+        expect(results).toEqual(
+          data.variants.map((variant) => ({
+            ...variant,
+            OTHER: variant.name,
+          }))
+        );
+      });
     });
 
-    it("types should be correct", () => {
-      expectTypeOf<InferResultType<typeof qEllipsis>>().toEqualTypeOf<
-        Array<Simplify<SanitySchema.Variant & { OTHER: string }>>
-      >();
+    describe("when set to a parser", () => {
+      const qEllipsisWithParser = qVariants.project({
+        "...": q.object({
+          name: q.string(),
+          msrp: q.number(),
+        }),
+        price: q.number(),
+      });
+
+      it("a parser is created", () => {
+        expect(qEllipsisWithParser.parser).not.toBeNull();
+      });
+
+      it("executes correctly", async () => {
+        const results = await executeBuilder(qEllipsisWithParser, data);
+        expect(results).toEqual(
+          data.variants.map((variant) => ({
+            name: variant.name,
+            msrp: variant.msrp,
+            price: variant.price,
+          }))
+        );
+      });
+
+      it("should throw when the data doesn't match", async () => {
+        const invalidData = [
+          ...data.datalake,
+          mock.variant({
+            // @ts-expect-error ---
+            msrp: "INVALID",
+          }),
+        ];
+
+        await expect(() =>
+          executeBuilder(qEllipsisWithParser, { datalake: invalidData })
+        ).rejects.toThrowErrorMatchingInlineSnapshot(`
+          [ValidationErrors: 1 Parsing Error:
+          result[5].msrp: Expected number, received string]
+        `);
+      });
     });
 
-    it("should execute correctly", async () => {
-      const results = await executeBuilder(qEllipsis, data);
-      expect(results).toEqual(
-        data.variants.map((v) => {
-          // @ts-expect-error ---
-          v.OTHER = v.name;
-          return v;
-        })
-      );
+    describe("when other fields have parsers", () => {
+      const qEllipsis = qVariants.project((sub) => ({
+        "...": true,
+        VALIDATED: sub.field("name", q.string().toUpperCase()),
+      }));
+
+      it("query should be correct", () => {
+        expect(qEllipsis.query).toMatchInlineSnapshot(
+          `"*[_type == "variant"] { ..., "VALIDATED": name }"`
+        );
+      });
+
+      it("types should be correct", () => {
+        expectTypeOf<InferResultType<typeof qEllipsis>>().toEqualTypeOf<
+          Array<
+            Simplify<
+              SanitySchema.Variant & {
+                VALIDATED: string;
+              }
+            >
+          >
+        >();
+      });
+
+      it("should include runtime parsing", () => {
+        expect(qEllipsis.parser).not.toBeNull();
+      });
+
+      it("should execute correctly", async () => {
+        const results = await executeBuilder(qEllipsis, data);
+        expect(results).toEqual(
+          data.variants.map((variant) => ({
+            ...variant,
+            VALIDATED: variant.name.toUpperCase(),
+          }))
+        );
+      });
+    });
+
+    describe("when fields are overridden", () => {
+      const overridden = qVariants.project((sub) => ({
+        "...": true,
+        style: sub.field("style[]").deref(),
+      }));
+
+      type Item = InferResultItem<typeof overridden>;
+
+      it("normal properties get passed through", () => {
+        // Properties like flavour should be included by "...":
+        expectTypeOf<Item["flavour"]>().toEqualTypeOf<
+          SanitySchema.Variant["flavour"]
+        >();
+      });
+      it("the overridden properties are correctly typed", () => {
+        type StyleReferences = SanitySchema.Variant["style"];
+        expectTypeOf<Item["style"]>().not.toEqualTypeOf<StyleReferences>();
+
+        type OverriddenStyle = SanitySchema.Style[] | null;
+        expectTypeOf<Item["style"]>().toEqualTypeOf<OverriddenStyle>();
+      });
     });
   });
 });

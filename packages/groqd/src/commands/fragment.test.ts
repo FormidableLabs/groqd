@@ -1,7 +1,7 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { InferFragmentType, InferResultType } from "../types/public-types";
-import { TypeMismatchError } from "../types/utils";
+import { TypeMismatchError } from "../types/type-mismatch-error";
 
 describe("fragment", () => {
   // define a fragment:
@@ -216,6 +216,20 @@ describe("fragment", () => {
         name: string;
         price: number;
         slug: string;
+      }>();
+    });
+  });
+
+  describe("fragment<any>", () => {
+    const anyFrag = q.fragment<any>().project({
+      foo: q.string(),
+      bar: q.number(),
+    });
+    type AnyFragType = InferFragmentType<typeof anyFrag>;
+    it("simple fragment should have the correct type", () => {
+      expectTypeOf<AnyFragType>().toEqualTypeOf<{
+        foo: string;
+        bar: number;
       }>();
     });
   });
