@@ -203,14 +203,16 @@ describe("Expressions", () => {
 });
 describe("Expressions.Conditional", () => {
   type T = Expressions.Conditional<FooBarBaz, QueryConfig>;
-  type Expected =
-    | "foo == (string)"
-    | `foo == "${string}"`
-    | `bar == (number)`
-    | `bar == ${number}`
-    | `baz == true`
-    | `baz == false`
-    | `baz`
-    | `!baz`;
-  expectTypeOf<T>().toEqualTypeOf<Expected>();
+  it("should include a good list of possible expressions, including booleans", () => {
+    type Expected =
+      | "foo == (string)"
+      | `foo == "${string}"`
+      | `bar == (number)`
+      | `bar == ${number}`
+      | `baz == true`
+      | `baz == false`
+      | `baz`
+      | `!baz`;
+    expectTypeOf<T>().toEqualTypeOf<Expected>();
+  });
 });
