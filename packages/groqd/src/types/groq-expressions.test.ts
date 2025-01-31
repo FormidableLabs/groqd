@@ -3,6 +3,8 @@ import { Expressions } from "./groq-expressions";
 import { QueryConfig } from "./schema-types";
 import { Simplify } from "./utils";
 
+type FooBarBaz = { foo: string; bar: number; baz: boolean };
+
 describe("Expressions", () => {
   it("literal values are properly escaped", () => {
     expectTypeOf<
@@ -146,8 +148,7 @@ describe("Expressions", () => {
     });
 
     it("multiple values are compared to same-typed parameters", () => {
-      type Item = { foo: string; bar: number; baz: boolean };
-      type Res = Expressions.Equality<Item, WithVars<ManyParameters>>;
+      type Res = Expressions.Equality<FooBarBaz, WithVars<ManyParameters>>;
       expectTypeOf<Res>().toEqualTypeOf<
         | "foo == $str1"
         | "foo == $str2"
@@ -172,8 +173,7 @@ describe("Expressions", () => {
       };
     };
     it("should work with deeply-nested parameters", () => {
-      type Item = { foo: string; bar: number; baz: boolean };
-      type Res = Expressions.Equality<Item, WithVars<NestedParameters>>;
+      type Res = Expressions.Equality<FooBarBaz, WithVars<NestedParameters>>;
 
       type StandardSuggestions =
         | `foo == (string)`
@@ -199,5 +199,20 @@ describe("Expressions", () => {
         "$nested.deep.num1": number;
       }>();
     });
+  });
+});
+describe("Expressions.Conditional", () => {
+  type T = Expressions.Conditional<FooBarBaz, QueryConfig>;
+  it("should include a good list of possible expressions, including booleans", () => {
+    type Expected =
+      | "foo == (string)"
+      | `foo == "${string}"`
+      | `bar == (number)`
+      | `bar == ${number}`
+      | `baz == true`
+      | `baz == false`
+      | `baz`
+      | `!baz`;
+    expectTypeOf<T>().toEqualTypeOf<Expected>();
   });
 });

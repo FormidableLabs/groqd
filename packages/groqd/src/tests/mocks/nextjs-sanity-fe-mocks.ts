@@ -73,8 +73,8 @@ export class MockFactory {
   variant(
     data: Partial<SanitySchema.Variant>,
     references?: {
-      flavour: SanitySchema.Flavour[];
-      style: SanitySchema.Style[];
+      flavour?: SanitySchema.Flavour[];
+      style?: SanitySchema.Style[];
     }
   ): SanitySchema.Variant {
     const common = this.common("variant");
@@ -84,13 +84,23 @@ export class MockFactory {
       slug: this.slug("variant"),
       name: "Variant Name",
       description: [],
-      flavour: references?.flavour.map((f) => this.reference(f)) ?? [],
+      flavour: references?.flavour?.map((f) => this.reference(f)) ?? [],
       images: [],
       price: 0,
       msrp: 0,
-      style: references?.style.map((s) => this.reference(s)) ?? [],
+      style: references?.style?.map((s) => this.reference(s)) ?? [],
       ...data,
     } satisfies Required<SanitySchema.Variant>;
+  }
+
+  flavour(data: Partial<SanitySchema.Flavour>): SanitySchema.Flavour {
+    const common = this.common("flavour");
+    return {
+      ...common,
+      name: "Flavour Name",
+      slug: this.slug("flavour"),
+      ...data,
+    } satisfies Required<SanitySchema.Flavour>;
   }
 
   image(data: Partial<SanitySchema.ProductImage>): SanitySchema.ProductImage {
@@ -139,12 +149,14 @@ export class MockFactory {
         { categories: categories, variants: variants }
       )
     ),
+    extraData = [],
   }: {
     categories?: SanitySchema.Category[];
     variants?: SanitySchema.Variant[];
     products?: SanitySchema.Product[];
+    extraData?: Array<object>;
   }) {
-    const datalake = [...products, ...categories, ...variants];
+    const datalake = [...products, ...categories, ...variants, ...extraData];
 
     return { products, categories, variants, datalake };
   }

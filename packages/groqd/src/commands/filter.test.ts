@@ -177,4 +177,54 @@ describe("filterBy", () => {
       `);
     });
   });
+
+  describe("when used after a deref", () => {
+    const qFilterAfterDeref = q.star.filterByType("variant").project((sub) => ({
+      flavour: sub
+        .field("flavour[]")
+        .deref()
+        .filter("defined(name)")
+        .project({ name: true }),
+    }));
+    it("should add parenthesis around the deref", () => {
+      expect(qFilterAfterDeref.query).toMatchInlineSnapshot(`
+        "*[_type == "variant"] {
+            "flavour": (flavour[]->)[defined(name)] {
+              name
+            }
+          }"
+      `);
+    });
+    it("should execute correctly", async () => {
+      const flavourNoName = mock.flavour({
+        name: undefined,
+      });
+      const flavourWithName = mock.flavour({});
+      const data = mock.generateSeedData({
+        extraData: [flavourNoName, flavourWithName],
+        variants: [
+          mock.variant({}, { flavour: [flavourNoName, flavourNoName] }),
+          mock.variant({}, { flavour: [flavourWithName, flavourWithName] }),
+        ],
+      });
+      const results = await executeBuilder(qFilterAfterDeref, data);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "flavour": [],
+          },
+          {
+            "flavour": [
+              {
+                "name": "Flavour Name",
+              },
+              {
+                "name": "Flavour Name",
+              },
+            ],
+          },
+        ]
+      `);
+    });
+  });
 });
