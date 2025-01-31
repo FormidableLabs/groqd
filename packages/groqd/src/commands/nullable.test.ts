@@ -105,4 +105,17 @@ describe("nullable", () => {
       `);
     });
   });
+
+  describe("when it's redundant", () => {
+    it("should give a typescript error", () => {
+      q.star.filterByType("flavour").project((sub) => ({
+        name: sub
+          .field("name")
+          // You must pass `true` to acknowledge the redundancy:
+          .nullable(true)
+          // @ts-expect-error --- otherwise it will error:
+          .nullable(),
+      }));
+    });
+  });
 });

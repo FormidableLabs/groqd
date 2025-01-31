@@ -5,6 +5,7 @@ import "./filter";
 import "./filterByType";
 import "./fragment";
 import "./grab-deprecated";
+import "./notNull";
 import "./nullable";
 import "./order";
 import "./parameters";

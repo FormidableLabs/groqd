@@ -145,16 +145,15 @@ export class GroqBuilder<
   }
 
   /**
-   * Wraps the current expression with a prefix + suffix.
+   * Returns a new GroqBuilder, overriding the given parameters
    */
-  protected wrap(
-    prefix: string,
-    suffix: string
-  ): GroqBuilder<TResult, TQueryConfig> {
-    return new GroqBuilder<TResult, TQueryConfig>({
-      query: prefix + this.internal.query + suffix,
-      parser: this.internal.parser,
-      options: this.internal.options,
+  protected extend<
+    TResultNew = TResult,
+    TQueryConfigNew extends QueryConfig = TQueryConfig
+  >(overrides: Partial<typeof this.internal>) {
+    return new GroqBuilder<TResultNew, TQueryConfigNew>({
+      ...this.internal,
+      ...overrides,
     });
   }
 
