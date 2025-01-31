@@ -1,5 +1,12 @@
 # groqd
 
+## 1.0.4
+
+### Patch Changes
+
+- Fix: ensure `filter` can be chained after a `deref` ([#329](https://github.com/FormidableLabs/groqd/pull/329))
+  Fixes #323
+
 ## 1.0.3
 
 ### Patch Changes
