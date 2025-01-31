@@ -1,3 +1,6 @@
+---
+sidebar_position: 19
+---
 
 # Migrating from v0.x to v1.x
 
