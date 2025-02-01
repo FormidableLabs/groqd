@@ -8,7 +8,6 @@ import {
 import { Parser, ParserWithWidenedInput } from "../types/public-types";
 import { maybeArrayParser } from "../validation/simple-validation";
 import { normalizeValidationFunction } from "./validate-utils";
-import { GroqBuilderError } from "../types/groq-builder-error";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -66,15 +65,6 @@ GroqBuilder.implement({
   field(this: GroqBuilder, fieldName: string, parser?: Parser): GroqBuilder {
     if (this.internal.query) {
       fieldName = "." + fieldName;
-    }
-    if (this.internal.options.validationRequired && !parser) {
-      throw new GroqBuilderError(
-        "MISSING_FIELD_VALIDATION",
-        "Because 'validationRequired' is enabled, " +
-          "all fields require validation. " +
-          "Please pass a validation function, like: \n" +
-          `q.field("${fieldName}", q.string())`
-      );
     }
 
     // Transparently handle arrays or objects:

@@ -694,10 +694,7 @@ describe("project (object projections)", () => {
           nested: qV.field("price"),
         }))
       ).toThrowErrorMatchingInlineSnapshot(
-        `
-        [Error: [MISSING_FIELD_VALIDATION] Because 'validationRequired' is enabled, all fields require validation. Please pass a validation function, like: 
-        q.field("price", q.string())]
-      `
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "nested"]`
       );
     });
     it("should throw when using ellipsis operator ...", () => {
