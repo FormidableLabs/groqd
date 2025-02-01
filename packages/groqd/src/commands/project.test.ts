@@ -668,7 +668,7 @@ describe("project (object projections)", () => {
       validationRequired: true,
       indent: "  ",
     });
-    const qVariant = q.star.filterByType("variant").slice(0);
+    const qVariant = q.star.filterByType("variant").slice(0).notNull();
 
     it("should throw if a projection uses 'true'", () => {
       expect(() =>

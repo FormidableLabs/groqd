@@ -188,7 +188,7 @@ describe("with zod", () => {
   });
 
   describe("zod input widening", () => {
-    const qVariant = qVariants.slice(0);
+    const qVariant = qVariants.slice(0).notNull();
     it("should complain if the parser's input is narrower than the input", () => {
       // First, show that `id` is optional/nullable
       const qResultNormal = qVariant.project({ id: true });

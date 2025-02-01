@@ -17,7 +17,7 @@ declare module "../groq-builder" {
      */
     slice(
       index: number
-    ): GroqBuilder<ResultItem.InferMaybe<TResult>, TQueryConfig>;
+    ): GroqBuilder<null | ResultItem.InferMaybe<TResult>, TQueryConfig>;
 
     /**
      * Returns a range of items from the results.

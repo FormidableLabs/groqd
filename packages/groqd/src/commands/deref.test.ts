@@ -7,8 +7,8 @@ import { q, SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 const data = mock.generateSeedData({});
 
 describe("deref", () => {
-  const qProduct = q.star.filterByType("product").slice(0);
-  const qCategoryRef = qProduct.field("categories[]").slice(0);
+  const qProduct = q.star.filterByType("product").slice(0).notNull();
+  const qCategoryRef = qProduct.field("categories[]").slice(0).notNull();
   const qCategory = qCategoryRef.deref();
   const qVariantsRefs = qProduct.field("variants[]");
   const qVariants = qVariantsRefs.deref();
@@ -16,7 +16,7 @@ describe("deref", () => {
   it("should deref a single item", () => {
     expectTypeOf<
       InferResultType<typeof qCategory>
-    >().toEqualTypeOf<SanitySchema.Category | null>();
+    >().toEqualTypeOf<SanitySchema.Category>();
     expect(qCategory.query).toMatchInlineSnapshot(
       `"*[_type == "product"][0].categories[][0]->"`
     );
