@@ -9,7 +9,7 @@ import type { ExtractDocumentTypes, QueryConfig } from "./types/schema-types";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import type { Empty } from "./types/utils";
-import { QueryError } from "./types/query-error";
+import { GroqBuilderError } from "./types/groq-builder-error";
 
 export type RootResult = Empty;
 
@@ -46,9 +46,9 @@ export class GroqBuilder<
   TQueryConfig extends QueryConfig = QueryConfig
 > implements IGroqBuilder<TResult>
 {
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
   readonly [GroqBuilderResultType]: TResult;
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
   readonly [GroqBuilderConfigType]: TQueryConfig;
 
   /**
@@ -97,10 +97,20 @@ export class GroqBuilder<
   }
 
   /**
-   * Parses and validates the query results, passing all data through the parsers.
+   * Parses and validates the query results,
+   * passing all data through the parsers.
    */
   public parse(data: unknown): TResult {
     const parser = this.internal.parser;
+    if (!parser && this.internal.options.validationRequired) {
+      throw new GroqBuilderError(
+        "MISSING_PARSER",
+        "Because 'validationRequired' is enabled, " +
+          "every query must have validation (like `q.string()`), " +
+          "but this query is missing it!"
+      );
+    }
+
     if (!parser) {
       return data as TResult;
     }
@@ -127,10 +137,12 @@ export class GroqBuilder<
     parser?: Parser | null
   ): GroqBuilder<TResultNew, TQueryConfig> {
     if (query && this.internal.parser) {
-      throw new QueryError(
+      throw new GroqBuilderError(
+        "CHAINED_PARSER_ERROR",
         "You cannot chain a new query once you've specified a parser, " +
           "since this changes the result type.",
         {
+          existingParser: this.internal.parser,
           existingQuery: this.internal.query,
           newQuery: query,
         }
