@@ -668,7 +668,7 @@ describe("project (object projections)", () => {
       validationRequired: true,
       indent: "  ",
     });
-    const qVariant = q.star.filterByType("variant").slice(0).notNull();
+    const qVariant = q.star.filterByType("variant").slice(0);
 
     it("should throw if a projection uses 'true'", () => {
       expect(() =>
@@ -721,7 +721,7 @@ describe("project (object projections)", () => {
             "price4": price
           }"
       `);
-      expectTypeOf<InferResultType<typeof qNormal>>().toEqualTypeOf<{
+      expectTypeOf<InferResultItem<typeof qNormal>>().toEqualTypeOf<{
         price: number;
         price2: number;
         price3: number;

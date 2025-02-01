@@ -1,5 +1,5 @@
 import { expect, describe, it, expectTypeOf } from "vitest";
-import { createGroqBuilderWithZod, InferResultType } from "../index";
+import { createGroqBuilderWithZod, InferResultItem } from "../index";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -18,13 +18,11 @@ describe("with zod", () => {
     });
 
     it("should infer the right type", () => {
-      expectTypeOf<InferResultType<typeof qWithZod>>().toEqualTypeOf<
-        Array<{
-          name: string;
-          price: number;
-          id: string | null;
-        }>
-      >();
+      expectTypeOf<InferResultItem<typeof qWithZod>>().toEqualTypeOf<{
+        name: string;
+        price: number;
+        id: string | null;
+      }>();
     });
     it("should execute with valid data", async () => {
       const data = mock.generateSeedData({
@@ -81,50 +79,42 @@ describe("with zod", () => {
       const qErr = qVariants.project({
         id: q.string().default("DEFAULT"),
       });
-      expectTypeOf<InferResultType<typeof qErr>>().toEqualTypeOf<
-        Array<{
-          id:
-            | string
-            | TypeMismatchError<{
-                error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
-                expected: string | undefined;
-                actual: null;
-              }>;
-        }>
-      >();
+      expectTypeOf<InferResultItem<typeof qErr>>().toEqualTypeOf<{
+        id:
+          | string
+          | TypeMismatchError<{
+              error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
+              expected: string | undefined;
+              actual: null;
+            }>;
+      }>();
 
       // @ts-expect-error --- The parser for the 'id' field expects the wrong input type
       const qRes = qVariants.project({
         id: q.string(),
       });
-      expectTypeOf<InferResultType<typeof qRes>>().toEqualTypeOf<
-        Array<{
-          id:
-            | string
-            | TypeMismatchError<{
-                error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
-                expected: string;
-                actual: null;
-              }>;
-        }>
-      >();
+      expectTypeOf<InferResultItem<typeof qRes>>().toEqualTypeOf<{
+        id:
+          | string
+          | TypeMismatchError<{
+              error: `⛔️ The 'id' field has a data type that is not fully compatible with the specified parser ⛔️`;
+              expected: string;
+              actual: null;
+            }>;
+      }>();
     });
     it("infers the correct type", () => {
       const qNormal = qVariants.project({ id: true });
-      expectTypeOf<InferResultType<typeof qNormal>>().toEqualTypeOf<
-        Array<{
-          id: string | null;
-        }>
-      >();
+      expectTypeOf<InferResultItem<typeof qNormal>>().toEqualTypeOf<{
+        id: string | null;
+      }>();
 
       const query = qVariants.project({
         id: q.default(q.string(), "DEFAULT"),
       });
-      expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<
-        Array<{
-          id: string;
-        }>
-      >();
+      expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{
+        id: string;
+      }>();
     });
   });
   describe("q.slug helper", () => {
@@ -133,9 +123,9 @@ describe("with zod", () => {
     });
 
     it("should have the correct type", () => {
-      expectTypeOf<InferResultType<typeof qVariantSlugs>>().toEqualTypeOf<
-        Array<{ SLUG: string }>
-      >();
+      expectTypeOf<InferResultItem<typeof qVariantSlugs>>().toEqualTypeOf<{
+        SLUG: string;
+      }>();
     });
 
     it("should not allow invalid fields to be slugged", () => {
@@ -188,19 +178,18 @@ describe("with zod", () => {
   });
 
   describe("zod input widening", () => {
-    const qVariant = qVariants.slice(0).notNull();
     it("should complain if the parser's input is narrower than the input", () => {
       // First, show that `id` is optional/nullable
-      const qResultNormal = qVariant.project({ id: true });
-      expectTypeOf<InferResultType<typeof qResultNormal>>().toEqualTypeOf<{
+      const qResultNormal = qVariants.project({ id: true });
+      expectTypeOf<InferResultItem<typeof qResultNormal>>().toEqualTypeOf<{
         id: string | null;
       }>();
 
       // Now, let's pick `id` with a too-narrow parser:
       // @ts-expect-error ---
-      const qResult = qVariant.project({ id: q.string() });
+      const qResult = qVariants.project({ id: q.string() });
       // Ensure we return an error result:
-      expectTypeOf<InferResultType<typeof qResult>>().toEqualTypeOf<{
+      expectTypeOf<InferResultItem<typeof qResult>>().toEqualTypeOf<{
         id:
           | string
           | TypeMismatchError<{
@@ -213,17 +202,15 @@ describe("with zod", () => {
     it("shouldn't complain if the parser's input is wider than the input", () => {
       // First, show that `name` is a required string:
       const qName = qVariants.project({ name: true });
-      expectTypeOf<InferResultType<typeof qName>>().toEqualTypeOf<
-        Array<{
-          name: string;
-        }>
-      >();
+      expectTypeOf<InferResultItem<typeof qName>>().toEqualTypeOf<{
+        name: string;
+      }>();
 
       // Now let's use a parser that allows for string | null:
-      const qWideParser = qVariant.project({
+      const qWideParser = qVariants.project({
         name: q.string().nullable(),
       });
-      expectTypeOf<InferResultType<typeof qWideParser>>().toEqualTypeOf<{
+      expectTypeOf<InferResultItem<typeof qWideParser>>().toEqualTypeOf<{
         name: string | null;
       }>();
     });

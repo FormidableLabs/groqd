@@ -82,10 +82,12 @@ describe("notNull", () => {
   describe("when it's redundant", () => {
     it("should give a typescript error", () => {
       q.star.filterByType("flavour").project((sub) => ({
-        _id: sub
+        test: sub
           .field("_id")
           // You must pass `true` to acknowledge the redundancy:
-          .notNull(true)
+          .notNull(true),
+        test2: sub
+          .field("_id")
           // @ts-expect-error --- otherwise it will error:
           .notNull(),
       }));
