@@ -137,9 +137,24 @@ export class GroqBuilder<
     parser?: Parser | null
   ): GroqBuilder<TResultNew, TQueryConfig> {
     if (query && this.internal.parser) {
+      /**
+       * This happens if you accidentally chain too many times, like:
+       *
+       * q.star
+       *   .project({ a: q.string() })
+       *   .field("a")
+       *
+       * The first part of this projection should NOT have validation,
+       * since this data will never be sent client-side.
+       * This should be rewritten as:
+       *
+       * q.star
+       *   .project({ a: true })
+       *   .field("a", q.string())
+       */
       throw new GroqBuilderError(
         "CHAINED_PARSER_ERROR",
-        "You cannot chain a new query once you've specified a parser, " +
+        "You cannot chain a new query after you've specified a validation function, " +
           "since this changes the result type.",
         {
           existingParser: this.internal.parser,
