@@ -112,7 +112,9 @@ describe("nullable", () => {
         name: sub
           .field("name")
           // You must pass `true` to acknowledge the redundancy:
-          .nullable(true)
+          .nullable(true),
+        name2: sub
+          .field("name")
           // @ts-expect-error --- otherwise it will error:
           .nullable(),
       }));

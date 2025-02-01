@@ -2,17 +2,38 @@ import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/schema-types";
 import { ResultUtils } from "../types/result-types";
 import { Override } from "../types/utils";
+import { IGroqBuilder } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
     /**
-     * Marks a query as nullable – in case you are expecting a potential `null` value.
+     * Asserts that the results are NOT nullable.
+     * Useful when you know there must be a value,
+     * even though the query thinks it's optional.
+     *
+     * @return Returns an `IGroqBuilder`, because this can only be used at the END of a groqd chain,
+     * because you cannot chain more commands after making an assertion.
+     *
+     * @example
+     * q.star
+     *  .filter("slug.current == $slug")
+     *  .slice(0) // <- nullable
+     *  .project({ name: q.string() })
+     *  .notNull()
+     *
+     * @example
+     * q.star.filterByType("product").project(sub => ({
+     *   categories: sub.field("categories[]") // <- nullable
+     *                  .deref()
+     *                  .field("name", q.string())
+     *                  .notNull()
+     * }));
      *
      * @param redundant - If the type is already not-nullable, then you must explicitly pass `.notNull(true)` to allow this redundancy. (This has no impact at runtime)
      */
     notNull(
       ...redundant: ResultUtils.IsNullable<TResult> extends true ? [] : [true]
-    ): GroqBuilder<
+    ): IGroqBuilder<
       ResultUtils.Wrap<
         Override<ResultUtils.Unwrap<TResult>, { IsNullable: false }>
       >,

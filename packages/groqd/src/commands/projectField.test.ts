@@ -48,12 +48,12 @@ describe("field (naked projections)", () => {
 
     const qImageNames = qVariants
       .slice(0)
-      .notNull()
       .field("images[]")
-      .field("name");
-    expectTypeOf<
-      InferResultType<typeof qImageNames>
-    >().toEqualTypeOf<Array<string> | null>();
+      .field("name")
+      .notNull();
+    expectTypeOf<InferResultType<typeof qImageNames>>().toEqualTypeOf<
+      Array<string>
+    >();
   });
 
   it("executes correctly (price)", async () => {
@@ -116,7 +116,7 @@ describe("field (naked projections)", () => {
       expect(qPrices.parser).toBeNull();
     });
 
-    const qPrice = qVariants.slice(0).notNull().field("price", zod.number());
+    const qPrice = qVariants.slice(0).field("price", zod.number()).notNull();
     it("should have the correct result type", () => {
       expectTypeOf<InferResultType<typeof qPrice>>().toEqualTypeOf<number>();
     });
