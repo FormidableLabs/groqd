@@ -4,6 +4,6 @@
  */
 export class GroqBuilderError extends Error {
   constructor(public key: string, message: string, private details?: any) {
-    super(message);
+    super(`[${key}] ${message}`);
   }
 }

@@ -676,7 +676,7 @@ describe("project (object projections)", () => {
           price: true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: [groqd] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a projection uses a naked projection", () => {
@@ -685,7 +685,7 @@ describe("project (object projections)", () => {
           price: "price",
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: [groqd] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a nested projection is missing a parser", () => {
@@ -694,7 +694,10 @@ describe("project (object projections)", () => {
           nested: qV.field("price"),
         }))
       ).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: [groqd] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "nested"]`
+        `
+        [Error: [MISSING_FIELD_VALIDATION] Because 'validationRequired' is enabled, all fields require validation. Please pass a validation function, like: 
+        q.field("price", q.string())]
+      `
       );
     });
     it("should throw when using ellipsis operator ...", () => {
@@ -703,7 +706,7 @@ describe("project (object projections)", () => {
           "...": true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: [groqd] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "..."]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "..."]`
       );
     });
     it("should work just fine when validation is provided", () => {

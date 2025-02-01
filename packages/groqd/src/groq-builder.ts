@@ -104,7 +104,7 @@ export class GroqBuilder<
     const parser = this.internal.parser;
     if (!parser && this.internal.options.validationRequired) {
       throw new GroqBuilderError(
-        "MISSING_PARSER",
+        "MISSING_QUERY_VALIDATION",
         "Because 'validationRequired' is enabled, " +
           "every query must have validation (like `q.string()`), " +
           "but this query is missing it!"
