@@ -5,11 +5,11 @@ import {
   Parser,
   ParserFunction,
 } from "./types/public-types";
-import type { ExtractDocumentTypes, QueryConfig } from "./types/schema-types";
+import type { QueryConfig } from "./types/schema-types";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import type { Empty } from "./types/utils";
-import { GroqBuilderError } from "./types/groq-builder-error";
+import { InvalidQueryError } from "./types/invalid-query-error";
 
 export type RootResult = Empty;
 
@@ -103,7 +103,7 @@ export class GroqBuilder<
   public parse(data: unknown): TResult {
     const parser = this.internal.parser;
     if (!parser && this.internal.options.validationRequired) {
-      throw new GroqBuilderError(
+      throw new InvalidQueryError(
         "MISSING_QUERY_VALIDATION",
         "Because 'validationRequired' is enabled, " +
           "every query must have validation (like `q.string()`), " +
@@ -151,7 +151,7 @@ export class GroqBuilder<
        *   .project({ a: true })
        *   .field("a", q.string())
        */
-      throw new GroqBuilderError(
+      throw new InvalidQueryError(
         "CHAINED_ASSERTION_ERROR",
         "You cannot chain a new query after you've specified a validation function, " +
           "since this changes the result type.",

@@ -4,7 +4,7 @@ import {
   ParserFunctionMaybe,
   ParserObject,
 } from "../types/public-types";
-import { GroqBuilderError } from "../types/groq-builder-error";
+import { InvalidQueryError } from "../types/invalid-query-error";
 
 export function chainParsers(
   a: ParserFunctionMaybe,
@@ -45,7 +45,7 @@ export function normalizeValidationFunction(
     return (input) => parser.parse(input);
   }
 
-  throw new GroqBuilderError(
+  throw new InvalidQueryError(
     "INVALID_PARSER",
     `Parser must be a function or an object`,
     { parser }

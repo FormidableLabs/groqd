@@ -16,7 +16,7 @@ import {
   simpleObjectParser,
   UnknownObjectParser,
 } from "../validation/simple-validation";
-import { GroqBuilderError } from "../types/groq-builder-error";
+import { InvalidQueryError } from "../types/invalid-query-error";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -74,7 +74,7 @@ GroqBuilder.implement({
       // Validate that we have provided validation functions for all fields:
       const invalidFields = fields.filter((f) => !f.parser);
       if (invalidFields.length) {
-        throw new GroqBuilderError(
+        throw new InvalidQueryError(
           "MISSING_PROJECTION_VALIDATION",
           "Because 'validationRequired' is enabled, " +
             "every field must have validation (like `q.string()`), " +
@@ -132,7 +132,7 @@ function normalizeProjectionField(
       parser: normalizeValidationFunction(value),
     };
   } else {
-    throw new GroqBuilderError(
+    throw new InvalidQueryError(
       "INVALID_PROJECTION_VALUE",
       `Unexpected value for projection key "${key}": "${typeof value}"`
     );
