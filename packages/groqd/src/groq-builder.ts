@@ -5,11 +5,11 @@ import {
   Parser,
   ParserFunction,
 } from "./types/public-types";
-import type { ExtractDocumentTypes, QueryConfig } from "./types/schema-types";
+import type { QueryConfig } from "./types/schema-types";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import type { Empty } from "./types/utils";
-import { QueryError } from "./types/query-error";
+import { InvalidQueryError } from "./types/invalid-query-error";
 
 export type RootResult = Empty;
 
@@ -46,9 +46,9 @@ export class GroqBuilder<
   TQueryConfig extends QueryConfig = QueryConfig
 > implements IGroqBuilder<TResult>
 {
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
   readonly [GroqBuilderResultType]: TResult;
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info */
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
   readonly [GroqBuilderConfigType]: TQueryConfig;
 
   /**
@@ -97,10 +97,20 @@ export class GroqBuilder<
   }
 
   /**
-   * Parses and validates the query results, passing all data through the parsers.
+   * Parses and validates the query results,
+   * passing all data through the parsers.
    */
   public parse(data: unknown): TResult {
     const parser = this.internal.parser;
+    if (!parser && this.internal.options.validationRequired) {
+      throw new InvalidQueryError(
+        "MISSING_QUERY_VALIDATION",
+        "Because 'validationRequired' is enabled, " +
+          "every query must have validation (like `q.string()`), " +
+          "but this query is missing it!"
+      );
+    }
+
     if (!parser) {
       return data as TResult;
     }
@@ -118,8 +128,7 @@ export class GroqBuilder<
   }
 
   /**
-   * Returns a new GroqBuilder, extending the current one.
-   *
+   * Returns a new GroqBuilder, appending the query.
    * @internal
    */
   protected chain<TResultNew = never>(
@@ -127,10 +136,27 @@ export class GroqBuilder<
     parser?: Parser | null
   ): GroqBuilder<TResultNew, TQueryConfig> {
     if (query && this.internal.parser) {
-      throw new QueryError(
-        "You cannot chain a new query once you've specified a parser, " +
+      /**
+       * This happens if you accidentally chain too many times, like:
+       *
+       * q.star
+       *   .project({ a: q.string() })
+       *   .field("a")
+       *
+       * The first part of this projection should NOT have validation,
+       * since this data will never be sent client-side.
+       * This should be rewritten as:
+       *
+       * q.star
+       *   .project({ a: true })
+       *   .field("a", q.string())
+       */
+      throw new InvalidQueryError(
+        "CHAINED_ASSERTION_ERROR",
+        "You cannot chain a new query after you've specified a validation function, " +
           "since this changes the result type.",
         {
+          existingParser: this.internal.parser,
           existingQuery: this.internal.query,
           newQuery: query,
         }
@@ -145,21 +171,21 @@ export class GroqBuilder<
   }
 
   /**
-   * Wraps the current expression with a prefix + suffix.
+   * Returns a new GroqBuilder, extending the current one with the given parameters.
+   * @internal
    */
-  protected wrap(
-    prefix: string,
-    suffix: string
-  ): GroqBuilder<TResult, TQueryConfig> {
-    return new GroqBuilder<TResult, TQueryConfig>({
-      query: prefix + this.internal.query + suffix,
-      parser: this.internal.parser,
-      options: this.internal.options,
+  protected extend<
+    TResultNew = TResult,
+    TQueryConfigNew extends QueryConfig = TQueryConfig
+  >(overrides: Partial<typeof this.internal>) {
+    return new GroqBuilder<TResultNew, TQueryConfigNew>({
+      ...this.internal,
+      ...overrides,
     });
   }
 
   /**
-   * Returns an empty GroqBuilder
+   * Returns an empty "child" GroqBuilder
    */
   public get root() {
     let options = this.internal.options;
@@ -173,26 +199,6 @@ export class GroqBuilder<
       parser: null,
       options: options,
     });
-  }
-
-  /**
-   * Returns a GroqBuilder, overriding the result type.
-   */
-  public as<TResultNew>(): GroqBuilder<TResultNew, TQueryConfig> {
-    return this as any;
-  }
-
-  /**
-   * Returns a GroqBuilder, overriding the result type
-   * with the specified document type.
-   */
-  public asType<
-    _type extends ExtractDocumentTypes<TQueryConfig["schemaTypes"]>
-  >(): GroqBuilder<
-    Extract<TQueryConfig["schemaTypes"], { _type: _type }>,
-    TQueryConfig
-  > {
-    return this as any;
   }
 
   /**

@@ -4,7 +4,7 @@ import {
   ParserFunctionMaybe,
   ParserObject,
 } from "../types/public-types";
-import { QueryError } from "../types/query-error";
+import { InvalidQueryError } from "../types/invalid-query-error";
 
 export function chainParsers(
   a: ParserFunctionMaybe,
@@ -45,5 +45,9 @@ export function normalizeValidationFunction(
     return (input) => parser.parse(input);
   }
 
-  throw new QueryError(`Parser must be a function or an object`, { parser });
+  throw new InvalidQueryError(
+    "INVALID_PARSER",
+    `Parser must be a function or an object`,
+    { parser }
+  );
 }

@@ -63,8 +63,8 @@ export declare const GroqBuilderResultType: unique symbol;
 export declare const GroqBuilderConfigType: unique symbol;
 
 /**
- * IGroqBuilder is the bare minimum GroqBuilder, used to prevent circular references
- * @internal
+ * IGroqBuilder contains the minimum results of a GroqBuilder chain,
+ * used to prevent circular references
  */
 export type IGroqBuilder<
   TResult = unknown,
@@ -95,6 +95,16 @@ export type IGroqBuilder<
    */
   readonly parse: ParserFunction;
 };
+
+/**
+ * Represents a GroqBuilder chain that is "terminal",
+ * and should not be further chained.
+ */
+export type IGroqBuilderNotChainable<
+  TResult,
+  TQueryConfig extends QueryConfig
+> = IGroqBuilder<TResult, TQueryConfig>;
+
 /**
  * Extracts the Result type from a GroqBuilder query
  */

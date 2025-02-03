@@ -203,8 +203,18 @@ describe("filterBy", () => {
       const data = mock.generateSeedData({
         extraData: [flavourNoName, flavourWithName],
         variants: [
-          mock.variant({}, { flavour: [flavourNoName, flavourNoName] }),
-          mock.variant({}, { flavour: [flavourWithName, flavourWithName] }),
+          mock.variant({
+            flavour: [
+              mock.reference(flavourNoName),
+              mock.reference(flavourNoName),
+            ],
+          }),
+          mock.variant({
+            flavour: [
+              mock.reference(flavourWithName),
+              mock.reference(flavourWithName),
+            ],
+          }),
         ],
       });
       const results = await executeBuilder(qFilterAfterDeref, data);

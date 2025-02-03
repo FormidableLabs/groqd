@@ -26,7 +26,7 @@ declare module "../groq-builder" {
 GroqBuilder.implement({
   filter(this: GroqBuilder, filterExpression) {
     const needsWrap = this.query.endsWith("->");
-    const self = needsWrap ? this.wrap("(", ")") : this;
+    const self = needsWrap ? this.extend({ query: `(${this.query})` }) : this;
     return self.chain(`[${filterExpression}]`);
   },
   filterBy(this: GroqBuilder, filterExpression) {

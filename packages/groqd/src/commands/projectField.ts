@@ -67,7 +67,7 @@ GroqBuilder.implement({
       fieldName = "." + fieldName;
     }
 
-    // Finally, transparently handle arrays or objects:
+    // Transparently handle arrays or objects:
     const arrayParser = maybeArrayParser(normalizeValidationFunction(parser));
 
     return this.chain(fieldName, arrayParser);

@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { InferResultType } from "../types/public-types";
+import { InferResultItem, InferResultType } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { q, SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
@@ -15,17 +15,17 @@ describe("deref", () => {
 
   it("should deref a single item", () => {
     expectTypeOf<
-      InferResultType<typeof qCategory>
-    >().toEqualTypeOf<SanitySchema.Category | null>();
+      InferResultItem<typeof qCategory>
+    >().toEqualTypeOf<SanitySchema.Category>();
     expect(qCategory.query).toMatchInlineSnapshot(
       `"*[_type == "product"][0].categories[][0]->"`
     );
   });
 
   it("should deref an array of items", () => {
-    expectTypeOf<
-      InferResultType<typeof qVariants>
-    >().toEqualTypeOf<Array<SanitySchema.Variant> | null>();
+    expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<
+      SanitySchema.Variant[] | null
+    >();
     expect(qVariants.query).toMatchInlineSnapshot(
       `"*[_type == "product"][0].variants[]->"`
     );
@@ -34,11 +34,11 @@ describe("deref", () => {
   it("should be an error if the item is not a reference", () => {
     const notAReference = qProduct.field("slug");
     expectTypeOf<
-      InferResultType<typeof notAReference>
+      InferResultItem<typeof notAReference>
     >().toEqualTypeOf<SanitySchema.Slug>();
 
     const res = notAReference.deref();
-    type ErrorResult = InferResultType<typeof res>;
+    type ErrorResult = InferResultItem<typeof res>;
     expectTypeOf<
       ErrorResult["error"]
     >().toEqualTypeOf<"⛔️ Expected the object to be a reference type ⛔️">();
@@ -59,11 +59,9 @@ describe("deref", () => {
         categories: sub.field("categories[]").deref(),
       }));
 
-      expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<
-        Array<{
-          categories: SanitySchema.Category[] | null;
-        }>
-      >();
+      expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{
+        categories: SanitySchema.Category[] | null;
+      }>();
     });
   });
 });

@@ -17,7 +17,7 @@ describe("slice", () => {
     it("should be typed correctly", () => {
       expectTypeOf<
         InferResultType<typeof qSlice0>
-      >().toEqualTypeOf<SanitySchema.Variant>();
+      >().toEqualTypeOf<SanitySchema.Variant | null>();
     });
     it("query should be correct", () => {
       expect(qSlice0).toMatchObject({

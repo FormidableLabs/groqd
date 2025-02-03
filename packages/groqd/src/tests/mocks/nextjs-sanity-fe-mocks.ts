@@ -42,19 +42,13 @@ export class MockFactory {
   }
 
   // Document types:
-  product(
-    data: Partial<SanitySchema.Product>,
-    references?: {
-      categories?: SanitySchema.Category[];
-      variants?: SanitySchema.Variant[];
-    }
-  ): SanitySchema.Product {
+  product(data: Partial<SanitySchema.Product>): SanitySchema.Product {
     return {
       ...this.common("product"),
       name: "Name",
       slug: this.slug("product"),
-      variants: references?.variants?.map((v) => this.reference(v)) ?? [],
-      categories: references?.categories?.map((c) => this.reference(c)) ?? [],
+      variants: [],
+      categories: [],
       images: [],
       description: [],
       ...data,
@@ -70,13 +64,7 @@ export class MockFactory {
       ...data,
     } satisfies Required<SanitySchema.Category>;
   }
-  variant(
-    data: Partial<SanitySchema.Variant>,
-    references?: {
-      flavour?: SanitySchema.Flavour[];
-      style?: SanitySchema.Style[];
-    }
-  ): SanitySchema.Variant {
+  variant(data: Partial<SanitySchema.Variant>): SanitySchema.Variant {
     const common = this.common("variant");
     return {
       ...common,
@@ -84,11 +72,11 @@ export class MockFactory {
       slug: this.slug("variant"),
       name: "Variant Name",
       description: [],
-      flavour: references?.flavour?.map((f) => this.reference(f)) ?? [],
+      flavour: [],
       images: [],
       price: 0,
       msrp: 0,
-      style: references?.style?.map((s) => this.reference(s)) ?? [],
+      style: [],
       ...data,
     } satisfies Required<SanitySchema.Variant>;
   }
@@ -144,10 +132,11 @@ export class MockFactory {
     ),
     variants = this.array(10, (i) => this.variant({ name: `Variant ${i}` })),
     products = this.array(10, (i) =>
-      this.product(
-        { name: `Product ${i}` },
-        { categories: categories, variants: variants }
-      )
+      this.product({
+        name: `Product ${i}`,
+        categories: categories.map((c) => this.reference(c)),
+        variants: variants.map((c) => this.reference(c)),
+      })
     ),
     extraData = [],
   }: {
