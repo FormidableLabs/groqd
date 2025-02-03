@@ -97,6 +97,15 @@ export type IGroqBuilder<
 };
 
 /**
+ * Represents a GroqBuilder chain that is "terminal",
+ * and should not be further chained.
+ */
+export type IGroqBuilderNotChainable<
+  TResult,
+  TQueryConfig extends QueryConfig
+> = IGroqBuilder<TResult, TQueryConfig>;
+
+/**
  * Extracts the Result type from a GroqBuilder query
  */
 export type InferResultType<TGroqBuilder extends IGroqBuilder<any>> =

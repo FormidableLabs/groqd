@@ -1,7 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/schema-types";
 import { ResultUtils } from "../types/result-types";
-import { IGroqBuilder } from "../types/public-types";
+import { IGroqBuilderNotChainable } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -10,14 +10,15 @@ declare module "../groq-builder" {
      * Useful when you expect missing values in your data,
      * even though the query thinks it's required.
      *
-     * @return Returns an `IGroqBuilder`, because this can only be used at the END of a groqd chain,
+     * ⚠️ NOTE: This method can only be used at the end of a query chain,
      * because you cannot chain more commands after making an assertion.
+     * See CHAINED_ASSERTION_ERROR for more details.
      *
-     * @param redundant - If the type is already nullable, then you must explicitly pass `.nullable(true)` to allow this redundancy. (This has no impact at runtime)
+     * @param redundant - If the type is already nullable, then you must explicitly pass `.nullable(true)` to allow this redundancy. (this has no impact at runtime)
      */
     nullable(
       ...redundant: ResultUtils.IsNullable<TResult> extends true ? [true] : []
-    ): IGroqBuilder<TResult | null, TQueryConfig>;
+    ): IGroqBuilderNotChainable<TResult | null, TQueryConfig>;
   }
 }
 

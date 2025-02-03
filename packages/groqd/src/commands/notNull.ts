@@ -2,7 +2,7 @@ import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/schema-types";
 import { ResultUtils } from "../types/result-types";
 import { Override } from "../types/utils";
-import { IGroqBuilder } from "../types/public-types";
+import { IGroqBuilderNotChainable } from "../types/public-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -11,8 +11,9 @@ declare module "../groq-builder" {
      * Useful when you know there must be a value,
      * even though the query thinks it's optional.
      *
-     * @return Returns an `IGroqBuilder`, because this can only be used at the END of a groqd chain,
+     * ⚠️ NOTE: This method can only be used at the end of a query chain,
      * because you cannot chain more commands after making an assertion.
+     * See CHAINED_ASSERTION_ERROR for more details.
      *
      * @example
      * q.star
@@ -33,7 +34,7 @@ declare module "../groq-builder" {
      */
     notNull(
       ...redundant: ResultUtils.IsNullable<TResult> extends true ? [] : [true]
-    ): IGroqBuilder<
+    ): IGroqBuilderNotChainable<
       ResultUtils.Wrap<
         Override<ResultUtils.Unwrap<TResult>, { IsNullable: false }>
       >,
