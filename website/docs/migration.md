@@ -66,7 +66,7 @@ The `q.raw` function should be used for more complex expressions.
 
 ```ts
 q("*").grab({
-  imageUrl: q("imageUrl", q.string()),
+  title: q("title", q.string()),
   itemsCount: q("count(items[])", q.number()),
 });
 ```
@@ -74,7 +74,7 @@ q("*").grab({
 #### After
 ```ts
 q.star.grab({
-  imageUrl: q.field("imageUrl", q.string()),
+  title: q.field("title", q.string()),
   itemsCount: q.raw("count(items[])", q.number()),
 })
 ```
@@ -113,7 +113,7 @@ This feature has been dropped, in favor of using the new `q.default` utility.
 ```
 q.grab$({
   title: q.string().default("DEFAULT"),
-  imageUrls: q("images[]").deref().grabOne("url"),
+  imageUrls: q("images[].asset").deref().grabOne("url"),
 })
 ```
 
@@ -121,7 +121,7 @@ q.grab$({
 ```
 q.project({ 
   title: q.default(q.string(), "DEFAULT")),
-  imageUrls: q.field("images[]").deref().field("url"),
+  imageUrls: q.field("images[]").field("asset").deref().field("url"),
 })
 ```
 

@@ -39,10 +39,9 @@ const top10ProductsQuery = (
     .project(sub => ({
       title: q.string(),
       price: q.number(),
-      images: sub.field("images[]").deref().project({
-        width: q.number(),
-        height: q.number(),
+      images: sub.field("images[]").field("asset").deref().project({
         url: q.string(),
+        altText: q.string(),
       })
     }))
 );

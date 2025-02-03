@@ -10,21 +10,20 @@ declare module "../groq-builder" {
      * @example
      * q.star
      *  .filterByType("product")
-     *  .field("image").deref().field("url")
-     * // GROQ: *[_type == "product"].image->url
+     *  .field("image.asset").deref().field("url")
+     * // GROQ: *[_type == "product"].image.asset->url
      *
      * @example
      * q.star.filterByType("product").project(sub => ({
      *   category: sub.field("category").deref().field("title"),
-     *   images: sub.field("images[]").deref().project({
+     *   images: sub.field("images[]").field("asset").deref().project({
      *     url: q.string(),
-     *     width: q.number(),
-     *     height: q.number(),
+     *     altText: q.string(),
      *   }),
      * }))
      * // GROQ: *[_type == "product"]{
      * //  "category": category->title,
-     * //  "images": images[]->{ url, width, height }
+     * //  "images": images[].asset->{ url, altText }
      * // }
      */
     deref<
