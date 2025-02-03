@@ -9,7 +9,7 @@ declare module "../groq-builder" {
     /**
      * Asserts that the results are NOT nullable.
      * Useful when you know there must be a value,
-     * even though the query thinks it's optional.
+     * even though the query thinks it might be null.
      *
      * ⚠️ NOTE: This method can only be used at the end of a query chain,
      * because you cannot chain more commands after making an assertion.
@@ -18,13 +18,13 @@ declare module "../groq-builder" {
      * @example
      * q.star
      *  .filter("slug.current == $slug")
-     *  .slice(0) // <- nullable
+     *  .slice(0) // <- this return type is nullable, even though we expect there will be a match
      *  .project({ name: q.string() })
-     *  .notNull()
+     *  .notNull() // <- this ensures that the results are not null
      *
      * @example
      * q.star.filterByType("product").project(sub => ({
-     *   categories: sub.field("categories[]") // <- nullable
+     *   categories: sub.field("categories[]") // <- nullable array
      *                  .deref()
      *                  .field("name", q.string())
      *                  .notNull()

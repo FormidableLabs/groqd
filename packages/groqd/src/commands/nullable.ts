@@ -15,6 +15,13 @@ declare module "../groq-builder" {
      * See CHAINED_ASSERTION_ERROR for more details.
      *
      * @param redundant - If the type is already nullable, then you must explicitly pass `.nullable(true)` to allow this redundancy. (this has no impact at runtime)
+     *
+     * @example
+     * q.star.filterByType("product").project(sub => ({
+     *   // In our schema, "category" is required, but we know
+     *   // that we have old entries that are missing this field:
+     *   category: sub.field("category").nullable(),
+     * });
      */
     nullable(
       ...redundant: ResultUtils.IsNullable<TResult> extends true ? [true] : []
