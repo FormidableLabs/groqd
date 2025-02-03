@@ -1,3 +1,4 @@
+import "./as";
 import "./conditional";
 import "./conditionalByType";
 import "./deref";

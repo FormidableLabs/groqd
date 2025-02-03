@@ -128,8 +128,7 @@ export class GroqBuilder<
   }
 
   /**
-   * Returns a new GroqBuilder, extending the current one.
-   *
+   * Returns a new GroqBuilder, appending the query.
    * @internal
    */
   protected chain<TResultNew = never>(
@@ -153,7 +152,7 @@ export class GroqBuilder<
        *   .field("a", q.string())
        */
       throw new GroqBuilderError(
-        "CHAINED_PARSER_ERROR",
+        "CHAINED_ASSERTION_ERROR",
         "You cannot chain a new query after you've specified a validation function, " +
           "since this changes the result type.",
         {
@@ -172,7 +171,8 @@ export class GroqBuilder<
   }
 
   /**
-   * Returns a new GroqBuilder, overriding the given parameters
+   * Returns a new GroqBuilder, extending the current one with the given parameters.
+   * @internal
    */
   protected extend<
     TResultNew = TResult,
@@ -185,7 +185,7 @@ export class GroqBuilder<
   }
 
   /**
-   * Returns an empty GroqBuilder
+   * Returns an empty "child" GroqBuilder
    */
   public get root() {
     let options = this.internal.options;
@@ -199,26 +199,6 @@ export class GroqBuilder<
       parser: null,
       options: options,
     });
-  }
-
-  /**
-   * Returns a GroqBuilder, overriding the result type.
-   */
-  public as<TResultNew>(): GroqBuilder<TResultNew, TQueryConfig> {
-    return this as any;
-  }
-
-  /**
-   * Returns a GroqBuilder, overriding the result type
-   * with the specified document type.
-   */
-  public asType<
-    _type extends ExtractDocumentTypes<TQueryConfig["schemaTypes"]>
-  >(): GroqBuilder<
-    Extract<TQueryConfig["schemaTypes"], { _type: _type }>,
-    TQueryConfig
-  > {
-    return this as any;
   }
 
   /**
