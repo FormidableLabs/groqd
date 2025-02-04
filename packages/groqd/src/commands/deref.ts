@@ -1,7 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/query-config";
-import { ResultItem } from "../types/result-types";
-import { ExtractRefType } from "../types/ref-types";
+import { DerefDeep } from "../types/ref-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -27,12 +26,7 @@ declare module "../groq-builder" {
      * //  "images": images[].asset->{ url, altText }
      * // }
      */
-    deref<
-      TReferencedType = ExtractRefType<ResultItem.Infer<TResult>, TQueryConfig>
-    >(): GroqBuilder<
-      ResultItem.Override<TResult, TReferencedType>,
-      TQueryConfig
-    >;
+    deref(): GroqBuilder<DerefDeep<TResult, TQueryConfig>, TQueryConfig>;
   }
 }
 

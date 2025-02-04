@@ -7,6 +7,13 @@ import { createGroqBuilderWithZod } from "../../index";
 
 export { SanitySchema };
 
+export type ReferenceTo<TypeName extends string> = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: TypeName;
+};
+
 export type SchemaConfig = {
   schemaTypes: AllSanitySchemaTypes;
   referenceSymbol: typeof internalGroqTypeReferenceTo;

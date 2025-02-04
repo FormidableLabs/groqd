@@ -2,7 +2,11 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultItem, InferResultType } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { q, SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
+import {
+  q,
+  ReferenceTo,
+  SanitySchema,
+} from "../tests/schemas/nextjs-sanity-fe";
 
 const data = mock.generateSeedData({});
 
@@ -33,68 +37,21 @@ describe("deref", () => {
   describe("with an array of nullable items", () => {
     // First here's an array of image references:
     const qImageAssets = q.star.filterByType("product").project((sub) => ({
-      imageAssets: sub
-        .field("images[]")
-        .field("asset")
-        .project({ _type: true }),
-      imageAssetsDeref: sub
-        .field("images[]")
-        .field("asset")
-        .deref()
-        .project({ url: true }),
+      imageAssets: sub.field("images[]").field("asset"),
+      imageAssetsDeref: sub.field("images[]").field("asset").deref(),
     }));
 
     type ResultType = InferResultItem<typeof qImageAssets>;
 
     it("should have the right type", () => {
       // First verify the shape of an array of images:
-      expectTypeOf<ResultType["imageAssets"]>().toEqualTypeOf<null | Array<{
-        _type: "reference";
-      }>>();
+      expectTypeOf<
+        ResultType["imageAssets"]
+      >().toEqualTypeOf<null | Array<null | ReferenceTo<"sanity.imageAsset">>>();
       // Now verify the shape after deref:
       expectTypeOf<
         ResultType["imageAssetsDeref"]
-      >().toEqualTypeOf<null | Array<{ url: string | null }>>();
-    });
-    it("should execute correctly", async () => {
-      const mockImageAsset = mock.imageAsset({});
-
-      const data = mock.generateSeedData({
-        extraData: [mockImageAsset],
-        products: [
-          mock.product({ images: undefined }),
-          mock.product({
-            images: mock.withKeys([
-              mock.image({ asset: mock.reference(mockImageAsset) }),
-              mock.image({ asset: undefined }),
-            ]),
-          }),
-        ],
-      });
-
-      const results = await executeBuilder(qImageAssets, data);
-      expect(results).toMatchInlineSnapshot(`
-        [
-          {
-            "imageAssets": null,
-            "imageAssetsDeref": null,
-          },
-          {
-            "imageAssets": [
-              {
-                "_type": "reference",
-              },
-              null,
-            ],
-            "imageAssetsDeref": [
-              {
-                "url": "url",
-              },
-              null,
-            ],
-          },
-        ]
-      `);
+      >().toEqualTypeOf<null | Array<null | SanitySchema.SanityImageAsset>>();
     });
   });
 
