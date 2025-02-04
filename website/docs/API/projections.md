@@ -18,7 +18,7 @@ Example:
 
 ```ts
 q.star.filterByType("product").project(sub => ({
-  imageUrl: sub.field("image").deref().field("url", q.string()),
+  imageUrl: sub.field("image.asset").deref().field("url", q.string()),
   slug: sub.field("slug.current", q.string()),
   price: sub.field("price", q.number()),
 }))
@@ -88,17 +88,16 @@ Uses GROQ's dereference operator (`->`) to follow a reference.
 ```ts
 q.star
  .filterByType("product")
- .field("image").deref().field("url")
+ .field("image.asset").deref().field("url")
 // GROQ: *[_type == "product"].image->url
 ```
 
 ```ts
 q.star.filterByType("product").project(sub => ({
   category: sub.field("category").deref().field("title"),
-  images: sub.field("images[]").deref().project({
+  images: sub.field("images[]").field("asset").deref().project({
     url: q.string(),
-    width: q.number(),
-    height: q.number(),
+    altText: q.string(),
   }),
 }))
 // GROQ: *[_type == "product"]{

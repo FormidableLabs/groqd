@@ -1,4 +1,4 @@
-import { QueryConfig } from "./schema-types";
+import { QueryConfig } from "./query-config";
 import type { IsLiteral, LiteralUnion } from "type-fest";
 import { StringKeys, UndefinedToNull, ValueOf } from "./utils";
 import { Path, PathKeysWithType, PathValue } from "./path-types";

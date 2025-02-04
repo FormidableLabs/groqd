@@ -2,7 +2,7 @@ import type { ZodType } from "zod";
 import type { ResultItem } from "./result-types";
 import type { Simplify } from "./utils";
 import type { ExtractProjectionResult } from "../commands/projection-types";
-import type { QueryConfig } from "./schema-types";
+import type { QueryConfig } from "./query-config";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

@@ -45,7 +45,7 @@ const productsQuery = (
      name: q.string(),
      price: q.number(),
      slug: sub.field("slug.current", q.string()),
-     imageUrls: sub.field("images[]").deref().field("url", q.string())
+     imageUrls: sub.field("images[]").field("asset").deref().field("url", q.string())
    }))
 );
 ```

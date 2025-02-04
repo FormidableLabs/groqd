@@ -23,6 +23,7 @@ export namespace ResultItem {
    * Infer<Array<"FOO">>        // Result: "FOO"
    * Infer<null | "FOO">        // Result: "FOO"
    * Infer<null | Array<"FOO">> // Result: "FOO"
+   * Infer<null | Array<null | "FOO">> // Result: "FOO"
    */
   export type Infer<TResult> = ResultUtils.Unwrap<TResult>["TResultItem"];
 
@@ -80,7 +81,7 @@ export namespace ResultUtils {
   };
   export type Unwrap<TResult> = {
     TResultItem: NonNullable<TResult> extends Array<infer U>
-      ? U
+      ? NonNullable<U>
       : NonNullable<TResult>;
     IsArray: IsArray<NonNullable<TResult>>;
     IsNullable: IsNullable<TResult>;

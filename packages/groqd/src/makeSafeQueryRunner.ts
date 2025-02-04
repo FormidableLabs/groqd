@@ -1,5 +1,5 @@
 import type { IsUnknown, HasRequiredKeys, EmptyObject } from "type-fest";
-import type { QueryConfig } from "./types/schema-types";
+import type { QueryConfig } from "./types/query-config";
 
 import type { IGroqBuilder } from "./types/public-types";
 

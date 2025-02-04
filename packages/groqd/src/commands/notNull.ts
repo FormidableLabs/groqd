@@ -1,7 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
-import { QueryConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/query-config";
 import { ResultUtils } from "../types/result-types";
-import { Override } from "../types/utils";
 import { IGroqBuilderNotChainable } from "../types/public-types";
 
 declare module "../groq-builder" {
@@ -34,12 +33,7 @@ declare module "../groq-builder" {
      */
     notNull(
       ...redundant: ResultUtils.IsNullable<TResult> extends true ? [] : [true]
-    ): IGroqBuilderNotChainable<
-      ResultUtils.Wrap<
-        Override<ResultUtils.Unwrap<TResult>, { IsNullable: false }>
-      >,
-      TQueryConfig
-    >;
+    ): IGroqBuilderNotChainable<NonNullable<TResult>, TQueryConfig>;
   }
 }
 

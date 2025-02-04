@@ -23,7 +23,7 @@ Creates a fragment for a Document, based on the document type.
 const productFragment = q.fragmentForType<"product">().project(sub => ({
   name: q.string(),
   price: q.number(),
-  images: sub.field("images[]").deref().project({
+  images: sub.field("images[]").field("asset").deref().project({
     url: q.string(),
   }),
 }))

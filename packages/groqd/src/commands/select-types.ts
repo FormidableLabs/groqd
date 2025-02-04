@@ -1,8 +1,9 @@
-import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/query-config";
 import { StringKeys, ValueOf } from "../types/utils";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
 import { Expressions } from "../types/groq-expressions";
+import { ExtractDocumentTypes } from "../types/document-types";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type SelectProjections<

@@ -5,7 +5,7 @@ import {
   Parser,
   ParserFunction,
 } from "./types/public-types";
-import type { QueryConfig } from "./types/schema-types";
+import type { QueryConfig } from "./types/query-config";
 import { normalizeValidationFunction } from "./commands/validate-utils";
 import { ValidationErrors } from "./validation/validation-errors";
 import type { Empty } from "./types/utils";
