@@ -1,5 +1,17 @@
 # groqd
 
+## 1.0.5
+
+### Patch Changes
+
+- Fixed: `.slice(number)` returns a nullable result ([#331](https://github.com/FormidableLabs/groqd/pull/331))
+  Added: `.notNull()` utility
+  Updated: `.nullable()` utility to not be chainable
+  Updated: require a `redundant: true` parameter for `nullable` and `notNull`
+  Added: `InvalidQueryError` is thrown for all invalid queries detected
+
+  Fixes #268
+
 ## 1.0.4
 
 ### Patch Changes
