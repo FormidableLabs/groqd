@@ -1,8 +1,9 @@
 import { GroqBuilder } from "../groq-builder";
 import { ExtractProjectionResult, ProjectionMap } from "./projection-types";
 import { Fragment } from "../types/public-types";
-import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/query-config";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";
+import { ExtractDocumentTypes } from "../types/document-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { SchemaDocument } from "../types/schema-types";
+import { SchemaDocument } from "../types/document-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

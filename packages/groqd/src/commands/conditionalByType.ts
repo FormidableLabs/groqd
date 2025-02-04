@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/query-config";
 import { ResultItem } from "../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -9,6 +9,7 @@ import {
 } from "./conditional-types";
 import { ProjectionMap } from "./projection-types";
 import { keys } from "../types/utils";
+import { ExtractDocumentTypes } from "../types/document-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {

@@ -4,10 +4,11 @@ import {
   ProjectionMapOrCallback,
 } from "./projection-types";
 import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
-import { ExtractDocumentTypes, QueryConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/query-config";
 import { GroqBuilder } from "../groq-builder";
 import { IGroqBuilder, InferResultType } from "../types/public-types";
 import { Expressions } from "../types/groq-expressions";
+import { ExtractDocumentTypes } from "../types/document-types";
 
 export type ConditionalProjectionMap<
   TResultItem,

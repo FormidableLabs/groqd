@@ -20,7 +20,7 @@ import {
 } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
 import { DeepRequired } from "../types/deep-required";
-import { QueryConfig } from "../types/schema-types";
+import { QueryConfig } from "../types/query-config";
 import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,

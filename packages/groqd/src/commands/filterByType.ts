@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
-import { ExtractDocumentTypes } from "../types/schema-types";
+import { ExtractDocumentTypes } from "../types/document-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {

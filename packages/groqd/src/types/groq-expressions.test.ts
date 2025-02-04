@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
-import { QueryConfig } from "./schema-types";
+import { QueryConfig } from "./query-config";
 import { Simplify } from "./utils";
 
 type FooBarBaz = { foo: string; bar: number; baz: boolean };
