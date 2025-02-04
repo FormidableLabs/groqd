@@ -30,6 +30,73 @@ describe("deref", () => {
       `"*[_type == "product"][0].variants[]->"`
     );
   });
+  describe("with an array of nullable items", () => {
+    // First here's an array of image references:
+    const qImageAssets = q.star.filterByType("product").project((sub) => ({
+      imageAssets: sub
+        .field("images[]")
+        .field("asset")
+        .project({ _type: true }),
+      imageAssetsDeref: sub
+        .field("images[]")
+        .field("asset")
+        .deref()
+        .project({ url: true }),
+    }));
+
+    type ResultType = InferResultItem<typeof qImageAssets>;
+
+    it("should have the right type", () => {
+      // First verify the shape of an array of images:
+      expectTypeOf<ResultType["imageAssets"]>().toEqualTypeOf<null | Array<{
+        _type: "reference";
+      }>>();
+      // Now verify the shape after deref:
+      expectTypeOf<
+        ResultType["imageAssetsDeref"]
+      >().toEqualTypeOf<null | Array<{ url: string | null }>>();
+    });
+    it("should execute correctly", async () => {
+      const mockImageAsset = mock.imageAsset({});
+
+      const data = mock.generateSeedData({
+        extraData: [mockImageAsset],
+        products: [
+          mock.product({ images: undefined }),
+          mock.product({
+            images: mock.withKeys([
+              mock.image({ asset: mock.reference(mockImageAsset) }),
+              mock.image({ asset: undefined }),
+            ]),
+          }),
+        ],
+      });
+
+      const results = await executeBuilder(qImageAssets, data);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "imageAssets": null,
+            "imageAssetsDeref": null,
+          },
+          {
+            "imageAssets": [
+              {
+                "_type": "reference",
+              },
+              null,
+            ],
+            "imageAssetsDeref": [
+              {
+                "url": "url",
+              },
+              null,
+            ],
+          },
+        ]
+      `);
+    });
+  });
 
   it("should be an error if the item is not a reference", () => {
     const notAReference = qProduct.field("slug");

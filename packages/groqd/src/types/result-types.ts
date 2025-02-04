@@ -23,6 +23,7 @@ export namespace ResultItem {
    * Infer<Array<"FOO">>        // Result: "FOO"
    * Infer<null | "FOO">        // Result: "FOO"
    * Infer<null | Array<"FOO">> // Result: "FOO"
+   * Infer<null | Array<null | "FOO">> // Result: "FOO"
    */
   export type Infer<TResult> = ResultUtils.Unwrap<TResult>["TResultItem"];
 

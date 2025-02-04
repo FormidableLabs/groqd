@@ -16,6 +16,9 @@ describe("ResultItem (namespace)", () => {
   it("Infer", () => {
     expectTypeOf<ResultItem.Infer<Array<Item>>>().toEqualTypeOf<Item>();
     expectTypeOf<ResultItem.Infer<Array<Item> | null>>().toEqualTypeOf<Item>();
+    expectTypeOf<
+      ResultItem.Infer<Array<null | Item> | null>
+    >().toEqualTypeOf<Item>();
   });
 
   it("InferMaybe", () => {

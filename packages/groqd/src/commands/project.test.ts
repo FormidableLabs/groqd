@@ -389,12 +389,12 @@ describe("project (object projections)", () => {
     const qComplex = qVariants.project((q) => ({
       name: q.field("name"),
       slug: q.field("slug").field("current"),
-      images: q.field("images[]").field("name"),
+      images: q.field("images[]").field("asset").deref().field("url"),
     }));
 
     it("query should be correct", () => {
       expect(qComplex.query).toMatchInlineSnapshot(
-        `"*[_type == "variant"] { name, "slug": slug.current, "images": images[].name }"`
+        `"*[_type == "variant"] { name, "slug": slug.current, "images": images[].asset->.url }"`
       );
     });
 
@@ -403,7 +403,7 @@ describe("project (object projections)", () => {
         Array<{
           name: string;
           slug: string;
-          images: Array<string> | null;
+          images: Array<string | null> | null;
         }>
       >();
     });

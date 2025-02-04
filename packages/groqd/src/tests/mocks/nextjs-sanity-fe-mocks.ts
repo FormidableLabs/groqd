@@ -23,6 +23,12 @@ export class MockFactory {
   array<T>(length: number, factory: (index: number) => T): T[] {
     return new Array(length).fill(null).map((_, i) => factory(i));
   }
+  withKeys<T>(items: Array<T>): Array<T & { _key: string }> {
+    return items.map((item, index) => ({
+      _key: `key-${index}`,
+      ...item,
+    }));
+  }
 
   // Datalake helpers:
   slug(prefix: string | { current: string }) {
@@ -33,7 +39,7 @@ export class MockFactory {
   reference(data: { _id: string }) {
     return {
       _type: "reference" as const,
-      _key: this.id(`reference`),
+      _key: this.id("reference"),
       _ref: data._id,
       // This value is not actually needed, but it's required by TypeScript::
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -105,6 +111,29 @@ export class MockFactory {
       },
       ...data,
     } satisfies Required<SanitySchema.ProductImage>;
+  }
+  imageAsset(
+    data: Partial<SanitySchema.SanityImageAsset>
+  ): SanitySchema.SanityImageAsset {
+    return {
+      ...this.common("sanity.imageAsset"),
+      originalFilename: "originalFilename",
+      label: "label",
+      title: "title",
+      description: "description",
+      altText: "altText",
+      sha1hash: "sha1hash",
+      extension: "extension",
+      mimeType: "mimeType",
+      size: 100,
+      assetId: "assetId",
+      uploadId: "uploadId",
+      path: "path",
+      url: "url",
+      metadata: undefined as any,
+      source: undefined as any,
+      ...data,
+    } satisfies Required<SanitySchema.SanityImageAsset>;
   }
 
   keyed<T>(data: T): T & { _key: string } {
