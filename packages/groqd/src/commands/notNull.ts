@@ -34,12 +34,7 @@ declare module "../groq-builder" {
      */
     notNull(
       ...redundant: ResultUtils.IsNullable<TResult> extends true ? [] : [true]
-    ): IGroqBuilderNotChainable<
-      ResultUtils.Wrap<
-        Override<ResultUtils.Unwrap<TResult>, { IsNullable: false }>
-      >,
-      TQueryConfig
-    >;
+    ): IGroqBuilderNotChainable<NonNullable<TResult>, TQueryConfig>;
   }
 }
 
