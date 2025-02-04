@@ -1,7 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/query-config";
 import { ResultUtils } from "../types/result-types";
-import { Override } from "../types/utils";
 import { IGroqBuilderNotChainable } from "../types/public-types";
 
 declare module "../groq-builder" {
