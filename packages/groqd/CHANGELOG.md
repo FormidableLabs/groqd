@@ -1,5 +1,11 @@
 # groqd
 
+## 1.0.6
+
+### Patch Changes
+
+- Improves types for `deref` for certain queries ([#335](https://github.com/FormidableLabs/groqd/pull/335))
+
 ## 1.0.5
 
 ### Patch Changes
