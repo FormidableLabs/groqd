@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ParserFunction } from "../types/parser-types";
 import { pick } from "../types/utils";
+import { contentBlock, contentBlocks } from "./content-blocks";
 import { ZodType } from "../types/zod-like";
 
 const zodPrimitives = pick(z, [
@@ -13,6 +14,8 @@ const zodPrimitives = pick(z, [
   "union",
   "array",
   "object",
+  "any",
+  "enum",
 ]);
 
 const zodExtras = {
@@ -55,6 +58,9 @@ const zodExtras = {
   slug<TFieldName extends string>(fieldName: TFieldName) {
     return [`${fieldName}.current`, z.string()] as const;
   },
+
+  contentBlock: contentBlock,
+  contentBlocks: contentBlocks,
 };
 
 export const zodMethods = {
