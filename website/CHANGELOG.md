@@ -1,5 +1,14 @@
 # website
 
+## 0.0.17
+
+### Patch Changes
+
+- Improves types for `deref` for certain queries ([#335](https://github.com/FormidableLabs/groqd/pull/335))
+
+- Updated dependencies [[`40b0097`](https://github.com/FormidableLabs/groqd/commit/40b009740ba324cc00c28c6f94823b9fb014eaf9)]:
+  - groqd@1.0.6
+
 ## 0.0.16
 
 ### Patch Changes
