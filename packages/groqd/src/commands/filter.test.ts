@@ -8,7 +8,7 @@ const qVariants = q.star.filterByType("variant");
 
 describe("filter", () => {
   it("should allow for untyped filter expressions", () => {
-    const qAnything = qVariants.filter("ANYTHING");
+    const qAnything = qVariants.filterRaw("ANYTHING");
     expectTypeOf<InferResultType<typeof qAnything>>().toEqualTypeOf<
       Array<SanitySchema.Variant>
     >();
@@ -18,7 +18,7 @@ describe("filter", () => {
   });
 
   const qFiltered = qVariants
-    .filter('name == "FOO"')
+    .filterRaw('name == "FOO"')
     .project({ name: true, id: true });
   const data = mock.generateSeedData({
     variants: [
@@ -29,7 +29,7 @@ describe("filter", () => {
   });
 
   it("should not change the result type", () => {
-    const qFiltered = qVariants.filter("ANYTHING");
+    const qFiltered = qVariants.filterRaw("ANYTHING");
     expectTypeOf<InferResultType<typeof qVariants>>().toEqualTypeOf<
       InferResultType<typeof qFiltered>
     >();
@@ -183,7 +183,7 @@ describe("filterBy", () => {
       flavour: sub
         .field("flavour[]")
         .deref()
-        .filter("defined(name)")
+        .filterRaw("defined(name)")
         .project({ name: true }),
     }));
     it("should add parenthesis around the deref", () => {
