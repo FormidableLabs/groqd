@@ -18,9 +18,16 @@ describe("score", () => {
   });
 
   it("score is compiled correctly", () => {
-    const qScore = qVariants.score("price match 100");
+    const qScore = qVariants.score('name match "some name"');
     expect(qScore).toMatchObject({
-      query: `*[_type == "variant"] | score(price match 100)`,
+      query: `*[_type == "variant"] | score(name match "some name")`,
+    });
+  });
+
+  it("score is compiled correctly with multiple inputs", () => {
+    const qScore = qVariants.score('name match "test"', 'name match "hi"');
+    expect(qScore).toMatchObject({
+      query: `*[_type == "variant"] | score(name match "test", name match "hi")`,
     });
   });
 

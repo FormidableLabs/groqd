@@ -21,6 +21,23 @@ export namespace Expressions {
   >;
 
   /**
+   * This type allows any string, but provides
+   * TypeScript suggestions for common expressions,
+   * like '_type == "product"' or 'slug.current == $slug'
+   * and 'title match (string)' for the score command
+   */
+  export type Matching<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = LiteralUnion<
+    // Suggest some equality expressions, like `slug.current == $slug`,
+    // and `title match (string)`
+    Conditional<TResultItem, TQueryConfig> | Match<TResultItem, TQueryConfig>,
+    // but still allow for any string:
+    string
+  >;
+
+  /**
    * A strongly-typed conditional Groq conditional expression.
    * Currently, this only supports simple "equality" expressions,
    * like '_type == "product"' or 'slug.current == $slug'.
@@ -51,6 +68,12 @@ export namespace Expressions {
     TResultItem,
     TQueryConfig extends QueryConfig
   > = Comparison<TResultItem, TQueryConfig, "!=">;
+
+  export type Match<TResultItem, TQueryConfig extends QueryConfig> = Comparison<
+    TResultItem,
+    TQueryConfig,
+    "match"
+  >;
 
   type Booleans<TResultItem> = ValueOf<{
     [Key in PathKeysWithType<TResultItem, boolean>]: Key | `!${Key}`;
