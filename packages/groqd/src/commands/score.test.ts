@@ -1,5 +1,5 @@
 import { InferResultType } from "../index";
-import { q } from "../tests/schemas/nextjs-sanity-fe";
+import { q, SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -113,6 +113,22 @@ describe("score", () => {
           },
         ]
       `);
+    });
+  });
+
+  describe("scoreRaw", () => {
+    const qScoreRaw = q.star.filterByType("product").scoreRaw("RAW_EXPRESSION");
+
+    it("should allow the raw expression", () => {
+      expect(qScoreRaw.query).toMatchInlineSnapshot(
+        `"*[_type == "product"] | score(RAW_EXPRESSION)"`
+      );
+    });
+
+    it("should have the correct type", () => {
+      expectTypeOf<InferResultType<typeof qScoreRaw>>().toEqualTypeOf<
+        Array<SanitySchema.Product & { _score: number }>
+      >();
     });
   });
 });
