@@ -13,6 +13,7 @@ import "./parameters";
 import "./project";
 import "./projectField";
 import "./raw";
+import "./score";
 import "./select";
 import "./selectByType";
 import "./slice";

@@ -1,7 +1,7 @@
 import { QueryConfig } from "./query-config";
-import type { IsLiteral, LiteralUnion } from "type-fest";
-import { StringKeys, UndefinedToNull, ValueOf } from "./utils";
-import { Path, PathKeysWithType, PathValue } from "./path-types";
+import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
+import { StringKeys, ValueOf } from "./utils";
+import { PathKeysWithType, PathEntries } from "./path-types";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Expressions {
@@ -21,81 +21,106 @@ export namespace Expressions {
   >;
 
   /**
+   * This type allows any string, but provides
+   * TypeScript suggestions for common expressions,
+   * like '_type == "product"' or 'slug.current == $slug'
+   * and 'title match (string)' for the score command
+   */
+  export type Score<TResultItem, TQueryConfig extends QueryConfig> =
+    // Suggest some equality expressions, like `slug.current == $slug`,
+    | Conditional<TResultItem, TQueryConfig>
+    // and `title match (string)`
+    | MatchExpression<TResultItem, TQueryConfig>;
+
+  /**
+   * Same as Score, but allows any valid string
+   */
+  export type ScoreRaw<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = LiteralUnion<Score<TResultItem, TQueryConfig>, string>;
+
+  /**
    * A strongly-typed conditional Groq conditional expression.
    * Currently, this only supports simple "equality" expressions,
    * like '_type == "product"' or 'slug.current == $slug'.
    * */
   export type Conditional<TResultItem, TQueryConfig extends QueryConfig> =
     // Currently we only support simple expressions:
-    Equality<TResultItem, TQueryConfig> | Booleans<TResultItem>;
+    Equality<TResultItem, TQueryConfig> | BooleanSuggestions<TResultItem>;
 
   type Comparison<
-    TResultItem,
+    TPathEntries,
     TQueryConfig extends QueryConfig,
-    _Comparison extends string = "==",
-    /** (local use only) Calculate our Parameter entries once, and reuse across suggestions */
-    _ParameterEntries = ParameterEntries<TQueryConfig["parameters"]>
+    _Comparison extends string = "=="
   > = ValueOf<{
-    [Key in SuggestedKeys<TResultItem>]: `${Key} ${_Comparison} ${SuggestedValues<
-      _ParameterEntries,
-      SuggestedKeysValue<TResultItem, Key>
+    [Key in StringKeys<
+      keyof TPathEntries
+    >]: `${Key} ${_Comparison} ${SuggestedKeysByType<
+      TQueryConfig["scope"],
+      TPathEntries[Key]
     >}`;
   }>;
 
   export type Equality<
     TResultItem,
     TQueryConfig extends QueryConfig
-  > = Comparison<TResultItem, TQueryConfig, "==">;
+  > = Comparison<PathEntries<TResultItem>, TQueryConfig, "==">;
 
   export type Inequality<
     TResultItem,
     TQueryConfig extends QueryConfig
-  > = Comparison<TResultItem, TQueryConfig, "!=">;
+  > = Comparison<PathEntries<TResultItem>, TQueryConfig, "!=">;
 
-  type Booleans<TResultItem> = ValueOf<{
+  export type MatchExpression<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = Comparison<
+    ConditionalPick<PathEntries<TResultItem>, string>,
+    TQueryConfig,
+    "match"
+  >;
+
+  type BooleanSuggestions<TResultItem> = ValueOf<{
     [Key in PathKeysWithType<TResultItem, boolean>]: Key | `!${Key}`;
   }>;
 
-  // Escape literal values:
+  /**
+   * Suggest literal values:
+   */
   type LiteralValue<TValue> = TValue extends string
     ? `"${TValue}"`
     : TValue extends number | boolean | null
     ? TValue
+    : TValue extends undefined
+    ? null
     : never;
 
-  // Make some literal suggestions:
+  /**
+   * Make some literal suggestions,
+   * like (string) or (number)
+   */
   type LiteralSuggestion<TValue> = IsLiteral<TValue> extends true
     ? // If we're already dealing with a literal value, we don't need suggestions:
       never
     : TValue extends string
-    ? "(string)"
+    ? '"(string)"'
     : TValue extends number
     ? "(number)"
     : never;
 
-  // Suggest keys:
-  type SuggestedKeys<TResultItem> = Path<TResultItem>;
-  type SuggestedKeysValue<
-    TResultItem,
-    TKey extends SuggestedKeys<TResultItem>
-  > = UndefinedToNull<PathValue<TResultItem, TKey>>;
-
-  type SuggestedValues<TParameterEntries, TValue> =
+  type SuggestedKeysByType<TScope, TValue> =
     // First, suggest parameters:
-    | StringKeysWithType<TParameterEntries, TValue>
+    | KeysByType<PathEntries<TScope>, TValue>
     // Next, make some literal suggestions:
     | LiteralSuggestion<TValue>
-    // Finally, allow all literal values:
+    // Suggest all literal values:
     | LiteralValue<TValue>;
-
-  export type ParameterEntries<TParameters> = {
-    [P in Path<TParameters> as `$${P}`]: PathValue<TParameters, P>;
-  };
 
   /**
    * Finds all (string) keys of TObject where the value matches the given TType
    */
-  export type StringKeysWithType<TObject, TType> = StringKeys<
+  export type KeysByType<TObject, TType> = StringKeys<
     ValueOf<{
       [P in keyof TObject]: TObject[P] extends TType
         ? P
