@@ -1,6 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
 import { Override } from "../types/utils";
 import { Simplify } from "type-fest";
+import { ParametersWith$Sign } from "../types/parameter-types";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -34,6 +35,10 @@ declare module "../groq-builder" {
         {
           // Merge existing parameters with the new parameters:
           parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
+          // Add all these parameters to the scope:
+          scope: Simplify<
+            TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
+          >;
         }
       >
     >;

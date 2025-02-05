@@ -1,9 +1,13 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
 import { QueryConfig } from "./query-config";
-import { Simplify } from "./utils";
+import { ParametersWith$Sign } from "./parameter-types";
 
 type FooBarBaz = { foo: string; bar: number; baz: boolean };
+
+type WithParameters<TVars> = QueryConfig & {
+  scope: ParametersWith$Sign<TVars>;
+};
 
 describe("Expressions", () => {
   it("literal values are properly escaped", () => {
@@ -59,25 +63,23 @@ describe("Expressions", () => {
   });
 
   describe("with parameters", () => {
-    type WithVars<TVars> = QueryConfig & { parameters: TVars };
-
     it("a literal value can be compared to parameters with the same type", () => {
       expectTypeOf<
-        Expressions.Equality<{ foo: "FOO" }, WithVars<{ str: string }>>
+        Expressions.Equality<{ foo: "FOO" }, WithParameters<{ str: string }>>
       >().toEqualTypeOf<'foo == "FOO"' | "foo == $str">();
       expectTypeOf<
-        Expressions.Equality<{ foo: string }, WithVars<{ str: "FOO" }>>
+        Expressions.Equality<{ foo: string }, WithParameters<{ str: "FOO" }>>
       >().toEqualTypeOf<
         `foo == "${string}"` | "foo == (string)" | "foo == $str"
       >();
       expectTypeOf<
-        Expressions.Equality<{ bar: number }, WithVars<{ str: string }>>
+        Expressions.Equality<{ bar: number }, WithParameters<{ str: string }>>
       >().toEqualTypeOf<`bar == ${number}` | "bar == (number)">();
       expectTypeOf<
-        Expressions.Equality<{ foo: 999 }, WithVars<{ num: number }>>
+        Expressions.Equality<{ foo: 999 }, WithParameters<{ num: number }>>
       >().toEqualTypeOf<`foo == 999` | "foo == $num">();
       expectTypeOf<
-        Expressions.Equality<{ foo: number }, WithVars<{ num: number }>>
+        Expressions.Equality<{ foo: number }, WithParameters<{ num: number }>>
       >().toEqualTypeOf<
         "foo == $num" | "foo == (number)" | `foo == ${number}`
       >();
@@ -94,7 +96,7 @@ describe("Expressions", () => {
       };
       type Actual = Expressions.Equality<
         WithNested,
-        WithVars<{ str: string; num: number }>
+        WithParameters<{ str: string; num: number }>
       >;
       type Expected =
         | "foo == $str"
@@ -124,31 +126,28 @@ describe("Expressions", () => {
       bool: boolean;
     };
 
-    it("we can extract parameters based on their type", () => {
-      type ParameterEntries = Expressions.ParameterEntries<ManyParameters>;
-      expectTypeOf<Simplify<ParameterEntries>>().toEqualTypeOf<{
-        $str1: string;
-        $str2: string;
-        $num1: number;
-        $bool: boolean;
-      }>();
+    it("we can extract scope parameters based on type", () => {
+      type Scope = ParametersWith$Sign<ManyParameters>;
 
+      expectTypeOf<Expressions.KeysByType<Scope, string>>().toEqualTypeOf<
+        "$str1" | "$str2"
+      >();
+      expectTypeOf<Expressions.KeysByType<Scope, "LITERAL">>().toEqualTypeOf<
+        "$str1" | "$str2"
+      >();
       expectTypeOf<
-        Expressions.StringKeysWithType<ParameterEntries, string>
-      >().toEqualTypeOf<"$str1" | "$str2">();
-      expectTypeOf<
-        Expressions.StringKeysWithType<ParameterEntries, "LITERAL">
-      >().toEqualTypeOf<"$str1" | "$str2">();
-      expectTypeOf<
-        Expressions.StringKeysWithType<ParameterEntries, number>
+        Expressions.KeysByType<Scope, number>
       >().toEqualTypeOf<"$num1">();
       expectTypeOf<
-        Expressions.StringKeysWithType<ParameterEntries, boolean>
+        Expressions.KeysByType<Scope, boolean>
       >().toEqualTypeOf<"$bool">();
     });
 
     it("multiple values are compared to same-typed parameters", () => {
-      type Res = Expressions.Equality<FooBarBaz, WithVars<ManyParameters>>;
+      type Res = Expressions.Equality<
+        FooBarBaz,
+        WithParameters<ManyParameters>
+      >;
       expectTypeOf<Res>().toEqualTypeOf<
         | "foo == $str1"
         | "foo == $str2"
@@ -173,7 +172,10 @@ describe("Expressions", () => {
       };
     };
     it("should work with deeply-nested parameters", () => {
-      type Res = Expressions.Equality<FooBarBaz, WithVars<NestedParameters>>;
+      type Res = Expressions.Equality<
+        FooBarBaz,
+        WithParameters<NestedParameters>
+      >;
 
       type StandardSuggestions =
         | `foo == (string)`
@@ -182,22 +184,12 @@ describe("Expressions", () => {
         | `bar == ${number}`
         | "baz == true"
         | "baz == false";
-      expectTypeOf<Exclude<Res, StandardSuggestions>>().toEqualTypeOf<
+      type NestedSuggestions = Exclude<Res, StandardSuggestions>;
+      expectTypeOf<NestedSuggestions>().toEqualTypeOf<
         | "foo == $nested.str1"
         | "foo == $nested.deep.str2"
         | "bar == $nested.deep.num1"
       >();
-    });
-
-    it("we can extract parameters based on their type", () => {
-      type ParameterEntries = Expressions.ParameterEntries<NestedParameters>;
-      expectTypeOf<Simplify<ParameterEntries>>().toEqualTypeOf<{
-        $nested: NestedParameters["nested"];
-        "$nested.str1": string;
-        "$nested.deep": NestedParameters["nested"]["deep"];
-        "$nested.deep.str2": string;
-        "$nested.deep.num1": number;
-      }>();
     });
   });
 });
@@ -214,5 +206,21 @@ describe("Expressions.Conditional", () => {
       | `baz`
       | `!baz`;
     expectTypeOf<T>().toEqualTypeOf<Expected>();
+  });
+});
+describe("Expressions.Score", () => {
+  type StandardConditionals = Expressions.Conditional<FooBarBaz, QueryConfig>;
+  type ScoreSuggestions = Expressions.Score<FooBarBaz, QueryConfig>;
+  it('should include "match" with suggestions', () => {
+    type ExpectedSuggestions =
+      // Only string-fields (eg. "foo") should be suggested with "match"
+      `foo match "${string}"` | "foo match (string)";
+
+    type ActualSuggestions = Exclude<ScoreSuggestions, StandardConditionals>;
+    expectTypeOf<ActualSuggestions>().toEqualTypeOf<ExpectedSuggestions>();
+    type Missing = Exclude<ExpectedSuggestions, ActualSuggestions>;
+    expectTypeOf<Missing>().toEqualTypeOf<never>();
+    type Extra = Exclude<ActualSuggestions, ExpectedSuggestions>;
+    expectTypeOf<Extra>().toEqualTypeOf<never>();
   });
 });
