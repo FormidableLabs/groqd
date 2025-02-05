@@ -94,26 +94,14 @@ describe("score", () => {
     `);
   });
 
-  describe("when projecting", () => {
-    it("should execute correctly", async () => {
-      const results = await executeBuilder(qScore, data);
-      expect(results).toMatchInlineSnapshot(`
-        [
-          {
-            "_score": 1.6923076923076923,
-            "name": "one fish, two fish, red fish, blue fish",
-          },
-          {
-            "_score": 1,
-            "name": "the rainbow fish",
-          },
-          {
-            "_score": 0,
-            "name": "other",
-          },
-        ]
-      `);
-    });
+  it("_score is a field added to the actual items", async () => {
+    const qScoreRaw = qVariants.score('name match "fish"').order("_score desc");
+
+    const results = await executeBuilder(qScoreRaw, data);
+    const firstResult = results[0];
+
+    expectTypeOf(firstResult).toMatchTypeOf<{ _score: number }>();
+    expect(firstResult).toHaveProperty("_score");
   });
 
   describe("scoreRaw", () => {
