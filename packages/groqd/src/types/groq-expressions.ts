@@ -92,6 +92,8 @@ export namespace Expressions {
     ? `"${TValue}"`
     : TValue extends number | boolean | null
     ? TValue
+    : TValue extends undefined
+    ? null
     : never;
 
   /**
@@ -102,7 +104,7 @@ export namespace Expressions {
     ? // If we're already dealing with a literal value, we don't need suggestions:
       never
     : TValue extends string
-    ? "(string)"
+    ? '"(string)"'
     : TValue extends number
     ? "(number)"
     : never;

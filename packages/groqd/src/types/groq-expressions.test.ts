@@ -27,7 +27,7 @@ describe("Expressions", () => {
   it("primitive values are properly typed", () => {
     expectTypeOf<
       Expressions.Equality<{ foo: string }, QueryConfig>
-    >().toEqualTypeOf<`foo == "${string}"` | "foo == (string)">();
+    >().toEqualTypeOf<`foo == "${string}"` | 'foo == "(string)"'>();
     expectTypeOf<
       Expressions.Equality<{ foo: number }, QueryConfig>
     >().toEqualTypeOf<`foo == ${number}` | "foo == (number)">();
@@ -37,6 +37,14 @@ describe("Expressions", () => {
     expectTypeOf<
       Expressions.Equality<{ foo: null }, QueryConfig>
     >().toEqualTypeOf<`foo == null`>();
+  });
+  it("optional values are properly typed", () => {
+    expectTypeOf<
+      Expressions.Equality<{ foo: undefined }, QueryConfig>
+    >().toEqualTypeOf<"foo == null">();
+    expectTypeOf<
+      Expressions.Equality<{ foo?: 999 }, QueryConfig>
+    >().toEqualTypeOf<"foo == null" | "foo == 999" | "foo == (number)">();
   });
 
   it("multiple literals", () => {
@@ -48,7 +56,7 @@ describe("Expressions", () => {
     expectTypeOf<
       Expressions.Equality<{ foo: string; bar: number }, QueryConfig>
     >().toEqualTypeOf<
-      | "foo == (string)"
+      | 'foo == "(string)"'
       | `foo == "${string}"`
       | "bar == (number)"
       | `bar == ${number}`
@@ -70,7 +78,7 @@ describe("Expressions", () => {
       expectTypeOf<
         Expressions.Equality<{ foo: string }, WithParameters<{ str: "FOO" }>>
       >().toEqualTypeOf<
-        `foo == "${string}"` | "foo == (string)" | "foo == $str"
+        `foo == "${string}"` | 'foo == "(string)"' | "foo == $str"
       >();
       expectTypeOf<
         Expressions.Equality<{ bar: number }, WithParameters<{ str: string }>>
@@ -104,7 +112,7 @@ describe("Expressions", () => {
         | 'bar.baz == "BAZ"'
         | "bar.baz == $str"
         | "bar.str == $str"
-        | "bar.str == (string)"
+        | 'bar.str == "(string)"'
         | `bar.str == "${string}"`
         | "bar.num == $num"
         | "bar.num == (number)"
@@ -151,7 +159,7 @@ describe("Expressions", () => {
       expectTypeOf<Res>().toEqualTypeOf<
         | "foo == $str1"
         | "foo == $str2"
-        | "foo == (string)"
+        | 'foo == "(string)"'
         | `foo == "${string}"`
         | "bar == $num1"
         | "bar == (number)"
@@ -178,7 +186,7 @@ describe("Expressions", () => {
       >;
 
       type StandardSuggestions =
-        | `foo == (string)`
+        | 'foo == "(string)"'
         | `foo == "${string}"`
         | `bar == (number)`
         | `bar == ${number}`
@@ -197,7 +205,7 @@ describe("Expressions.Conditional", () => {
   type T = Expressions.Conditional<FooBarBaz, QueryConfig>;
   it("should include a good list of possible expressions, including booleans", () => {
     type Expected =
-      | "foo == (string)"
+      | 'foo == "(string)"'
       | `foo == "${string}"`
       | `bar == (number)`
       | `bar == ${number}`
@@ -214,7 +222,7 @@ describe("Expressions.Score", () => {
   it('should include "match" with suggestions', () => {
     type ExpectedSuggestions =
       // Only string-fields (eg. "foo") should be suggested with "match"
-      `foo match "${string}"` | "foo match (string)";
+      `foo match "${string}"` | 'foo match "(string)"';
 
     type ActualSuggestions = Exclude<ScoreSuggestions, StandardConditionals>;
     expectTypeOf<ActualSuggestions>().toEqualTypeOf<ExpectedSuggestions>();

@@ -70,7 +70,7 @@ describe("filterBy", () => {
     qVariants.filterBy("price == 55");
     qVariants.filterBy("id == null");
     qVariants.filterBy('id == "id"');
-    qVariants.filterBy("id == (string)"); // (this is just for auto-complete)
+    qVariants.filterBy('id == "(string)"'); // (this is just for auto-complete)
   });
   it("should not allow mismatched types", () => {
     qVariants.filterBy(
