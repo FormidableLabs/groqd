@@ -1,5 +1,17 @@
 import { describe, it, expectTypeOf } from "vitest";
-import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
+import {
+  _ProjectionPathEntries,
+  ProjectionPathEntries,
+  ProjectionPaths,
+  ProjectionPathValue,
+  ValuesAsArrays,
+} from "./projection-paths";
+
+type TestObject = {
+  a: "A";
+  b: { c: "C" };
+  d: { e: { f: 0 } };
+};
 
 describe("ProjectionPaths", () => {
   it("primitive types should not be traversed", () => {
@@ -56,12 +68,6 @@ describe("ProjectionPaths", () => {
   });
 });
 describe("ProjectionPathValue", () => {
-  type TestObject = {
-    a: "A";
-    b: { c: "C" };
-    d: { e: { f: 0 } };
-  };
-
   type _INVALID = ProjectionPathValue<
     TestObject,
     // @ts-expect-error ---
@@ -75,3 +81,65 @@ describe("ProjectionPathValue", () => {
   expectTypeOf<ProjectionPathValue<TestObject, "b.c">>().toEqualTypeOf<"C">();
   expectTypeOf<ProjectionPathValue<TestObject, "d.e.f">>().toEqualTypeOf<0>();
 });
+
+describe("ProjectionPathEntries", () => {
+  it("simple types", () => {
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: "A";
+      }>
+    >().toEqualTypeOf<{ a: "A" }>();
+  });
+
+  it("nested objects", () => {
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: "A";
+        b: { c: "C" };
+      }>
+    >().toEqualTypeOf<{
+      a: "A";
+      b: { c: "C" };
+      "b.c": "C";
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: { b: { c: "D" } };
+      }>
+    >().toEqualTypeOf<{
+      a: { b: { c: "D" } };
+      "a.b": { c: "D" };
+      "a.b.c": "D";
+    }>();
+  });
+  it("arrays", () => {
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: Array<string>;
+      }>
+    >().toEqualTypeOf<{
+      a: Array<string>;
+      "a[]": Array<string>;
+    }>();
+
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: Array<{ foo: "FOO" }>;
+      }>
+    >().toEqualTypeOf<{
+      a: Array<{ foo: "FOO" }>;
+      "a[]": Array<{ foo: "FOO" }>;
+      "a[].foo": Array<"FOO">;
+    }>();
+  });
+});
+
+expectTypeOf<
+  ValuesAsArrays<{
+    "a.b": string;
+    "b.c": { foo: "FOO" };
+  }>
+>().toEqualTypeOf<{
+  "a.b": string[];
+  "b.c": Array<{ foo: "FOO" }>;
+}>();

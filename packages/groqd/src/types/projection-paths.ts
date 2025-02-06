@@ -1,5 +1,5 @@
-import { IsAny, Primitive } from "type-fest";
-import { ValueOf } from "./utils";
+import { IsAny, Primitive, Simplify, UnionToIntersection } from "type-fest";
+import { Empty, ValueOf } from "./utils";
 
 export type ProjectionPaths<T> = PathImpl<T>;
 
@@ -20,12 +20,64 @@ type PathImpl<
         | `${Connector}${Key}${PathImpl<Value[Key], ".">}`;
     }>;
 
+/*
+
+
+
+
+
+
+
+
+
+
+
+ */
+export type ProjectionPathEntries<Value> = Simplify<
+  _ProjectionPathEntries<Value>
+>;
+
+export type _ProjectionPathEntries<
+  Value,
+  CurrentPath extends string = ""
+> = (CurrentPath extends "" ? Empty : Record<CurrentPath, Value>) &
+  (IsAny<Value> extends true
+    ? Empty
+    : Value extends Primitive
+    ? Empty
+    : Value extends Array<infer U>
+    ? _ProjectionPathEntries<U, `${CurrentPath}[]`> extends infer ArrayNested
+      ? ValuesAsArrays<ArrayNested>
+      : never
+    : UnionToIntersection<
+        ValueOf<{
+          [Key in StringKeyOf<Value>]: _ProjectionPathEntries<
+            Value[Key],
+            `${CurrentPath}${CurrentPath extends "" ? "" : "."}${Key}`
+          >;
+        }>
+      >);
+
+type StringKeyOf<T> = Extract<keyof T, string>;
+export type ValuesAsArrays<T> = {
+  [P in keyof T]: Array<T[P]>;
+};
+/*
+
+
+
+
+
+
+
+
+
+ */
 export type ProjectionPathValue<T, Path extends ProjectionPaths<T>> = never;
 
-export type ProjectionPathEntries<T> = {
-  [P in ProjectionPaths<T>]: ProjectionPathValue<T, P>;
-};
-
+// export type ProjectionPathEntries<T> = {
+//   [P in ProjectionPaths<T>]: ProjectionPathValue<T, P>;
+// };
 export type ProjectionPathsByType<
   T,
   TFilterByType,
