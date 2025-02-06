@@ -109,6 +109,23 @@ describe("field (naked projections)", () => {
 
       expectTypeOf<ResultType>().toEqualTypeOf<Array<ImagesArray | null>>();
     });
+
+    it("cannot currently project deeply optional values", () => {
+      type DeepOptional = {
+        image?: {
+          asset?: {
+            _type: "reference";
+          };
+        };
+      };
+      const query = q.as<DeepOptional>().field("image.asset._type");
+      type Result = InferResultType<typeof query>;
+      // A bug prevents this from working:
+      type CorrectType = "reference" | null;
+      expectTypeOf<Result>().not.toEqualTypeOf<CorrectType>();
+      // So for now it returns `never`:
+      expectTypeOf<Result>().toEqualTypeOf<never>();
+    });
   });
 
   describe("validation", () => {

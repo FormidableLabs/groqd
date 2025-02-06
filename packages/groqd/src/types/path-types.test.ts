@@ -10,7 +10,8 @@ describe("type-paths", () => {
     g: {};
     h: [];
     i: Array<{ j: "J" }>;
-    j?: { k?: "K" };
+    j?: { k: "K" };
+    l?: "L";
   };
 
   describe("'Path'", () => {
@@ -28,9 +29,10 @@ describe("type-paths", () => {
         | "h"
         | "i"
         | "j"
+        | "l"
       >();
     });
-    it("optional values don't get included", () => {
+    it("deeply optional values don't get included", () => {
       type KeysRequired = Path<DeepRequired<TestObject>>;
       expectTypeOf<Exclude<KeysRequired, Keys>>().toEqualTypeOf<"j.k">();
     });
@@ -58,7 +60,8 @@ describe("type-paths", () => {
         g: {};
         h: [];
         i: Array<{ j: "J" }>;
-        j: undefined | { k?: "K" };
+        j: undefined | { k: "K" };
+        l: "L" | undefined;
       }>();
     });
   });
