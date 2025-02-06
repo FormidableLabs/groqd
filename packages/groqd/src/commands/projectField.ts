@@ -23,12 +23,19 @@ declare module "../groq-builder" {
      *
      * This overload does NOT perform any runtime validation; the return type is inferred.
      */
-    field<TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>>(
+    field<
+      TProjectionPath extends ProjectionPaths<
+        ResultItem.Infer<TResult> & TQueryConfig["scope"]
+      >
+    >(
       fieldName: TProjectionPath
     ): GroqBuilder<
       ResultItem.Override<
         TResult,
-        ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
+        ProjectionPathValue<
+          ResultItem.Infer<TResult> & TQueryConfig["scope"],
+          TProjectionPath
+        >
       >,
       TQueryConfig
     >;
@@ -39,9 +46,13 @@ declare module "../groq-builder" {
      * This overload allows a parser to be passed, for validating the results.
      */
     field<
-      TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>,
+      TProjectionPath extends ProjectionPaths<
+        ResultItem.Infer<TResult> & TQueryConfig["scope"]
+      >,
       TParser extends ParserWithWidenedInput<
-        ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
+        ProjectionPathValue<
+          ResultItem.Infer<TResult> & TQueryConfig["scope"],
+           TProjectionPath>
       >
     >(
       fieldName: TProjectionPath,
@@ -51,7 +62,10 @@ declare module "../groq-builder" {
         TResult,
         TParser extends Parser<infer TParserInput, infer TParserOutput>
           ? ValidateParserInput<
-              ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>,
+              ProjectionPathValue<
+                ResultItem.Infer<TResult> & TQueryConfig["scope"],
+
+                 TProjectionPath>,
               TParserInput,
               TParserOutput,
               TProjectionPath
