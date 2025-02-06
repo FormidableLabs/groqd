@@ -1,5 +1,13 @@
 # groqd
 
+## 1.0.7
+
+### Patch Changes
+
+- Added: `score` and `scoreRaw` functions ([#340](https://github.com/FormidableLabs/groqd/pull/340))
+  Added: `filterRaw` function
+  Deprecated: `filter` function; renamed to `filterRaw` to indicate that it's not type-checked
+
 ## 1.0.6
 
 ### Patch Changes
