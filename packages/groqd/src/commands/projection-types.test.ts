@@ -42,11 +42,11 @@ describe("projection-types", () => {
           "nested" | "nested.arr" | "nested.arr[]"
         >();
       });
-      it("should extract nested optional props", () => {
+      it("should not extract nested optional props", () => {
         type Keys = ProjectionKey<{
           nested?: { num: number };
         }>;
-        expectTypeOf<Keys>().toEqualTypeOf<"nested" | "nested.num">();
+        expectTypeOf<Keys>().toEqualTypeOf<"nested">();
       });
 
       it("should extract all the deeply nested types", () => {
@@ -61,7 +61,6 @@ describe("projection-types", () => {
           | "nested.arr"
           | "nested.arr[]"
           | "optional"
-          | "optional.str"
         >();
       });
     });

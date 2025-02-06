@@ -19,7 +19,6 @@ import {
   ParserWithWidenedInput,
 } from "../types/public-types";
 import { Path, PathEntries, PathValue } from "../types/path-types";
-import { DeepRequired } from "../types/deep-required";
 import { QueryConfig } from "../types/query-config";
 import {
   ConditionalKey,
@@ -28,9 +27,9 @@ import {
 
 export type ProjectionKey<TResultItem> = IsAny<TResultItem> extends true
   ? string
-  : ProjectionKeyImpl<Simplify<PathEntries<DeepRequired<TResultItem>>>>;
+  : ProjectionKeyImpl<Simplify<PathEntries<TResultItem>>>;
 type ProjectionKeyImpl<Entries> = ValueOf<{
-  [Key in keyof Entries]: Entries[Key] extends Array<any>
+  [Key in keyof Entries]: NonNullable<Entries[Key]> extends Array<any>
     ? `${StringKeys<Key>}[]` | Key
     : Key;
 }>;

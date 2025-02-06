@@ -118,13 +118,16 @@ describe("field (naked projections)", () => {
           };
         };
       };
-      const query = q.as<DeepOptional>().field("image.asset._type");
-      type Result = InferResultType<typeof query>;
+      const _query = q.as<DeepOptional>().field(
+        // @ts-expect-error -- cannot project deeply optional keys
+        "image.asset._type"
+      );
       // A bug prevents this from working:
+      /*
+      type Result = InferResultType<typeof query>;
       type CorrectType = "reference" | null;
-      expectTypeOf<Result>().not.toEqualTypeOf<CorrectType>();
-      // So for now it returns `never`:
-      expectTypeOf<Result>().toEqualTypeOf<never>();
+      expectTypeOf<Result>().toEqualTypeOf<CorrectType>();
+      */
     });
   });
 
