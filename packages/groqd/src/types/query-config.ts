@@ -34,5 +34,5 @@ export type QueryConfig = {
 
 export type AddToScope<TQueryConfig extends QueryConfig, TNewScope> = Override<
   TQueryConfig,
-  { scope: Simplify<Override<NonNullable<TQueryConfig["scope"]>, TNewScope>> }
+  { scope: Simplify<Override<TQueryConfig["scope"], TNewScope>> }
 >;
