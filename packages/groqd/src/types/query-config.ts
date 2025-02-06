@@ -1,3 +1,5 @@
+import { Override, Simplify } from "./utils";
+
 /* eslint-disable @typescript-eslint/ban-types */
 
 export type QueryConfig = {
@@ -29,3 +31,8 @@ export type QueryConfig = {
    */
   scope?: {};
 };
+
+export type AddToScope<TQueryConfig extends QueryConfig, TNewScope> = Override<
+  TQueryConfig,
+  { scope: Simplify<Override<NonNullable<TQueryConfig["scope"]>, TNewScope>> }
+>;

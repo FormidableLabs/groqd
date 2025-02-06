@@ -17,6 +17,7 @@ import {
   UnknownObjectParser,
 } from "../validation/simple-validation";
 import { InvalidQueryError } from "../types/invalid-query-error";
+import { AddToScope } from "../types/query-config";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -36,7 +37,10 @@ declare module "../groq-builder" {
       projectionMap:
         | TProjection
         | ((
-            q: GroqBuilder<ResultItem.Infer<TResult>, TQueryConfig>
+            item: GroqBuilder<
+              ResultItem.Infer<TResult>,
+              AddToScope<TQueryConfig, { "^": ResultItem.Infer<TResult> }>
+            >
           ) => TProjection),
       ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
     ): GroqBuilder<
@@ -49,7 +53,7 @@ declare module "../groq-builder" {
 GroqBuilder.implement({
   project(
     this: GroqBuilder,
-    projectionMapArg: object | ((q: any) => object),
+    projectionMapArg: object | ((item: any) => object),
     ...__projectionMapTypeMismatchErrors
   ): GroqBuilder<any> {
     // Retrieve the projectionMap:
