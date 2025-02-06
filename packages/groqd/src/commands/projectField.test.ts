@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { InferResultType } from "../types/public-types";
+import { InferResultItem, InferResultType } from "../types/public-types";
 import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { zod } from "../index";
@@ -169,6 +169,47 @@ describe("field (naked projections)", () => {
           [ValidationErrors: 1 Parsing Error:
           result[1]: Expected number, received string]
         `);
+      });
+    });
+  });
+
+  describe('parent selector "^"', () => {
+    describe("with filterBy", () => {
+      const query = q.star.filterByType("category").project((sub) => ({
+        products: sub.star
+          .filterByType("product")
+          .filterBy("references(^._id)"),
+      }));
+
+      it("should have the right type", () => {
+        expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{
+          products: Array<SanitySchema.Product>;
+        }>();
+      });
+    });
+
+    describe("can select parent fields", () => {
+      const query = q.star.filterByType("product").project((product) => ({
+        _type: true,
+        categories: product
+          .field("categories[]")
+          .deref()
+          .project((cat) => ({
+            _type: true,
+            parentType: cat.field("^._type"),
+            parentName: cat.field("^.name"),
+          })),
+      }));
+      type Result = InferResultItem<typeof query>;
+      it("should have the correct type", () => {
+        expectTypeOf<Result>().toEqualTypeOf<{
+          _type: "product";
+          categories: null | Array<{
+            _type: "category";
+            parentType: "product";
+            parentName: string;
+          }>;
+        }>();
       });
     });
   });
