@@ -23,6 +23,7 @@ import {
   GroqBuilderSubquery,
 } from "../groq-builder";
 import { isGroqBuilder } from "../groq-builder";
+import { AddToScope } from "../types/query-config";
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 declare module "../groq-builder" {
@@ -50,7 +51,10 @@ declare module "../groq-builder" {
       projectionMap:
         | TProjectionMap
         | ((
-            sub: GroqBuilderSubquery<ResultItem.Infer<TResult>, TQueryConfig>
+            sub: GroqBuilder<
+              ResultItem.Infer<TResult>,
+              AddToScope<TQueryConfig, { "^": ResultItem.Infer<TResult> }>
+            >
           ) => TProjectionMap),
       ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
     ): GroqBuilder<
