@@ -1,7 +1,7 @@
 import { describe, it, expectTypeOf } from "vitest";
-import { ProjectionPaths } from "./projection-paths";
+import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
 
-describe("projection-paths", () => {
+describe("ProjectionPaths", () => {
   it("primitive types should not be traversed", () => {
     expectTypeOf<ProjectionPaths<string>>().toEqualTypeOf<"">();
     expectTypeOf<ProjectionPaths<number>>().toEqualTypeOf<"">();
@@ -54,4 +54,24 @@ describe("projection-paths", () => {
       | "a[][]"
     >();
   });
+});
+describe("ProjectionPathValue", () => {
+  type TestObject = {
+    a: "A";
+    b: { c: "C" };
+    d: { e: { f: 0 } };
+  };
+
+  type _INVALID = ProjectionPathValue<
+    TestObject,
+    // @ts-expect-error ---
+    "INVALID"
+  >;
+
+  expectTypeOf<ProjectionPathValue<TestObject, "a">>().toEqualTypeOf<"A">();
+  expectTypeOf<ProjectionPathValue<TestObject, "b">>().toEqualTypeOf<{
+    c: "C";
+  }>();
+  expectTypeOf<ProjectionPathValue<TestObject, "b.c">>().toEqualTypeOf<"C">();
+  expectTypeOf<ProjectionPathValue<TestObject, "d.e.f">>().toEqualTypeOf<0>();
 });

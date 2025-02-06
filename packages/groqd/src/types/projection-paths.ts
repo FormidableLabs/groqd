@@ -1,7 +1,7 @@
 import { IsAny, Primitive } from "type-fest";
 import { ValueOf } from "./utils";
 
-export type ProjectionPaths<TItem> = PathImpl<TItem>;
+export type ProjectionPaths<T> = PathImpl<T>;
 
 type PathImpl<
   Value,
@@ -19,3 +19,21 @@ type PathImpl<
         | `${Connector}${Key}`
         | `${Connector}${Key}${PathImpl<Value[Key], ".">}`;
     }>;
+
+export type ProjectionPathValue<T, Path extends ProjectionPaths<T>> = never;
+
+export type ProjectionPathEntries<T> = {
+  [P in ProjectionPaths<T>]: ProjectionPathValue<T, P>;
+};
+
+export type ProjectionPathsByType<
+  T,
+  TFilterByType,
+  _Entries = ProjectionPathEntries<T>
+> = ValueOf<{
+  [P in keyof _Entries]: _Entries[P] extends TFilterByType
+    ? P
+    : TFilterByType extends _Entries[P]
+    ? P
+    : never;
+}>;
