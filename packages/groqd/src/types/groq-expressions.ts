@@ -46,8 +46,10 @@ export namespace Expressions {
    * like '_type == "product"' or 'slug.current == $slug'.
    * */
   export type Conditional<TResultItem, TQueryConfig extends QueryConfig> =
-    // Currently we only support simple expressions:
-    Equality<TResultItem, TQueryConfig> | BooleanSuggestions<TResultItem>;
+    // Currently we only support these simple expressions:
+    | Equality<TResultItem, TQueryConfig>
+    | BooleanSuggestions<TResultItem>
+    | References<TQueryConfig["scope"]>;
 
   type Comparison<
     TPathEntries,
@@ -80,6 +82,11 @@ export namespace Expressions {
     TQueryConfig,
     "match"
   >;
+
+  type References<TScope> = `references(${KeysByType<
+    PathEntries<TScope>,
+    string | string[]
+  >})`;
 
   type BooleanSuggestions<TResultItem> = ValueOf<{
     [Key in PathKeysWithType<TResultItem, boolean>]: Key | `!${Key}`;

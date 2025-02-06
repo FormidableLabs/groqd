@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
-import { QueryConfig } from "./query-config";
+import { AddToScope, QueryConfig } from "./query-config";
 import { ParametersWith$Sign } from "./parameter-types";
 
 type FooBarBaz = { foo: string; bar: number; baz: boolean };
@@ -214,6 +214,42 @@ describe("Expressions.Conditional", () => {
       | `baz`
       | `!baz`;
     expectTypeOf<T>().toEqualTypeOf<Expected>();
+  });
+
+  describe("when there are fields in scope", () => {
+    type Parent = {
+      _id: string;
+      _type: "parent";
+      str: string;
+      num: number;
+      bool: boolean;
+    };
+    type QueryConfigWithScope = AddToScope<
+      QueryConfig,
+      { "^": Parent; $param: "PARAM_VALUE" }
+    >;
+
+    type StandardSuggestions = Expressions.Conditional<FooBarBaz, QueryConfig>;
+    type ScopeSuggestions = Expressions.Conditional<
+      FooBarBaz,
+      QueryConfigWithScope
+    >;
+
+    it("should suggest items from the scope", () => {
+      type NewSuggestions = Exclude<ScopeSuggestions, StandardSuggestions>;
+      expectTypeOf<NewSuggestions>().toEqualTypeOf<
+        | "foo == $param"
+        | "foo == ^._id"
+        | "foo == ^._type"
+        | "foo == ^.str"
+        | "bar == ^.num"
+        | "baz == ^.bool"
+        | "references(^._id)"
+        | "references(^._type)"
+        | "references(^.str)"
+        | "references($param)"
+      >();
+    });
   });
 });
 describe("Expressions.Score", () => {
