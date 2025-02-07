@@ -1,6 +1,5 @@
 import { describe, it, expectTypeOf } from "vitest";
 import {
-  _ProjectionPathEntries,
   ProjectionPathEntries,
   ProjectionPaths,
   ProjectionPathValue,
@@ -11,19 +10,19 @@ type TestObject = {
   a: "A";
   b: { c: "C" };
   d: { e: { f: 0 } };
+  g: Array<{ h: Array<{ i: "I" }> }>;
 };
 
 describe("ProjectionPaths", () => {
   it("primitive types should not be traversed", () => {
-    expectTypeOf<ProjectionPaths<string>>().toEqualTypeOf<"">();
-    expectTypeOf<ProjectionPaths<number>>().toEqualTypeOf<"">();
-    expectTypeOf<ProjectionPaths<boolean>>().toEqualTypeOf<"">();
-    expectTypeOf<ProjectionPaths<symbol>>().toEqualTypeOf<"">();
-    expectTypeOf<ProjectionPaths<any>>().toEqualTypeOf<"">();
+    expectTypeOf<ProjectionPaths<string>>().toEqualTypeOf<never>();
+    expectTypeOf<ProjectionPaths<number>>().toEqualTypeOf<never>();
+    expectTypeOf<ProjectionPaths<boolean>>().toEqualTypeOf<never>();
+    expectTypeOf<ProjectionPaths<symbol>>().toEqualTypeOf<never>();
+    expectTypeOf<ProjectionPaths<any>>().toEqualTypeOf<never>();
   });
 
   it("should generate shallow paths for simple types", () => {
-    expectTypeOf<ProjectionPaths<{ a: {} }>>().toEqualTypeOf<"a">();
     expectTypeOf<ProjectionPaths<{ a: "A" }>>().toEqualTypeOf<"a">();
     expectTypeOf<ProjectionPaths<{ a: null }>>().toEqualTypeOf<"a">();
     expectTypeOf<ProjectionPaths<{ a: string }>>().toEqualTypeOf<"a">();
@@ -68,18 +67,42 @@ describe("ProjectionPaths", () => {
   });
 });
 describe("ProjectionPathValue", () => {
-  type _INVALID = ProjectionPathValue<
-    TestObject,
-    // @ts-expect-error ---
-    "INVALID"
-  >;
+  it("should not allow invalid keys", () => {
+    type _INVALID = ProjectionPathValue<
+      TestObject,
+      // @ts-expect-error ---
+      "INVALID"
+    >;
+  });
+  it("should return the correct type for simple paths", () => {
+    expectTypeOf<ProjectionPathValue<TestObject, "a">>().toEqualTypeOf<"A">();
+    expectTypeOf<ProjectionPathValue<TestObject, "b">>().toEqualTypeOf<{
+      c: "C";
+    }>();
+  });
 
-  expectTypeOf<ProjectionPathValue<TestObject, "a">>().toEqualTypeOf<"A">();
-  expectTypeOf<ProjectionPathValue<TestObject, "b">>().toEqualTypeOf<{
-    c: "C";
-  }>();
-  expectTypeOf<ProjectionPathValue<TestObject, "b.c">>().toEqualTypeOf<"C">();
-  expectTypeOf<ProjectionPathValue<TestObject, "d.e.f">>().toEqualTypeOf<0>();
+  it("should return the correct type from deep paths", () => {
+    expectTypeOf<ProjectionPathValue<TestObject, "b.c">>().toEqualTypeOf<"C">();
+    expectTypeOf<ProjectionPathValue<TestObject, "d.e.f">>().toEqualTypeOf<0>();
+  });
+
+  it("should return the correct types from array paths", () => {
+    expectTypeOf<ProjectionPathValue<TestObject, "g">>().toEqualTypeOf<
+      Array<{ h: Array<{ i: "I" }> }>
+    >();
+    expectTypeOf<ProjectionPathValue<TestObject, "g[]">>().toEqualTypeOf<
+      Array<{ h: Array<{ i: "I" }> }>
+    >();
+    expectTypeOf<ProjectionPathValue<TestObject, "g[].h">>().toEqualTypeOf<
+      Array<Array<{ i: "I" }>>
+    >();
+    expectTypeOf<ProjectionPathValue<TestObject, "g[].h[]">>().toEqualTypeOf<
+      Array<Array<{ i: "I" }>>
+    >();
+    expectTypeOf<ProjectionPathValue<TestObject, "g[].h[].i">>().toEqualTypeOf<
+      Array<Array<"I">>
+    >();
+  });
 });
 
 describe("ProjectionPathEntries", () => {
@@ -87,11 +110,14 @@ describe("ProjectionPathEntries", () => {
     expectTypeOf<
       ProjectionPathEntries<{
         a: "A";
+        b: "B";
       }>
-    >().toEqualTypeOf<{ a: "A" }>();
+    >().toEqualTypeOf<{
+      a: "A";
+      b: "B";
+    }>();
   });
-
-  it("nested objects", () => {
+  it("nested objects get flattened", () => {
     expectTypeOf<
       ProjectionPathEntries<{
         a: "A";
@@ -112,7 +138,7 @@ describe("ProjectionPathEntries", () => {
       "a.b.c": "D";
     }>();
   });
-  it("arrays", () => {
+  it("arrays get square braces", () => {
     expectTypeOf<
       ProjectionPathEntries<{
         a: Array<string>;

@@ -1,53 +1,43 @@
-import { IsAny, Primitive, Simplify, UnionToIntersection } from "type-fest";
+import {
+  IsAny,
+  IsNever,
+  Primitive,
+  Simplify,
+  UnionToIntersection,
+} from "type-fest";
 import { Empty, ValueOf } from "./utils";
 
-export type ProjectionPaths<T> = PathImpl<T>;
-
-type PathImpl<
-  Value,
-  Connector extends string = ""
-  // Key extends Extract<keyof Type, string> = Extract<keyof Type, string>,
-  // Value extends Type[Key] = Type[Key]
-> = IsAny<Value> extends true
-  ? ""
-  : Value extends Primitive
-  ? ""
-  : Value extends Array<infer U>
-  ? "[]" | `[]${PathImpl<U, ".">}`
-  : ValueOf<{
-      [Key in Extract<keyof Value, string>]:
-        | `${Connector}${Key}`
-        | `${Connector}${Key}${PathImpl<Value[Key], ".">}`;
-    }>;
-
-/*
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * Takes a deeply nested object, and returns
+ * a flattened map of all possible GROQ projections,
+ * with their resulting types
+ *
+ * @example
+ * ProjectionPathEntries<{ foo: Array<{ bar: "BAZ" }> }>
+ *   Result:
+ *   {
+ *     foo: Array<{ bar: "BAZ" }>;
+ *     foo[]: Array<{ bar: "BAZ" }>;
+ *     foo[].bar: Array<"BAZ">;
+ *   }
  */
 export type ProjectionPathEntries<Value> = Simplify<
   _ProjectionPathEntries<Value>
 >;
-
-export type _ProjectionPathEntries<
+// The actual implementation:
+type _ProjectionPathEntries<
   Value,
   CurrentPath extends string = ""
 > = (CurrentPath extends "" ? Empty : Record<CurrentPath, Value>) &
   (IsAny<Value> extends true
     ? Empty
+    : IsNever<Value> extends true
+    ? Empty
     : Value extends Primitive
     ? Empty
     : Value extends Array<infer U>
-    ? _ProjectionPathEntries<U, `${CurrentPath}[]`> extends infer ArrayNested
-      ? ValuesAsArrays<ArrayNested>
+    ? _ProjectionPathEntries<U, `${CurrentPath}[]`> extends infer _ArrayNested
+      ? ValuesAsArrays<_ArrayNested>
       : never
     : UnionToIntersection<
         ValueOf<{
@@ -62,22 +52,14 @@ type StringKeyOf<T> = Extract<keyof T, string>;
 export type ValuesAsArrays<T> = {
   [P in keyof T]: Array<T[P]>;
 };
-/*
 
+export type ProjectionPaths<T> = keyof ProjectionPathEntries<T>;
 
+export type ProjectionPathValue<
+  T,
+  Path extends keyof ProjectionPathEntries<T>
+> = ProjectionPathEntries<T>[Path];
 
-
-
-
-
-
-
- */
-export type ProjectionPathValue<T, Path extends ProjectionPaths<T>> = never;
-
-// export type ProjectionPathEntries<T> = {
-//   [P in ProjectionPaths<T>]: ProjectionPathValue<T, P>;
-// };
 export type ProjectionPathsByType<
   T,
   TFilterByType,
