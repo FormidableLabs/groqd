@@ -10,7 +10,7 @@ import {
   Simplify,
   UnionToIntersection,
 } from "type-fest";
-import { Empty, ValueOf } from "./utils";
+import { Empty, StringKeys, ValueOf } from "./utils";
 
 /**
  * Takes a deeply nested object, and returns
@@ -26,9 +26,10 @@ import { Empty, ValueOf } from "./utils";
  *     foo[].bar: Array<"BAZ">;
  *   }
  */
-export type ProjectionPathEntries<Value> = Simplify<
-  _ProjectionPathEntries<Value>
->;
+export type ProjectionPathEntries<Value> = IsAny<Value> extends true
+  ? // For <any> types, we just allow any string values:
+    Record<string, any>
+  : Simplify<_ProjectionPathEntries<Value>>;
 // The actual implementation:
 type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
   // If it's one of these simple types, we don't need to include any entries:
@@ -75,24 +76,31 @@ type MaybeOptional<T> = IsAny<T> extends false
     : T
   : T;
 
-export type ProjectionPaths<T> = keyof ProjectionPathEntries<T>;
+export type ProjectionPaths<T> = StringKeyOf<ProjectionPathEntries<T>>;
 
 export type ProjectionPathValue<
   T,
-  Path extends keyof ProjectionPathEntries<T>
+  Path extends ProjectionPaths<T>
 > = ProjectionPathEntries<T>[Path];
 
 /**
- * Finds the projection paths of T that have an output type of TFilterByType
+ * Finds the projection paths of T that have an output type compatible with TFilterByType
  */
 export type ProjectionPathsByType<
   T,
   TFilterByType,
   _Entries = ProjectionPathEntries<T>
 > = ValueOf<{
-  [P in keyof _Entries]: _Entries[P] extends TFilterByType
-    ? P
-    : TFilterByType extends _Entries[P]
-    ? P
+  [P in keyof _Entries]: TypesAreCompatible<
+    _Entries[P],
+    TFilterByType
+  > extends true
+    ? StringKeys<P>
     : never;
 }>;
+
+export type TypesAreCompatible<A, B> = A extends B
+  ? true
+  : B extends A
+  ? true
+  : false;

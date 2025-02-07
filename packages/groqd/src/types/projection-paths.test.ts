@@ -3,6 +3,7 @@ import {
   ProjectionPathEntries,
   ProjectionPaths,
   ProjectionPathValue,
+  TypesAreCompatible,
 } from "./projection-paths";
 
 type TestObject = {
@@ -18,7 +19,7 @@ describe("ProjectionPaths", () => {
     expectTypeOf<ProjectionPaths<number>>().toEqualTypeOf<never>();
     expectTypeOf<ProjectionPaths<boolean>>().toEqualTypeOf<never>();
     expectTypeOf<ProjectionPaths<symbol>>().toEqualTypeOf<never>();
-    expectTypeOf<ProjectionPaths<any>>().toEqualTypeOf<never>();
+    expectTypeOf<ProjectionPaths<any>>().toEqualTypeOf<string>();
   });
 
   it("should generate shallow paths for simple types", () => {
@@ -216,5 +217,16 @@ describe("ProjectionPathEntries", () => {
       "a.b": { c: "C" } | undefined;
       "a.b.c": "C" | undefined;
     }>();
+  });
+});
+describe("TypesAreCompatible", () => {
+  it("should work for literals", () => {
+    expectTypeOf<TypesAreCompatible<string, "str">>().toEqualTypeOf<true>();
+    expectTypeOf<TypesAreCompatible<"str", string>>().toEqualTypeOf<true>();
+
+    // Should not be compatible:
+    expectTypeOf<TypesAreCompatible<"str", "other">>().toEqualTypeOf<false>();
+    expectTypeOf<TypesAreCompatible<"str", number>>().toEqualTypeOf<false>();
+    expectTypeOf<TypesAreCompatible<number, "str">>().toEqualTypeOf<false>();
   });
 });
