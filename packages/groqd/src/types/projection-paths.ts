@@ -1,3 +1,8 @@
+/**
+ * This file contains utilities for creating "projection paths"
+ * from an object type, which can be deeply-nested paths
+ * like `images[].asset`
+ */
 import {
   IsAny,
   IsNever,
@@ -25,33 +30,50 @@ export type ProjectionPathEntries<Value> = Simplify<
   _ProjectionPathEntries<Value>
 >;
 // The actual implementation:
-type _ProjectionPathEntries<
-  Value,
-  CurrentPath extends string = ""
-> = (CurrentPath extends "" ? Empty : Record<CurrentPath, Value>) &
-  (IsAny<Value> extends true
+type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
+  // If it's one of these simple types, we don't need to include any entries:
+  IsAny<Value> extends true
     ? Empty
     : IsNever<Value> extends true
     ? Empty
     : Value extends Primitive
     ? Empty
-    : Value extends Array<infer U>
-    ? _ProjectionPathEntries<U, `${CurrentPath}[]`> extends infer _ArrayNested
-      ? ValuesAsArrays<_ArrayNested>
-      : never
-    : UnionToIntersection<
+    : // Check for Arrays:
+    Value extends Array<infer U>
+    ? Record<CurrentPath | `${CurrentPath}[]`, Value> &
+        (_ProjectionPathEntries<
+          U,
+          `${CurrentPath}[]`
+        > extends infer ChildEntries
+          ? ValuesAsArrays<ChildEntries>
+          : never)
+    : // It must be an object; let's map it:
+      UnionToIntersection<
         ValueOf<{
-          [Key in StringKeyOf<Value>]: _ProjectionPathEntries<
-            Value[Key],
-            `${CurrentPath}${CurrentPath extends "" ? "" : "."}${Key}`
-          >;
+          [Key in StringKeyOf<Value>]:  // Calculate the NewPath:
+          `${CurrentPath}${CurrentPath extends ""
+            ? ""
+            : "."}${Key}` extends infer NewPath extends string
+            ? // Include the current entry:
+              Record<NewPath, Value[Key]> &
+                // Include all child entries:
+                _ProjectionPathEntries<MaybeOptional<Value[Key]>, NewPath>
+            : never;
         }>
-      >);
+      >;
 
 type StringKeyOf<T> = Extract<keyof T, string>;
-export type ValuesAsArrays<T> = {
+type ValuesAsArrays<T> = {
   [P in keyof T]: Array<T[P]>;
 };
+/**
+ * If `T` is optional, then make all its properties optional instead:
+ */
+type MaybeOptional<T> = IsAny<T> extends false
+  ? undefined extends T
+    ? Partial<NonNullable<T>>
+    : T
+  : T;
 
 export type ProjectionPaths<T> = keyof ProjectionPathEntries<T>;
 
@@ -60,6 +82,9 @@ export type ProjectionPathValue<
   Path extends keyof ProjectionPathEntries<T>
 > = ProjectionPathEntries<T>[Path];
 
+/**
+ * Finds the projection paths of T that have an output type of TFilterByType
+ */
 export type ProjectionPathsByType<
   T,
   TFilterByType,

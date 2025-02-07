@@ -3,7 +3,6 @@ import {
   ProjectionPathEntries,
   ProjectionPaths,
   ProjectionPathValue,
-  ValuesAsArrays,
 } from "./projection-paths";
 
 type TestObject = {
@@ -110,11 +109,44 @@ describe("ProjectionPathEntries", () => {
     expectTypeOf<
       ProjectionPathEntries<{
         a: "A";
-        b: "B";
       }>
     >().toEqualTypeOf<{
       a: "A";
-      b: "B";
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: 0;
+      }>
+    >().toEqualTypeOf<{
+      a: 0;
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: undefined;
+      }>
+    >().toEqualTypeOf<{
+      a: undefined;
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: null;
+      }>
+    >().toEqualTypeOf<{
+      a: null;
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: any;
+      }>
+    >().toEqualTypeOf<{
+      a: any;
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a: never;
+      }>
+    >().toEqualTypeOf<{
+      a: never;
     }>();
   });
   it("nested objects get flattened", () => {
@@ -158,14 +190,31 @@ describe("ProjectionPathEntries", () => {
       "a[].foo": Array<"FOO">;
     }>();
   });
+  it("optional fields work just fine", () => {
+    expectTypeOf<ProjectionPathEntries<{ a?: "A" }>>().toEqualTypeOf<{
+      a: "A" | undefined;
+    }>();
+    expectTypeOf<ProjectionPathEntries<{ a?: { b: "B" } }>>().toEqualTypeOf<{
+      a: { b: "B" } | undefined;
+      "a.b": "B" | undefined;
+    }>();
+    expectTypeOf<ProjectionPathEntries<{ a?: { b?: "B" } }>>().toEqualTypeOf<{
+      a: { b?: "B" } | undefined;
+      "a.b": "B" | undefined;
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{ a: { b?: { c?: "C" } } }>
+    >().toEqualTypeOf<{
+      a: { b?: { c?: "C" } };
+      "a.b": { c?: "C" } | undefined;
+      "a.b.c": "C" | undefined;
+    }>();
+    expectTypeOf<
+      ProjectionPathEntries<{ a?: { b: { c: "C" } } }>
+    >().toEqualTypeOf<{
+      a: { b: { c: "C" } } | undefined;
+      "a.b": { c: "C" } | undefined;
+      "a.b.c": "C" | undefined;
+    }>();
+  });
 });
-
-expectTypeOf<
-  ValuesAsArrays<{
-    "a.b": string;
-    "b.c": { foo: "FOO" };
-  }>
->().toEqualTypeOf<{
-  "a.b": string[];
-  "b.c": Array<{ foo: "FOO" }>;
-}>();
