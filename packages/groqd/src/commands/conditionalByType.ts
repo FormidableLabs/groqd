@@ -7,7 +7,7 @@ import {
   ConditionalKey,
   ConditionalConfig,
 } from "./conditional-types";
-import { ProjectionMap } from "./projection-types";
+import { ProjectionMap } from "../types/projection-types";
 import { keys } from "../types/utils";
 import { ExtractDocumentTypes } from "../types/document-types";
 

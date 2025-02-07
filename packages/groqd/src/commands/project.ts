@@ -8,7 +8,7 @@ import {
   ExtractProjectionResult,
   ProjectionFieldConfig,
   ProjectionMap,
-} from "./projection-types";
+} from "../types/projection-types";
 import { isConditional } from "./conditional-types";
 import {
   combineObjectParsers,
