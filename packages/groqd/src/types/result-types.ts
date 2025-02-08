@@ -1,4 +1,4 @@
-import { Override as _Override, Simplify } from "./utils";
+import { IsNullable, Override as _Override, Simplify } from "./utils";
 
 /* eslint-disable @typescript-eslint/no-namespace */
 
@@ -103,9 +103,4 @@ export namespace ResultUtils {
     ? Array<T>
     : T;
   type IsArray<T> = T extends Array<any> ? true : false;
-  export type IsNullable<T> = null extends T
-    ? true
-    : undefined extends T
-    ? true
-    : false;
 }

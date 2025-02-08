@@ -1,7 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/query-config";
-import { ResultUtils } from "../types/result-types";
 import { IGroqBuilderNotChainable } from "../types/public-types";
+import { IsNullable } from "../types/utils";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -24,7 +24,7 @@ declare module "../groq-builder" {
      * });
      */
     nullable(
-      ...redundant: ResultUtils.IsNullable<TResult> extends true ? [true] : []
+      ...redundant: IsNullable<TResult> extends true ? [true] : []
     ): IGroqBuilderNotChainable<TResult | null, TQueryConfig>;
   }
 }
