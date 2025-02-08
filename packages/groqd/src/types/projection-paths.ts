@@ -10,7 +10,18 @@ import {
   Simplify,
   UnionToIntersection,
 } from "type-fest";
-import { Empty, StringKeys, ValueOf } from "./utils";
+import { Empty, StringKeys, UndefinedToNull, ValueOf } from "./utils";
+
+export type ProjectionPathsCustomIgnores = {};
+/**
+ * These types are ignored when calculating projection paths,
+ * since they're rarely traversed into
+ */
+export type ProjectionPathIgnoreTypes =
+  | Primitive
+  | { _type: "reference" }
+  | { _type: "block" }
+  | ValueOf<ProjectionPathsCustomIgnores>;
 
 /**
  * Takes a deeply nested object, and returns
@@ -37,7 +48,7 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
     ? Empty
     : IsNever<Value> extends true
     ? Empty
-    : Value extends Primitive
+    : Value extends ProjectionPathIgnoreTypes
     ? Empty
     : // Check for Arrays:
     Value extends Array<infer U>
