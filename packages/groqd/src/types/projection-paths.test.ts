@@ -5,6 +5,10 @@ import {
   ProjectionPathValue,
   TypesAreCompatible,
 } from "./projection-paths";
+import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
+import { Simplify } from "type-fest";
+import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
+import { UndefinedToNull } from "./utils";
 
 type TestObject = {
   a: "A";
@@ -65,6 +69,10 @@ describe("ProjectionPaths", () => {
       | "a[][]"
     >();
   });
+
+  it("works for the <any> type", () => {
+    expectTypeOf<ProjectionPaths<any>>().toEqualTypeOf<string>();
+  });
 });
 describe("ProjectionPathValue", () => {
   it("should not allow invalid keys", () => {
@@ -103,6 +111,10 @@ describe("ProjectionPathValue", () => {
       Array<Array<"I">>
     >();
   });
+
+  it("works for the <any> type", () => {
+    expectTypeOf<ProjectionPathValue<any, "WHATEVER">>().toEqualTypeOf<any>();
+  });
 });
 
 describe("ProjectionPathEntries", () => {
@@ -114,6 +126,7 @@ describe("ProjectionPathEntries", () => {
     >().toEqualTypeOf<{
       a: "A";
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{
         a: 0;
@@ -121,13 +134,15 @@ describe("ProjectionPathEntries", () => {
     >().toEqualTypeOf<{
       a: 0;
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{
         a: undefined;
       }>
     >().toEqualTypeOf<{
-      a: undefined;
+      a: null;
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{
         a: null;
@@ -135,6 +150,7 @@ describe("ProjectionPathEntries", () => {
     >().toEqualTypeOf<{
       a: null;
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{
         a: any;
@@ -142,6 +158,7 @@ describe("ProjectionPathEntries", () => {
     >().toEqualTypeOf<{
       a: any;
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{
         a: never;
@@ -161,6 +178,7 @@ describe("ProjectionPathEntries", () => {
       b: { c: "C" };
       "b.c": "C";
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{
         a: { b: { c: "D" } };
@@ -193,30 +211,159 @@ describe("ProjectionPathEntries", () => {
   });
   it("optional fields work just fine", () => {
     expectTypeOf<ProjectionPathEntries<{ a?: "A" }>>().toEqualTypeOf<{
-      a: "A" | undefined;
+      a: "A" | null;
     }>();
+
     expectTypeOf<ProjectionPathEntries<{ a?: { b: "B" } }>>().toEqualTypeOf<{
-      a: { b: "B" } | undefined;
-      "a.b": "B" | undefined;
+      a: { b: "B" } | null;
+      "a.b": "B" | null;
     }>();
+
     expectTypeOf<ProjectionPathEntries<{ a?: { b?: "B" } }>>().toEqualTypeOf<{
-      a: { b?: "B" } | undefined;
-      "a.b": "B" | undefined;
+      a: { b?: "B" } | null;
+      "a.b": "B" | null;
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{ a: { b?: { c?: "C" } } }>
     >().toEqualTypeOf<{
       a: { b?: { c?: "C" } };
-      "a.b": { c?: "C" } | undefined;
-      "a.b.c": "C" | undefined;
+      "a.b": { c?: "C" } | null;
+      "a.b.c": "C" | null;
     }>();
+
     expectTypeOf<
       ProjectionPathEntries<{ a?: { b: { c: "C" } } }>
     >().toEqualTypeOf<{
-      a: { b: { c: "C" } } | undefined;
-      "a.b": { c: "C" } | undefined;
-      "a.b.c": "C" | undefined;
+      a: { b: { c: "C" } } | null;
+      "a.b": { c: "C" } | null;
+      "a.b.c": "C" | null;
     }>();
+  });
+  it("works for the <any> type", () => {
+    expectTypeOf<ProjectionPathEntries<any>>().toEqualTypeOf<
+      Record<string, any>
+    >();
+  });
+
+  describe('when working with the "real" Sanity types', () => {
+    type V = Required<SanitySchema.Variant>;
+    type ProductImage = V["images"][number];
+    it('works for "Variant" type', () => {
+      type ActualResult = ProjectionPathEntries<SanitySchema.Variant>;
+
+      type ExpectedResult = {
+        // These fields stay the same:
+        _id: string;
+        _type: "variant";
+        _createdAt: string;
+        _updatedAt: string;
+        _rev: string;
+        name: string;
+        msrp: number;
+        price: number;
+
+        // This field is optional, so it gets mapped to `null`:
+        id: null | string;
+
+        // This slug gets expanded:
+        slug: Slug;
+        "slug._type": "slug";
+        "slug.current": string;
+        "slug.source": null | string;
+
+        // These are references, so they don't go deeper:
+        description: null | V["description"];
+        "description[]": null | V["description"];
+        flavour: null | V["flavour"];
+        "flavour[]": null | V["flavour"];
+        style: null | V["style"];
+        "style[]": null | V["style"];
+
+        // Images get expanded pretty deep:
+        images: null | Array<ProductImage>;
+        "images[]": null | Array<ProductImage>;
+        "images[]._type": null | Array<"productImage">;
+        "images[]._key": null | Array<string>;
+        "images[].name": null | Array<string>;
+        "images[].description": null | Array<null | string>;
+        "images[].asset": null | Array<UndefinedToNull<ProductImage["asset"]>>;
+
+        // TODO these should be ignored actually, not sure what's happening:
+        "images[].asset._type": null | Array<null | "reference">;
+        "images[].asset._ref": null | Array<null | string>;
+        "images[].asset._weak": null | Array<null | boolean>;
+
+        // A deep one:
+        "images[].hotspot": null | Array<
+          UndefinedToNull<ProductImage["hotspot"]>
+        >;
+        "images[].hotspot._type": null | Array<"sanity.imageHotspot">;
+        "images[].hotspot.x": null | Array<null | number>;
+        "images[].hotspot.y": null | Array<null | number>;
+        "images[].hotspot.height": null | Array<null | number>;
+        "images[].hotspot.width": null | Array<null | number>;
+
+        // Another deep one:
+        "images[].crop": null | Array<UndefinedToNull<ProductImage["crop"]>>;
+        "images[].crop._type": null | Array<"sanity.imageCrop">;
+        "images[].crop.top": null | Array<null | number>;
+        "images[].crop.bottom": null | Array<null | number>;
+        "images[].crop.left": null | Array<null | number>;
+        "images[].crop.right": null | Array<null | number>;
+      };
+
+      type Missing = Simplify<Omit<ActualResult, keyof ExpectedResult>>;
+      expectTypeOf<Missing>().toEqualTypeOf<{}>();
+      expectTypeOf<keyof Missing>().toEqualTypeOf<never>();
+
+      expectTypeOf<ActualResult>().toEqualTypeOf<ExpectedResult>();
+      expectTypeOf<ExpectedResult>().toEqualTypeOf<ActualResult>();
+    });
+    it('works for "Image" type', () => {
+      expectTypeOf<
+        UndefinedToNull<ProductImage["asset"]> extends
+          | { _type: "reference" }
+          | undefined
+          | null
+          ? true
+          : false
+      >().toEqualTypeOf<true>();
+
+      expectTypeOf<
+        ProjectionPathEntries<ProductImage["asset"]>
+      >().toEqualTypeOf<{}>();
+      type ImageEntries = ProjectionPathEntries<ProductImage>;
+
+      expectTypeOf<ImageEntries>().toEqualTypeOf<{
+        _type: "productImage";
+        _key: string;
+        name: string;
+        description: null | string;
+        asset: UndefinedToNull<ProductImage["asset"]>;
+
+        //  these should be ignored, what's up?
+        "asset._type": null | "reference";
+        "asset._ref": null | string;
+        "asset._weak": null | boolean;
+
+        // A deep one:
+        hotspot: UndefinedToNull<ProductImage["hotspot"]>;
+        "hotspot._type": null | "sanity.imageHotspot";
+        "hotspot.x": null | number;
+        "hotspot.y": null | number;
+        "hotspot.height": null | number;
+        "hotspot.width": null | number;
+
+        // Another deep one:
+        crop: UndefinedToNull<ProductImage["crop"]>;
+        "crop._type": null | "sanity.imageCrop";
+        "crop.top": null | number;
+        "crop.bottom": null | number;
+        "crop.left": null | number;
+        "crop.right": null | number;
+      }>();
+    });
   });
 });
 describe("TypesAreCompatible", () => {

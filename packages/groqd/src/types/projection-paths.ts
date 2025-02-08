@@ -43,7 +43,7 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
     Value extends Array<infer U>
     ? Record<CurrentPath | `${CurrentPath}[]`, Value> &
         (_ProjectionPathEntries<
-          U,
+          UndefinedToNull<U>,
           `${CurrentPath}[]`
         > extends infer ChildEntries
           ? ValuesAsArrays<ChildEntries>
@@ -56,7 +56,7 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
             ? ""
             : "."}${Key}` extends infer NewPath extends string
             ? // Include the current entry:
-              Record<NewPath, Value[Key]> &
+              Record<NewPath, UndefinedToNull<Value[Key]>> &
                 // Include all child entries:
                 _ProjectionPathEntries<MaybeOptional<Value[Key]>, NewPath>
             : never;
@@ -72,6 +72,8 @@ type ValuesAsArrays<T> = {
  */
 type MaybeOptional<T> = IsAny<T> extends false
   ? undefined extends T
+    ? Partial<NonNullable<T>>
+    : null extends T
     ? Partial<NonNullable<T>>
     : T
   : T;
