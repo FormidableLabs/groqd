@@ -3,16 +3,15 @@
  * from an object type, which can be deeply-nested paths
  * like `images[].asset`
  */
+import { IsAny, IsNever, Primitive, Simplify } from "type-fest";
 import {
-  IsAny,
-  IsNever,
-  Primitive,
-  Simplify,
-  UnionToIntersection,
-} from "type-fest";
-import { Empty, StringKeys, UndefinedToNull, ValueOf } from "./utils";
+  Empty,
+  IsNullable,
+  StringKeys,
+  UndefinedToNull,
+  ValueOf,
+} from "./utils";
 
-export type ProjectionPathsCustomIgnores = {};
 /**
  * These types are ignored when calculating projection paths,
  * since they're rarely traversed into
@@ -20,8 +19,7 @@ export type ProjectionPathsCustomIgnores = {};
 export type ProjectionPathIgnoreTypes =
   | Primitive
   | { _type: "reference" }
-  | { _type: "block" }
-  | ValueOf<ProjectionPathsCustomIgnores>;
+  | { _type: "block" };
 
 /**
  * Takes a deeply nested object, and returns
@@ -40,7 +38,7 @@ export type ProjectionPathIgnoreTypes =
 export type ProjectionPathEntries<Value> = IsAny<Value> extends true
   ? // For <any> types, we just allow any string values:
     Record<string, any>
-  : UnionToIntersectionFast<_ProjectionPathEntries<Value>>;
+  : Simplify<UnionToIntersectionFast<_ProjectionPathEntries<Value>>>;
 
 // The actual implementation:
 type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
@@ -68,28 +66,49 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
           ? ""
           : "."}${Key}` extends infer NewPath extends string
           ? // Include the current entry:
+
             | Record<NewPath, UndefinedToNull<Value[Key]>>
               // Include all child entries:
-              | _ProjectionPathEntries<MaybeOptional<Value[Key]>, NewPath>
+              | ValuesAsMaybeNullable<
+                  _ProjectionPathEntries<Value[Key], NewPath>,
+                  IsNullable<Value[Key]>
+                >
           : never;
       }>;
 
-type UnionToIntersectionFast<U> = Simplify<UnionToIntersection<Simplify<U>>>;
+/**
+ * This resolves some performance issues with the default UnionToIntersection implementation.
+ * Through much trial-and-error, it was discovered that `UnionToIntersection` suffers from major performance issues
+ * under the following conditions:
+ * - Only happens in the IDE, not at command line
+ * - The input type is _moderately_ complex; but not when it's extremely complex
+ *
+ * By applying `Simplify` first, we eliminate these performance problems!
+ */
+type UnionToIntersectionFast<U> = UnionToIntersection<Simplify<U>>;
+
+/**
+ * Converts a union (|) to an intersection (&).
+ * (the implementation by type-fest results in excessive results)
+ */
+type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
+  x: infer I
+) => void
+  ? I
+  : never;
 
 type StringKeyOf<T> = Extract<keyof T, string>;
 type ValuesAsArrays<T> = {
   [P in keyof T]: Array<T[P]>;
 };
-/**
- * If `T` is optional, then make all its properties optional instead:
- */
-type MaybeOptional<T> = IsAny<T> extends false
-  ? undefined extends T
-    ? Partial<NonNullable<T>>
-    : null extends T
-    ? Partial<NonNullable<T>>
-    : T
-  : T;
+type ValuesAsMaybeNullable<
+  T,
+  ValuesAreNullable extends boolean
+> = ValuesAreNullable extends false
+  ? T
+  : {
+      [P in keyof T]: null | T[P];
+    };
 
 export type ProjectionPaths<T> = StringKeyOf<ProjectionPathEntries<T>>;
 

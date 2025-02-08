@@ -5,11 +5,11 @@ import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { zod } from "../index";
 
-const qVariants = q.star.filterByType("variant");
-
 describe("field (naked projections)", () => {
+  const qVariants = q.star.filterByType("variant");
   const qPrices = qVariants.field("price");
   const qNames = qVariants.field("name");
+  const qId = qVariants.field("id");
   const qImages = qVariants.field("images[]");
   type ImagesArray = NonNullable<SanitySchema.Variant["images"]>;
   const data = mock.generateSeedData({
@@ -36,9 +36,14 @@ describe("field (naked projections)", () => {
     >();
     expect(qNames.query).toMatchInlineSnapshot(`"*[_type == "variant"].name"`);
   });
+  it("can project a nullable string", () => {
+    expectTypeOf<InferResultType<typeof qId>>().toEqualTypeOf<
+      Array<string | null>
+    >();
+  });
   it("can project arrays with []", () => {
     type ResultType = InferResultType<typeof qImages>;
-    expectTypeOf<ResultType>().toEqualTypeOf<Array<ImagesArray | null>>();
+    expectTypeOf<ResultType>().toEqualTypeOf<Array<null | ImagesArray>>();
   });
   it("can chain projections", () => {
     const qSlugCurrent = qVariants.field("slug").field("current");

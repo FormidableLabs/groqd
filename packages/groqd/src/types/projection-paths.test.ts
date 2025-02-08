@@ -240,6 +240,17 @@ describe("ProjectionPathEntries", () => {
       "a.b.c": "C" | null;
     }>();
   });
+  it("works with optional fields and arrays", () => {
+    expectTypeOf<
+      ProjectionPathEntries<{
+        a?: Array<{ b: "B" }>;
+      }>
+    >().toEqualTypeOf<{
+      a: null | Array<{ b: "B" }>;
+      "a[]": null | Array<{ b: "B" }>;
+      "a[].b": null | Array<"B">;
+    }>();
+  });
   it("works for the <any> type", () => {
     expectTypeOf<ProjectionPathEntries<any>>().toEqualTypeOf<
       Record<string, any>
