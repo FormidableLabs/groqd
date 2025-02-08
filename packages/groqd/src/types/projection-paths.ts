@@ -40,7 +40,8 @@ export type ProjectionPathIgnoreTypes =
 export type ProjectionPathEntries<Value> = IsAny<Value> extends true
   ? // For <any> types, we just allow any string values:
     Record<string, any>
-  : Simplify<_ProjectionPathEntries<Value>>;
+  : UnionToIntersectionFast<_ProjectionPathEntries<Value>>;
+
 // The actual implementation:
 type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
   // If it's one of these simple types, we don't need to include any entries:
@@ -52,27 +53,28 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
     ? Empty
     : // Check for Arrays:
     Value extends Array<infer U>
-    ? Record<CurrentPath | `${CurrentPath}[]`, Value> &
-        (_ProjectionPathEntries<
-          UndefinedToNull<U>,
-          `${CurrentPath}[]`
-        > extends infer ChildEntries
-          ? ValuesAsArrays<ChildEntries>
-          : never)
+    ?
+        | Record<CurrentPath | `${CurrentPath}[]`, Value>
+        | (_ProjectionPathEntries<
+            UndefinedToNull<U>,
+            `${CurrentPath}[]`
+          > extends infer ChildEntries
+            ? ValuesAsArrays<ChildEntries>
+            : never)
     : // It must be an object; let's map it:
-      UnionToIntersection<
-        ValueOf<{
-          [Key in StringKeyOf<Value>]:  // Calculate the NewPath:
-          `${CurrentPath}${CurrentPath extends ""
-            ? ""
-            : "."}${Key}` extends infer NewPath extends string
-            ? // Include the current entry:
-              Record<NewPath, UndefinedToNull<Value[Key]>> &
-                // Include all child entries:
-                _ProjectionPathEntries<MaybeOptional<Value[Key]>, NewPath>
-            : never;
-        }>
-      >;
+      ValueOf<{
+        [Key in StringKeyOf<Value>]:  // Calculate the NewPath:
+        `${CurrentPath}${CurrentPath extends ""
+          ? ""
+          : "."}${Key}` extends infer NewPath extends string
+          ? // Include the current entry:
+            | Record<NewPath, UndefinedToNull<Value[Key]>>
+              // Include all child entries:
+              | _ProjectionPathEntries<MaybeOptional<Value[Key]>, NewPath>
+          : never;
+      }>;
+
+type UnionToIntersectionFast<U> = Simplify<UnionToIntersection<Simplify<U>>>;
 
 type StringKeyOf<T> = Extract<keyof T, string>;
 type ValuesAsArrays<T> = {
