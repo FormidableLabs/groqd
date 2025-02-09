@@ -49,6 +49,8 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
     ? Empty
     : Value extends ProjectionPathIgnoreTypes
     ? Empty
+    : Value extends { _type: "slug" }
+    ? Record<`${CurrentPath}.current`, string>
     : // Check for Arrays:
     Value extends Array<infer U>
     ?

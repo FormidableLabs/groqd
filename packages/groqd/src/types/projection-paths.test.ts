@@ -6,7 +6,6 @@ import {
   TypesAreCompatible,
 } from "./projection-paths";
 import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
-import { Simplify } from "type-fest";
 import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
 import { UndefinedToNull } from "./utils";
 
@@ -277,11 +276,9 @@ describe("ProjectionPathEntries", () => {
         // This field is optional, so it gets mapped to `null`:
         id: null | string;
 
-        // This slug gets expanded:
+        // This slug gets minimally expanded:
         slug: Slug;
-        "slug._type": "slug";
         "slug.current": string;
-        "slug.source": null | string;
 
         // These are references, so they don't go deeper:
         description: null | V["description"];
@@ -300,16 +297,12 @@ describe("ProjectionPathEntries", () => {
         "images[].description": null | Array<null | string>;
         "images[].asset": null | Array<UndefinedToNull<ProductImage["asset"]>>;
 
-        // TODO these should be ignored actually, not sure what's happening:
-        "images[].asset._type": null | Array<null | "reference">;
-        "images[].asset._ref": null | Array<null | string>;
-        "images[].asset._weak": null | Array<null | boolean>;
-
         // A deep one:
+
         "images[].hotspot": null | Array<
           UndefinedToNull<ProductImage["hotspot"]>
         >;
-        "images[].hotspot._type": null | Array<"sanity.imageHotspot">;
+        "images[].hotspot._type": null | Array<null | "sanity.imageHotspot">;
         "images[].hotspot.x": null | Array<null | number>;
         "images[].hotspot.y": null | Array<null | number>;
         "images[].hotspot.height": null | Array<null | number>;
@@ -317,16 +310,12 @@ describe("ProjectionPathEntries", () => {
 
         // Another deep one:
         "images[].crop": null | Array<UndefinedToNull<ProductImage["crop"]>>;
-        "images[].crop._type": null | Array<"sanity.imageCrop">;
+        "images[].crop._type": null | Array<null | "sanity.imageCrop">;
         "images[].crop.top": null | Array<null | number>;
         "images[].crop.bottom": null | Array<null | number>;
         "images[].crop.left": null | Array<null | number>;
         "images[].crop.right": null | Array<null | number>;
       };
-
-      type Missing = Simplify<Omit<ActualResult, keyof ExpectedResult>>;
-      expectTypeOf<Missing>().toEqualTypeOf<{}>();
-      expectTypeOf<keyof Missing>().toEqualTypeOf<never>();
 
       expectTypeOf<ActualResult>().toEqualTypeOf<ExpectedResult>();
       expectTypeOf<ExpectedResult>().toEqualTypeOf<ActualResult>();
@@ -352,11 +341,6 @@ describe("ProjectionPathEntries", () => {
         name: string;
         description: null | string;
         asset: UndefinedToNull<ProductImage["asset"]>;
-
-        //  these should be ignored, what's up?
-        "asset._type": null | "reference";
-        "asset._ref": null | string;
-        "asset._weak": null | boolean;
 
         // A deep one:
         hotspot: UndefinedToNull<ProductImage["hotspot"]>;
