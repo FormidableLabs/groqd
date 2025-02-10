@@ -20,8 +20,13 @@ export class MockFactory {
       _rev: "0",
     };
   }
-  array<T>(length: number, factory: (index: number) => T): T[] {
-    return new Array(length).fill(null).map((_, i) => factory(i));
+  array<T>(
+    length: number,
+    factory: (index: number) => T
+  ): Array<T & { _key: string }> {
+    return new Array(length)
+      .fill(null)
+      .map((_, i) => ({ _key: `${i}`, ...factory(i) }));
   }
   withKeys<T>(items: Array<T>): Array<T & { _key: string }> {
     return items.map((item, index) => ({

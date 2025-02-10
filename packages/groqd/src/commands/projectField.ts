@@ -1,13 +1,13 @@
 import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
-import {
-  ProjectionKey,
-  ProjectionKeyValue,
-  ValidateParserInput,
-} from "./projection-types";
+import { ValidateParserInput } from "../types/projection-types";
 import { Parser, ParserWithWidenedInput } from "../types/public-types";
 import { maybeArrayParser } from "../validation/simple-validation";
 import { normalizeValidationFunction } from "./validate-utils";
+import {
+  ProjectionPaths,
+  ProjectionPathValue,
+} from "../types/projection-paths";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -16,12 +16,12 @@ declare module "../groq-builder" {
      *
      * This overload does NOT perform any runtime validation; the return type is inferred.
      */
-    field<TProjectionKey extends ProjectionKey<ResultItem.Infer<TResult>>>(
-      fieldName: TProjectionKey
+    field<TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>>(
+      fieldName: TProjectionPath
     ): GroqBuilder<
       ResultItem.Override<
         TResult,
-        ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>
+        ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
       >,
       TQueryConfig
     >;
@@ -32,22 +32,22 @@ declare module "../groq-builder" {
      * This overload allows a parser to be passed, for validating the results.
      */
     field<
-      TProjectionKey extends ProjectionKey<ResultItem.Infer<TResult>>,
+      TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>,
       TParser extends ParserWithWidenedInput<
-        ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>
+        ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
       >
     >(
-      fieldName: TProjectionKey,
+      fieldName: TProjectionPath,
       parser: TParser
     ): GroqBuilder<
       ResultItem.Override<
         TResult,
         TParser extends Parser<infer TParserInput, infer TParserOutput>
           ? ValidateParserInput<
-              ProjectionKeyValue<ResultItem.Infer<TResult>, TProjectionKey>,
+              ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>,
               TParserInput,
               TParserOutput,
-              TProjectionKey
+              TProjectionPath
             >
           : never
       >,

@@ -8,7 +8,7 @@ import {
 } from "./conditional-types";
 import { notNull } from "../types/utils";
 import { ParserFunction } from "../types/public-types";
-import { ProjectionMap } from "./projection-types";
+import { ProjectionMap } from "../types/projection-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

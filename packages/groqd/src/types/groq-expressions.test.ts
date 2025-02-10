@@ -215,13 +215,25 @@ describe("Expressions.Conditional", () => {
       | `!baz`;
     expectTypeOf<T>().toEqualTypeOf<Expected>();
   });
+
+  it("unions should work just fine", () => {
+    type TUnion =
+      | { _type: "TypeA"; a: "A" }
+      //
+      | { _type: "TypeB"; b: "B" };
+    expectTypeOf<Expressions.Conditional<TUnion, QueryConfig>>().toEqualTypeOf<
+      | '_type == "TypeA"'
+      //
+      | '_type == "TypeB"'
+    >();
+  });
 });
 describe("Expressions.Score", () => {
   type StandardConditionals = Expressions.Conditional<FooBarBaz, QueryConfig>;
   type ScoreSuggestions = Expressions.Score<FooBarBaz, QueryConfig>;
   it('should include "match" with suggestions', () => {
     type ExpectedSuggestions =
-      // Only string-fields (eg. "foo") should be suggested with "match"
+      // Only string-fields (e.g. "foo") should be suggested with "match"
       `foo match "${string}"` | 'foo match "(string)"';
 
     type ActualSuggestions = Exclude<ScoreSuggestions, StandardConditionals>;

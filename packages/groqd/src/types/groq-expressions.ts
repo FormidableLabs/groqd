@@ -1,7 +1,10 @@
 import { QueryConfig } from "./query-config";
 import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
 import { StringKeys, ValueOf } from "./utils";
-import { PathKeysWithType, PathEntries } from "./path-types";
+import {
+  ProjectionPathEntries,
+  ProjectionPathsByType,
+} from "./projection-paths";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Expressions {
@@ -52,11 +55,11 @@ export namespace Expressions {
   type Comparison<
     TPathEntries,
     TQueryConfig extends QueryConfig,
-    _Comparison extends string = "=="
+    ComparisonType extends string = "=="
   > = ValueOf<{
     [Key in StringKeys<
       keyof TPathEntries
-    >]: `${Key} ${_Comparison} ${SuggestedKeysByType<
+    >]: `${Key} ${ComparisonType} ${SuggestedKeysByType<
       TQueryConfig["scope"],
       TPathEntries[Key]
     >}`;
@@ -65,24 +68,24 @@ export namespace Expressions {
   export type Equality<
     TResultItem,
     TQueryConfig extends QueryConfig
-  > = Comparison<PathEntries<TResultItem>, TQueryConfig, "==">;
+  > = Comparison<ProjectionPathEntries<TResultItem>, TQueryConfig, "==">;
 
   export type Inequality<
     TResultItem,
     TQueryConfig extends QueryConfig
-  > = Comparison<PathEntries<TResultItem>, TQueryConfig, "!=">;
+  > = Comparison<ProjectionPathEntries<TResultItem>, TQueryConfig, "!=">;
 
   export type MatchExpression<
     TResultItem,
     TQueryConfig extends QueryConfig
   > = Comparison<
-    ConditionalPick<PathEntries<TResultItem>, string>,
+    ConditionalPick<ProjectionPathEntries<TResultItem>, string>,
     TQueryConfig,
     "match"
   >;
 
   type BooleanSuggestions<TResultItem> = ValueOf<{
-    [Key in PathKeysWithType<TResultItem, boolean>]: Key | `!${Key}`;
+    [Key in ProjectionPathsByType<TResultItem, boolean>]: Key | `!${Key}`;
   }>;
 
   /**
@@ -110,8 +113,8 @@ export namespace Expressions {
     : never;
 
   type SuggestedKeysByType<TScope, TValue> =
-    // First, suggest parameters:
-    | KeysByType<PathEntries<TScope>, TValue>
+    // First, suggest scope items (eg. parameters, parent selectors):
+    | ProjectionPathsByType<TScope, TValue>
     // Next, make some literal suggestions:
     | LiteralSuggestion<TValue>
     // Suggest all literal values:

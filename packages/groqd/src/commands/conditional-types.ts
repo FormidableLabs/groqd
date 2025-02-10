@@ -2,7 +2,7 @@ import {
   ExtractProjectionResult,
   ProjectionMap,
   ProjectionMapOrCallback,
-} from "./projection-types";
+} from "../types/projection-types";
 import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
 import { QueryConfig } from "../types/query-config";
 import { GroqBuilder } from "../groq-builder";

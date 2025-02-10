@@ -112,6 +112,15 @@ export type UndefinedToNull<T> = T extends undefined
   : T;
 
 /**
+ * Returns true if T can be null | undefined
+ */
+export type IsNullable<T> = null extends T
+  ? true
+  : undefined extends T
+  ? true
+  : false;
+
+/**
  * Returns just one type from a union of types.
  *
  * Note: ⚠️ the order is determined by compiler internals, and is NOT very stable!  Tread carefully!

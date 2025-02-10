@@ -1,5 +1,8 @@
 import { GroqBuilder } from "../groq-builder";
-import { ExtractProjectionResult, ProjectionMap } from "./projection-types";
+import {
+  ExtractProjectionResult,
+  ProjectionMap,
+} from "../types/projection-types";
 import { Fragment } from "../types/public-types";
 import { QueryConfig } from "../types/query-config";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";

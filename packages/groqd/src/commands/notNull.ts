@@ -1,7 +1,7 @@
 import { GroqBuilder } from "../groq-builder";
 import { QueryConfig } from "../types/query-config";
-import { ResultUtils } from "../types/result-types";
 import { IGroqBuilderNotChainable } from "../types/public-types";
+import { IsNullable } from "../types/utils";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -32,7 +32,7 @@ declare module "../groq-builder" {
      * @param redundant - If the type is already not-nullable, then you must explicitly pass `.notNull(true)` to allow this redundancy. (This has no impact at runtime)
      */
     notNull(
-      ...redundant: ResultUtils.IsNullable<TResult> extends true ? [] : [true]
+      ...redundant: IsNullable<TResult> extends true ? [] : [true]
     ): IGroqBuilderNotChainable<NonNullable<TResult>, TQueryConfig>;
   }
 }
