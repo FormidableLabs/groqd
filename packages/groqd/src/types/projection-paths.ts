@@ -4,13 +4,11 @@
  * like `images[].asset`
  */
 import { IsAny, IsNever, Primitive, Simplify } from "type-fest";
+import { IsNullable, StringKeys, UndefinedToNull, ValueOf } from "./utils";
 import {
-  Empty,
-  IsNullable,
-  StringKeys,
-  UndefinedToNull,
-  ValueOf,
-} from "./utils";
+  SimplifyUnion,
+  UnionToIntersectionFast,
+} from "./union-to-intersection";
 
 /**
  * These types are ignored when calculating projection paths,
@@ -38,17 +36,19 @@ export type ProjectionPathIgnoreTypes =
 export type ProjectionPathEntries<Value> = IsAny<Value> extends true
   ? // For <any> types, we just allow any string values:
     Record<string, any>
-  : Simplify<UnionToIntersectionFast<_ProjectionPathEntries<Value>>>;
+  : Simplify<
+      UnionToIntersectionFast<_ProjectionPathEntries<SimplifyUnion<Value>>>
+    >;
 
 // The actual implementation:
 type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
   // If it's one of these simple types, we don't need to include any entries:
   IsAny<Value> extends true
-    ? Empty
+    ? never
     : IsNever<Value> extends true
-    ? Empty
+    ? never
     : Value extends ProjectionPathIgnoreTypes
-    ? Empty
+    ? never
     : Value extends { _type: "slug" }
     ? Record<`${CurrentPath}.current`, string>
     : // Check for Arrays:
@@ -77,27 +77,6 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
                 >
           : never;
       }>;
-
-/**
- * This resolves some performance issues with the default UnionToIntersection implementation.
- * Through much trial-and-error, it was discovered that `UnionToIntersection` suffers from major performance issues
- * under the following conditions:
- * - Only happens in the IDE, not at command line
- * - The input type is _moderately_ complex; but not when it's extremely complex
- *
- * By applying `Simplify` first, we eliminate these performance problems!
- */
-type UnionToIntersectionFast<U> = UnionToIntersection<Simplify<U>>;
-
-/**
- * Converts a union (|) to an intersection (&).
- * (the implementation by type-fest results in excessive results)
- */
-type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (
-  x: infer I
-) => void
-  ? I
-  : never;
 
 type StringKeyOf<T> = Extract<keyof T, string>;
 type ValuesAsArrays<T> = {

@@ -215,6 +215,18 @@ describe("Expressions.Conditional", () => {
       | `!baz`;
     expectTypeOf<T>().toEqualTypeOf<Expected>();
   });
+
+  describe("unions", () => {
+    type TUnion =
+      | { _type: "TypeA"; a: "A" }
+      //
+      | { _type: "TypeB"; b: "B" };
+    expectTypeOf<Expressions.Conditional<TUnion, QueryConfig>>().toEqualTypeOf<
+      | '_type == "TypeA"'
+      //
+      | '_type == "TypeB"'
+    >();
+  });
 });
 describe("Expressions.Score", () => {
   type StandardConditionals = Expressions.Conditional<FooBarBaz, QueryConfig>;

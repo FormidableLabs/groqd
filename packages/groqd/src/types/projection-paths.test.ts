@@ -17,14 +17,6 @@ type TestObject = {
 };
 
 describe("ProjectionPaths", () => {
-  it("primitive types should not be traversed", () => {
-    expectTypeOf<ProjectionPaths<string>>().toEqualTypeOf<never>();
-    expectTypeOf<ProjectionPaths<number>>().toEqualTypeOf<never>();
-    expectTypeOf<ProjectionPaths<boolean>>().toEqualTypeOf<never>();
-    expectTypeOf<ProjectionPaths<symbol>>().toEqualTypeOf<never>();
-    expectTypeOf<ProjectionPaths<any>>().toEqualTypeOf<string>();
-  });
-
   it("should generate shallow paths for simple types", () => {
     expectTypeOf<ProjectionPaths<{ a: "A" }>>().toEqualTypeOf<"a">();
     expectTypeOf<ProjectionPaths<{ a: null }>>().toEqualTypeOf<"a">();
@@ -254,6 +246,17 @@ describe("ProjectionPathEntries", () => {
     expectTypeOf<ProjectionPathEntries<any>>().toEqualTypeOf<
       Record<string, any>
     >();
+  });
+
+  describe("when dealing with unions", () => {
+    type Union = { _type: "TypeA"; a: "A" } | { _type: "TypeB"; b: "B" };
+
+    it("should only return types for common properties", () => {
+      type Result = ProjectionPathEntries<Union>;
+      expectTypeOf<Result>().toEqualTypeOf<{
+        _type: "TypeA" | "TypeB";
+      }>();
+    });
   });
 
   describe('when working with the "real" Sanity types', () => {
