@@ -1,5 +1,15 @@
 # groqd
 
+## 1.0.8
+
+### Patch Changes
+
+- Improved Projection Paths ([#344](https://github.com/FormidableLabs/groqd/pull/344))
+  - This is used by `.filterBy(...)`, `.field(...)`, and `.project(...)`
+  - Projection paths now supports deeper selectors, like `"images[].hotspot.x"`
+  - Projection paths now supports optional fields, like `"image.asset"`
+  - Projection paths has proper return types for these types, eg. `"images[].hotspot.x": null | Array<null | number>`
+
 ## 1.0.7
 
 ### Patch Changes
