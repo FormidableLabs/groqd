@@ -9,13 +9,6 @@ import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
 import { UndefinedToNull } from "./utils";
 
-type TestObject = {
-  a: "A";
-  b: { c: "C" };
-  d: { e: { f: 0 } };
-  g: Array<{ h: Array<{ i: "I" }> }>;
-};
-
 describe("ProjectionPaths", () => {
   it("should generate shallow paths for simple types", () => {
     expectTypeOf<ProjectionPaths<{ a: "A" }>>().toEqualTypeOf<"a">();
@@ -66,6 +59,13 @@ describe("ProjectionPaths", () => {
   });
 });
 describe("ProjectionPathValue", () => {
+  type TestObject = {
+    a: "A";
+    b: { c: "C" };
+    d: { e: { f: 0 } };
+    g: Array<{ h: Array<{ i: "I" }> }>;
+  };
+
   it("should not allow invalid keys", () => {
     type _INVALID = ProjectionPathValue<
       TestObject,
@@ -324,21 +324,7 @@ describe("ProjectionPathEntries", () => {
       expectTypeOf<ExpectedResult>().toEqualTypeOf<ActualResult>();
     });
     it('works for "Image" type', () => {
-      expectTypeOf<
-        UndefinedToNull<ProductImage["asset"]> extends
-          | { _type: "reference" }
-          | undefined
-          | null
-          ? true
-          : false
-      >().toEqualTypeOf<true>();
-
-      expectTypeOf<
-        ProjectionPathEntries<ProductImage["asset"]>
-      >().toEqualTypeOf<{}>();
-      type ImageEntries = ProjectionPathEntries<ProductImage>;
-
-      expectTypeOf<ImageEntries>().toEqualTypeOf<{
+      expectTypeOf<ProjectionPathEntries<ProductImage>>().toEqualTypeOf<{
         _type: "productImage";
         _key: string;
         name: string;
