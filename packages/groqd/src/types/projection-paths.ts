@@ -104,14 +104,16 @@ export type ProjectionPathsByType<
   T,
   TFilterByType,
   _Entries = ProjectionPathEntries<T>
-> = ValueOf<{
-  [P in keyof _Entries]: TypesAreCompatible<
-    _Entries[P],
-    TFilterByType
-  > extends true
-    ? StringKeys<P>
-    : never;
-}>;
+> = StringKeys<
+  ValueOf<{
+    [P in keyof _Entries]: TypesAreCompatible<
+      _Entries[P],
+      TFilterByType
+    > extends true
+      ? P
+      : never;
+  }>
+>;
 
 export type TypesAreCompatible<A, B> = A extends B
   ? true

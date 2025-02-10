@@ -40,6 +40,15 @@ describe("order", () => {
       query: `*[_type == "variant"] | order(price)`,
     });
   });
+  it("can query deep types", () => {
+    qVariants.order("slug.current");
+    qVariants.order("slug.current asc");
+    qVariants.order("slug.current desc");
+    // Deeper:
+    const qCatImg = q.star.filterByType("categoryImage");
+    qCatImg.order("images.crop.top");
+    qCatImg.order("images.hotspot.width asc");
+  });
 
   const priceAsc = data.variants.slice().reverse();
   const priceDesc = data.variants.slice();

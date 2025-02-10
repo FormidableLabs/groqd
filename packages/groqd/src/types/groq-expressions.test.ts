@@ -244,3 +244,42 @@ describe("Expressions.Score", () => {
     expectTypeOf<Extra>().toEqualTypeOf<never>();
   });
 });
+describe("Expressions.Order", () => {
+  type SortableType = {
+    str: string;
+    strNull?: string;
+    num: number;
+    numNull?: number;
+    bool: boolean;
+    nested: {
+      str: string;
+    };
+    // Should be ignored:
+    reference: {
+      _type: "reference";
+      _ref: string;
+      _weak?: boolean;
+    };
+    slug: {
+      _type: "slug";
+      current: string;
+      source?: string;
+    };
+  };
+  type ExpectedFields =
+    | "str"
+    | "strNull"
+    | "nested.str"
+    | "slug.current"
+    | "num"
+    | "numNull"
+    | "bool";
+  type Expected =
+    | `${ExpectedFields}`
+    | `${ExpectedFields} asc`
+    | `${ExpectedFields} desc`;
+
+  it("should generate a good list of suggestions", () => {
+    expectTypeOf<Expressions.Order<SortableType>>().toEqualTypeOf<Expected>();
+  });
+});

@@ -1,14 +1,14 @@
 import { GroqBuilder } from "../groq-builder";
-import { StringKeys } from "../types/utils";
 import { ResultItem } from "../types/result-types";
+import { Expressions } from "../types/groq-expressions";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * Orders the results by the keys specified
      */
-    order<TKeys extends StringKeys<keyof ResultItem.Infer<TResult>>>(
-      ...fields: Array<`${TKeys}${"" | " asc" | " desc"}`>
+    order<TFields extends Expressions.Order<ResultItem.Infer<TResult>>>(
+      ...fields: Array<TFields>
     ): GroqBuilder<TResult, TQueryConfig>;
 
     /** @deprecated Sorting is done via the 'order' method */
