@@ -50,7 +50,7 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
     : Value extends ProjectionPathIgnoreTypes
     ? never
     : Value extends { _type: "slug" }
-    ? Record<`${CurrentPath}.current`, string>
+    ? Record<JoinPath<CurrentPath, "current">, string>
     : // Check for Arrays:
     Value extends Array<infer U>
     ?
@@ -63,21 +63,20 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
             : never)
     : // It must be an object; let's map it:
       ValueOf<{
-        [Key in StringKeyOf<Value>]:  // Calculate the NewPath:
-        `${CurrentPath}${CurrentPath extends ""
-          ? ""
-          : "."}${Key}` extends infer NewPath extends string
-          ? // Include the current entry:
-
-            | Record<NewPath, UndefinedToNull<Value[Key]>>
-              // Include all child entries:
-              | ValuesAsMaybeNullable<
-                  _ProjectionPathEntries<Value[Key], NewPath>,
-                  IsNullable<Value[Key]>
-                >
-          : never;
+        // Calculate the NewPath:
+        [Key in StringKeyOf<Value>]:  // Include the current entry:
+          | Record<JoinPath<CurrentPath, Key>, UndefinedToNull<Value[Key]>>
+          // Include all child entries:
+          | ValuesAsMaybeNullable<
+              _ProjectionPathEntries<Value[Key], JoinPath<CurrentPath, Key>>,
+              IsNullable<Value[Key]>
+            >;
       }>;
 
+type JoinPath<
+  CurrentPath extends string,
+  Key extends string
+> = `${CurrentPath}${CurrentPath extends "" ? "" : "."}${Key}`;
 type StringKeyOf<T> = Extract<keyof T, string>;
 type ValuesAsArrays<T> = {
   [P in keyof T]: Array<T[P]>;
