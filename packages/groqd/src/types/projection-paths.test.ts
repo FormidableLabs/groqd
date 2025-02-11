@@ -2,12 +2,21 @@ import { describe, it, expectTypeOf } from "vitest";
 import {
   ProjectionPathEntries,
   ProjectionPaths,
+  ProjectionPathsByType,
   ProjectionPathValue,
   TypesAreCompatible,
 } from "./projection-paths";
 import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
 import { UndefinedToNull } from "./utils";
+
+type TestObject = {
+  a: "A";
+  b: { c: "C" };
+  d: { e: { f: 0; bool: boolean } };
+  g: Array<{ h: Array<{ i: "I" }> }>;
+  j?: { k: "K" };
+};
 
 describe("ProjectionPaths", () => {
   it("should generate shallow paths for simple types", () => {
@@ -58,14 +67,23 @@ describe("ProjectionPaths", () => {
     expectTypeOf<ProjectionPaths<any>>().toEqualTypeOf<string>();
   });
 });
+describe("ProjectionPathsByType", () => {
+  it("should generate paths for matching types", () => {
+    expectTypeOf<ProjectionPathsByType<TestObject, string>>().toEqualTypeOf<
+      "a" | "b.c"
+    >();
+    expectTypeOf<
+      ProjectionPathsByType<TestObject, number>
+    >().toEqualTypeOf<"d.e.f">();
+  });
+  it("should generate paths matching multiple types", () => {
+    type IncludeTypes = string | number;
+    expectTypeOf<
+      ProjectionPathsByType<TestObject, IncludeTypes>
+    >().toEqualTypeOf<"a" | "b.c" | "d.e.f">();
+  });
+});
 describe("ProjectionPathValue", () => {
-  type TestObject = {
-    a: "A";
-    b: { c: "C" };
-    d: { e: { f: 0 } };
-    g: Array<{ h: Array<{ i: "I" }> }>;
-  };
-
   it("should not allow invalid keys", () => {
     type _INVALID = ProjectionPathValue<
       TestObject,
@@ -107,7 +125,6 @@ describe("ProjectionPathValue", () => {
     expectTypeOf<ProjectionPathValue<any, "WHATEVER">>().toEqualTypeOf<any>();
   });
 });
-
 describe("ProjectionPathEntries", () => {
   it("simple types", () => {
     expectTypeOf<

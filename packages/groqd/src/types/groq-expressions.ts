@@ -107,7 +107,7 @@ export namespace Expressions {
     ? // If we're already dealing with a literal value, we don't need suggestions:
       never
     : TValue extends string
-    ? '"(string)"'
+    ? "(string)"
     : TValue extends number
     ? "(number)"
     : never;
@@ -132,4 +132,20 @@ export namespace Expressions {
         : never;
     }>
   >;
+
+  /**
+   * Returns suggestions for ordering the results.
+   *
+   * @example
+   * Order<Product> ==
+   * | "name" | "name asc" | "name desc"
+   * | "price" | "price asc" | "price desc"
+   * | "slug.current" | "slug.current asc" | "slug.current desc"
+   */
+  export type Order<TResultItem> = `${ProjectionPathsByType<
+    TResultItem,
+    SortableTypes
+  >}${"" | " asc" | " desc"}`;
+
+  type SortableTypes = string | number | boolean | null;
 }

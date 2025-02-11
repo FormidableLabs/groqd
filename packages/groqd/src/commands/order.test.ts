@@ -40,6 +40,31 @@ describe("order", () => {
       query: `*[_type == "variant"] | order(price)`,
     });
   });
+  it("can query deep types", () => {
+    qVariants.order("slug.current");
+    qVariants.order("slug.current asc");
+    qVariants.order("slug.current desc");
+    // Deeper:
+    const qCatImg = q.star.filterByType("categoryImage");
+    qCatImg.order("images.crop.top");
+    qCatImg.order("images.hotspot.width asc");
+  });
+  it("you can order a query after a validated projection", () => {
+    const query = qVariants
+      .project({
+        name: q.string(),
+      })
+      .order("name");
+    expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<
+      Array<{ name: string }>
+    >();
+    expect(query.query).toMatchInlineSnapshot(`
+      "*[_type == "variant"] {
+          name
+        } | order(name)"
+    `);
+    expect(query.parser).toBeDefined();
+  });
 
   const priceAsc = data.variants.slice().reverse();
   const priceDesc = data.variants.slice();

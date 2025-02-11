@@ -129,13 +129,17 @@ export class GroqBuilder<
 
   /**
    * Returns a new GroqBuilder, appending the query.
+   *
+   * Use this when the query changes the result type.
+   * Use `.pipe` when not changing the result type.
+   *
    * @internal
    */
   protected chain<TResultNew = never>(
     query: string,
     parser?: Parser | null
   ): GroqBuilder<TResultNew, TQueryConfig> {
-    if (query && this.internal.parser) {
+    if (this.internal.parser) {
       /**
        * This happens if you accidentally chain too many times, like:
        *
@@ -162,11 +166,22 @@ export class GroqBuilder<
         }
       );
     }
-
-    return new GroqBuilder({
-      query: this.internal.query + query,
+    return this.extend({
+      query: this.query + query,
       parser: normalizeValidationFunction(parser),
-      options: this.internal.options,
+    });
+  }
+
+  /**
+   * Returns a new GroqBuilder, appending the query.
+   *
+   * This method should be used when NOT changing the result type.  Use `.chain` if you're changing the result type.
+   *
+   * @internal
+   */
+  protected pipe(query: string): GroqBuilder<TResult, TQueryConfig> {
+    return this.extend({
+      query: this.query + query,
     });
   }
 
