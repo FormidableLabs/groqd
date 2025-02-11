@@ -28,7 +28,9 @@ GroqBuilder.implement({
       this.internal.parser,
       normalizeValidationFunction(parser)
     );
-    return this.chain("", chainedParser);
+    return this.extend({
+      parser: chainedParser,
+    });
   },
   transform(this: GroqBuilder, parser) {
     return this.validate(parser);

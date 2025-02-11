@@ -18,6 +18,14 @@ declare module "../groq-builder" {
 }
 GroqBuilder.implement({
   raw(this: GroqBuilder, query, parser) {
-    return this.chain(query, parser);
+    // It's hard to tell if we should use `chain` or `pipe`.
+    // If we supply a parser, then we'll use `.chain`,
+    // to make sure there's no other existing parser.
+    if (parser) {
+      return this.chain(query, parser);
+    }
+    // Otherwise we'll just use the passive `.pipe`:
+    return this.pipe(query);
+    // TODO: consider if we should expose the raw `pipe` and `chain` options instead of this `raw`?
   },
 });
