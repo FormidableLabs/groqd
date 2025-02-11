@@ -1,5 +1,14 @@
 # groqd
 
+## 1.0.9
+
+### Patch Changes
+
+- Improves several pipe-able methods, like `.order`, `.score`, and `.filter` ([#347](https://github.com/FormidableLabs/groqd/pull/347))
+
+  - These methods can now come after a projection with validation (eg. `.project(...).score(...).order(...).filter(...)`
+  - The `.order` now supports deep selectors. E.g. `.order("slug.current asc")`
+
 ## 1.0.8
 
 ### Patch Changes
