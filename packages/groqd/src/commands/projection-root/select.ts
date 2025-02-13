@@ -43,7 +43,7 @@ declare module "../../groq-builder" {
   }
 }
 GroqBuilder.implement({
-  select(this: GroqBuilder, selections, defaultSelection): GroqBuilder<any> {
+  select(this: GroqBuilder, selections, defaultSelection): GroqBuilder {
     const conditions = Object.keys(selections);
 
     const queries = conditions.map((condition) => {

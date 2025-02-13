@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilder, GroqBuilderSubquery } from "../../groq-builder";
 import {
   ExtractProjectionResult,
   ProjectionMap,

@@ -1,5 +1,4 @@
 import { GroqBuilder } from "../../groq-builder";
-import { QueryConfig } from "../../types/query-config";
 import { IGroqBuilderNotChainable } from "../../types/public-types";
 import { IsNullable } from "../../types/utils";
 

@@ -2,9 +2,16 @@ import { GroqBuilder } from "../../groq-builder";
 import { Override } from "../../types/utils";
 import { Simplify } from "type-fest";
 import { ParametersWith$Sign } from "../../types/parameter-types";
+import { QueryConfig } from "../../types/query-config";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  /* eslint-disable @typescript-eslint/no-empty-interface */
+  export interface GroqBuilderChain<TResult, TQueryConfig>
+    extends ParametersDefinition<TResult, TQueryConfig> {}
+  export interface GroqBuilderRoot<TResult, TQueryConfig>
+    extends ParametersDefinition<TResult, TQueryConfig> {}
+
+  interface ParametersDefinition<TResult, TQueryConfig extends QueryConfig> {
     /**
      * Defines the names and types of parameters that
      * must be passed to the query.

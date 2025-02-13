@@ -21,7 +21,7 @@ const data = mock.generateSeedData({
 type AllDocTypes = ExtractDocumentTypes<SchemaConfig["schemaTypes"]>;
 
 describe("conditionalByType", () => {
-  const conditionalByType = q.star.conditionalByType({
+  const conditionalByType = q.asType().conditionalByType({
     variant: { name: true, price: true },
     product: { name: true, slug: "slug.current" },
     category: (qC) => ({
@@ -110,8 +110,8 @@ describe("conditionalByType", () => {
   });
 
   it("types are correct when the conditions are exhaustive", () => {
-    const conditionsExhaustive = q.star
-      .filterByType("product", "variant")
+    const conditionsExhaustive = q
+      .asType<"product" | "variant">()
       .conditionalByType({
         product: { _type: true, name: true },
         variant: { _type: true, price: true },

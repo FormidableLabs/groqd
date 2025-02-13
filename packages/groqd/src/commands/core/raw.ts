@@ -1,9 +1,18 @@
 import { GroqBuilder } from "../../groq-builder";
 import { Parser } from "../../types/public-types";
+import { QueryConfig } from "../../types/query-config";
 
 declare module "../../groq-builder" {
+  /* eslint-disable @typescript-eslint/no-empty-interface */
+  export interface GroqBuilderRoot<TResult, TQueryConfig>
+    extends RawDefinition<TResult, TQueryConfig> {}
+  export interface GroqBuilderSubquery<TResult, TQueryConfig>
+    extends RawDefinition<TResult, TQueryConfig> {}
+  export interface GroqBuilderChain<TResult, TQueryConfig>
+    extends RawDefinition<TResult, TQueryConfig> {}
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  interface RawDefinition<TResult, TQueryConfig extends QueryConfig> {
     /**
      * An "escape hatch" allowing you to write any groq query you want.
      * You must specify a type parameter for the new results.

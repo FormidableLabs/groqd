@@ -44,7 +44,7 @@ GroqBuilder.implement({
   score(this: GroqBuilder, ...scoreExpressions) {
     return this.scoreRaw(...scoreExpressions);
   },
-  scoreRaw(this: GroqBuilder, ...scoreExpressions) {
+  scoreRaw(this: GroqBuilder, ...scoreExpressions): GroqBuilder {
     return this.pipe(` | score(${scoreExpressions.join(", ")})`);
   },
 });

@@ -16,12 +16,12 @@ describe("selectByType", () => {
   it("can be used with or without callback functions", () => {
     const qWithCb = qBase.project((qB) => ({
       selected: qB.selectByType({
-        product: (qP) => qP.value("PRODUCT"), // <-- uses the callback API
+        product: (_qP) => q.value("PRODUCT"), // <-- uses the callback API
       }),
     }));
     const qWithoutCb = qBase.project((qB) => ({
       selected: qB.selectByType({
-        product: qB.value("PRODUCT"), // <-- no callback
+        product: q.value("PRODUCT"), // <-- no callback
       }),
     }));
 
@@ -146,7 +146,7 @@ describe("selectByType", () => {
           product: (qP) => qP.field("name"),
           variant: (qV) => qV.field("price"),
         },
-        qB.value("UNKNOWN")
+        q.value("UNKNOWN")
       ),
     }));
 

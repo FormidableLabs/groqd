@@ -63,9 +63,9 @@ interface ProjectDefinition<TResult, TQueryConfig extends QueryConfig> {
 GroqBuilder.implement({
   project(
     this: GroqBuilder,
-    projectionMapArg: object | ((q: any) => object),
+    projectionMapArg: object | ((sub: any) => object),
     ...__projectionMapTypeMismatchErrors
-  ): GroqBuilder {
+  ) {
     // Retrieve the projectionMap:
     let projectionMap: object;
     if (typeof projectionMapArg === "function") {

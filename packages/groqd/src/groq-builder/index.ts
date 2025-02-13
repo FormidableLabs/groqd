@@ -135,7 +135,7 @@ export class GroqBuilder<
    *
    * @internal
    */
-  protected chain<TResultNew = never>(
+  protected chain<TResultNew = TResult>(
     query: string,
     parser?: Parser | null
   ): GroqBuilder<TResultNew, TQueryConfig> {
