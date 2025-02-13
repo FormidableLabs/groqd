@@ -227,3 +227,23 @@ export class GroqBuilder<
     };
   }
 }
+
+/* eslint-disable @typescript-eslint/no-empty-interface */
+export interface GroqBuilder<
+  TResult = any,
+  TQueryConfig extends QueryConfig = QueryConfig
+> extends GroqBuilderRoot<TResult, TQueryConfig>,
+    GroqBuilderSubquery<TResult, TQueryConfig>,
+    GroqBuilderChain<TResult, TQueryConfig> {}
+export interface GroqBuilderRoot<
+  TResult = any,
+  TQueryConfig extends QueryConfig = QueryConfig
+> extends IGroqBuilder<TResult, TQueryConfig> {}
+export interface GroqBuilderSubquery<
+  TResult = any,
+  TQueryConfig extends QueryConfig = QueryConfig
+> extends IGroqBuilder<TResult, TQueryConfig> {}
+export interface GroqBuilderChain<
+  TResult = any,
+  TQueryConfig extends QueryConfig = QueryConfig
+> extends IGroqBuilder<TResult, TQueryConfig> {}
