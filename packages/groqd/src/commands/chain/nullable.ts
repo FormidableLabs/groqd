@@ -4,7 +4,7 @@ import { IGroqBuilderNotChainable } from "../../types/public-types";
 import { IsNullable } from "../../types/utils";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Marks a query as nullable – in case you are expecting a potential `null` value.
      * Useful when you expect missing values in your data,
@@ -30,7 +30,7 @@ declare module "../../groq-builder" {
 }
 
 GroqBuilder.implement({
-  nullable(this: GroqBuilder<any, QueryConfig>, _redundant) {
+  nullable(this: GroqBuilder, _redundant) {
     const parser = this.parser;
 
     if (!parser) {

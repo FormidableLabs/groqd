@@ -1,9 +1,8 @@
 import { GroqBuilder } from "../../groq-builder";
-import { QueryConfig } from "../../types/query-config";
 import { DerefDeep } from "../../types/ref-types";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Uses GROQ's dereference operator (`->`) to follow a reference.
      *
@@ -26,12 +25,12 @@ declare module "../../groq-builder" {
      * //  "images": images[].asset->{ url, altText }
      * // }
      */
-    deref(): GroqBuilder<DerefDeep<TResult, TQueryConfig>, TQueryConfig>;
+    deref(): GroqBuilderChain<DerefDeep<TResult, TQueryConfig>, TQueryConfig>;
   }
 }
 
 GroqBuilder.implement({
-  deref(this: GroqBuilder<any, QueryConfig>) {
+  deref(this: GroqBuilder) {
     return this.chain("->");
   },
 });

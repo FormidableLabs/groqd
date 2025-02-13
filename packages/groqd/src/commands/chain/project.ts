@@ -1,6 +1,10 @@
 import { notNull, Simplify } from "../../types/utils";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../../types/type-mismatch-error";
-import { GroqBuilder } from "../../groq-builder";
+import {
+  GroqBuilder,
+  GroqBuilderChain,
+  GroqBuilderSubquery,
+} from "../../groq-builder";
 import { Parser, ParserFunction } from "../../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
 import { ResultItem } from "../../types/result-types";
@@ -17,33 +21,43 @@ import {
   UnknownObjectParser,
 } from "../../validation/simple-validation";
 import { InvalidQueryError } from "../../types/invalid-query-error";
+import { QueryConfig } from "../../types/query-config";
 
+/* eslint-disable @typescript-eslint/no-empty-interface */
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
-    /**
-     * Performs an "object projection", returning an object with the fields specified.
-     *
-     * @param projectionMap - The projection map is an object, mapping field names to projection values
-     * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
-     */
-    project<
-      TProjection extends ProjectionMap<ResultItem.Infer<TResult>>,
-      _TProjectionResult = ExtractProjectionResult<
-        ResultItem.Infer<TResult>,
-        TProjection
-      >
-    >(
-      projectionMap:
-        | TProjection
-        | ((
-            q: GroqBuilder<ResultItem.Infer<TResult>, TQueryConfig>
-          ) => TProjection),
-      ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
-    ): GroqBuilder<
-      ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
-      TQueryConfig
-    >;
-  }
+  // The `project` method can be used at any part of a query (Root, SubRoot, Chain):
+  export interface GroqBuilderRoot<TResult, TQueryConfig>
+    extends ProjectDefinition<TResult, TQueryConfig> {}
+  export interface GroqBuilderSubquery<TResult, TQueryConfig>
+    extends ProjectDefinition<TResult, TQueryConfig> {}
+  export interface GroqBuilderChain<TResult, TQueryConfig>
+    extends ProjectDefinition<TResult, TQueryConfig> {}
+}
+
+interface ProjectDefinition<TResult, TQueryConfig extends QueryConfig> {
+  /**
+   * Performs an "object projection", returning an object with the fields specified.
+   *
+   * @param projectionMap - The projection map is an object, mapping field names to projection values
+   * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
+   */
+  project<
+    TProjection extends ProjectionMap<ResultItem.Infer<TResult>>,
+    _TProjectionResult = ExtractProjectionResult<
+      ResultItem.Infer<TResult>,
+      TProjection
+    >
+  >(
+    projectionMap:
+      | TProjection
+      | ((
+          sub: GroqBuilderSubquery<ResultItem.Infer<TResult>, TQueryConfig>
+        ) => TProjection),
+    ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
+  ): GroqBuilderChain<
+    ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
+    TQueryConfig
+  >;
 }
 
 GroqBuilder.implement({
@@ -51,7 +65,7 @@ GroqBuilder.implement({
     this: GroqBuilder,
     projectionMapArg: object | ((q: any) => object),
     ...__projectionMapTypeMismatchErrors
-  ): GroqBuilder<any> {
+  ): GroqBuilder {
     // Retrieve the projectionMap:
     let projectionMap: object;
     if (typeof projectionMapArg === "function") {

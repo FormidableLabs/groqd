@@ -3,7 +3,7 @@ import { Expressions } from "../../types/groq-expressions";
 import { ResultItem } from "../../types/result-types";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Allows you to write any raw filter expression.
      * This method is NOT type-checked, but does provide suggestions.
@@ -22,7 +22,7 @@ declare module "../../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >
-    ): GroqBuilder<TResult, TQueryConfig>;
+    ): GroqBuilderChain<TResult, TQueryConfig>;
 
     /**
      * Allows you to write any raw filter expression.
@@ -38,7 +38,7 @@ declare module "../../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >
-    ): GroqBuilder<TResult, TQueryConfig>;
+    ): GroqBuilderChain<TResult, TQueryConfig>;
 
     /**
      * Same as `filter`, but only supports simple, strongly-typed equality expressions.
@@ -48,7 +48,7 @@ declare module "../../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >
-    ): GroqBuilder<TResult, TQueryConfig>;
+    ): GroqBuilderChain<TResult, TQueryConfig>;
   }
 }
 

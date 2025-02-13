@@ -3,13 +3,13 @@ import { Parser } from "../../types/public-types";
 import { chainParsers, normalizeValidationFunction } from "./validate-utils";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Adds runtime validation to the query results.
      */
     validate<TResultNew>(
       parser: Parser<TResult, TResultNew>
-    ): GroqBuilder<TResultNew, TQueryConfig>;
+    ): GroqBuilderChain<TResultNew, TQueryConfig>;
 
     /**
      * Adds runtime transformation to the query results.
@@ -18,7 +18,7 @@ declare module "../../groq-builder" {
      */
     transform<TResultNew>(
       parser: Parser<TResult, TResultNew>
-    ): GroqBuilder<TResultNew, TQueryConfig>;
+    ): GroqBuilderChain<TResultNew, TQueryConfig>;
   }
 }
 

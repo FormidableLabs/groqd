@@ -2,7 +2,7 @@ import { GroqBuilder } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { Expressions } from "../../types/groq-expressions";
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Used to pipe a list of results through the `score(...)` GROQ function.
      *
@@ -13,7 +13,7 @@ declare module "../../groq-builder" {
       ...scoreExpressions: Array<
         Expressions.Score<ResultItem.Infer<TResult>, TQueryConfig>
       >
-    ): GroqBuilder<
+    ): GroqBuilderChain<
       ResultItem.Override<
         TResult,
         ResultItem.Infer<TResult> & { _score: number }
@@ -30,7 +30,7 @@ declare module "../../groq-builder" {
       ...scoreExpressions: Array<
         Expressions.ScoreRaw<ResultItem.Infer<TResult>, TQueryConfig>
       >
-    ): GroqBuilder<
+    ): GroqBuilderChain<
       ResultItem.Override<
         TResult,
         ResultItem.Infer<TResult> & { _score: number }

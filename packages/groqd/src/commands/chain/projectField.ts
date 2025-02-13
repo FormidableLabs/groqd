@@ -8,9 +8,16 @@ import {
   ProjectionPaths,
   ProjectionPathValue,
 } from "../../types/projection-paths";
+import { QueryConfig } from "../../types/query-config";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  /* eslint-disable @typescript-eslint/no-empty-interface */
+  export interface GroqBuilderChain<TResult, TQueryConfig>
+    extends FieldDefinition<TResult, TQueryConfig> {}
+  export interface GroqBuilderSubquery<TResult, TQueryConfig>
+    extends FieldDefinition<TResult, TQueryConfig> {}
+
+  interface FieldDefinition<TResult, TQueryConfig extends QueryConfig> {
     /**
      * Performs a "naked projection", returning just the values of the field specified.
      *

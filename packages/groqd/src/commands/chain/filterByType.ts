@@ -3,7 +3,7 @@ import { ResultItem } from "../../types/result-types";
 import { ExtractDocumentTypes } from "../../types/document-types";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Filters the query based on the document type.
      * Supports multiple type arguments.
@@ -15,7 +15,7 @@ declare module "../../groq-builder" {
      */
     filterByType<TType extends ExtractDocumentTypes<ResultItem.Infer<TResult>>>(
       ...type: TType[]
-    ): GroqBuilder<
+    ): GroqBuilderChain<
       ResultItem.Override<
         TResult,
         Extract<ResultItem.Infer<TResult>, { _type: TType }>

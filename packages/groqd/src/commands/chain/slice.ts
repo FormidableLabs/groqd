@@ -2,7 +2,7 @@ import { GroqBuilder } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Returns a single item from the results, based on the index.
      *
@@ -17,7 +17,7 @@ declare module "../../groq-builder" {
      */
     slice(
       index: number
-    ): GroqBuilder<null | ResultItem.InferMaybe<TResult>, TQueryConfig>;
+    ): GroqBuilderChain<null | ResultItem.InferMaybe<TResult>, TQueryConfig>;
 
     /**
      * Returns a range of items from the results.
@@ -37,7 +37,7 @@ declare module "../../groq-builder" {
        * @default false
        */
       inclusive?: boolean
-    ): GroqBuilder<TResult, TQueryConfig>;
+    ): GroqBuilderChain<TResult, TQueryConfig>;
 
     /** @deprecated Use the 'slice' method */
     index: never;
@@ -46,7 +46,7 @@ declare module "../../groq-builder" {
   }
 }
 GroqBuilder.implement({
-  slice(this: GroqBuilder, start, end?, inclusive?): GroqBuilder<any> {
+  slice(this: GroqBuilder, start, end?, inclusive?): GroqBuilder {
     if (typeof end === "number") {
       const ellipsis = inclusive ? ".." : "...";
       return this.pipe(`[${start}${ellipsis}${end}]`);

@@ -3,13 +3,13 @@ import { ResultItem } from "../../types/result-types";
 import { Expressions } from "../../types/groq-expressions";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Orders the results by the keys specified
      */
     order<TFields extends Expressions.Order<ResultItem.Infer<TResult>>>(
       ...fields: Array<TFields>
-    ): GroqBuilder<TResult, TQueryConfig>;
+    ): GroqBuilderChain<TResult, TQueryConfig>;
 
     /** @deprecated Sorting is done via the 'order' method */
     sort: never;
