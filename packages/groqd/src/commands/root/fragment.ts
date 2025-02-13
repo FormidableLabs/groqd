@@ -63,13 +63,15 @@ export type FragmentUtil<TQueryConfig extends QueryConfig, TFragmentInput> = {
   >(
     projectionMap:
       | TProjectionMap
-      | ((q: GroqBuilder<TFragmentInput, TQueryConfig>) => TProjectionMap),
+      | ((
+          sub: GroqBuilderSubquery<TFragmentInput, TQueryConfig>
+        ) => TProjectionMap),
     ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
   ): Fragment<TProjectionMap, TFragmentInput>;
 };
 
 GroqBuilder.implement({
-  fragment(this: GroqBuilder<any>): FragmentUtil<any, any> {
+  fragment(this: GroqBuilder): FragmentUtil<any, any> {
     return {
       project: (projectionMap, ...__projectionMapTypeMismatchErrors) => {
         if (typeof projectionMap === "function") {
@@ -79,7 +81,7 @@ GroqBuilder.implement({
       },
     };
   },
-  fragmentForType(this: GroqBuilder<any>): FragmentUtil<any, any> {
+  fragmentForType(this: GroqBuilder): FragmentUtil<any, any> {
     return this.fragment();
   },
 });

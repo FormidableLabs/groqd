@@ -12,7 +12,7 @@ declare module "../../groq-builder" {
     value<T extends LiteralValueTypes>(
       value: T,
       validation?: Parser<T, T> | null
-    ): GroqBuilder<T, TQueryConfig>;
+    ): GroqBuilderChain<T, TQueryConfig>;
   }
 }
 

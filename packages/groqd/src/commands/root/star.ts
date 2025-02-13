@@ -12,7 +12,7 @@ declare module "../../groq-builder" {
      * q.star.filter(...).project(...)
      *
      */
-    star: GroqBuilder<
+    star: GroqBuilderChain<
       Array<Extract<TQueryConfig["schemaTypes"], SchemaDocument>>,
       TQueryConfig
     >;
