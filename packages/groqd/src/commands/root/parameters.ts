@@ -6,12 +6,16 @@ import { QueryConfig } from "../../types/query-config";
 
 declare module "../../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
-  export interface GroqBuilderChain<TResult, TQueryConfig>
-    extends ParametersDefinition<TResult, TQueryConfig> {}
   export interface GroqBuilderRoot<TResult, TQueryConfig>
-    extends ParametersDefinition<TResult, TQueryConfig> {}
+    extends ParametersDefinition<TResult, TQueryConfig, "root"> {}
+  export interface GroqBuilderChain<TResult, TQueryConfig>
+    extends ParametersDefinition<TResult, TQueryConfig, "chain"> {}
 
-  interface ParametersDefinition<TResult, TQueryConfig extends QueryConfig> {
+  interface ParametersDefinition<
+    TResult,
+    TQueryConfig extends QueryConfig,
+    ReturnType extends "root" | "chain"
+  > {
     /**
      * Defines the names and types of parameters that
      * must be passed to the query.
@@ -35,20 +39,21 @@ declare module "../../groq-builder" {
      *   { parameters: { slug: "123" } }
      * )
      */
-    parameters<TParameters>(): GroqBuilder<
-      TResult,
-      Override<
-        TQueryConfig,
-        {
-          // Merge existing parameters with the new parameters:
-          parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
-          // Add all these parameters to the scope:
-          scope: Simplify<
-            TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
-          >;
-        }
-      >
-    >;
+    parameters<TParameters>(): Override<
+      TQueryConfig,
+      {
+        // Merge existing parameters with the new parameters:
+        parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
+        // Add all these parameters to the scope:
+        scope: Simplify<
+          TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
+        >;
+      }
+    > extends infer _NewQueryConfig extends QueryConfig
+      ? ReturnType extends "root"
+        ? GroqBuilderRoot<TResult, _NewQueryConfig>
+        : GroqBuilderChain<TResult, _NewQueryConfig>
+      : never;
 
     /** @deprecated Use `parameters` to define parameters */
     variables: never;

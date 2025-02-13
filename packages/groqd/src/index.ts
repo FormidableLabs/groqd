@@ -3,7 +3,12 @@ import "./groq-builder";
 import "./commands";
 
 import type { QueryConfig } from "./types/query-config";
-import { GroqBuilder, GroqBuilderOptions, RootResult } from "./groq-builder";
+import {
+  GroqBuilder,
+  GroqBuilderOptions,
+  GroqBuilderRoot,
+  RootResult,
+} from "./groq-builder";
 import { ZodMethods, zodMethods } from "./validation/zod";
 
 // Re-export all our public types:
@@ -33,7 +38,7 @@ export * from "./validation/validation-errors";
  */
 export function createGroqBuilderLite<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
-): GroqBuilder<RootResult, TRootConfig> {
+): GroqBuilderRoot<RootResult, TRootConfig> {
   const q = new GroqBuilder<RootResult, TRootConfig>({
     query: "",
     parser: null,
@@ -70,7 +75,7 @@ export function createGroqBuilderWithZod<TRootConfig extends QueryConfig>(
 }
 
 export type GroqBuilderWithZod<TRootConfig extends QueryConfig> = ZodMethods &
-  GroqBuilder<RootResult, TRootConfig>;
+  GroqBuilderRoot<RootResult, TRootConfig>;
 
 export const createGroqBuilder = createGroqBuilderWithZod;
 export { ExtractRefType } from "./types/ref-types";

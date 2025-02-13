@@ -3,7 +3,7 @@ import { SchemaDocument } from "../../types/document-types";
 
 declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderRoot<TResult, TQueryConfig> {
     /**
      * Selects all documents, via GROQ's `*` selector.
      * This is how most queries start.
