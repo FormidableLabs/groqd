@@ -9,7 +9,7 @@ import {
 import { IGroqBuilder, InferResultType } from "../../types/public-types";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Applies GROQ's `select` function, for conditional logic,
      * based on the `_type` field.
@@ -34,7 +34,7 @@ declare module "../../groq-builder" {
     >(
       typeQueries: TSelectByTypeProjections,
       defaultSelection?: TDefaultSelection
-    ): GroqBuilder<
+    ): GroqBuilderChain<
       | Simplify<ExtractSelectByTypeResult<TSelectByTypeProjections>>
       | (TDefaultSelection extends null | undefined
           ? null

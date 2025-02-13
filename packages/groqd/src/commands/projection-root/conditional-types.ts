@@ -10,7 +10,7 @@ import {
   ValueOf,
 } from "../../types/utils";
 import { QueryConfig } from "../../types/query-config";
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderSubquery } from "../../groq-builder";
 import { IGroqBuilder, InferResultType } from "../../types/public-types";
 import { Expressions } from "../../types/groq-expressions";
 import { ExtractDocumentTypes } from "../../types/document-types";
@@ -23,7 +23,7 @@ export type ConditionalProjectionMap<
     Expressions.AnyConditional<TResultItem, TQueryConfig>,
     | ProjectionMap<TResultItem>
     | ((
-        q: GroqBuilder<TResultItem, TQueryConfig>
+        sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
       ) => ProjectionMap<TResultItem>)
   >
 >;

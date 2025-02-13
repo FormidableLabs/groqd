@@ -9,7 +9,7 @@ import {
 } from "../../types/public-types";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Applies GROQ's `select` function, for conditional logic.
      *
@@ -33,7 +33,7 @@ declare module "../../groq-builder" {
     >(
       selections: TSelectProjections,
       defaultSelection?: TDefault
-    ): GroqBuilder<
+    ): GroqBuilderChain<
       | ExtractSelectResult<TSelectProjections>
       | (TDefault extends null | undefined
           ? null

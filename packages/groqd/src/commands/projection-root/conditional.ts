@@ -12,7 +12,7 @@ import { ProjectionMap } from "../../types/projection-types";
 
 declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Creates an inline conditional projection.
      *

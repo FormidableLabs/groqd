@@ -12,7 +12,7 @@ import { keys } from "../../types/utils";
 import { ExtractDocumentTypes } from "../../types/document-types";
 
 declare module "../../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Creates an inline conditional projection, based on the `_type` field.
      *
