@@ -49,13 +49,7 @@ export type GroqBuilderOptions = {
 export class GroqBuilderBase<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
-> implements IGroqBuilder<TResult>
-{
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
-  readonly [GroqBuilderResultType]: TResult;
-  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
-  readonly [GroqBuilderConfigType]: TQueryConfig;
-
+> {
   constructor(
     protected readonly internal: {
       readonly query: string;
@@ -63,51 +57,6 @@ export class GroqBuilderBase<
       readonly options: GroqBuilderOptions;
     }
   ) {}
-
-  /**
-   * The GROQ query as a string
-   */
-  public get query() {
-    return this.internal.query;
-  }
-
-  /**
-   * The parser function that should be used to parse result data
-   */
-  public get parser(): null | ParserFunction<unknown, TResult> {
-    return this.internal.parser;
-  }
-
-  /**
-   * Parses and validates the query results,
-   * passing all data through the parsers.
-   */
-  public parse(data: unknown): TResult {
-    const parser = this.internal.parser;
-    if (!parser && this.internal.options.validationRequired) {
-      throw new InvalidQueryError(
-        "MISSING_QUERY_VALIDATION",
-        "Because 'validationRequired' is enabled, " +
-          "every query must have validation (like `q.string()`), " +
-          "but this query is missing it!"
-      );
-    }
-
-    if (!parser) {
-      return data as TResult;
-    }
-    try {
-      return parser(data);
-    } catch (err) {
-      // Ensure we throw a ValidationErrors instance:
-      if (err instanceof ValidationErrors) {
-        throw err.withMessage();
-      }
-      const v = new ValidationErrors();
-      v.add(null, data, err as Error);
-      throw v.withMessage();
-    }
-  }
 
   /**
    * Returns a new GroqBuilder, appending the query.
@@ -149,7 +98,7 @@ export class GroqBuilderBase<
       );
     }
     return this.extend({
-      query: this.query + query,
+      query: this.internal.query + query,
       parser: normalizeValidationFunction(parser),
     });
   }
@@ -163,7 +112,7 @@ export class GroqBuilderBase<
    */
   protected pipe(query: string): GroqBuilder<TResult, TQueryConfig> {
     return this.extend({
-      query: this.query + query,
+      query: this.internal.query + query,
     });
   }
 
@@ -273,13 +222,66 @@ export class GroqBuilderSubquery<
  * All instances are immutable.
  */
 export class GroqBuilder<
+    /**
+     * The result type of the query
+     */
+    TResult = any,
+    /**
+     * Contains extra type info,
+     * like the Sanity schema, parameters, and scope
+     */
+    TQueryConfig extends QueryConfig = QueryConfig
+  >
+  extends GroqBuilderBase<TResult, TQueryConfig>
+  implements IGroqBuilder<TResult>
+{
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  readonly [GroqBuilderResultType]: TResult;
+  // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
+  readonly [GroqBuilderConfigType]: TQueryConfig;
+
   /**
-   * The result type of the query
+   * The GROQ query as a string
    */
-  TResult = any,
+  public get query() {
+    return this.internal.query;
+  }
+
   /**
-   * Contains extra type info,
-   * like the Sanity schema, parameters, and scope
+   * The parser function that should be used to parse result data
    */
-  TQueryConfig extends QueryConfig = QueryConfig
-> extends GroqBuilderBase<TResult, TQueryConfig> {}
+  public get parser(): null | ParserFunction<unknown, TResult> {
+    return this.internal.parser;
+  }
+
+  /**
+   * Parses and validates the query results,
+   * passing all data through the parsers.
+   */
+  public parse(data: unknown): TResult {
+    const parser = this.internal.parser;
+    if (!parser && this.internal.options.validationRequired) {
+      throw new InvalidQueryError(
+        "MISSING_QUERY_VALIDATION",
+        "Because 'validationRequired' is enabled, " +
+          "every query must have validation (like `q.string()`), " +
+          "but this query is missing it!"
+      );
+    }
+
+    if (!parser) {
+      return data as TResult;
+    }
+    try {
+      return parser(data);
+    } catch (err) {
+      // Ensure we throw a ValidationErrors instance:
+      if (err instanceof ValidationErrors) {
+        throw err.withMessage();
+      }
+      const v = new ValidationErrors();
+      v.add(null, data, err as Error);
+      throw v.withMessage();
+    }
+  }
+}
