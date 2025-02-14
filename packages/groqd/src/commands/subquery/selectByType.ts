@@ -1,4 +1,4 @@
-import { GroqBuilderChain, GroqBuilderSubquery } from "../../groq-builder";
+import { GroqBuilder, GroqBuilderSubquery } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { keys, Simplify } from "../../types/utils";
 import {
@@ -34,7 +34,7 @@ declare module "../../groq-builder" {
     >(
       typeQueries: TSelectByTypeProjections,
       defaultSelection?: TDefaultSelection
-    ): GroqBuilderChain<
+    ): GroqBuilder<
       | Simplify<ExtractSelectByTypeResult<TSelectByTypeProjections>>
       | (TDefaultSelection extends null | undefined
           ? null
@@ -49,7 +49,7 @@ GroqBuilderSubquery.implement({
     this: GroqBuilderSubquery,
     typeQueries,
     defaultSelection
-  ): GroqBuilderChain {
+  ): GroqBuilder {
     const mapped: SelectProjections<any, any> = {};
     const subquery = this.subquery;
     for (const key of keys(typeQueries)) {

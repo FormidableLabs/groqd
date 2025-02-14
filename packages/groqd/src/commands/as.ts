@@ -8,7 +8,7 @@ declare module "../groq-builder" {
     extends AsDefinitions<TResult, TQueryConfig, "root"> {}
   export interface GroqBuilderSubquery<TResult, TQueryConfig>
     extends AsDefinitions<TResult, TQueryConfig, "subquery"> {}
-  export interface GroqBuilderChain<TResult, TQueryConfig>
+  export interface GroqBuilder<TResult, TQueryConfig>
     extends AsDefinitions<TResult, TQueryConfig, "chain"> {}
 
   export interface AsDefinitions<
@@ -30,7 +30,7 @@ declare module "../groq-builder" {
       ? GroqBuilderRoot<TResultNew, TQueryConfig>
       : source extends "subquery"
       ? GroqBuilderSubquery<TResultNew, TQueryConfig>
-      : GroqBuilderChain<TResultNew, TQueryConfig>;
+      : GroqBuilder<TResultNew, TQueryConfig>;
 
     /**
      * Overrides the result type to a specific document type.
@@ -50,7 +50,7 @@ declare module "../groq-builder" {
         ? GroqBuilderRoot<TResultNew, TQueryConfig>
         : source extends "subquery"
         ? GroqBuilderSubquery<TResultNew, TQueryConfig>
-        : GroqBuilderChain<TResultNew, TQueryConfig>
+        : GroqBuilder<TResultNew, TQueryConfig>
       : never;
   }
 }

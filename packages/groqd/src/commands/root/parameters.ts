@@ -1,5 +1,5 @@
 import {
-  GroqBuilderChain,
+  GroqBuilder,
   GroqBuilderCore,
   GroqBuilderRoot,
 } from "../../groq-builder";
@@ -12,7 +12,7 @@ declare module "../../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
   export interface GroqBuilderRoot<TResult, TQueryConfig>
     extends ParametersDefinition<TResult, TQueryConfig, "root"> {}
-  export interface GroqBuilderChain<TResult, TQueryConfig>
+  export interface GroqBuilder<TResult, TQueryConfig>
     extends ParametersDefinition<TResult, TQueryConfig, "chain"> {}
 
   interface ParametersDefinition<
@@ -56,7 +56,7 @@ declare module "../../groq-builder" {
     > extends infer _NewQueryConfig extends QueryConfig
       ? ReturnType extends "root"
         ? GroqBuilderRoot<TResult, _NewQueryConfig>
-        : GroqBuilderChain<TResult, _NewQueryConfig>
+        : GroqBuilder<TResult, _NewQueryConfig>
       : never;
 
     /** @deprecated Use `parameters` to define parameters */
@@ -65,7 +65,7 @@ declare module "../../groq-builder" {
 }
 
 const parametersImplementation: Pick<
-  GroqBuilderRoot & GroqBuilderChain,
+  GroqBuilderRoot & GroqBuilder,
   "parameters"
 > = {
   parameters(this: GroqBuilderCore) {
@@ -74,4 +74,4 @@ const parametersImplementation: Pick<
   },
 };
 GroqBuilderRoot.implement(parametersImplementation);
-GroqBuilderChain.implement(parametersImplementation);
+GroqBuilder.implement(parametersImplementation);

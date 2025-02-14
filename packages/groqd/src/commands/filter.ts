@@ -1,9 +1,9 @@
-import { GroqBuilderChain } from "../groq-builder";
+import { GroqBuilder } from "../groq-builder";
 import { Expressions } from "../types/groq-expressions";
 import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
-  export interface GroqBuilderChain<TResult, TQueryConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * Allows you to write any raw filter expression.
      * This method is NOT type-checked, but does provide suggestions.
@@ -22,7 +22,7 @@ declare module "../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >
-    ): GroqBuilderChain<TResult, TQueryConfig>;
+    ): GroqBuilder<TResult, TQueryConfig>;
 
     /**
      * Allows you to write any raw filter expression.
@@ -38,7 +38,7 @@ declare module "../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >
-    ): GroqBuilderChain<TResult, TQueryConfig>;
+    ): GroqBuilder<TResult, TQueryConfig>;
 
     /**
      * Same as `filter`, but only supports simple, strongly-typed equality expressions.
@@ -48,20 +48,20 @@ declare module "../groq-builder" {
         ResultItem.Infer<TResult>,
         TQueryConfig
       >
-    ): GroqBuilderChain<TResult, TQueryConfig>;
+    ): GroqBuilder<TResult, TQueryConfig>;
   }
 }
 
-GroqBuilderChain.implement({
-  filter(this: GroqBuilderChain, filterExpression) {
+GroqBuilder.implement({
+  filter(this: GroqBuilder, filterExpression) {
     return this.filterRaw(filterExpression);
   },
-  filterRaw(this: GroqBuilderChain, filterExpression) {
+  filterRaw(this: GroqBuilder, filterExpression) {
     const needsWrap = this.query.endsWith("->");
     const self = needsWrap ? this.extend({ query: `(${this.query})` }) : this;
     return self.pipe(`[${filterExpression}]`);
   },
-  filterBy(this: GroqBuilderChain, filterExpression) {
+  filterBy(this: GroqBuilder, filterExpression) {
     return this.filterRaw(filterExpression);
   },
 });

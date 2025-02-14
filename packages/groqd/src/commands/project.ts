@@ -18,7 +18,7 @@ import {
 import { InvalidQueryError } from "../types/invalid-query-error";
 import { QueryConfig } from "../types/query-config";
 import {
-  GroqBuilderChain,
+  GroqBuilder,
   GroqBuilderCore,
   GroqBuilderRoot,
   GroqBuilderSubquery,
@@ -31,7 +31,7 @@ declare module "../groq-builder" {
     extends ProjectDefinition<TResult, TQueryConfig> {}
   export interface GroqBuilderSubquery<TResult, TQueryConfig>
     extends ProjectDefinition<TResult, TQueryConfig> {}
-  export interface GroqBuilderChain<TResult, TQueryConfig>
+  export interface GroqBuilder<TResult, TQueryConfig>
     extends ProjectDefinition<TResult, TQueryConfig> {}
 }
 
@@ -55,7 +55,7 @@ interface ProjectDefinition<TResult, TQueryConfig extends QueryConfig> {
           sub: GroqBuilderSubquery<ResultItem.Infer<TResult>, TQueryConfig>
         ) => TProjection),
     ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
-  ): GroqBuilderChain<
+  ): GroqBuilder<
     ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
     TQueryConfig
   >;
@@ -113,7 +113,7 @@ const projectImplementation: ProjectDefinition<any, any> = {
 };
 GroqBuilderRoot.implement(projectImplementation);
 GroqBuilderSubquery.implement(projectImplementation);
-GroqBuilderChain.implement(projectImplementation);
+GroqBuilder.implement(projectImplementation);
 
 function normalizeProjectionField(
   key: string,

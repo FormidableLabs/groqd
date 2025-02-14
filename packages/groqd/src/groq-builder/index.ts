@@ -116,7 +116,7 @@ export class GroqBuilderCore<
   protected chain<TResultNew = TResult>(
     query: string,
     parser?: Parser | null
-  ): GroqBuilderChain<TResultNew, TQueryConfig> {
+  ): GroqBuilder<TResultNew, TQueryConfig> {
     if (this.internal.parser) {
       /**
        * This happens if you accidentally chain too many times, like:
@@ -157,7 +157,7 @@ export class GroqBuilderCore<
    *
    * @internal
    */
-  protected pipe(query: string): GroqBuilderChain<TResult, TQueryConfig> {
+  protected pipe(query: string): GroqBuilder<TResult, TQueryConfig> {
     return this.extend({
       query: this.query + query,
     });
@@ -171,7 +171,7 @@ export class GroqBuilderCore<
     TResultNew = TResult,
     TQueryConfigNew extends QueryConfig = TQueryConfig
   >(overrides: Partial<typeof this.internal>) {
-    return new GroqBuilderChain<TResultNew, TQueryConfigNew>({
+    return new GroqBuilder<TResultNew, TQueryConfigNew>({
       ...this.internal,
       ...overrides,
     });

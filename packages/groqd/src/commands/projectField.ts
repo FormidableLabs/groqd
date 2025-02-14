@@ -1,4 +1,4 @@
-import { GroqBuilderChain, GroqBuilderSubquery } from "../groq-builder";
+import { GroqBuilder, GroqBuilderSubquery } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import { ValidateParserInput } from "../types/projection-types";
 import { Parser, ParserWithWidenedInput } from "../types/public-types";
@@ -12,7 +12,7 @@ import { QueryConfig } from "../types/query-config";
 
 declare module "../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
-  export interface GroqBuilderChain<TResult, TQueryConfig>
+  export interface GroqBuilder<TResult, TQueryConfig>
     extends FieldDefinition<TResult, TQueryConfig> {}
   export interface GroqBuilderSubquery<TResult, TQueryConfig>
     extends FieldDefinition<TResult, TQueryConfig> {}
@@ -25,7 +25,7 @@ declare module "../groq-builder" {
      */
     field<TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>>(
       fieldName: TProjectionPath
-    ): GroqBuilderChain<
+    ): GroqBuilder<
       ResultItem.Override<
         TResult,
         ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
@@ -46,7 +46,7 @@ declare module "../groq-builder" {
     >(
       fieldName: TProjectionPath,
       parser: TParser
-    ): GroqBuilderChain<
+    ): GroqBuilder<
       ResultItem.Override<
         TResult,
         TParser extends Parser<infer TParserInput, infer TParserOutput>
@@ -67,12 +67,8 @@ declare module "../groq-builder" {
     projectNaked: never;
   }
 }
-const fieldImplementation: Pick<GroqBuilderChain, "field"> = {
-  field(
-    this: GroqBuilderChain,
-    fieldName: string,
-    parser?: Parser
-  ): GroqBuilderChain {
+const fieldImplementation: Pick<GroqBuilder, "field"> = {
+  field(this: GroqBuilder, fieldName: string, parser?: Parser): GroqBuilder {
     if (this.internal.query) {
       fieldName = "." + fieldName;
     }
@@ -84,5 +80,5 @@ const fieldImplementation: Pick<GroqBuilderChain, "field"> = {
   },
 };
 
-GroqBuilderChain.implement(fieldImplementation);
+GroqBuilder.implement(fieldImplementation);
 GroqBuilderSubquery.implement(fieldImplementation);

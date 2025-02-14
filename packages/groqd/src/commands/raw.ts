@@ -1,7 +1,7 @@
-import { GroqBuilderCore } from "../../groq-builder";
-import { Parser } from "../../types/public-types";
+import { GroqBuilderCore } from "../groq-builder";
+import { Parser } from "../types/public-types";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilderCore<TResult, TQueryConfig> {
     /**
@@ -13,7 +13,7 @@ declare module "../../groq-builder" {
     raw<TResultNew = never>(
       query: string,
       parser?: Parser<unknown, TResultNew> | null
-    ): GroqBuilderChain<TResultNew, TQueryConfig>;
+    ): GroqBuilder<TResultNew, TQueryConfig>;
   }
 }
 const rawImplementation: Pick<GroqBuilderCore, "raw"> = {

@@ -1,8 +1,8 @@
-import { GroqBuilderChain } from "../groq-builder";
+import { GroqBuilder } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import { Expressions } from "../types/groq-expressions";
 declare module "../groq-builder" {
-  export interface GroqBuilderChain<TResult, TQueryConfig> {
+  export interface GroqBuilder<TResult, TQueryConfig> {
     /**
      * Used to pipe a list of results through the `score(...)` GROQ function.
      *
@@ -13,7 +13,7 @@ declare module "../groq-builder" {
       ...scoreExpressions: Array<
         Expressions.Score<ResultItem.Infer<TResult>, TQueryConfig>
       >
-    ): GroqBuilderChain<
+    ): GroqBuilder<
       ResultItem.Override<
         TResult,
         ResultItem.Infer<TResult> & { _score: number }
@@ -30,7 +30,7 @@ declare module "../groq-builder" {
       ...scoreExpressions: Array<
         Expressions.ScoreRaw<ResultItem.Infer<TResult>, TQueryConfig>
       >
-    ): GroqBuilderChain<
+    ): GroqBuilder<
       ResultItem.Override<
         TResult,
         ResultItem.Infer<TResult> & { _score: number }
@@ -40,11 +40,11 @@ declare module "../groq-builder" {
   }
 }
 
-GroqBuilderChain.implement({
-  score(this: GroqBuilderChain, ...scoreExpressions): GroqBuilderChain {
+GroqBuilder.implement({
+  score(this: GroqBuilder, ...scoreExpressions): GroqBuilder {
     return this.scoreRaw(...scoreExpressions);
   },
-  scoreRaw(this: GroqBuilderChain, ...scoreExpressions) {
+  scoreRaw(this: GroqBuilder, ...scoreExpressions) {
     return this.pipe(` | score(${scoreExpressions.join(", ")})`);
   },
 });
