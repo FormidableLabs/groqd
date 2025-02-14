@@ -191,13 +191,13 @@ describe("fragment", () => {
             "slug": slug.current,
             name,
             price == msrp => {
-              "onSale": false
-            },
-          price < msrp => {
-              "onSale": true,
-              price,
-              msrp
-            }
+                "onSale": false
+              },
+            price < msrp => {
+                "onSale": true,
+                price,
+                msrp
+              }
           }"
       `);
     });

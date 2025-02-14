@@ -33,10 +33,12 @@ describe("when using createGroqBuilder<any>()", () => {
         .deref()
         .field("name", q.string()),
     }));
-    expectTypeOf<InferFragmentType<typeof frag>>().toEqualTypeOf<{
-      name: string;
-      price: number;
-      categoryNames: null | string | string[];
-    }>();
+    it("should have the right type", () => {
+      expectTypeOf<InferFragmentType<typeof frag>>().toEqualTypeOf<{
+        name: string;
+        price: number;
+        categoryNames: null | string | string[];
+      }>();
+    });
   });
 });

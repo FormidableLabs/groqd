@@ -80,10 +80,10 @@ describe("select", () => {
       expect(qSelect.query).toMatchInlineSnapshot(`
         "*[_type == "variant" || _type == "product" || _type == "category"] {
             "selected": select(
-            _type == "variant" => "VARIANT",
-            _type == "product" => "PRODUCT",
-            "OTHER"
-          )
+              _type == "variant" => "VARIANT",
+              _type == "product" => "PRODUCT",
+              "OTHER"
+            )
           }"
       `);
     });

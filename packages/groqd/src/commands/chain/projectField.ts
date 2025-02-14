@@ -1,4 +1,4 @@
-import { GroqBuilderChain } from "../../groq-builder";
+import { GroqBuilderChain, GroqBuilderSubquery } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { ValidateParserInput } from "../../types/projection-types";
 import { Parser, ParserWithWidenedInput } from "../../types/public-types";
@@ -67,8 +67,7 @@ declare module "../../groq-builder" {
     projectNaked: never;
   }
 }
-
-GroqBuilderChain.implement({
+const fieldImplementation: Pick<GroqBuilderChain, "field"> = {
   field(
     this: GroqBuilderChain,
     fieldName: string,
@@ -83,4 +82,7 @@ GroqBuilderChain.implement({
 
     return this.chain(fieldName, arrayParser);
   },
-});
+};
+
+GroqBuilderChain.implement(fieldImplementation);
+GroqBuilderSubquery.implement(fieldImplementation);
