@@ -7,6 +7,7 @@ import { Override } from "../../types/utils";
 import { Simplify } from "type-fest";
 import { ParametersWith$Sign } from "../../types/parameter-types";
 import { QueryConfig } from "../../types/query-config";
+import { GroqBuilderOfType } from "../as";
 
 declare module "../../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
@@ -43,24 +44,23 @@ declare module "../../groq-builder" {
      *   { parameters: { slug: "123" } }
      * )
      */
-    parameters<TParameters>(): Simplify<
-      Override<
-        TQueryConfig,
-        {
-          // Merge existing parameters with the new parameters:
-          parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
-          // Add all these parameters to the scope:
-          scope: Simplify<
-            TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
-          >;
-        }
-      >
-    > extends infer _NewQueryConfig extends QueryConfig
-      ? ReturnType extends "root"
-        ? GroqBuilderRoot<TResult, _NewQueryConfig>
-        : GroqBuilder<TResult, _NewQueryConfig>
-      : never;
-
+    parameters<TParameters>(): GroqBuilderOfType<
+      TResult,
+      Simplify<
+        Override<
+          TQueryConfig,
+          {
+            // Merge existing parameters with the new parameters:
+            parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
+            // Add all these parameters to the scope:
+            scope: Simplify<
+              TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
+            >;
+          }
+        >
+      >,
+      ReturnType
+    >;
     /** @deprecated Use `parameters` to define parameters */
     variables: never;
   }
