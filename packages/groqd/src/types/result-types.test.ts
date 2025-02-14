@@ -25,6 +25,14 @@ describe("ResultItem (namespace)", () => {
     >().toEqualTypeOf<Item | null>();
   });
 
+  describe("when used with <any>", () => {
+    it("should return any", () => {
+      expectTypeOf<ResultItem.Infer<any>>().toEqualTypeOf<any>();
+      expectTypeOf<ResultItem.InferMaybe<any>>().toEqualTypeOf<any>();
+      expectTypeOf<ResultItem.Override<any, any>>().toEqualTypeOf<any>();
+    });
+  });
+
   describe("ResultUtils (internal)", () => {
     it("Wrap", () => {
       type ArrayResult = {
@@ -98,6 +106,21 @@ describe("ResultItem (namespace)", () => {
         IsArray: true;
         IsNullable: true;
       }>();
+    });
+
+    it("works when used with <any>", () => {
+      expectTypeOf<ResultUtils.Unwrap<any>>().toEqualTypeOf<{
+        TResultItem: any;
+        IsArray: boolean;
+        IsNullable: true;
+      }>();
+      expectTypeOf<
+        ResultUtils.Wrap<{
+          TResultItem: any;
+          IsArray: boolean;
+          IsNullable: boolean;
+        }>
+      >().toEqualTypeOf<any>();
     });
   });
 });
