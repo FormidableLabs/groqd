@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { GroqBuilderCore, InferResultItem, InferResultType } from "../../index";
+import { GroqBuilderBase, InferResultItem, InferResultType } from "../../index";
 import { q } from "../../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { Empty, Simplify } from "../../types/utils";
@@ -32,7 +32,7 @@ describe("conditional", () => {
     });
     it("should return a spreadable object", () => {
       expect(conditionalResult).toMatchObject({
-        "[CONDITIONAL] [KEY]": expect.any(GroqBuilderCore),
+        "[CONDITIONAL] [KEY]": expect.any(GroqBuilderBase),
       });
     });
   });

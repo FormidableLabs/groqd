@@ -1,6 +1,6 @@
 import {
   GroqBuilder,
-  GroqBuilderCore,
+  GroqBuilderBase,
   GroqBuilderRoot,
 } from "../../groq-builder";
 import { Override } from "../../types/utils";
@@ -68,7 +68,7 @@ const parametersImplementation: Pick<
   GroqBuilderRoot & GroqBuilder,
   "parameters"
 > = {
-  parameters(this: GroqBuilderCore) {
+  parameters(this: GroqBuilderBase) {
     // This method is used just for chaining types
     return this as any;
   },

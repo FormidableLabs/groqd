@@ -212,9 +212,9 @@ export class GroqBuilderCore<
    * Extends this GroqBuilder class by implementing methods.
    * This allows the class to be split across multiple files in the `../commands/` folder.
    */
-  public static implement<TGroqBuilder extends GroqBuilderCore>(
+  public static implement<TGroqBuilder extends GroqBuilderBase>(
     this: Constructor<TGroqBuilder>,
-    methods: Partial<Omit<TGroqBuilder, keyof GroqBuilderCore>>
+    methods: Partial<Omit<TGroqBuilder, keyof GroqBuilderBase>>
   ) {
     Object.assign(this.prototype, methods);
   }
@@ -223,7 +223,7 @@ export class GroqBuilderCore<
    * Extends this GroqBuilder class by implementing properties.
    * This allows the class to be split across multiple files in the `../commands/` folder.
    */
-  public static implementProperties<TGroqBuilder extends GroqBuilderCore>(
+  public static implementProperties<TGroqBuilder extends GroqBuilderBase>(
     this: Constructor<TGroqBuilder>,
     properties: {
       [P in keyof TGroqBuilder]?: PropertyDescriptor;
@@ -239,14 +239,14 @@ export class GroqBuilderCore<
 export class GroqBuilderRoot<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
-> extends GroqBuilderCore<TResult, TQueryConfig> {}
+> extends GroqBuilderBase<TResult, TQueryConfig> {}
 
 export class GroqBuilderSubquery<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
-> extends GroqBuilderCore<TResult, TQueryConfig> {}
+> extends GroqBuilderBase<TResult, TQueryConfig> {}
 
 export class GroqBuilderChain<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
-> extends GroqBuilderCore<TResult, TQueryConfig> {}
+> extends GroqBuilderBase<TResult, TQueryConfig> {}

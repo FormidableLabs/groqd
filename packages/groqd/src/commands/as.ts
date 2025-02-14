@@ -1,4 +1,4 @@
-import { GroqBuilderCore } from "../groq-builder";
+import { GroqBuilderBase } from "../groq-builder";
 import { ExtractDocumentTypes } from "../types/document-types";
 import { QueryConfig } from "../types/query-config";
 
@@ -55,11 +55,11 @@ declare module "../groq-builder" {
   }
 }
 
-GroqBuilderCore.implement({
-  as(this: GroqBuilderCore) {
+GroqBuilderBase.implement({
+  as(this: GroqBuilderBase) {
     return this;
   },
-  asType(this: GroqBuilderCore) {
+  asType(this: GroqBuilderBase) {
     return this;
   },
 });

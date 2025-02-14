@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   ExtractDocumentTypes,
-  GroqBuilderCore,
+  GroqBuilderBase,
   IGroqBuilder,
   InferResultItem,
   InferResultType,
@@ -47,7 +47,7 @@ describe("conditionalByType", () => {
     >();
 
     expect(conditionalByType).toMatchObject({
-      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilderCore),
+      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilderBase),
     });
   });
 

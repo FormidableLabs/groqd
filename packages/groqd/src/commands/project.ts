@@ -19,7 +19,7 @@ import { InvalidQueryError } from "../types/invalid-query-error";
 import { QueryConfig } from "../types/query-config";
 import {
   GroqBuilder,
-  GroqBuilderCore,
+  GroqBuilderBase,
   GroqBuilderRoot,
   GroqBuilderSubquery,
 } from "../groq-builder";
@@ -63,7 +63,7 @@ interface ProjectDefinition<TResult, TQueryConfig extends QueryConfig> {
 
 const projectImplementation: ProjectDefinition<any, any> = {
   project(
-    this: GroqBuilderCore,
+    this: GroqBuilderBase,
     projectionMapArg: object | ((sub: any) => object),
     ...__projectionMapTypeMismatchErrors
   ) {
@@ -121,7 +121,7 @@ function normalizeProjectionField(
 ): null | NormalizedProjectionField {
   // Analyze the field configuration:
   const value: unknown = fieldConfig;
-  if (value instanceof GroqBuilderCore) {
+  if (value instanceof GroqBuilderBase) {
     const query = isConditional(key) // Conditionals can ignore the key
       ? value.query
       : key === value.query // Use shorthand syntax
