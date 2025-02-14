@@ -102,7 +102,7 @@ export type ExtractConditionalByTypeProjectionResults<
 >;
 
 export type ConditionalKey<TKey extends string> = `[CONDITIONAL] ${TKey}`;
-export function isConditional(key: string): key is ConditionalKey<string> {
+export function isConditionalKey(key: string): key is ConditionalKey<string> {
   return key.startsWith("[CONDITIONAL] ");
 }
 export type SpreadableConditionals<

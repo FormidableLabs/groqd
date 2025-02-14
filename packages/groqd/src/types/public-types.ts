@@ -96,6 +96,19 @@ export type IGroqBuilder<
   readonly parse: ParserFunction;
 };
 
+export function isGroqBuilder(
+  fieldConfig: unknown
+): fieldConfig is IGroqBuilder {
+  return (
+    !!fieldConfig &&
+    typeof fieldConfig === "object" &&
+    "query" in fieldConfig &&
+    "parse" in fieldConfig &&
+    typeof fieldConfig.query === "string" &&
+    typeof fieldConfig.parse === "function"
+  );
+}
+
 /**
  * Represents a GroqBuilder chain that is "terminal",
  * and should not be further chained.

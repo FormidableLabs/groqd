@@ -1,6 +1,6 @@
 import { notNull, Simplify } from "../types/utils";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";
-import { Parser, ParserFunction } from "../types/public-types";
+import { isGroqBuilder, Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
 import { ResultItem } from "../types/result-types";
 import {
@@ -8,7 +8,7 @@ import {
   ProjectionFieldConfig,
   ProjectionMap,
 } from "../types/projection-types";
-import { isConditional } from "./subquery/conditional-types";
+import { isConditionalKey } from "./subquery/conditional-types";
 import {
   combineObjectParsers,
   maybeArrayParser,
@@ -121,8 +121,8 @@ function normalizeProjectionField(
 ): null | NormalizedProjectionField {
   // Analyze the field configuration:
   const value: unknown = fieldConfig;
-  if (value instanceof GroqBuilderBase) {
-    const query = isConditional(key) // Conditionals can ignore the key
+  if (isGroqBuilder(value)) {
+    const query = isConditionalKey(key) // with conditionals, we ignore the key
       ? value.query
       : key === value.query // Use shorthand syntax
       ? key
@@ -182,7 +182,7 @@ function createProjectionParser(
 
   // Parse all normal fields:
   const normalFields = fields.filter(
-    (f) => !isEllipsis(f.key) && !isConditional(f.key)
+    (f) => !isEllipsis(f.key) && !isConditionalKey(f.key)
   );
   const objectShape = Object.fromEntries(
     normalFields.map((f) => [f.key, f.parser])
@@ -190,7 +190,7 @@ function createProjectionParser(
   const objectParser = simpleObjectParser(objectShape);
 
   // Parse all conditional fields:
-  const conditionalFields = fields.filter((f) => isConditional(f.key));
+  const conditionalFields = fields.filter((f) => isConditionalKey(f.key));
   const conditionalParsers = conditionalFields
     .map((f) => f.parser)
     .filter(notNull);
