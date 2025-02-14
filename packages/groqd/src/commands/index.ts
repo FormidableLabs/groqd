@@ -13,13 +13,13 @@ import "./chain/validate";
 
 import "./core/as";
 
-import "./projection-root/conditional";
-import "./projection-root/conditionalByType";
-import "./projection-root/select";
-import "./projection-root/selectByType";
-
 import "./root/fragment";
 import "./root/parameters";
 import "./root/raw";
 import "./root/star";
 import "./root/value";
+
+import "./subquery/conditional";
+import "./subquery/conditionalByType";
+import "./subquery/select";
+import "./subquery/selectByType";

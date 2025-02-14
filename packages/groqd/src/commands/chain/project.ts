@@ -8,7 +8,7 @@ import {
   ProjectionFieldConfig,
   ProjectionMap,
 } from "../../types/projection-types";
-import { isConditional } from "../projection-root/conditional-types";
+import { isConditional } from "../subquery/conditional-types";
 import {
   combineObjectParsers,
   maybeArrayParser,

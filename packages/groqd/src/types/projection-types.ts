@@ -20,7 +20,7 @@ import { QueryConfig } from "./query-config";
 import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,
-} from "../commands/projection-root/conditional-types";
+} from "../commands/subquery/conditional-types";
 import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
 
 export type ProjectionMap<TResultItem> = {
