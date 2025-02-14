@@ -6,7 +6,7 @@ import {
   ParserFunction,
 } from "../types/public-types";
 import type { QueryConfig } from "../types/query-config";
-import { normalizeValidationFunction } from "../commands/chain/validate-utils";
+import { normalizeValidationFunction } from "../commands/validate-utils";
 import { ValidationErrors } from "../validation/validation-errors";
 import type { Empty } from "../types/utils";
 import { InvalidQueryError } from "../types/invalid-query-error";

@@ -1,8 +1,8 @@
-import { GroqBuilderChain } from "../../groq-builder";
-import { IGroqBuilderNotChainable } from "../../types/public-types";
-import { IsNullable } from "../../types/utils";
+import { GroqBuilderChain } from "../groq-builder";
+import { IGroqBuilderNotChainable } from "../types/public-types";
+import { IsNullable } from "../types/utils";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Marks a query as nullable – in case you are expecting a potential `null` value.

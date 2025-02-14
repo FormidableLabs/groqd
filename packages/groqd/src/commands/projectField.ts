@@ -1,16 +1,16 @@
-import { GroqBuilderChain, GroqBuilderSubquery } from "../../groq-builder";
-import { ResultItem } from "../../types/result-types";
-import { ValidateParserInput } from "../../types/projection-types";
-import { Parser, ParserWithWidenedInput } from "../../types/public-types";
-import { maybeArrayParser } from "../../validation/simple-validation";
+import { GroqBuilderChain, GroqBuilderSubquery } from "../groq-builder";
+import { ResultItem } from "../types/result-types";
+import { ValidateParserInput } from "../types/projection-types";
+import { Parser, ParserWithWidenedInput } from "../types/public-types";
+import { maybeArrayParser } from "../validation/simple-validation";
 import { normalizeValidationFunction } from "./validate-utils";
 import {
   ProjectionPaths,
   ProjectionPathValue,
-} from "../../types/projection-paths";
-import { QueryConfig } from "../../types/query-config";
+} from "../types/projection-paths";
+import { QueryConfig } from "../types/query-config";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
   export interface GroqBuilderChain<TResult, TQueryConfig>
     extends FieldDefinition<TResult, TQueryConfig> {}

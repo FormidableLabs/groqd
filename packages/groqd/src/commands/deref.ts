@@ -1,7 +1,7 @@
-import { GroqBuilderChain } from "../../groq-builder";
-import { DerefDeep } from "../../types/ref-types";
+import { GroqBuilderChain } from "../groq-builder";
+import { DerefDeep } from "../types/ref-types";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Uses GROQ's dereference operator (`->`) to follow a reference.

@@ -1,8 +1,8 @@
-import { InferResultType } from "../../index";
-import { q, SanitySchema } from "../../tests/schemas/nextjs-sanity-fe";
+import { InferResultType } from "../index";
+import { q, SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
-import { executeBuilder } from "../../tests/mocks/executeQuery";
+import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { executeBuilder } from "../tests/mocks/executeQuery";
 
 const qVariants = q.star.filterByType("variant");
 

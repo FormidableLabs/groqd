@@ -1,18 +1,3 @@
-import "./chain/deref";
-import "./chain/filter";
-import "./chain/filterByType";
-import "./chain/grab-deprecated";
-import "./chain/notNull";
-import "./chain/nullable";
-import "./chain/order";
-import "./chain/project";
-import "./chain/projectField";
-import "./chain/score";
-import "./chain/slice";
-import "./chain/validate";
-
-import "./core/as";
-
 import "./root/fragment";
 import "./root/parameters";
 import "./root/raw";
@@ -23,3 +8,17 @@ import "./subquery/conditional";
 import "./subquery/conditionalByType";
 import "./subquery/select";
 import "./subquery/selectByType";
+
+import "./as";
+import "./deref";
+import "./filter";
+import "./filterByType";
+import "./grab-deprecated";
+import "./notNull";
+import "./nullable";
+import "./order";
+import "./project";
+import "./projectField";
+import "./score";
+import "./slice";
+import "./validate";

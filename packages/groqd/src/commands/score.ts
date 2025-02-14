@@ -1,7 +1,7 @@
-import { GroqBuilderChain } from "../../groq-builder";
-import { ResultItem } from "../../types/result-types";
-import { Expressions } from "../../types/groq-expressions";
-declare module "../../groq-builder" {
+import { GroqBuilderChain } from "../groq-builder";
+import { ResultItem } from "../types/result-types";
+import { Expressions } from "../types/groq-expressions";
+declare module "../groq-builder" {
   export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Used to pipe a list of results through the `score(...)` GROQ function.

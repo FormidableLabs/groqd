@@ -4,9 +4,9 @@ import "./projectField";
 /*
  * For backwards compatibility, we'll keep `grab` and `grabOne` as deprecated aliases:
  */
-import { GroqBuilderChain, GroqBuilderCore } from "../../groq-builder";
+import { GroqBuilderChain, GroqBuilderCore } from "../groq-builder";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
   export interface GroqBuilderCore<TResult, TQueryConfig> {
     /**

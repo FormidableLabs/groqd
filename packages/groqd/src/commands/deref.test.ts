@@ -1,12 +1,12 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { InferResultItem, InferResultType } from "../../types/public-types";
-import { executeBuilder } from "../../tests/mocks/executeQuery";
-import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
+import { InferResultItem, InferResultType } from "../types/public-types";
+import { executeBuilder } from "../tests/mocks/executeQuery";
+import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import {
   q,
   ReferenceTo,
   SanitySchema,
-} from "../../tests/schemas/nextjs-sanity-fe";
+} from "../tests/schemas/nextjs-sanity-fe";
 
 const data = mock.generateSeedData({});
 

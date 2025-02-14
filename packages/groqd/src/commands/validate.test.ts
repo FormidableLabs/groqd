@@ -1,9 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { q } from "../../tests/schemas/nextjs-sanity-fe";
-import { InferResultItem, InferResultType } from "../../index";
-import { executeBuilder } from "../../tests/mocks/executeQuery";
-import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
-import { currencyFormat } from "../../tests/utils";
+import { q } from "../tests/schemas/nextjs-sanity-fe";
+import { InferResultItem, InferResultType } from "../index";
+import { executeBuilder } from "../tests/mocks/executeQuery";
+import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { currencyFormat } from "../tests/utils";
 
 describe("validate", () => {
   const data = mock.generateSeedData({

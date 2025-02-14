@@ -1,8 +1,8 @@
-import { GroqBuilderChain } from "../../groq-builder";
-import { Parser } from "../../types/public-types";
+import { GroqBuilderChain } from "../groq-builder";
+import { Parser } from "../types/public-types";
 import { chainParsers, normalizeValidationFunction } from "./validate-utils";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Adds runtime validation to the query results.

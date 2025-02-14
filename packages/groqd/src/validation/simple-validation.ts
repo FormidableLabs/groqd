@@ -6,7 +6,7 @@ import {
 } from "../types/public-types";
 import { ValidationErrors } from "./validation-errors";
 import { Simplify } from "../types/utils";
-import { normalizeValidationFunction } from "../commands/chain/validate-utils";
+import { normalizeValidationFunction } from "../commands/validate-utils";
 
 /**
  * Pretty-prints the value

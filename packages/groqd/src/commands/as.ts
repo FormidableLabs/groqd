@@ -1,8 +1,8 @@
-import { GroqBuilderCore } from "../../groq-builder";
-import { ExtractDocumentTypes } from "../../types/document-types";
-import { QueryConfig } from "../../types/query-config";
+import { GroqBuilderCore } from "../groq-builder";
+import { ExtractDocumentTypes } from "../types/document-types";
+import { QueryConfig } from "../types/query-config";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
   export interface GroqBuilderRoot<TResult, TQueryConfig>
     extends AsDefinitions<TResult, TQueryConfig, "root"> {}

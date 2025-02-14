@@ -1,8 +1,8 @@
-import { GroqBuilderChain } from "../../groq-builder";
-import { Expressions } from "../../types/groq-expressions";
-import { ResultItem } from "../../types/result-types";
+import { GroqBuilderChain } from "../groq-builder";
+import { Expressions } from "../types/groq-expressions";
+import { ResultItem } from "../types/result-types";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Allows you to write any raw filter expression.

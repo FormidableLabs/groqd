@@ -1,7 +1,7 @@
-import { GroqBuilderChain } from "../../groq-builder";
-import { ResultItem } from "../../types/result-types";
+import { GroqBuilderChain } from "../groq-builder";
+import { ResultItem } from "../types/result-types";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Returns a single item from the results, based on the index.

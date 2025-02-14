@@ -1,8 +1,8 @@
-import { GroqBuilderChain } from "../../groq-builder";
-import { ResultItem } from "../../types/result-types";
-import { ExtractDocumentTypes } from "../../types/document-types";
+import { GroqBuilderChain } from "../groq-builder";
+import { ResultItem } from "../types/result-types";
+import { ExtractDocumentTypes } from "../types/document-types";
 
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   export interface GroqBuilderChain<TResult, TQueryConfig> {
     /**
      * Filters the query based on the document type.

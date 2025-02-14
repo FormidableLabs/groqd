@@ -1,31 +1,31 @@
-import { notNull, Simplify } from "../../types/utils";
-import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../../types/type-mismatch-error";
-import { Parser, ParserFunction } from "../../types/public-types";
+import { notNull, Simplify } from "../types/utils";
+import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";
+import { Parser, ParserFunction } from "../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
-import { ResultItem } from "../../types/result-types";
+import { ResultItem } from "../types/result-types";
 import {
   ExtractProjectionResult,
   ProjectionFieldConfig,
   ProjectionMap,
-} from "../../types/projection-types";
-import { isConditional } from "../subquery/conditional-types";
+} from "../types/projection-types";
+import { isConditional } from "./subquery/conditional-types";
 import {
   combineObjectParsers,
   maybeArrayParser,
   simpleObjectParser,
   UnknownObjectParser,
-} from "../../validation/simple-validation";
-import { InvalidQueryError } from "../../types/invalid-query-error";
-import { QueryConfig } from "../../types/query-config";
+} from "../validation/simple-validation";
+import { InvalidQueryError } from "../types/invalid-query-error";
+import { QueryConfig } from "../types/query-config";
 import {
   GroqBuilderChain,
   GroqBuilderCore,
   GroqBuilderRoot,
   GroqBuilderSubquery,
-} from "../../groq-builder";
+} from "../groq-builder";
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
-declare module "../../groq-builder" {
+declare module "../groq-builder" {
   // The `project` method can be used at any part of a query (Root, SubRoot, Chain):
   export interface GroqBuilderRoot<TResult, TQueryConfig>
     extends ProjectDefinition<TResult, TQueryConfig> {}

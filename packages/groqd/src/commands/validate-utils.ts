@@ -3,8 +3,8 @@ import {
   ParserFunction,
   ParserFunctionMaybe,
   ParserObject,
-} from "../../types/public-types";
-import { InvalidQueryError } from "../../types/invalid-query-error";
+} from "../types/public-types";
+import { InvalidQueryError } from "../types/invalid-query-error";
 
 export function chainParsers(
   a: ParserFunctionMaybe,
