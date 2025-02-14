@@ -71,7 +71,7 @@ export type IGroqBuilder<
   TQueryConfig extends QueryConfig = QueryConfig
 > = {
   /**
-   * Used to infer the Result types of a GroqBuilder.
+   * Used to infer the TResult types of a GroqBuilder.
    * This symbol is not used at runtime.
    * @internal
    */

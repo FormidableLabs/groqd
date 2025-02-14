@@ -42,7 +42,11 @@ export type GroqBuilderOptions = {
   validationRequired?: boolean;
 };
 
-export class GroqBuilderCore<
+/**
+ * This class contains the base functionality
+ * needed by all GroqBuilder classes.
+ */
+export class GroqBuilderBase<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
 > implements IGroqBuilder<TResult>
@@ -236,17 +240,46 @@ export class GroqBuilderCore<
   }
 }
 
+/**
+ * This GroqBuilder only contains the methods
+ * that can be used at the top-level of a query,
+ * like `star` and `project`.
+ *
+ * It also contains certain utilities, like `fragment` and `value`.
+ */
 export class GroqBuilderRoot<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
 > extends GroqBuilderBase<TResult, TQueryConfig> {}
 
+/**
+ * This GroqBuilder only contains the methods
+ * that can be used inside a subquery of a projection,
+ * like `field` and `project`.
+ * Unlike `q`, it is strongly-typed according to the
+ * context of the current projection.
+ *
+ * It also contains certain utilities that can be used
+ * inside a projection, like `conditional` and `select`.
+ */
 export class GroqBuilderSubquery<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
 > extends GroqBuilderBase<TResult, TQueryConfig> {}
 
-export class GroqBuilderChain<
+/**
+ * This GroqBuilder is a chainable query builder.
+ *
+ * All instances are immutable.
+ */
+export class GroqBuilder<
+  /**
+   * The result type of the query
+   */
   TResult = any,
+  /**
+   * Contains extra type info,
+   * like the Sanity schema, parameters, and scope
+   */
   TQueryConfig extends QueryConfig = QueryConfig
 > extends GroqBuilderBase<TResult, TQueryConfig> {}
