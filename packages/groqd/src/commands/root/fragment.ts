@@ -1,4 +1,4 @@
-import { GroqBuilder, GroqBuilderSubquery } from "../../groq-builder";
+import { GroqBuilderRoot, GroqBuilderSubquery } from "../../groq-builder";
 import {
   ExtractProjectionResult,
   ProjectionMap,
@@ -10,7 +10,7 @@ import { ExtractDocumentTypes } from "../../types/document-types";
 
 declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderRoot<TResult, TQueryConfig> {
     /**
      * Creates a fragment for any type you specify.
      * This is useful for inline types that do not have a top-level document type.
@@ -70,18 +70,18 @@ export type FragmentUtil<TQueryConfig extends QueryConfig, TFragmentInput> = {
   ): Fragment<TProjectionMap, TFragmentInput>;
 };
 
-GroqBuilder.implement({
-  fragment(this: GroqBuilder): FragmentUtil<any, any> {
+GroqBuilderRoot.implement({
+  fragment(this: GroqBuilderRoot): FragmentUtil<any, any> {
     return {
       project: (projectionMap, ...__projectionMapTypeMismatchErrors) => {
         if (typeof projectionMap === "function") {
-          return projectionMap(this);
+          return projectionMap(this.child);
         }
         return projectionMap;
       },
     };
   },
-  fragmentForType(this: GroqBuilder): FragmentUtil<any, any> {
+  fragmentForType(this: GroqBuilderRoot): FragmentUtil<any, any> {
     return this.fragment();
   },
 });

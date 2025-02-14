@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderRoot } from "../../groq-builder";
 import { SchemaDocument } from "../../types/document-types";
 
 declare module "../../groq-builder" {
@@ -19,9 +19,9 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implementProperties({
+GroqBuilderRoot.implementProperties({
   star: {
-    get(this: GroqBuilder) {
+    get(this: GroqBuilderRoot) {
       return this.chain("*");
     },
   },

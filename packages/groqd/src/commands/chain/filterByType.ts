@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { ExtractDocumentTypes } from "../../types/document-types";
 
@@ -25,8 +25,8 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  filterByType(this: GroqBuilder, ...type) {
+GroqBuilderChain.implement({
+  filterByType(this: GroqBuilderChain, ...type) {
     return this.pipe(`[${type.map((t) => `_type == "${t}"`).join(" || ")}]`);
   },
 });

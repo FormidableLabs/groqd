@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { ValidateParserInput } from "../../types/projection-types";
 import { Parser, ParserWithWidenedInput } from "../../types/public-types";
@@ -25,7 +25,7 @@ declare module "../../groq-builder" {
      */
     field<TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>>(
       fieldName: TProjectionPath
-    ): GroqBuilder<
+    ): GroqBuilderChain<
       ResultItem.Override<
         TResult,
         ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
@@ -46,7 +46,7 @@ declare module "../../groq-builder" {
     >(
       fieldName: TProjectionPath,
       parser: TParser
-    ): GroqBuilder<
+    ): GroqBuilderChain<
       ResultItem.Override<
         TResult,
         TParser extends Parser<infer TParserInput, infer TParserOutput>
@@ -68,8 +68,12 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  field(this: GroqBuilder, fieldName: string, parser?: Parser): GroqBuilder {
+GroqBuilderChain.implement({
+  field(
+    this: GroqBuilderChain,
+    fieldName: string,
+    parser?: Parser
+  ): GroqBuilderChain {
     if (this.internal.query) {
       fieldName = "." + fieldName;
     }

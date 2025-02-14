@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { DerefDeep } from "../../types/ref-types";
 
 declare module "../../groq-builder" {
@@ -29,8 +29,8 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  deref(this: GroqBuilder) {
+GroqBuilderChain.implement({
+  deref(this: GroqBuilderChain) {
     return this.chain("->");
   },
 });

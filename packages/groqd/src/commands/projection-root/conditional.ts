@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderSubquery } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import {
   ConditionalConfig,
@@ -53,13 +53,13 @@ declare module "../../groq-builder" {
 
 const DEFAULT_KEY = "[KEY]" as const;
 
-GroqBuilder.implement({
+GroqBuilderSubquery.implement({
   conditional<
     TCP extends object,
     TKey extends string,
     TIsExhaustive extends boolean
   >(
-    this: GroqBuilder,
+    this: GroqBuilderSubquery,
     conditionalProjections: TCP,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {

@@ -1,4 +1,8 @@
-import { GroqBuilder } from "../../groq-builder";
+import {
+  GroqBuilderChain,
+  GroqBuilderCore,
+  GroqBuilderRoot,
+} from "../../groq-builder";
 import { Override } from "../../types/utils";
 import { Simplify } from "type-fest";
 import { ParametersWith$Sign } from "../../types/parameter-types";
@@ -60,9 +64,14 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  parameters(this: GroqBuilder) {
+const parametersImplementation: Pick<
+  GroqBuilderRoot & GroqBuilderChain,
+  "parameters"
+> = {
+  parameters(this: GroqBuilderCore) {
     // This method is used just for chaining types
     return this as any;
   },
-});
+};
+GroqBuilderRoot.implement(parametersImplementation);
+GroqBuilderChain.implement(parametersImplementation);

@@ -10,6 +10,7 @@ import { normalizeValidationFunction } from "../commands/chain/validate-utils";
 import { ValidationErrors } from "../validation/validation-errors";
 import type { Empty } from "../types/utils";
 import { InvalidQueryError } from "../types/invalid-query-error";
+import { Constructor } from "type-fest";
 
 export type RootResult = Empty;
 
@@ -41,7 +42,7 @@ export type GroqBuilderOptions = {
   validationRequired?: boolean;
 };
 
-export class GroqBuilder<
+export class GroqBuilderCore<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
 > implements IGroqBuilder<TResult>
@@ -50,29 +51,6 @@ export class GroqBuilder<
   readonly [GroqBuilderResultType]: TResult;
   // @ts-expect-error --- This property doesn't actually exist, it's only used to capture type info
   readonly [GroqBuilderConfigType]: TQueryConfig;
-
-  /**
-   * Extends the GroqBuilder class by implementing methods.
-   * This allows for this class to be split across multiple files in the `./commands/` folder.
-   * @internal
-   */
-  static implement(methods: Partial<GroqBuilder>) {
-    Object.assign(GroqBuilder.prototype, methods);
-  }
-
-  /**
-   * Extends the GroqBuilder class by implementing properties.
-   * This allows for this class to be split across multiple files in the `./commands/` folder.
-   * @internal
-   */
-  static implementProperties(properties: {
-    [P in keyof GroqBuilder]?: PropertyDescriptor;
-  }) {
-    Object.defineProperties(
-      GroqBuilder.prototype,
-      properties as PropertyDescriptorMap
-    );
-  }
 
   constructor(
     protected readonly internal: {
@@ -138,7 +116,7 @@ export class GroqBuilder<
   protected chain<TResultNew = TResult>(
     query: string,
     parser?: Parser | null
-  ): GroqBuilder<TResultNew, TQueryConfig> {
+  ): GroqBuilderChain<TResultNew, TQueryConfig> {
     if (this.internal.parser) {
       /**
        * This happens if you accidentally chain too many times, like:
@@ -179,7 +157,7 @@ export class GroqBuilder<
    *
    * @internal
    */
-  protected pipe(query: string): GroqBuilder<TResult, TQueryConfig> {
+  protected pipe(query: string): GroqBuilderChain<TResult, TQueryConfig> {
     return this.extend({
       query: this.query + query,
     });
@@ -193,7 +171,7 @@ export class GroqBuilder<
     TResultNew = TResult,
     TQueryConfigNew extends QueryConfig = TQueryConfig
   >(overrides: Partial<typeof this.internal>) {
-    return new GroqBuilder<TResultNew, TQueryConfigNew>({
+    return new GroqBuilderChain<TResultNew, TQueryConfigNew>({
       ...this.internal,
       ...overrides,
     });
@@ -201,19 +179,28 @@ export class GroqBuilder<
 
   /**
    * Returns an empty "child" GroqBuilder
+   *
+   * @internal
    */
-  public get root() {
+  protected get child() {
     let options = this.internal.options;
     // Make the query pretty, if needed:
     if (options.indent) {
       options = { ...options, indent: options.indent + "  " };
     }
 
-    return new GroqBuilder<RootResult, TQueryConfig>({
+    return new GroqBuilderSubquery<RootResult, TQueryConfig>({
       query: "",
       parser: null,
       options: options,
     });
+  }
+
+  /**
+   * @deprecated -- renamed to `.child`
+   */
+  protected get root() {
+    return this.child;
   }
 
   /**
@@ -226,24 +213,46 @@ export class GroqBuilder<
       space: indent ? "  " : "",
     };
   }
+
+  /**
+   * Extends this GroqBuilder class by implementing methods.
+   * This allows the class to be split across multiple files in the `../commands/` folder.
+   */
+  public static implement<TGroqBuilder extends GroqBuilderCore>(
+    this: Constructor<TGroqBuilder>,
+    methods: Partial<Omit<TGroqBuilder, keyof GroqBuilderCore>>
+  ) {
+    Object.assign(this.prototype, methods);
+  }
+
+  /**
+   * Extends this GroqBuilder class by implementing properties.
+   * This allows the class to be split across multiple files in the `../commands/` folder.
+   */
+  public static implementProperties<TGroqBuilder extends GroqBuilderCore>(
+    this: Constructor<TGroqBuilder>,
+    properties: {
+      [P in keyof TGroqBuilder]?: PropertyDescriptor;
+    }
+  ) {
+    Object.defineProperties(
+      this.prototype,
+      properties as PropertyDescriptorMap
+    );
+  }
 }
 
-/* eslint-disable @typescript-eslint/no-empty-interface */
-export interface GroqBuilder<
+export class GroqBuilderRoot<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
-> extends GroqBuilderRoot<TResult, TQueryConfig>,
-    GroqBuilderSubquery<TResult, TQueryConfig>,
-    GroqBuilderChain<TResult, TQueryConfig> {}
-export interface GroqBuilderRoot<
+> extends GroqBuilderCore<TResult, TQueryConfig> {}
+
+export class GroqBuilderSubquery<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
-> extends IGroqBuilder<TResult, TQueryConfig> {}
-export interface GroqBuilderSubquery<
+> extends GroqBuilderCore<TResult, TQueryConfig> {}
+
+export class GroqBuilderChain<
   TResult = any,
   TQueryConfig extends QueryConfig = QueryConfig
-> extends IGroqBuilder<TResult, TQueryConfig> {}
-export interface GroqBuilderChain<
-  TResult = any,
-  TQueryConfig extends QueryConfig = QueryConfig
-> extends IGroqBuilder<TResult, TQueryConfig> {}
+> extends GroqBuilderCore<TResult, TQueryConfig> {}

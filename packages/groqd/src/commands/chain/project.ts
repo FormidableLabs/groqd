@@ -1,10 +1,5 @@
 import { notNull, Simplify } from "../../types/utils";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../../types/type-mismatch-error";
-import {
-  GroqBuilder,
-  GroqBuilderChain,
-  GroqBuilderSubquery,
-} from "../../groq-builder";
 import { Parser, ParserFunction } from "../../types/public-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
 import { ResultItem } from "../../types/result-types";
@@ -22,6 +17,12 @@ import {
 } from "../../validation/simple-validation";
 import { InvalidQueryError } from "../../types/invalid-query-error";
 import { QueryConfig } from "../../types/query-config";
+import {
+  GroqBuilderChain,
+  GroqBuilderCore,
+  GroqBuilderRoot,
+  GroqBuilderSubquery,
+} from "../../groq-builder";
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 declare module "../../groq-builder" {
@@ -60,9 +61,9 @@ interface ProjectDefinition<TResult, TQueryConfig extends QueryConfig> {
   >;
 }
 
-GroqBuilder.implement({
+const projectImplementation: ProjectDefinition<any, any> = {
   project(
-    this: GroqBuilder,
+    this: GroqBuilderCore,
     projectionMapArg: object | ((sub: any) => object),
     ...__projectionMapTypeMismatchErrors
   ) {
@@ -109,7 +110,10 @@ GroqBuilder.implement({
 
     return this.chain(newQuery, projectionParser);
   },
-});
+};
+GroqBuilderRoot.implement(projectImplementation);
+GroqBuilderSubquery.implement(projectImplementation);
+GroqBuilderChain.implement(projectImplementation);
 
 function normalizeProjectionField(
   key: string,
@@ -117,7 +121,7 @@ function normalizeProjectionField(
 ): null | NormalizedProjectionField {
   // Analyze the field configuration:
   const value: unknown = fieldConfig;
-  if (value instanceof GroqBuilder) {
+  if (value instanceof GroqBuilderCore) {
     const query = isConditional(key) // Conditionals can ignore the key
       ? value.query
       : key === value.query // Use shorthand syntax

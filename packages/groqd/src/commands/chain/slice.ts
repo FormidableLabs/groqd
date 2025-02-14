@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 
 declare module "../../groq-builder" {
@@ -45,8 +45,13 @@ declare module "../../groq-builder" {
     range: never;
   }
 }
-GroqBuilder.implement({
-  slice(this: GroqBuilder, start, end?, inclusive?): GroqBuilder {
+GroqBuilderChain.implement({
+  slice(
+    this: GroqBuilderChain,
+    start,
+    end?,
+    inclusive?
+  ): GroqBuilderChain<any> {
     if (typeof end === "number") {
       const ellipsis = inclusive ? ".." : "...";
       return this.pipe(`[${start}${ellipsis}${end}]`);

@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { Parser } from "../../types/public-types";
 import { chainParsers, normalizeValidationFunction } from "./validate-utils";
 
@@ -22,8 +22,8 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  validate(this: GroqBuilder, parser) {
+GroqBuilderChain.implement({
+  validate(this: GroqBuilderChain, parser): GroqBuilderChain {
     const chainedParser = chainParsers(
       this.internal.parser,
       normalizeValidationFunction(parser)
@@ -32,7 +32,7 @@ GroqBuilder.implement({
       parser: chainedParser,
     });
   },
-  transform(this: GroqBuilder, parser) {
+  transform(this: GroqBuilderChain, parser) {
     return this.validate(parser);
   },
 });

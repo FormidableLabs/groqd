@@ -4,6 +4,7 @@ import { InferResultType } from "../../types/public-types";
 import { SanitySchema, q } from "../../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { zod } from "../../index";
+import { getSubquery } from "../../tests/getSubquery";
 
 describe("field (naked projections)", () => {
   const qVariants = q.star.filterByType("variant");
@@ -123,7 +124,8 @@ describe("field (naked projections)", () => {
           };
         };
       };
-      const query = q.as<DeepOptional>().field("image.asset");
+      const sub = getSubquery(q).as<DeepOptional>();
+      const query = sub.field("image.asset");
       expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<null | {
         _type: "reference";
       }>();

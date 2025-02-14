@@ -4,7 +4,7 @@ import "./projectField";
 /*
  * For backwards compatibility, we'll keep `grab` and `grabOne` as deprecated aliases:
  */
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { QueryConfig } from "../../types/query-config";
 
 declare module "../../groq-builder" {
@@ -20,38 +20,38 @@ declare module "../../groq-builder" {
     /**
      * @deprecated This method has been renamed to 'project' and will be removed in a future version.
      */
-    grab: GroqBuilder<TResult, TQueryConfig>["project"];
+    grab: GroqBuilderChain<TResult, TQueryConfig>["project"];
     /**
      * @deprecated This method has been renamed to 'project' and will be removed in a future version.
      */
-    grab$: GroqBuilder<TResult, TQueryConfig>["project"];
+    grab$: GroqBuilderChain<TResult, TQueryConfig>["project"];
     /**
      * @deprecated This method has been renamed to 'field' and will be removed in a future version.
      */
-    grabOne: GroqBuilder<TResult, TQueryConfig>["field"];
+    grabOne: GroqBuilderChain<TResult, TQueryConfig>["field"];
     /**
      * @deprecated This method has been renamed to 'field' and will be removed in a future version.
      */
-    grabOne$: GroqBuilder<TResult, TQueryConfig>["field"];
+    grabOne$: GroqBuilderChain<TResult, TQueryConfig>["field"];
   }
 }
-GroqBuilder.implement({
-  grab: deprecated<any>(GroqBuilder.prototype.project, () => {
+GroqBuilderChain.implement({
+  grab: deprecated<any>(GroqBuilderChain.prototype.project, () => {
     console.warn(
       "'grab' has been renamed to 'project' and will be removed in a future version"
     );
   }),
-  grab$: deprecated<any>(GroqBuilder.prototype.project, () => {
+  grab$: deprecated<any>(GroqBuilderChain.prototype.project, () => {
     console.warn(
       "'grab$' has been renamed to 'project' and will be removed in a future version"
     );
   }),
-  grabOne: deprecated<any>(GroqBuilder.prototype.field, () => {
+  grabOne: deprecated<any>(GroqBuilderChain.prototype.field, () => {
     console.warn(
       "'grabOne' has been renamed to 'field' and will be removed in a future version"
     );
   }),
-  grabOne$: deprecated<any>(GroqBuilder.prototype.field, () => {
+  grabOne$: deprecated<any>(GroqBuilderChain.prototype.field, () => {
     console.warn(
       "'grabOne$' has been renamed to 'field' and will be removed in a future version"
     );
@@ -63,7 +63,7 @@ function deprecated<TMethod extends (...args: any[]) => any>(
   logWarning: () => void
 ): TMethod {
   let logOnce = logWarning as null | typeof logWarning;
-  return function (this: GroqBuilder, ...args) {
+  return function (this: GroqBuilderChain, ...args) {
     if (logOnce) {
       logOnce();
       logOnce = null;

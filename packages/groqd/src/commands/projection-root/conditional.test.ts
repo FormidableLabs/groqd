@@ -1,14 +1,16 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { GroqBuilder, InferResultItem, InferResultType } from "../../index";
+import { GroqBuilderCore, InferResultItem, InferResultType } from "../../index";
 import { q } from "../../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { Empty, Simplify } from "../../types/utils";
+import { getSubquery } from "../../tests/getSubquery";
 
 const qVariants = q.star.filterByType("variant");
 
 describe("conditional", () => {
   describe("by itself", () => {
-    const conditionalResult = q.asType<"variant">().conditional({
+    const sub = getSubquery(q).asType<"variant">();
+    const conditionalResult = sub.conditional({
       "price == msrp": {
         onSale: q.value(false),
       },
@@ -30,7 +32,7 @@ describe("conditional", () => {
     });
     it("should return a spreadable object", () => {
       expect(conditionalResult).toMatchObject({
-        "[CONDITIONAL] [KEY]": expect.any(GroqBuilder),
+        "[CONDITIONAL] [KEY]": expect.any(GroqBuilderCore),
       });
     });
   });

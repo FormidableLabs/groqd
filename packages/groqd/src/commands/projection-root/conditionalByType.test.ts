@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   ExtractDocumentTypes,
-  GroqBuilder,
+  GroqBuilderCore,
   IGroqBuilder,
   InferResultItem,
   InferResultType,
@@ -11,6 +11,7 @@ import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 import { Simplify, SimplifyDeep } from "../../types/utils";
+import { getSubquery } from "../../tests/getSubquery";
 
 const data = mock.generateSeedData({
   products: mock.array(5, (i) =>
@@ -21,14 +22,16 @@ const data = mock.generateSeedData({
 type AllDocTypes = ExtractDocumentTypes<SchemaConfig["schemaTypes"]>;
 
 describe("conditionalByType", () => {
-  const conditionalByType = q.asType().conditionalByType({
-    variant: { name: true, price: true },
-    product: { name: true, slug: "slug.current" },
-    category: (qC) => ({
-      name: true,
-      slug: qC.field("slug.current"),
-    }),
-  });
+  const conditionalByType = getSubquery(q)
+    .asType() // All types
+    .conditionalByType({
+      variant: { name: true, price: true },
+      product: { name: true, slug: "slug.current" },
+      category: (qC) => ({
+        name: true,
+        slug: qC.field("slug.current"),
+      }),
+    });
 
   type ExpectedConditionalUnion =
     | { _type: Exclude<AllDocTypes, "variant" | "product" | "category"> }
@@ -44,7 +47,7 @@ describe("conditionalByType", () => {
     >();
 
     expect(conditionalByType).toMatchObject({
-      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilder),
+      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilderCore),
     });
   });
 
@@ -110,7 +113,7 @@ describe("conditionalByType", () => {
   });
 
   it("types are correct when the conditions are exhaustive", () => {
-    const conditionsExhaustive = q
+    const conditionsExhaustive = getSubquery(q)
       .asType<"product" | "variant">()
       .conditionalByType({
         product: { _type: true, name: true },

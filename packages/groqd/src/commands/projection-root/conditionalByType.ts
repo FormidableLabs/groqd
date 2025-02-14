@@ -1,5 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
-import { QueryConfig } from "../../types/query-config";
+import { GroqBuilderSubquery } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -58,13 +57,13 @@ declare module "../../groq-builder" {
 }
 const DEFAULT_KEY = "[BY_TYPE]" as const;
 
-GroqBuilder.implement({
+GroqBuilderSubquery.implement({
   conditionalByType<
     TConditionalProjections extends object,
     TKey extends string,
     TIsExhaustive extends boolean
   >(
-    this: GroqBuilder<any, QueryConfig>,
+    this: GroqBuilderSubquery,
     conditionalProjections: TConditionalProjections,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {

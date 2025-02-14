@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { Expressions } from "../../types/groq-expressions";
 import { ResultItem } from "../../types/result-types";
 
@@ -52,16 +52,16 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  filter(this: GroqBuilder, filterExpression) {
+GroqBuilderChain.implement({
+  filter(this: GroqBuilderChain, filterExpression) {
     return this.filterRaw(filterExpression);
   },
-  filterRaw(this: GroqBuilder, filterExpression) {
+  filterRaw(this: GroqBuilderChain, filterExpression) {
     const needsWrap = this.query.endsWith("->");
     const self = needsWrap ? this.extend({ query: `(${this.query})` }) : this;
     return self.pipe(`[${filterExpression}]`);
   },
-  filterBy(this: GroqBuilder, filterExpression) {
+  filterBy(this: GroqBuilderChain, filterExpression) {
     return this.filterRaw(filterExpression);
   },
 });

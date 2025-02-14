@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain, GroqBuilderSubquery } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { keys, Simplify } from "../../types/utils";
 import {
@@ -44,8 +44,12 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  selectByType(this: GroqBuilder, typeQueries, defaultSelection) {
+GroqBuilderSubquery.implement({
+  selectByType(
+    this: GroqBuilderSubquery,
+    typeQueries,
+    defaultSelection
+  ): GroqBuilderChain {
     const mapped: SelectProjections<any, any> = {};
     const root = this.root;
     for (const key of keys(typeQueries)) {
@@ -57,6 +61,6 @@ GroqBuilder.implement({
 
       mapped[condition] = query;
     }
-    return this.select(mapped, defaultSelection) as any;
+    return this.select(mapped, defaultSelection);
   },
 });

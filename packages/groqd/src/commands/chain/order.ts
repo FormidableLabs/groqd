@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { Expressions } from "../../types/groq-expressions";
 
@@ -16,8 +16,8 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  order(this: GroqBuilder, ...fields) {
+GroqBuilderChain.implement({
+  order(this: GroqBuilderChain, ...fields) {
     const query = ` | order(${fields.join(", ")})`;
     return this.pipe(query);
   },

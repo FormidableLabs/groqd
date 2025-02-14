@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { Expressions } from "../../types/groq-expressions";
 declare module "../../groq-builder" {
@@ -40,11 +40,11 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  score(this: GroqBuilder, ...scoreExpressions) {
+GroqBuilderChain.implement({
+  score(this: GroqBuilderChain, ...scoreExpressions): GroqBuilderChain {
     return this.scoreRaw(...scoreExpressions);
   },
-  scoreRaw(this: GroqBuilder, ...scoreExpressions): GroqBuilder {
+  scoreRaw(this: GroqBuilderChain, ...scoreExpressions) {
     return this.pipe(` | score(${scoreExpressions.join(", ")})`);
   },
 });

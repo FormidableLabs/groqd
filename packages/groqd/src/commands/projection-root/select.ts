@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain, GroqBuilderSubquery } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { ExtractSelectResult, SelectProjections } from "./select-types";
 import { notNull } from "../../types/utils";
@@ -42,8 +42,12 @@ declare module "../../groq-builder" {
     >;
   }
 }
-GroqBuilder.implement({
-  select(this: GroqBuilder, selections, defaultSelection): GroqBuilder {
+GroqBuilderSubquery.implement({
+  select(
+    this: GroqBuilderSubquery,
+    selections,
+    defaultSelection
+  ): GroqBuilderChain {
     const conditions = Object.keys(selections);
 
     const queries = conditions.map((condition) => {
@@ -71,7 +75,10 @@ GroqBuilder.implement({
           `Missing validation: "${missing.join('", "')}"`
       );
       // This only works on V8 engines:
-      (Error as any).captureStackTrace?.(err, GroqBuilder.prototype.select);
+      (Error as any).captureStackTrace?.(
+        err,
+        GroqBuilderSubquery.prototype.select
+      );
       throw err;
     }
 

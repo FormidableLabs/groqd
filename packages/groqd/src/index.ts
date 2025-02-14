@@ -4,7 +4,6 @@ import "./commands";
 
 import type { QueryConfig } from "./types/query-config";
 import {
-  GroqBuilder,
   GroqBuilderOptions,
   GroqBuilderRoot,
   RootResult,
@@ -39,7 +38,7 @@ export * from "./validation/validation-errors";
 export function createGroqBuilderLite<TRootConfig extends QueryConfig>(
   options: GroqBuilderOptions = {}
 ): GroqBuilderRoot<RootResult, TRootConfig> {
-  const q = new GroqBuilder<RootResult, TRootConfig>({
+  const q = new GroqBuilderRoot<RootResult, TRootConfig>({
     query: "",
     parser: null,
     options,

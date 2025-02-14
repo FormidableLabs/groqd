@@ -1,4 +1,4 @@
-import { IsNullable, Override as _Override, Simplify } from "./utils";
+import { IsNullable, Override as _Override } from "./utils";
 
 /* eslint-disable @typescript-eslint/no-namespace */
 
@@ -55,14 +55,12 @@ export namespace ResultItem {
    * OverrideResultItem<null | "FOO", "BAR">;         // Result: null | "BAR"
    * OverrideResultItem<"FOO", "BAR">;                // Result: "BAR"
    */
-  export type Override<TResult, TResultItemNew> = Simplify<
-    ResultUtils.Wrap<
-      _Override<
-        ResultUtils.Unwrap<TResult>,
-        {
-          TResultItem: TResultItemNew;
-        }
-      >
+  export type Override<TResult, TResultItemNew> = ResultUtils.Wrap<
+    _Override<
+      ResultUtils.Unwrap<TResult>,
+      {
+        TResultItem: TResultItemNew;
+      }
     >
   >;
 }

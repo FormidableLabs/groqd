@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../../groq-builder";
+import { GroqBuilderChain } from "../../groq-builder";
 import { IGroqBuilderNotChainable } from "../../types/public-types";
 import { IsNullable } from "../../types/utils";
 
@@ -36,8 +36,8 @@ declare module "../../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  notNull(this: GroqBuilder, ..._redundant) {
+GroqBuilderChain.implement({
+  notNull(this: GroqBuilderChain, ..._redundant) {
     const parser = this.parser;
     return this.extend({
       parser: (input) => {
