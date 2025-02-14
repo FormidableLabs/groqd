@@ -70,7 +70,7 @@ const projectImplementation: ProjectDefinition<any, any> = {
     // Retrieve the projectionMap:
     let projectionMap: object;
     if (typeof projectionMapArg === "function") {
-      projectionMap = projectionMapArg(this.root);
+      projectionMap = projectionMapArg(this.subquery);
     } else {
       projectionMap = projectionMapArg;
     }

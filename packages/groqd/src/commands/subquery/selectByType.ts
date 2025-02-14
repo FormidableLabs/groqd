@@ -51,13 +51,13 @@ GroqBuilderSubquery.implement({
     defaultSelection
   ): GroqBuilderChain {
     const mapped: SelectProjections<any, any> = {};
-    const root = this.root;
+    const subquery = this.subquery;
     for (const key of keys(typeQueries)) {
       const condition = `_type == "${key}"`;
 
       const queryFn = typeQueries[key];
       const query: IGroqBuilder =
-        typeof queryFn === "function" ? queryFn(root) : queryFn!;
+        typeof queryFn === "function" ? queryFn(subquery) : queryFn!;
 
       mapped[condition] = query;
     }

@@ -69,12 +69,12 @@ GroqBuilderSubquery.implement({
   ) {
     const typeNames = keys(conditionalProjections);
 
-    const root = this.root;
+    const subquery = this.subquery;
     const conditions = typeNames.map((_type) => {
       const projectionMap = conditionalProjections[
         _type
       ] as ProjectionMap<unknown>;
-      const conditionQuery = root
+      const conditionQuery = subquery
         .chain(`_type == "${_type}" =>`)
         .project(projectionMap);
       const { query, parser } = conditionQuery;
@@ -100,7 +100,7 @@ GroqBuilderSubquery.implement({
           return {};
         };
 
-    const conditionalQuery = this.root.chain(query, conditionalParser);
+    const conditionalQuery = this.subquery.chain(query, conditionalParser);
     const key: TKey = config?.key || (DEFAULT_KEY as TKey);
     const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {

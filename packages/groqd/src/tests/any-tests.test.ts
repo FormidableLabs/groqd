@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { InferFragmentType, InferResultType } from "./types/public-types";
-import { createGroqBuilder } from "./index";
+import { InferFragmentType, InferResultType } from "../types/public-types";
+import { createGroqBuilder } from "../index";
 
 describe("when using createGroqBuilder<any>()", () => {
   const q = createGroqBuilder<any>();

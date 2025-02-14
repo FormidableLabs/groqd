@@ -63,11 +63,11 @@ GroqBuilderSubquery.implement({
     conditionalProjections: TCP,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {
-    const root = this.root;
+    const subquery = this.subquery;
     const allConditionalProjections = Object.entries(
       conditionalProjections
     ).map(([condition, projectionMap]) => {
-      const conditionalProjection = root
+      const conditionalProjection = subquery
         .chain(`${condition} =>`)
         .project(projectionMap as ProjectionMap<unknown>);
 
@@ -86,7 +86,7 @@ GroqBuilderSubquery.implement({
       ? null
       : createConditionalParserUnion(parsers, config?.isExhaustive ?? false);
 
-    const conditionalQuery = root.chain(query, conditionalParser);
+    const conditionalQuery = subquery.chain(query, conditionalParser);
     const key = config?.key || (DEFAULT_KEY as TKey);
     const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {

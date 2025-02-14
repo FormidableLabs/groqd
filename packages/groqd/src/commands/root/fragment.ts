@@ -75,7 +75,7 @@ GroqBuilderRoot.implement({
     return {
       project: (projectionMap, ...__projectionMapTypeMismatchErrors) => {
         if (typeof projectionMap === "function") {
-          return projectionMap(this.child);
+          return projectionMap(this.subquery);
         }
         return projectionMap;
       },

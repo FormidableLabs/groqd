@@ -178,11 +178,12 @@ export class GroqBuilderCore<
   }
 
   /**
-   * Returns an empty "child" GroqBuilder
+   * Returns an empty "child" GroqBuilder,
+   * used for subqueries in a projection.
    *
    * @internal
    */
-  protected get child() {
+  protected get subquery() {
     let options = this.internal.options;
     // Make the query pretty, if needed:
     if (options.indent) {
@@ -194,13 +195,6 @@ export class GroqBuilderCore<
       parser: null,
       options: options,
     });
-  }
-
-  /**
-   * @deprecated -- renamed to `.child`
-   */
-  protected get root() {
-    return this.child;
   }
 
   /**
