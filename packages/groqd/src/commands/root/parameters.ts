@@ -43,16 +43,18 @@ declare module "../../groq-builder" {
      *   { parameters: { slug: "123" } }
      * )
      */
-    parameters<TParameters>(): Override<
-      TQueryConfig,
-      {
-        // Merge existing parameters with the new parameters:
-        parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
-        // Add all these parameters to the scope:
-        scope: Simplify<
-          TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
-        >;
-      }
+    parameters<TParameters>(): Simplify<
+      Override<
+        TQueryConfig,
+        {
+          // Merge existing parameters with the new parameters:
+          parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
+          // Add all these parameters to the scope:
+          scope: Simplify<
+            TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
+          >;
+        }
+      >
     > extends infer _NewQueryConfig extends QueryConfig
       ? ReturnType extends "root"
         ? GroqBuilderRoot<TResult, _NewQueryConfig>

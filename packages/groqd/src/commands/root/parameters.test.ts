@@ -13,8 +13,8 @@ describe("parameters", () => {
     ],
   });
 
-  it("the root q object should have no parameters", () => {
-    expectTypeOf<InferParametersType<typeof q>>().toEqualTypeOf<unknown>();
+  it("a plain query should have no parameters", () => {
+    expectTypeOf<InferParametersType<typeof q.star>>().toEqualTypeOf<unknown>();
   });
 
   const qWithParameters = q
