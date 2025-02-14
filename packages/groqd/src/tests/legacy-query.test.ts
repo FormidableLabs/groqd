@@ -1,17 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { q } from "./tests/schemas/nextjs-sanity-fe";
-import { InferResultType } from "./types/public-types";
-import { Empty } from "./types/utils";
+import { q } from "./schemas/nextjs-sanity-fe";
+import { InferResultType } from "../types/public-types";
 
-describe("GroqBuilder", () => {
-  it("root should have an Empty result", () => {
-    expectTypeOf<InferResultType<typeof q>>().toEqualTypeOf<Empty>();
-  });
-  it("should have an empty query", () => {
-    expect(q).toMatchObject({
-      query: "",
-    });
-  });
+describe("legacy tests", () => {
   describe("getProductBySlug", () => {
     const getProductBySlug = q.star
       .filterByType("product")
