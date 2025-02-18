@@ -121,6 +121,14 @@ export type IsNullable<T> = null extends T
   : false;
 
 /**
+ * Makes a type nullable
+ */
+export type MakeNullable<
+  IsNullable extends boolean,
+  T
+> = IsNullable extends true ? null | T : T;
+
+/**
  * Returns just one type from a union of types.
  *
  * Note: ⚠️ the order is determined by compiler internals, and is NOT very stable!  Tread carefully!

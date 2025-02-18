@@ -1,4 +1,4 @@
-import { IsNullable, Override as _Override } from "./utils";
+import { IsNullable, MakeNullable, Override as _Override } from "./utils";
 
 /* eslint-disable @typescript-eslint/no-namespace */
 
@@ -72,7 +72,7 @@ export namespace ResultItem {
  * @internal Only exported for tests
  */
 export namespace ResultUtils {
-  type Unwrapped = {
+  export type Unwrapped = {
     TResultItem: unknown;
     IsArray: boolean;
     IsNullable: boolean;
@@ -94,9 +94,6 @@ export namespace ResultUtils {
   >;
 
   // Internal utils:
-  type MakeNullable<IsNullable extends boolean, T> = IsNullable extends true
-    ? null | T
-    : T;
   type MakeArray<IsArray extends boolean, T> = IsArray extends true
     ? Array<T>
     : T;

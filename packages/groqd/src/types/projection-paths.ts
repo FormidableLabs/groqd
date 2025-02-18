@@ -9,6 +9,7 @@ import {
   SimplifyUnion,
   UnionToIntersectionFast,
 } from "./union-to-intersection";
+import { CompatibleKeys, CompatiblePick } from "./compatible-types";
 
 /**
  * These types are ignored when calculating projection paths,
@@ -64,7 +65,7 @@ type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
     : // It must be an object; let's map it:
       ValueOf<{
         // Calculate the NewPath:
-        [Key in StringKeyOf<Value>]:  // Include the current entry:
+        [Key in StringKeys<keyof Value>]:  // Include the current entry:
           | Record<JoinPath<CurrentPath, Key>, UndefinedToNull<Value[Key]>>
           // Include all child entries:
           | ValuesAsMaybeNullable<
@@ -77,7 +78,6 @@ type JoinPath<
   CurrentPath extends string,
   Key extends string
 > = `${CurrentPath}${CurrentPath extends "" ? "" : "."}${Key}`;
-type StringKeyOf<T> = Extract<keyof T, string>;
 type ValuesAsArrays<T> = {
   [P in keyof T]: Array<T[P]>;
 };
@@ -90,33 +90,32 @@ type ValuesAsMaybeNullable<
       [P in keyof T]: null | T[P];
     };
 
-export type ProjectionPaths<T> = StringKeyOf<ProjectionPathEntries<T>>;
+/**
+ * Retrieves all projection paths for the given T
+ */
+export type ProjectionPaths<T> = StringKeys<keyof ProjectionPathEntries<T>>;
 
+/**
+ * Retrieves the value yielded by the Path
+ */
 export type ProjectionPathValue<
   T,
   Path extends ProjectionPaths<T>
 > = ProjectionPathEntries<T>[Path];
 
 /**
- * Finds the projection paths of T that have an output type compatible with TFilterByType
+ * Finds the projection paths of T
+ * that have an output type compatible with TFilterByType
  */
-export type ProjectionPathsByType<
-  T,
-  TFilterByType,
-  _Entries = ProjectionPathEntries<T>
-> = StringKeys<
-  ValueOf<{
-    [P in keyof _Entries]: TypesAreCompatible<
-      _Entries[P],
-      TFilterByType
-    > extends true
-      ? P
-      : never;
-  }>
+export type ProjectionPathsByType<T, TFilterByType> = StringKeys<
+  CompatibleKeys<ProjectionPathEntries<T>, TFilterByType>
 >;
 
-export type TypesAreCompatible<A, B> = A extends B
-  ? true
-  : B extends A
-  ? true
-  : false;
+/**
+ * Finds the projection path entries of T
+ * that have an output type compatible with TFilterByType
+ */
+export type ProjectionPathEntriesByType<T, TFilterByType> = CompatiblePick<
+  ProjectionPathEntries<T>,
+  TFilterByType
+>;
