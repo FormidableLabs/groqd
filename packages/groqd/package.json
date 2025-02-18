@@ -1,7 +1,7 @@
 {
   "name": "groqd",
   "description": "GroqD is a GROQ query builder, designed to give the best GROQ developer experience possible, with the flexibility of GROQ, the runtime safety of Zod, and provides schema-aware auto-completion and type-checking.",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "license": "MIT",
   "author": {
     "name": "Formidable",
