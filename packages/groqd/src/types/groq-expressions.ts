@@ -3,6 +3,7 @@ import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
 import { StringKeys, ValueOf } from "./utils";
 import {
   ProjectionPathEntries,
+  ProjectionPathEntriesByType,
   ProjectionPathsByType,
 } from "./projection-paths";
 
@@ -148,4 +149,12 @@ export namespace Expressions {
   >}${"" | " asc" | " desc"}`;
 
   type SortableTypes = string | number | boolean | null;
+
+  export type CountableEntries<TResult> = PickByKey<
+    ProjectionPathEntriesByType<TResult, Array<any> | null>,
+    `${string}[]` // We only want "actual" arrays, not nested ones
+  >;
+  type PickByKey<T, Key> = {
+    [P in Extract<keyof T, Key>]: T[P];
+  };
 }
