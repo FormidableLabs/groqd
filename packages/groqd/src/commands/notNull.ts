@@ -1,5 +1,4 @@
 import { GroqBuilder } from "../groq-builder";
-import { QueryConfig } from "../types/query-config";
 import { IGroqBuilderNotChainable } from "../types/public-types";
 import { IsNullable } from "../types/utils";
 
@@ -38,7 +37,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  notNull(this: GroqBuilder<any, QueryConfig>, ..._redundant) {
+  notNull(this: GroqBuilder, ..._redundant) {
     const parser = this.parser;
     return this.extend({
       parser: (input) => {

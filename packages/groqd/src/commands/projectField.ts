@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../groq-builder";
+import { GroqBuilder, GroqBuilderSubquery } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import { ValidateParserInput } from "../types/projection-types";
 import { Parser, ParserWithWidenedInput } from "../types/public-types";
@@ -8,9 +8,16 @@ import {
   ProjectionPaths,
   ProjectionPathValue,
 } from "../types/projection-paths";
+import { QueryConfig } from "../types/query-config";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  /* eslint-disable @typescript-eslint/no-empty-interface */
+  export interface GroqBuilder<TResult, TQueryConfig>
+    extends FieldDefinition<TResult, TQueryConfig> {}
+  export interface GroqBuilderSubquery<TResult, TQueryConfig>
+    extends FieldDefinition<TResult, TQueryConfig> {}
+
+  interface FieldDefinition<TResult, TQueryConfig extends QueryConfig> {
     /**
      * Performs a "naked projection", returning just the values of the field specified.
      *
@@ -60,8 +67,7 @@ declare module "../groq-builder" {
     projectNaked: never;
   }
 }
-
-GroqBuilder.implement({
+const fieldImplementation: Pick<GroqBuilder, "field"> = {
   field(this: GroqBuilder, fieldName: string, parser?: Parser): GroqBuilder {
     if (this.internal.query) {
       fieldName = "." + fieldName;
@@ -72,4 +78,7 @@ GroqBuilder.implement({
 
     return this.chain(fieldName, arrayParser);
   },
-});
+};
+
+GroqBuilder.implement(fieldImplementation);
+GroqBuilderSubquery.implement(fieldImplementation);

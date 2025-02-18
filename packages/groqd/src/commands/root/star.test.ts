@@ -1,9 +1,9 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SchemaConfig, q } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultType } from "../types/public-types";
-import { SchemaDocument } from "../index";
-import { executeBuilder } from "../tests/mocks/executeQuery";
-import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { SchemaConfig, q } from "../../tests/schemas/nextjs-sanity-fe";
+import { InferResultType } from "../../types/public-types";
+import { SchemaDocument } from "../../index";
+import { executeBuilder } from "../../tests/mocks/executeQuery";
+import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 
 describe("star", () => {
   const star = q.star;

@@ -1,16 +1,17 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   ExtractDocumentTypes,
-  GroqBuilder,
+  GroqBuilderBase,
   IGroqBuilder,
   InferResultItem,
   InferResultType,
-} from "../index";
-import { q, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+} from "../../index";
+import { q, SchemaConfig } from "../../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
-import { executeBuilder } from "../tests/mocks/executeQuery";
-import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { Simplify, SimplifyDeep } from "../types/utils";
+import { executeBuilder } from "../../tests/mocks/executeQuery";
+import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
+import { Simplify, SimplifyDeep } from "../../types/utils";
+import { getSubquery } from "../../tests/getSubquery";
 
 const data = mock.generateSeedData({
   products: mock.array(5, (i) =>
@@ -21,14 +22,16 @@ const data = mock.generateSeedData({
 type AllDocTypes = ExtractDocumentTypes<SchemaConfig["schemaTypes"]>;
 
 describe("conditionalByType", () => {
-  const conditionalByType = q.star.conditionalByType({
-    variant: { name: true, price: true },
-    product: { name: true, slug: "slug.current" },
-    category: (qC) => ({
-      name: true,
-      slug: qC.field("slug.current"),
-    }),
-  });
+  const conditionalByType = getSubquery(q)
+    .asType() // All types
+    .conditionalByType({
+      variant: { name: true, price: true },
+      product: { name: true, slug: "slug.current" },
+      category: (qC) => ({
+        name: true,
+        slug: qC.field("slug.current"),
+      }),
+    });
 
   type ExpectedConditionalUnion =
     | { _type: Exclude<AllDocTypes, "variant" | "product" | "category"> }
@@ -44,7 +47,7 @@ describe("conditionalByType", () => {
     >();
 
     expect(conditionalByType).toMatchObject({
-      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilder),
+      "[CONDITIONAL] [BY_TYPE]": expect.any(GroqBuilderBase),
     });
   });
 
@@ -110,8 +113,8 @@ describe("conditionalByType", () => {
   });
 
   it("types are correct when the conditions are exhaustive", () => {
-    const conditionsExhaustive = q.star
-      .filterByType("product", "variant")
+    const conditionsExhaustive = getSubquery(q)
+      .asType<"product" | "variant">()
       .conditionalByType({
         product: { _type: true, name: true },
         variant: { _type: true, price: true },

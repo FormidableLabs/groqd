@@ -1,18 +1,18 @@
-import { GroqBuilder } from "../groq-builder";
-import { ResultItem } from "../types/result-types";
+import { GroqBuilderSubquery } from "../../groq-builder";
+import { ResultItem } from "../../types/result-types";
 import {
   ConditionalConfig,
   ConditionalKey,
   ConditionalProjectionMap,
   ExtractConditionalProjectionResults,
 } from "./conditional-types";
-import { notNull } from "../types/utils";
-import { ParserFunction } from "../types/public-types";
-import { ProjectionMap } from "../types/projection-types";
+import { notNull } from "../../types/utils";
+import { ParserFunction } from "../../types/public-types";
+import { ProjectionMap } from "../../types/projection-types";
 
-declare module "../groq-builder" {
+declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Creates an inline conditional projection.
      *
@@ -53,21 +53,21 @@ declare module "../groq-builder" {
 
 const DEFAULT_KEY = "[KEY]" as const;
 
-GroqBuilder.implement({
+GroqBuilderSubquery.implement({
   conditional<
     TCP extends object,
     TKey extends string,
     TIsExhaustive extends boolean
   >(
-    this: GroqBuilder,
+    this: GroqBuilderSubquery,
     conditionalProjections: TCP,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {
-    const root = this.root;
+    const subquery = this.subquery;
     const allConditionalProjections = Object.entries(
       conditionalProjections
     ).map(([condition, projectionMap]) => {
-      const conditionalProjection = root
+      const conditionalProjection = subquery
         .chain(`${condition} =>`)
         .project(projectionMap as ProjectionMap<unknown>);
 
@@ -86,7 +86,7 @@ GroqBuilder.implement({
       ? null
       : createConditionalParserUnion(parsers, config?.isExhaustive ?? false);
 
-    const conditionalQuery = root.chain(query, conditionalParser);
+    const conditionalQuery = subquery.chain(query, conditionalParser);
     const key = config?.key || (DEFAULT_KEY as TKey);
     const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {

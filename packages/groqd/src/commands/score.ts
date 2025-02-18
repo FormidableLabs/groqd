@@ -41,7 +41,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  score(this: GroqBuilder, ...scoreExpressions) {
+  score(this: GroqBuilder, ...scoreExpressions): GroqBuilder {
     return this.scoreRaw(...scoreExpressions);
   },
   scoreRaw(this: GroqBuilder, ...scoreExpressions) {

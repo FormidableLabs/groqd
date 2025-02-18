@@ -1,9 +1,27 @@
-import { GroqBuilder } from "../groq-builder";
+import {
+  GroqBuilder,
+  GroqBuilderBase,
+  GroqBuilderRoot,
+  GroqBuilderSubquery,
+} from "../groq-builder";
 import { ExtractDocumentTypes } from "../types/document-types";
+import { QueryConfig } from "../types/query-config";
 
 declare module "../groq-builder" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  /* eslint-disable @typescript-eslint/no-empty-interface */
+  export interface GroqBuilderRoot<TResult, TQueryConfig>
+    extends AsDefinitions<TResult, TQueryConfig, "root"> {}
+  export interface GroqBuilderSubquery<TResult, TQueryConfig>
+    extends AsDefinitions<TResult, TQueryConfig, "subquery"> {}
+  export interface GroqBuilder<TResult, TQueryConfig>
+    extends AsDefinitions<TResult, TQueryConfig, "chain"> {}
+
+  export interface AsDefinitions<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    TResult,
+    TQueryConfig extends QueryConfig,
+    ReturnType extends "root" | "subquery" | "chain"
+  > {
     /**
      * Overrides the result type to anything you specify.
      *
@@ -13,7 +31,7 @@ declare module "../groq-builder" {
      * q.star.filter("slug.current == $productSlug").as<Product>()...
      *
      */
-    as<TResultNew>(): GroqBuilder<TResultNew, TQueryConfig>;
+    as<TResultNew>(): GroqBuilderOfType<TResultNew, TQueryConfig, ReturnType>;
 
     /**
      * Overrides the result type to a specific document type.
@@ -25,18 +43,29 @@ declare module "../groq-builder" {
      */
     asType<
       _type extends ExtractDocumentTypes<TQueryConfig["schemaTypes"]>
-    >(): GroqBuilder<
+    >(): GroqBuilderOfType<
       Extract<TQueryConfig["schemaTypes"], { _type: _type }>,
-      TQueryConfig
+      TQueryConfig,
+      ReturnType
     >;
   }
 }
 
-GroqBuilder.implement({
-  as(this: GroqBuilder) {
+export type GroqBuilderOfType<
+  TResult,
+  TQueryConfig extends QueryConfig,
+  ReturnType extends "root" | "subquery" | "chain"
+> = ReturnType extends "root"
+  ? GroqBuilderRoot<TResult, TQueryConfig>
+  : ReturnType extends "subquery"
+  ? GroqBuilderSubquery<TResult, TQueryConfig>
+  : GroqBuilder<TResult, TQueryConfig>;
+
+GroqBuilderBase.implement({
+  as(this: GroqBuilderBase) {
     return this;
   },
-  asType(this: GroqBuilder<never>) {
+  asType(this: GroqBuilderBase) {
     return this;
   },
 });

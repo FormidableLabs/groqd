@@ -1,9 +1,9 @@
-import { QueryConfig } from "../types/query-config";
-import { StringKeys, ValueOf } from "../types/utils";
-import { GroqBuilder } from "../groq-builder";
-import { IGroqBuilder, InferResultType } from "../types/public-types";
-import { Expressions } from "../types/groq-expressions";
-import { ExtractDocumentTypes } from "../types/document-types";
+import { QueryConfig } from "../../types/query-config";
+import { StringKeys, ValueOf } from "../../types/utils";
+import { GroqBuilderSubquery } from "../../groq-builder";
+import { IGroqBuilder, InferResultType } from "../../types/public-types";
+import { Expressions } from "../../types/groq-expressions";
+import { ExtractDocumentTypes } from "../../types/document-types";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type SelectProjections<
@@ -28,7 +28,10 @@ export type SelectByTypeProjections<
   [_type in ExtractDocumentTypes<TResultItem>]?:
     | IGroqBuilder
     | ((
-        q: GroqBuilder<Extract<TResultItem, { _type: _type }>, TQueryConfig>
+        sub: GroqBuilderSubquery<
+          Extract<TResultItem, { _type: _type }>,
+          TQueryConfig
+        >
       ) => IGroqBuilder);
 };
 

@@ -1,5 +1,4 @@
 import { GroqBuilder } from "../groq-builder";
-import { QueryConfig } from "../types/query-config";
 import { DerefDeep } from "../types/ref-types";
 
 declare module "../groq-builder" {
@@ -31,7 +30,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  deref(this: GroqBuilder<any, QueryConfig>) {
+  deref(this: GroqBuilder) {
     return this.chain("->");
   },
 });

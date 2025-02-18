@@ -2,13 +2,18 @@ import {
   ExtractProjectionResult,
   ProjectionMap,
   ProjectionMapOrCallback,
-} from "../types/projection-types";
-import { Empty, IntersectionOfValues, Simplify, ValueOf } from "../types/utils";
-import { QueryConfig } from "../types/query-config";
-import { GroqBuilder } from "../groq-builder";
-import { IGroqBuilder, InferResultType } from "../types/public-types";
-import { Expressions } from "../types/groq-expressions";
-import { ExtractDocumentTypes } from "../types/document-types";
+} from "../../types/projection-types";
+import {
+  Empty,
+  IntersectionOfValues,
+  Simplify,
+  ValueOf,
+} from "../../types/utils";
+import { QueryConfig } from "../../types/query-config";
+import { GroqBuilderSubquery } from "../../groq-builder";
+import { IGroqBuilder, InferResultType } from "../../types/public-types";
+import { Expressions } from "../../types/groq-expressions";
+import { ExtractDocumentTypes } from "../../types/document-types";
 
 export type ConditionalProjectionMap<
   TResultItem,
@@ -18,7 +23,7 @@ export type ConditionalProjectionMap<
     Expressions.AnyConditional<TResultItem, TQueryConfig>,
     | ProjectionMap<TResultItem>
     | ((
-        q: GroqBuilder<TResultItem, TQueryConfig>
+        sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
       ) => ProjectionMap<TResultItem>)
   >
 >;
@@ -97,7 +102,7 @@ export type ExtractConditionalByTypeProjectionResults<
 >;
 
 export type ConditionalKey<TKey extends string> = `[CONDITIONAL] ${TKey}`;
-export function isConditional(key: string): key is ConditionalKey<string> {
+export function isConditionalKey(key: string): key is ConditionalKey<string> {
   return key.startsWith("[CONDITIONAL] ");
 }
 export type SpreadableConditionals<

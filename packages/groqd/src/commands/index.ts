@@ -1,23 +1,24 @@
+import "./root/fragment";
+import "./root/parameters";
+import "./root/star";
+import "./root/value";
+
+import "./subquery/conditional";
+import "./subquery/conditionalByType";
+import "./subquery/select";
+import "./subquery/selectByType";
+
 import "./as";
-import "./conditional";
-import "./conditionalByType";
 import "./deref";
 import "./filter";
 import "./filterByType";
-import "./fragment";
 import "./grab-deprecated";
 import "./notNull";
 import "./nullable";
 import "./order";
-import "./parameters";
 import "./project";
 import "./projectField";
 import "./raw";
 import "./score";
-import "./select";
-import "./selectByType";
 import "./slice";
-import "./star";
 import "./validate";
-
-import "./functions/value";

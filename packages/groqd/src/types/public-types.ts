@@ -71,7 +71,7 @@ export type IGroqBuilder<
   TQueryConfig extends QueryConfig = QueryConfig
 > = {
   /**
-   * Used to infer the Result types of a GroqBuilder.
+   * Used to infer the TResult types of a GroqBuilder.
    * This symbol is not used at runtime.
    * @internal
    */
@@ -95,6 +95,19 @@ export type IGroqBuilder<
    */
   readonly parse: ParserFunction;
 };
+
+export function isGroqBuilder(
+  fieldConfig: unknown
+): fieldConfig is IGroqBuilder {
+  return (
+    !!fieldConfig &&
+    typeof fieldConfig === "object" &&
+    "query" in fieldConfig &&
+    "parse" in fieldConfig &&
+    typeof fieldConfig.query === "string" &&
+    typeof fieldConfig.parse === "function"
+  );
+}
 
 /**
  * Represents a GroqBuilder chain that is "terminal",

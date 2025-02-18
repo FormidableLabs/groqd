@@ -1,9 +1,9 @@
-import { GroqBuilder } from "../groq-builder";
-import { SchemaDocument } from "../types/document-types";
+import { GroqBuilderRoot } from "../../groq-builder";
+import { SchemaDocument } from "../../types/document-types";
 
-declare module "../groq-builder" {
+declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderRoot<TResult, TQueryConfig> {
     /**
      * Selects all documents, via GROQ's `*` selector.
      * This is how most queries start.
@@ -19,9 +19,9 @@ declare module "../groq-builder" {
   }
 }
 
-GroqBuilder.implementProperties({
+GroqBuilderRoot.implementProperties({
   star: {
-    get(this: GroqBuilder) {
+    get(this: GroqBuilderRoot) {
       return this.chain("*");
     },
   },

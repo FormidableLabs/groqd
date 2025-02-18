@@ -1,16 +1,16 @@
-import { GroqBuilder } from "../groq-builder";
+import { GroqBuilderRoot, GroqBuilderSubquery } from "../../groq-builder";
 import {
   ExtractProjectionResult,
   ProjectionMap,
-} from "../types/projection-types";
-import { Fragment } from "../types/public-types";
-import { QueryConfig } from "../types/query-config";
-import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";
-import { ExtractDocumentTypes } from "../types/document-types";
+} from "../../types/projection-types";
+import { Fragment } from "../../types/public-types";
+import { QueryConfig } from "../../types/query-config";
+import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../../types/type-mismatch-error";
+import { ExtractDocumentTypes } from "../../types/document-types";
 
-declare module "../groq-builder" {
+declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  export interface GroqBuilderRoot<TResult, TQueryConfig> {
     /**
      * Creates a fragment for any type you specify.
      * This is useful for inline types that do not have a top-level document type.
@@ -63,23 +63,25 @@ export type FragmentUtil<TQueryConfig extends QueryConfig, TFragmentInput> = {
   >(
     projectionMap:
       | TProjectionMap
-      | ((q: GroqBuilder<TFragmentInput, TQueryConfig>) => TProjectionMap),
+      | ((
+          sub: GroqBuilderSubquery<TFragmentInput, TQueryConfig>
+        ) => TProjectionMap),
     ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
   ): Fragment<TProjectionMap, TFragmentInput>;
 };
 
-GroqBuilder.implement({
-  fragment(this: GroqBuilder<any>): FragmentUtil<any, any> {
+GroqBuilderRoot.implement({
+  fragment(this: GroqBuilderRoot): FragmentUtil<any, any> {
     return {
       project: (projectionMap, ...__projectionMapTypeMismatchErrors) => {
         if (typeof projectionMap === "function") {
-          return projectionMap(this);
+          return projectionMap(this.subquery);
         }
         return projectionMap;
       },
     };
   },
-  fragmentForType(this: GroqBuilder<any>): FragmentUtil<any, any> {
+  fragmentForType(this: GroqBuilderRoot): FragmentUtil<any, any> {
     return this.fragment();
   },
 });

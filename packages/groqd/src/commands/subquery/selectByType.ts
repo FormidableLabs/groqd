@@ -1,15 +1,15 @@
-import { GroqBuilder } from "../groq-builder";
-import { ResultItem } from "../types/result-types";
-import { keys, Simplify } from "../types/utils";
+import { GroqBuilder, GroqBuilderSubquery } from "../../groq-builder";
+import { ResultItem } from "../../types/result-types";
+import { keys, Simplify } from "../../types/utils";
 import {
   ExtractSelectByTypeResult,
   SelectByTypeProjections,
   SelectProjections,
 } from "./select-types";
-import { IGroqBuilder, InferResultType } from "../types/public-types";
+import { IGroqBuilder, InferResultType } from "../../types/public-types";
 
-declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+declare module "../../groq-builder" {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Applies GROQ's `select` function, for conditional logic,
      * based on the `_type` field.
@@ -44,19 +44,23 @@ declare module "../groq-builder" {
   }
 }
 
-GroqBuilder.implement({
-  selectByType(this: GroqBuilder, typeQueries, defaultSelection) {
+GroqBuilderSubquery.implement({
+  selectByType(
+    this: GroqBuilderSubquery,
+    typeQueries,
+    defaultSelection
+  ): GroqBuilder {
     const mapped: SelectProjections<any, any> = {};
-    const root = this.root;
+    const subquery = this.subquery;
     for (const key of keys(typeQueries)) {
       const condition = `_type == "${key}"`;
 
       const queryFn = typeQueries[key];
       const query: IGroqBuilder =
-        typeof queryFn === "function" ? queryFn(root) : queryFn!;
+        typeof queryFn === "function" ? queryFn(subquery) : queryFn!;
 
       mapped[condition] = query;
     }
-    return this.select(mapped, defaultSelection) as any;
+    return this.select(mapped, defaultSelection);
   },
 });

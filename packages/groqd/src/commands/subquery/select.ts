@@ -1,15 +1,15 @@
-import { GroqBuilder } from "../groq-builder";
-import { ResultItem } from "../types/result-types";
+import { GroqBuilder, GroqBuilderSubquery } from "../../groq-builder";
+import { ResultItem } from "../../types/result-types";
 import { ExtractSelectResult, SelectProjections } from "./select-types";
-import { notNull } from "../types/utils";
+import { notNull } from "../../types/utils";
 import {
   IGroqBuilder,
   InferResultType,
   ParserFunction,
-} from "../types/public-types";
+} from "../../types/public-types";
 
-declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+declare module "../../groq-builder" {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Applies GROQ's `select` function, for conditional logic.
      *
@@ -42,8 +42,8 @@ declare module "../groq-builder" {
     >;
   }
 }
-GroqBuilder.implement({
-  select(this: GroqBuilder, selections, defaultSelection): GroqBuilder<any> {
+GroqBuilderSubquery.implement({
+  select(this: GroqBuilderSubquery, selections, defaultSelection): GroqBuilder {
     const conditions = Object.keys(selections);
 
     const queries = conditions.map((condition) => {
@@ -71,7 +71,10 @@ GroqBuilder.implement({
           `Missing validation: "${missing.join('", "')}"`
       );
       // This only works on V8 engines:
-      (Error as any).captureStackTrace?.(err, GroqBuilder.prototype.select);
+      (Error as any).captureStackTrace?.(
+        err,
+        GroqBuilderSubquery.prototype.select
+      );
       throw err;
     }
 

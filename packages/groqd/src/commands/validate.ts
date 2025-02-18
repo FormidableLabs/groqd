@@ -23,7 +23,7 @@ declare module "../groq-builder" {
 }
 
 GroqBuilder.implement({
-  validate(this: GroqBuilder, parser) {
+  validate(this: GroqBuilder, parser): GroqBuilder {
     const chainedParser = chainParsers(
       this.internal.parser,
       normalizeValidationFunction(parser)

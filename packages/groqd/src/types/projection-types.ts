@@ -1,4 +1,4 @@
-import { GroqBuilder } from "../groq-builder";
+import { GroqBuilderSubquery } from "../groq-builder";
 import {
   Empty,
   ExtractString,
@@ -20,7 +20,7 @@ import { QueryConfig } from "./query-config";
 import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,
-} from "../commands/conditional-types";
+} from "../commands/subquery/conditional-types";
 import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
 
 export type ProjectionMap<TResultItem> = {
@@ -38,7 +38,9 @@ export type ProjectionMapOrCallback<
   TQueryConfig extends QueryConfig
 > =
   | ProjectionMap<TResultItem>
-  | ((q: GroqBuilder<TResultItem, TQueryConfig>) => ProjectionMap<TResultItem>);
+  | ((
+      sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
+    ) => ProjectionMap<TResultItem>);
 
 export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use 'true' to include a field as-is

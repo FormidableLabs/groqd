@@ -4,10 +4,11 @@ import "./projectField";
 /*
  * For backwards compatibility, we'll keep `grab` and `grabOne` as deprecated aliases:
  */
-import { GroqBuilder } from "../groq-builder";
+import { GroqBuilder, GroqBuilderBase } from "../groq-builder";
 
 declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+  /* eslint-disable @typescript-eslint/no-empty-interface */
+  export interface GroqBuilderBase<TResult, TQueryConfig> {
     /**
      * @deprecated This method has been renamed to 'project' and will be removed in a future version.
      */
@@ -26,7 +27,7 @@ declare module "../groq-builder" {
     grabOne$: GroqBuilder<TResult, TQueryConfig>["field"];
   }
 }
-GroqBuilder.implement({
+GroqBuilderBase.implement({
   grab: deprecated<any>(GroqBuilder.prototype.project, () => {
     console.warn(
       "'grab' has been renamed to 'project' and will be removed in a future version"

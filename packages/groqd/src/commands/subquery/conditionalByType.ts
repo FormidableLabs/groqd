@@ -1,18 +1,17 @@
-import { GroqBuilder } from "../groq-builder";
-import { QueryConfig } from "../types/query-config";
-import { ResultItem } from "../types/result-types";
+import { GroqBuilderSubquery } from "../../groq-builder";
+import { ResultItem } from "../../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
   ConditionalByTypeProjectionMap,
   ConditionalKey,
   ConditionalConfig,
 } from "./conditional-types";
-import { ProjectionMap } from "../types/projection-types";
-import { keys } from "../types/utils";
-import { ExtractDocumentTypes } from "../types/document-types";
+import { ProjectionMap } from "../../types/projection-types";
+import { keys } from "../../types/utils";
+import { ExtractDocumentTypes } from "../../types/document-types";
 
-declare module "../groq-builder" {
-  export interface GroqBuilder<TResult, TQueryConfig> {
+declare module "../../groq-builder" {
+  export interface GroqBuilderSubquery<TResult, TQueryConfig> {
     /**
      * Creates an inline conditional projection, based on the `_type` field.
      *
@@ -58,24 +57,24 @@ declare module "../groq-builder" {
 }
 const DEFAULT_KEY = "[BY_TYPE]" as const;
 
-GroqBuilder.implement({
+GroqBuilderSubquery.implement({
   conditionalByType<
     TConditionalProjections extends object,
     TKey extends string,
     TIsExhaustive extends boolean
   >(
-    this: GroqBuilder<any, QueryConfig>,
+    this: GroqBuilderSubquery,
     conditionalProjections: TConditionalProjections,
     config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
   ) {
     const typeNames = keys(conditionalProjections);
 
-    const root = this.root;
+    const subquery = this.subquery;
     const conditions = typeNames.map((_type) => {
       const projectionMap = conditionalProjections[
         _type
       ] as ProjectionMap<unknown>;
-      const conditionQuery = root
+      const conditionQuery = subquery
         .chain(`_type == "${_type}" =>`)
         .project(projectionMap);
       const { query, parser } = conditionQuery;
@@ -101,7 +100,7 @@ GroqBuilder.implement({
           return {};
         };
 
-    const conditionalQuery = this.root.chain(query, conditionalParser);
+    const conditionalQuery = this.subquery.chain(query, conditionalParser);
     const key: TKey = config?.key || (DEFAULT_KEY as TKey);
     const conditionalKey: ConditionalKey<TKey> = `[CONDITIONAL] ${key}`;
     return {
