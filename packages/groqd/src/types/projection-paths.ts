@@ -9,6 +9,7 @@ import {
   SimplifyUnion,
   UnionToIntersectionFast,
 } from "./union-to-intersection";
+import { CompatibleKeys, CompatiblePick } from "./compatible-types";
 
 /**
  * These types are ignored when calculating projection paths,
@@ -111,31 +112,27 @@ type IsArray<T> = IsAny<T> extends true
  */
 export type ProjectionPaths<T> = StringKeys<keyof ProjectionPathEntries<T>>;
 
+/**
+ * Retrieves the value yielded by the Path
+ */
 export type ProjectionPathValue<
   T,
   Path extends ProjectionPaths<T>
 > = ProjectionPathEntries<T>[Path];
 
 /**
- * Finds the projection paths of T that have an output type compatible with TFilterByType
+ * Finds the projection paths of T
+ * that have an output type compatible with TFilterByType
  */
-export type ProjectionPathsByType<
-  T,
-  TFilterByType,
-  _Entries = ProjectionPathEntries<T>
-> = StringKeys<
-  ValueOf<{
-    [P in keyof _Entries]: TypesAreCompatible<
-      _Entries[P],
-      TFilterByType
-    > extends true
-      ? P
-      : never;
-  }>
+export type ProjectionPathsByType<T, TFilterByType> = StringKeys<
+  CompatibleKeys<ProjectionPathEntries<T>, TFilterByType>
 >;
 
-export type TypesAreCompatible<A, B> = A extends B
-  ? true
-  : B extends A
-  ? true
-  : false;
+/**
+ * Finds the projection path entries of T
+ * that have an output type compatible with TFilterByType
+ */
+export type ProjectionPathEntriesByType<T, TFilterByType> = CompatiblePick<
+  ProjectionPathEntries<T>,
+  TFilterByType
+>;

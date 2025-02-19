@@ -18,7 +18,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   order(this: GroqBuilder, ...fields) {
-    const query = ` | order(${fields.join(", ")})`;
-    return this.pipe(query);
+    return this.pipe(` | order(${fields.join(", ")})`);
   },
 });

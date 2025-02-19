@@ -4,7 +4,6 @@ import {
   ProjectionPaths,
   ProjectionPathsByType,
   ProjectionPathValue,
-  TypesAreCompatible,
 } from "./projection-paths";
 import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
@@ -349,16 +348,5 @@ describe("ProjectionPathEntries", () => {
         "crop.right": null | number;
       }>();
     });
-  });
-});
-describe("TypesAreCompatible", () => {
-  it("should work for literals", () => {
-    expectTypeOf<TypesAreCompatible<string, "str">>().toEqualTypeOf<true>();
-    expectTypeOf<TypesAreCompatible<"str", string>>().toEqualTypeOf<true>();
-
-    // Should not be compatible:
-    expectTypeOf<TypesAreCompatible<"str", "other">>().toEqualTypeOf<false>();
-    expectTypeOf<TypesAreCompatible<"str", number>>().toEqualTypeOf<false>();
-    expectTypeOf<TypesAreCompatible<number, "str">>().toEqualTypeOf<false>();
   });
 });

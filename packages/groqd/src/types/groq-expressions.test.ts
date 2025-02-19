@@ -2,6 +2,7 @@ import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
 import { QueryConfig } from "./query-config";
 import { ParametersWith$Sign } from "./parameter-types";
+import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 
 type FooBarBaz = { foo: string; bar: number; baz: boolean };
 
@@ -281,5 +282,20 @@ describe("Expressions.Order", () => {
 
   it("should generate a good list of suggestions", () => {
     expectTypeOf<Expressions.Order<SortableType>>().toEqualTypeOf<Expected>();
+  });
+});
+describe("Expressions.Countable", () => {
+  it("should generate a good list of suggestions", () => {
+    type ActualSuggestions =
+      keyof Expressions.CountableEntries<SanitySchema.Variant>;
+    type Expected =
+      | "description[]"
+      ///
+      | "images[]"
+      | "flavour[]"
+      | "style[]";
+    type Missing = Exclude<ActualSuggestions, Expected>;
+    expectTypeOf<Missing>().toEqualTypeOf<never>();
+    expectTypeOf<ActualSuggestions>().toEqualTypeOf<Expected>();
   });
 });
