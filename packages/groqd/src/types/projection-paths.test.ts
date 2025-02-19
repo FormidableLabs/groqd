@@ -38,28 +38,25 @@ describe("ProjectionPaths", () => {
   });
 
   it("should generate keys for array types", () => {
-    expectTypeOf<ProjectionPaths<{ a: [] }>>().toEqualTypeOf<"a" | "a[]">();
+    expectTypeOf<ProjectionPaths<{ a: unknown[] }>>().toEqualTypeOf<"a[]">();
     expectTypeOf<ProjectionPaths<{ a: Array<{ b: "B" }> }>>().toEqualTypeOf<
-      "a" | "a[]" | "a[].b"
+      "a[]" | "a[].b"
     >();
     expectTypeOf<
       ProjectionPaths<{ a: Array<{ b: Array<{ c: "C" }> }> }>
     >().toEqualTypeOf<
-      | "a"
-      ///
       | "a[]"
-      | "a[].b"
+      ///
       | "a[].b[]"
       | "a[].b[].c"
     >();
     expectTypeOf<
       ProjectionPaths<{ a: Array<Array<{ b: "B" }>> }>
     >().toEqualTypeOf<
-      | "a"
-      ///
       | "a[]"
-      | "a[][].b"
+      ///
       | "a[][]"
+      | "a[][].b"
     >();
   });
 
@@ -104,14 +101,8 @@ describe("ProjectionPathValue", () => {
   });
 
   it("should return the correct types from array paths", () => {
-    expectTypeOf<ProjectionPathValue<TestObject, "g">>().toEqualTypeOf<
-      Array<{ h: Array<{ i: "I" }> }>
-    >();
     expectTypeOf<ProjectionPathValue<TestObject, "g[]">>().toEqualTypeOf<
       Array<{ h: Array<{ i: "I" }> }>
-    >();
-    expectTypeOf<ProjectionPathValue<TestObject, "g[].h">>().toEqualTypeOf<
-      Array<Array<{ i: "I" }>>
     >();
     expectTypeOf<ProjectionPathValue<TestObject, "g[].h[]">>().toEqualTypeOf<
       Array<Array<{ i: "I" }>>
@@ -203,7 +194,6 @@ describe("ProjectionPathEntries", () => {
         a: Array<string>;
       }>
     >().toEqualTypeOf<{
-      a: Array<string>;
       "a[]": Array<string>;
     }>();
 
@@ -212,7 +202,6 @@ describe("ProjectionPathEntries", () => {
         a: Array<{ foo: "FOO" }>;
       }>
     >().toEqualTypeOf<{
-      a: Array<{ foo: "FOO" }>;
       "a[]": Array<{ foo: "FOO" }>;
       "a[].foo": Array<"FOO">;
     }>();
@@ -254,7 +243,6 @@ describe("ProjectionPathEntries", () => {
         a?: Array<{ b: "B" }>;
       }>
     >().toEqualTypeOf<{
-      a: null | Array<{ b: "B" }>;
       "a[]": null | Array<{ b: "B" }>;
       "a[].b": null | Array<"B">;
     }>();
@@ -301,15 +289,11 @@ describe("ProjectionPathEntries", () => {
         "slug.current": string;
 
         // These are references, so they don't go deeper:
-        description: null | V["description"];
         "description[]": null | V["description"];
-        flavour: null | V["flavour"];
         "flavour[]": null | V["flavour"];
-        style: null | V["style"];
         "style[]": null | V["style"];
 
         // Images get expanded pretty deep:
-        images: null | Array<ProductImage>;
         "images[]": null | Array<ProductImage>;
         "images[]._type": null | Array<"productImage">;
         "images[]._key": null | Array<string>;
