@@ -12,6 +12,8 @@ describe("GroqBuilderRoot", () => {
       | "star"
       | "project"
       | "raw"
+      | "count"
+      | "coalesce"
       // Utils:
       | "value"
       | "parameters"
@@ -43,6 +45,8 @@ describe("GroqBuilderSubquery", () => {
       | "asType"
       | "raw"
       // Subquery utils:
+      | "count"
+      | "coalesce"
       | "conditional"
       | "conditionalByType"
       | "select"
