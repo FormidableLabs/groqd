@@ -3,9 +3,9 @@ import {
   internalGroqTypeReferenceTo,
 } from "./nextjs-sanity-fe.sanity-typegen";
 import * as SanitySchema from "./nextjs-sanity-fe.sanity-typegen";
-import { createGroqBuilderWithZod } from "../../index";
+import { createGroqBuilderWithZod, zod } from "../../index";
 
-export { SanitySchema };
+export { SanitySchema, zod };
 
 export type ReferenceTo<TypeName extends string> = {
   _ref: string;
