@@ -174,7 +174,7 @@ export function unionParser<TItemInput, TItemOutput>(
       null,
       input,
       new Error(
-        `Expected the value to match one of the values above, but got ${inspect(
+        `Expected the value to match one of the values above, but got: ${inspect(
           input
         )}`
       )

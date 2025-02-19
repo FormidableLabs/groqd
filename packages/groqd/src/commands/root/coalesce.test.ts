@@ -1,12 +1,10 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { q, SanitySchema } from "../../tests/schemas/nextjs-sanity-fe";
+import { q, SanitySchema, zod } from "../../tests/schemas/nextjs-sanity-fe";
 import { InferResultItem, InferResultType } from "../../types/public-types";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 
 describe("coalesce", () => {
-  const data = mock.generateSeedData({});
-
   describe("as a root-level query", () => {
     describe("should have the correct type", () => {
       it("with literal values", () => {
@@ -84,9 +82,82 @@ describe("coalesce", () => {
       }>();
     });
 
+    const data = mock.generateSeedData({
+      variants: [
+        mock.variant({ id: undefined, _id: "A" }),
+        mock.variant({ id: undefined, _id: "B" }),
+        mock.variant({ id: "C", _id: "FOO" }),
+        mock.variant({ id: undefined, _id: undefined }),
+      ],
+    });
     it("executes correctly", async () => {
-      // const results = await executeBuilder(q, data);
-      // expect(results).toMatchInlineSnapshot();
+      const query = qVariants.project((v) => ({
+        coalesceTest: v.coalesce("id", "_id"),
+      }));
+      const results = await executeBuilder(query, data);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "coalesceTest": "A",
+          },
+          {
+            "coalesceTest": "B",
+          },
+          {
+            "coalesceTest": "C",
+          },
+          {
+            "coalesceTest": null,
+          },
+        ]
+      `);
+    });
+    it("executes correctly with validation", async () => {
+      const query = qVariants.project((v) => ({
+        coalesceTest: v.coalesce(
+          v.field("id", zod.string().nullable()),
+          v.field("_id", zod.string().nullable()),
+          q.value("DEFAULT", zod.literal("DEFAULT"))
+        ),
+      }));
+      const results = await executeBuilder(query, data);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "coalesceTest": "A",
+          },
+          {
+            "coalesceTest": "B",
+          },
+          {
+            "coalesceTest": "C",
+          },
+          {
+            "coalesceTest": "DEFAULT",
+          },
+        ]
+      `);
+
+      const invalidData = mock.generateSeedData({
+        variants: [
+          mock.variant({
+            // @ts-expect-error ---
+            id: 55,
+          }),
+          mock.variant({
+            // @ts-expect-error ---
+            _id: 66,
+          }),
+        ],
+      });
+      await expect(() => executeBuilder(query, invalidData)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        [ValidationErrors: 4 Parsing Errors:
+        result[0].coalesceTest: Expected string, received number
+        result[0].coalesceTest: Expected string, received number
+        result[0].coalesceTest: Invalid literal value, expected "DEFAULT"
+        result[0].coalesceTest: Expected the value to match one of the values above, but got: 55]
+      `);
     });
   });
 
@@ -113,7 +184,7 @@ describe("coalesce", () => {
           result: Invalid literal value, expected "A"
           result: Invalid literal value, expected "A"
           result: Invalid literal value, expected "B"
-          result: Expected the value to match one of the values above, but got "INVALID"]
+          result: Expected the value to match one of the values above, but got: "INVALID"]
         `);
       });
     });
