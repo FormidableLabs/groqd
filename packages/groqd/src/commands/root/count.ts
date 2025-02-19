@@ -16,6 +16,21 @@ declare module "../../groq-builder" {
     extends CountDefinition<TResult, TQueryConfig> {}
 
   interface CountDefinition<TResult, TQueryConfig extends QueryConfig> {
+    /**
+     * Wraps the expressions with GROQ's `count(...)` function.
+     *
+     * The `expression` can be either a projection string, or any valid query.
+     *
+     * @example
+     * q.star.filterByType("product").project(product => ({
+     *   // Use a simple projection string:
+     *   imageCount: product.count("images[]"),
+     *   // Use any complex query:
+     *   categoryCount: product.count(
+     *     product.star.filterByType("category").filterRaw("references(^._id)")
+     *   ),
+     * }));
+     */
     count<TExpressionResult extends Array<any> | null>(
       expression: IGroqBuilder<TExpressionResult>
     ): GroqBuilder<
@@ -24,6 +39,21 @@ declare module "../../groq-builder" {
       | (IsNullable<TExpressionResult> extends true ? null : never),
       TQueryConfig
     >;
+    /**
+     * Wraps the expressions with GROQ's `count(...)` function.
+     *
+     * The `expression` can be either a projection string, or any valid query.
+     *
+     * @example
+     * q.star.filterByType("product").project(product => ({
+     *   // Use a simple projection string:
+     *   imageCount: product.count("images[]"),
+     *   // Use any complex query:
+     *   categoryCount: product.count(
+     *     product.star.filterByType("category").filterRaw("references(^._id)")
+     *   ),
+     * }));
+     */
     count<TExpression extends keyof Expressions.CountableEntries<TResult>>(
       expression: TExpression
     ): GroqBuilder<
