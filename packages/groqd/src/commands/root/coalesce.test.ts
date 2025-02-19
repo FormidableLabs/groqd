@@ -44,8 +44,15 @@ describe("coalesce", () => {
       });
     });
     it("should execute correctly", async () => {
-      // const productCount = await executeBuilder(qProductCount, data);
-      // expect(productCount).toEqual(data.products.length);
+      const noDataNecessary = { datalake: [] };
+
+      const queryA = q.coalesce(q.value<"A" | null>("A"), q.value("B"));
+      const resultA = await executeBuilder(queryA, noDataNecessary);
+      expect(resultA).toEqual("A");
+
+      const queryB = q.coalesce(q.value<"A" | null>(null), q.value("B"));
+      const resultB = await executeBuilder(queryB, noDataNecessary);
+      expect(resultB).toEqual("B");
     });
   });
 
