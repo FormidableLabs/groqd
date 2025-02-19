@@ -1,5 +1,21 @@
 # groqd
 
+## 1.2.0
+
+### Minor Changes
+
+- Feature: added `count` method ([#354](https://github.com/FormidableLabs/groqd/pull/354))
+
+  Feature: added `coalesce` method
+
+### Patch Changes
+
+- Fix: always require `[]` when projecting arrays. ([#358](https://github.com/FormidableLabs/groqd/pull/358))
+
+  - Prevents issues with chaining `.deref()` and `.field()`
+  - Makes code clearer
+  - Reduces noise in auto-complete suggestions
+
 ## 1.1.0
 
 ### Minor Changes
