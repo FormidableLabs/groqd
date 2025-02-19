@@ -89,4 +89,47 @@ describe("coalesce", () => {
       // expect(results).toMatchInlineSnapshot();
     });
   });
+
+  describe("with validation", () => {
+    const valueA = q.value("A", q.literal("A"));
+    const valueB = q.value("B", q.literal("B"));
+    const valueANull = q.value("A", q.literal("A").nullable());
+
+    describe("when all expressions include validation", () => {
+      const query = q.coalesce(valueANull, valueA, valueB);
+      it("should allow all expressions to include validation", () => {
+        expect(query.parser).toBeDefined();
+      });
+      it("should parse valid inputs without problem", () => {
+        query.parse("A");
+        query.parse("B");
+        query.parse(null);
+      });
+      it("should throw errors when the input is invalid", () => {
+        expect(() => {
+          query.parse("INVALID");
+        }).toThrowErrorMatchingInlineSnapshot(`
+          [ValidationErrors: 4 Parsing Errors:
+          result: Invalid literal value, expected "A"
+          result: Invalid literal value, expected "A"
+          result: Invalid literal value, expected "B"
+          result: Expected the value to match one of the values above, but got "INVALID"]
+        `);
+      });
+    });
+    describe("when only some expressions include validation", () => {
+      it("should throw an InvalidQueryError", () => {
+        expect(() => {
+          q.coalesce(valueA, q.value("NOT VALIDATED"));
+        }).toThrowErrorMatchingInlineSnapshot(
+          `[Error: [COALESCE_MISSING_VALIDATION] With 'coalesce', you must supply validation for either all, or none, of the expressions. You did not supply validation for ""NOT VALIDATED""]`
+        );
+        expect(() => {
+          q.coalesce(valueA, q.value("NOT VALIDATED"), valueB, q.value("SAME"));
+        }).toThrowErrorMatchingInlineSnapshot(
+          `[Error: [COALESCE_MISSING_VALIDATION] With 'coalesce', you must supply validation for either all, or none, of the expressions. You did not supply validation for ""NOT VALIDATED"" or ""SAME""]`
+        );
+      });
+    });
+  });
 });

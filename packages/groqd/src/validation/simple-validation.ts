@@ -151,3 +151,34 @@ export function maybeArrayParser<TItemInput, TItemOutput>(
     return Array.isArray(input) ? arrayParser(input) : parser(input);
   };
 }
+
+export function unionParser<TItemInput, TItemOutput>(
+  parsers: Array<ParserFunction<TItemInput, TItemOutput>>
+): ParserFunction<TItemInput, TItemOutput> {
+  // Uncommon, but just in case:
+  if (parsers.length === 1) return parsers[0];
+
+  return function unionParser(input: TItemInput): TItemOutput {
+    const errors = new ValidationErrors();
+    for (const parser of parsers) {
+      try {
+        const result = parser(input);
+        // We found a valid result!
+        return result;
+      } catch (err) {
+        errors.add(null, input, err as Error);
+      }
+    }
+    // We did not find any valid results; throw (all) errors:
+    errors.add(
+      null,
+      input,
+      new Error(
+        `Expected the value to match one of the values above, but got ${inspect(
+          input
+        )}`
+      )
+    );
+    throw errors;
+  };
+}
