@@ -16,7 +16,6 @@ import { CompatibleKeys, CompatiblePick } from "./compatible-types";
  * since they're rarely traversed into
  */
 export type ProjectionPathIgnoreTypes =
-  | Primitive
   | { _type: "reference" }
   | { _type: "block" };
 
@@ -38,38 +37,50 @@ export type ProjectionPathEntries<Value> = IsAny<Value> extends true
   ? // For <any> types, we just allow any string values:
     Record<string, any>
   : Simplify<
-      UnionToIntersectionFast<_ProjectionPathEntries<SimplifyUnion<Value>>>
+      UnionToIntersectionFast<_ProjectionPathEntries<"", SimplifyUnion<Value>>>
     >;
 
+type IsShallowType<Value> = IsAny<Value> extends true
+  ? true
+  : IsNever<Value> extends true
+  ? true
+  : Value extends Primitive
+  ? true
+  : Value extends ProjectionPathIgnoreTypes
+  ? true
+  : false;
+
 // The actual implementation:
-type _ProjectionPathEntries<Value, CurrentPath extends string = ""> =
-  // If it's one of these simple types, we don't need to include any entries:
-  IsAny<Value> extends true
-    ? never
-    : IsNever<Value> extends true
-    ? never
-    : Value extends ProjectionPathIgnoreTypes
+type _ProjectionPathEntries<CurrentPath extends string, Value> =
+  // If it's one of these simple types, we don't need to include any deeper entries:
+  IsShallowType<Value> extends true
     ? never
     : Value extends { _type: "slug" }
     ? Record<JoinPath<CurrentPath, "current">, string>
     : // Check for Arrays:
     Value extends Array<infer U>
     ?
-        | Record<CurrentPath | `${CurrentPath}[]`, Value>
+        | Record<`${CurrentPath}[]`, Value>
         | (_ProjectionPathEntries<
-            UndefinedToNull<U>,
-            `${CurrentPath}[]`
+            `${CurrentPath}[]`,
+            UndefinedToNull<U>
           > extends infer ChildEntries
             ? ValuesAsArrays<ChildEntries>
             : never)
     : // It must be an object; let's map it:
       ValueOf<{
-        // Calculate the NewPath:
-        [Key in StringKeys<keyof Value>]:  // Include the current entry:
-          | Record<JoinPath<CurrentPath, Key>, UndefinedToNull<Value[Key]>>
-          // Include all child entries:
+        [Key in StringKeys<keyof Value>]:
+          | (IsArray<Value[Key]> extends true
+              ? never // We want arrays to require the `[]`
+              : // Include an entry for the current item:
+                Record<JoinPath<CurrentPath, Key>, UndefinedToNull<Value[Key]>>)
+
+          // Include all nested entries:
           | ValuesAsMaybeNullable<
-              _ProjectionPathEntries<Value[Key], JoinPath<CurrentPath, Key>>,
+              _ProjectionPathEntries<
+                JoinPath<CurrentPath, Key>,
+                UndefinedToNull<Value[Key]>
+              >,
               IsNullable<Value[Key]>
             >;
       }>;
@@ -89,6 +100,12 @@ type ValuesAsMaybeNullable<
   : {
       [P in keyof T]: null | T[P];
     };
+
+type IsArray<T> = IsAny<T> extends true
+  ? false
+  : Array<any> extends T
+  ? true
+  : false;
 
 /**
  * Retrieves all projection paths for the given T

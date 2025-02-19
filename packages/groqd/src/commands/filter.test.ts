@@ -257,4 +257,23 @@ describe("filterBy", () => {
       `);
     });
   });
+
+  describe("when used in a projection", () => {
+    type VariantImage = NonNullable<SanitySchema.Variant["images"]>[number];
+    const query = q.star.filterByType("variant").project((variant) => ({
+      images: variant.field("images[]").filterBy("asset == null"),
+    }));
+    it("should generate a valid query", () => {
+      expect(query.query).toMatchInlineSnapshot(`
+        "*[_type == "variant"] {
+            "images": images[][asset == null]
+          }"
+      `);
+    });
+    it("should have a valid result type", () => {
+      expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{
+        images: null | Array<VariantImage>;
+      }>();
+    });
+  });
 });
