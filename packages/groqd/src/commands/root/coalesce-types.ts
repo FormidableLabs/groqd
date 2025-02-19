@@ -4,6 +4,10 @@ import { IGroqBuilder } from "../../types/public-types";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CoalesceExpressions {
+  /**
+   * Represents the array of args that can be
+   * passed to the `coalesce` method
+   */
   export type CoalesceArgs<TResult> = ArrayMin2<CoalesceArg<TResult>>;
 
   type ArrayMin2<T> = [T, T, ...Array<T>];
@@ -12,6 +16,9 @@ export namespace CoalesceExpressions {
     | keyof ProjectionPathEntries<TResult>
     | IGroqBuilder;
 
+  /**
+   * Extracts the result type from the `coalesce` method
+   */
   export type CoalesceResult<
     TResult,
     TExpressions extends CoalesceArgs<TResult>

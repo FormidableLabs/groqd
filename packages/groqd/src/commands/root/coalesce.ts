@@ -18,6 +18,21 @@ declare module "../../groq-builder" {
     extends CoalesceDefinition<TResult, TQueryConfig> {}
 
   interface CoalesceDefinition<TResult, TQueryConfig extends QueryConfig> {
+    /**
+     * Wraps the expressions with GROQ's `coalesce(...)` function.
+     *
+     * Each `expression` can be either a projection string, or any valid query.
+     *
+     * @example
+     * q.star.filterByType("product").project(product => ({
+     *   title: product.coalesce(
+     *     "title",
+     *     "category.title",
+     *     product.field("variant").slice(0).deref().field("title"),
+     *     q.value("DEFAULT")
+     *   ),
+     * }));
+     */
     coalesce<TExpressions extends CoalesceExpressions.CoalesceArgs<TResult>>(
       ...expressions: TExpressions
     ): GroqBuilder<
