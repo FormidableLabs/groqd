@@ -61,10 +61,12 @@ export class GroqBuilderBase<
   /**
    * Returns a new GroqBuilder, appending the query.
    *
-   * Use this when the query changes the result type.
-   * Use `.pipe` when not changing the result type.
-   *
    * @internal
+   * @param query - This raw GROQ query gets appended to the current query
+   * @param parser - A function that validates the incoming data.
+   *                 Use "passthrough" to indicate that it's OK for
+   *                 the previous parser to be used with this new data
+   *                 (i.e. the raw query doesn't change the result type).
    */
   protected chain<TResultNew = TResult>(
     query: string,
