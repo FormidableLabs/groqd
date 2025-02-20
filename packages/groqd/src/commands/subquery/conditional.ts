@@ -20,15 +20,15 @@ declare module "../../groq-builder" {
      *
      * @example
      * q.star.filterByType("product").project(sub => ({
-     *   name: q.string(),
+     *   name: zod.string(),
      *   ...sub.conditional({
      *     "price == msrp": {
      *       onSale: q.value(false),
      *     },
      *     "price < msrp": {
      *       onSale: q.value(true),
-     *       price: q.number(),
-     *       msrp: q.number(),
+     *       price: zod.number(),
+     *       msrp: zod.number(),
      *     },
      *   }),
      * }))

@@ -21,10 +21,10 @@ Creates a fragment for a Document, based on the document type.
 
 ```ts
 const productFragment = q.fragmentForType<"product">().project(sub => ({
-  name: q.string(),
-  price: q.number(),
+  name: zod.string(),
+  price: zod.number(),
   images: sub.field("images[]").field("asset").deref().project({
-    url: q.string(),
+    url: zod.string(),
   }),
 }))
 ```
@@ -36,8 +36,8 @@ This is useful for inline types that do not have a top-level document type.
 
 ```ts
 const keyValueFragment = q.fragment<{ key: string, value: number }>().project({
-  key: q.string(),
-  value: q.number(),
+  key: zod.string(),
+  value: zod.number(),
 })
 ```
 

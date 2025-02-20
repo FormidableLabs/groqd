@@ -16,15 +16,15 @@ Creates an inline conditional projection:
 
 ```ts
 q.star.filterByType("product").project(sub => ({
-  name: q.string(),
+  name: zod.string(),
   ...sub.conditional({
     "price == msrp": {
       onSale: q.value(false),
     },
     "price < msrp": {
       onSale: q.value(true),
-      price: q.number(),
-      msrp: q.number(),
+      price: zod.number(),
+      msrp: zod.number(),
     },
   }),
 }))
@@ -71,13 +71,13 @@ Instead of writing conditions like `_type == "product"`, you simply use the `_ty
 
 ```ts
 q.star.filterByType("product", "category").project(sub => ({
-  name: q.string(),
+  name: zod.string(),
   ...sub.conditionalByType({
     product: {
-      price: q.number(),
+      price: zod.number(),
     },
     category: {
-      title: q.string(),
+      title: zod.string(),
     },
   }),
 }))

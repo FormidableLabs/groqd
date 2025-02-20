@@ -169,9 +169,9 @@ describe("coalesce", () => {
   });
 
   describe("with validation", () => {
-    const valueA = q.value("A", q.literal("A"));
-    const valueB = q.value("B", q.literal("B"));
-    const valueANull = q.value("A", q.literal("A").nullable());
+    const valueA = q.value("A", zod.literal("A"));
+    const valueB = q.value("B", zod.literal("B"));
+    const valueANull = q.value("A", zod.literal("A").nullable());
 
     describe("when all expressions include validation", () => {
       const query = q.coalesce(valueANull, valueA, valueB);
