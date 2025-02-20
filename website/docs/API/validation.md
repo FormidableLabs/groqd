@@ -22,51 +22,50 @@ The all field-level methods utilize a `validation` parameter:
 
 ## Supported Zod methods
 
-The root `q` object contains many of [Zod's validation methods](https://zod.dev/?id=primitives). This is purely for convenience; `q.string()` is identical to `zod.string()`.
+For convenience, `groqd` exports a `zod` object, which contains just [Zod's validation methods](https://zod.dev/?id=primitives) that are most commonly used with GroqD.  It also contains a couple extra utilities for working with GroqD data.
 
 This includes the following Zod methods:
 
 - Primitives
-    - `q.string()`
-    - `q.number()`
-    - `q.boolean()`
-    - `q.null()`
-    - `q.date()`
-    - `q.literal(value)`
+    - `zod.string()`
+    - `zod.number()`
+    - `zod.boolean()`
+    - `zod.null()`
+    - `zod.date()`
+    - `zod.literal(value)`
 - Composite types
-    - `q.union([ ...types ])`
-    - `q.array(type)`
-    - `q.object({ ...schema })`
+    - `zod.union([ ...types ])`
+    - `zod.array(type)`
+    - `zod.object({ ...schema })`
 
-The Zod methods are chainable, like `q.number().min(0).max(10).default(0)`.
+The Zod methods are chainable, like `zod.number().min(0).max(10).default(0)`.  See [their documentation](https://zod.dev/?id=primitives) for more details!
 
 ## Zod extras
 
 In addition to the above Zod methods, a few extra helpers are included:
 
-### `q.default(parser, defaultValue)`
+### `zod.default(parser, defaultValue)`
 
-Zod's chainable `.default()` method doesn't work well with GROQ, since GROQ only returns `null` and never `undefined`.
+Zod's chainable `.default()` method (e.g. `zod.string().default("")`) doesn't work well with GROQ, since GROQ only returns `null` and never `undefined`.
 
-So instead of chaining Zod's `default` method, use this `default` method instead.
+So instead of chaining Zod's `default` method, use this `default` method instead:
 
 ```ts
 // Before:
-q.number().default(0)
+zod.number().default(0)
 // After:
-q.default(q.number(), 0)
+zod.default(zod.number(), 0)
 ```
 
 ```ts
 q.star.filterByType("product").project({
-  name: q.default(q.string(), "Product"),
-  price: q.default(q.number().min(0), 0),
+  name: zod.default(zod.string(), "Product"),
+  price: zod.default(zod.number().min(0), 0),
 })
 ```
 
 
-
-### `q.slug(field)`
+### `zod.slug(field)`
 
 Shorthand for accessing the current value for a slug.
 
@@ -75,9 +74,13 @@ q.star.filterByType("product").project({
   // Before:
   slug: ["slug.current", z.string()],
   // After:
-  slug: q.slug("slug"),
+  slug: zod.slug("slug"),
 })
 ```
+
+## Nullable / NotNull
+
+Usually, a query chain infers from your schema whether the results might be `null`.  You can override this logic by chaining the `.nullable()` or `.notNull()` assertions.
 
 ### `.nullable()`
 
@@ -86,21 +89,37 @@ Marks any query chain as nullable – in case the query is expecting a potential
 ```ts
 q.star
   .filterByType("product")
-  .slice(0)
-  .project({ name: q.string() })
-  .nullable(); // 👈 we're okay with a null value here
+  .project(product => ({ 
+    // Even though 'name' is required,
+    // we might have legacy data that's missing this field,
+    // so let's explicitly mark it as nullable: 
+    name: product.field("name").nullable(), 
+  }))
+```
+
+### `.notNull()`
+
+Marks any query chain as NOT nullable - in case we expect the query to never result in a `null`.  This will cause an error to be thrown otherwise!
+
+```ts
+q.star
+ .filterByType("product")
+ .filterBy("slug.current == $slug")
+ .slice(0) // the return type for `slice` is nullable by default
+ .project({ name: true })
+ .notNull() // but here we assert that there must be a match!
 ```
 
 
 ## Transformation
 
-In `GroqD`, **validation** is synonymous with **transformation**.  Any field-level `validation` parameter could also be used to transform the value at runtime.  For example, the `q.date()` validation automatically transforms an incoming `string` or `number` into a `Date`.
+In `GroqD`, **validation** is synonymous with **transformation**.  Any field-level `validation` parameter could also be used to transform the value at runtime.  For example, the `zod.date()` validation automatically transforms an incoming `string` or `number` into a `Date`.
 
 ```ts
 q.star.filterByType("product").project({
-  _createdAt: q.date(),
+  _createdAt: zod.date(),
   // Transform a 1 => "available", 2 => "out of stock"
-  status: q.number().transform((status) => (status === 1 ? "available" : "out of stock")),
+  status: zod.number().transform((status) => (status === 1 ? "available" : "out of stock")),
 })
 ```
 
