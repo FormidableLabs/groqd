@@ -68,9 +68,9 @@ export class GroqBuilderBase<
    */
   protected chain<TResultNew = TResult>(
     query: string,
-    parser?: Parser | null
+    parser?: Parser | null | "passthrough"
   ): GroqBuilder<TResultNew, TQueryConfig> {
-    if (this.internal.parser) {
+    if (this.internal.parser && parser !== "passthrough") {
       /**
        * This happens if you accidentally chain too many times, like:
        *
@@ -99,20 +99,10 @@ export class GroqBuilderBase<
     }
     return this.extend({
       query: this.internal.query + query,
-      parser: normalizeValidationFunction(parser),
-    });
-  }
-
-  /**
-   * Returns a new GroqBuilder, appending the query.
-   *
-   * This method should be used when NOT changing the result type.  Use `.chain` if you're changing the result type.
-   *
-   * @internal
-   */
-  protected pipe(query: string): GroqBuilder<TResult, TQueryConfig> {
-    return this.extend({
-      query: this.internal.query + query,
+      parser:
+        parser === "passthrough"
+          ? this.internal.parser
+          : normalizeValidationFunction(parser),
     });
   }
 
