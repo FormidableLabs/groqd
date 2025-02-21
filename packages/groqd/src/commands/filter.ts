@@ -59,7 +59,7 @@ GroqBuilder.implement({
   filterRaw(this: GroqBuilder, filterExpression) {
     const needsWrap = this.query.endsWith("->");
     const self = needsWrap ? this.extend({ query: `(${this.query})` }) : this;
-    return self.pipe(`[${filterExpression}]`);
+    return self.chain(`[${filterExpression}]`, "passthrough");
   },
   filterBy(this: GroqBuilder, filterExpression) {
     return this.filterRaw(filterExpression);

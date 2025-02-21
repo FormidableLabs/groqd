@@ -18,6 +18,6 @@ declare module "../groq-builder" {
 
 GroqBuilder.implement({
   order(this: GroqBuilder, ...fields) {
-    return this.pipe(` | order(${fields.join(", ")})`);
+    return this.chain(` | order(${fields.join(", ")})`, "passthrough");
   },
 });
