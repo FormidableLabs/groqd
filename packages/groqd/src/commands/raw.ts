@@ -5,28 +5,40 @@ declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export interface GroqBuilderBase<TResult, TQueryConfig> {
     /**
-     * An "escape hatch" allowing you to write any groq query you want.
-     * You must specify a type parameter for the new results.
+     * This is an "escape hatch" allowing you to write any groq query you want.
      *
-     * This should only be used for unsupported features, since it bypasses all strongly-typed inputs.
+     * To ensure the correct result type,
+     * you must either provide a validation function,
+     * or specify the type parameter manually.
+     *
+     * This should only be used for unsupported features,
+     * since it ignores the schema.
+     *
+     * @example
+     * q.star.filterByType("user").project({
+     *   name: q.raw('firstName + " " + lastName', zod.string()),
+     *   tags: q.raw<string>('array::join(tags, ", ")'),
+     * })
+     *
+     * @param query - This raw GROQ query gets appended to the current query
+     * @param parser - A function that validates the incoming data.
+     *                 Use "passthrough" to indicate that it's OK for
+     *                 the previous parser to be used with this new data
+     *                 (i.e. the raw query doesn't change the result type).
      */
-    raw<TResultNew = never>(
+    raw<TResultNew = unknown>(
       query: string,
       parser?: Parser<unknown, TResultNew> | null
+    ): GroqBuilder<TResultNew, TQueryConfig>;
+    raw<TResultNew = TResult>(
+      query: string,
+      parser: "passthrough"
     ): GroqBuilder<TResultNew, TQueryConfig>;
   }
 }
 const rawImplementation: Pick<GroqBuilderBase, "raw"> = {
   raw(this: GroqBuilderBase, query, parser) {
-    // It's hard to tell if we should use `chain` or `pipe`.
-    // If we supply a parser, then we'll use `.chain`,
-    // to make sure there's no other existing parser.
-    if (parser) {
-      return this.chain(query, parser);
-    }
-    // Otherwise we'll just use the passive `.pipe`:
-    return this.pipe(query);
-    // TODO: consider if we should expose the raw `pipe` and `chain` options instead of this `raw`?
+    return this.chain(query, parser);
   },
 };
 GroqBuilderBase.implement(rawImplementation);

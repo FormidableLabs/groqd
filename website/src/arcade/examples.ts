@@ -4,7 +4,7 @@ import beautify from "js-beautify";
 const wrapQueryTodos = (code: string) =>
   beautify(
     `
-      import { q, runQuery } from "./todo-list/groqd-client";
+      import { q, zod, runQuery } from "./todo-list/groqd-client";
       
       runQuery(
         ${code.trim()}
@@ -15,7 +15,7 @@ const wrapQueryTodos = (code: string) =>
 const wrapGroqBuilderQuery = (code: string) =>
   beautify(
     `
-      import { q, runQuery } from "./pokemon/groqd-client";
+      import { q, zod, runQuery } from "./pokemon/groqd-client";
       
       runQuery(
         ${code.trim()}
@@ -38,10 +38,10 @@ export const EXAMPLES = {
        .filterByType("pokemon")
        .slice(0, 8)
        .project(sub => ({
-         name: q.string(),
-         attack: sub.field("base.Attack", q.number()),
+         name: zod.string(),
+         attack: sub.field("base.Attack", zod.number()),
          types: sub.field("types[]").deref().project({
-           name: q.string(),
+           name: zod.string(),
          }),
        }))
     `),
@@ -68,8 +68,8 @@ export const EXAMPLES = {
 				.filterByType("pokemon")
 				.slice(0, 8)
 				.project(sub => ({
-					name: q.string(),
-					types: sub.field("types[]").deref().field("name", q.string()),
+					name: zod.string(),
+					types: sub.field("types[]").deref().field("name", zod.string()),
 				}))
     `),
   },
@@ -80,12 +80,12 @@ export const EXAMPLES = {
       q.star
         .filterByType("poketype")
         .project({
-          name: q.string(),
+          name: zod.string(),
           pokemons: q.star
             .filterByType("pokemon")
             .filter("references(^._id)")
             .slice(0, 2)
-            .field("name", q.string())
+            .field("name", zod.string())
         })
     `),
   },
@@ -94,8 +94,8 @@ export const EXAMPLES = {
     dataset: "pokemon",
     code: wrapGroqBuilderQuery(`
       q.project({
-          numPokemon: q.raw("count(*[_type == 'pokemon'])", q.number()),
-          allTypeNames: q.star.filterByType("poketype").field("name", q.string()),
+          numPokemon: q.raw("count(*[_type == 'pokemon'])", zod.number()),
+          allTypeNames: q.star.filterByType("poketype").field("name", zod.string()),
         })
     `),
   },
@@ -107,10 +107,10 @@ export const EXAMPLES = {
         .filterByType("pokemon")
         .slice(0, 8)
         .project({
-          name: q.string(),
+          name: zod.string(),
           // pass a raw query with a validation function
-          count: q.raw("count(types)", q.number()),
-          coalesce: q.raw("coalesce(foo, 'not there')", q.string()),
+          count: q.raw("count(types)", zod.number()),
+          coalesce: q.raw("coalesce(foo, 'not there')", zod.string()),
         })
     `),
   },
@@ -122,17 +122,17 @@ export const EXAMPLES = {
         .filterByType("pokemon")
         .filter("name in ['Bulbasaur', 'Charmander']")
         .project(sub => ({
-          _id: q.string(),
+          _id: zod.string(),
           ...sub.conditional({
             // For Bulbasaur, grab the HP
             'name == "Bulbasaur"': {
-              name: q.literal("Bulbasaur"),
-              hp: ["base.HP", q.number()],
+              name: zod.literal("Bulbasaur"),
+              hp: ["base.HP", zod.number()],
             },
             // For Charmander, grab the Attack
             'name == "Charmander"': {
-              name: q.literal("Charmander"),
-              attack: ["base.Attack", q.number()],
+              name: zod.literal("Charmander"),
+              attack: ["base.Attack", zod.number()],
             },
           }),
         }))
@@ -152,8 +152,8 @@ export const EXAMPLES = {
         // then sort based on _score field
         .order("_score desc")
         .project(sub => ({
-          name: q.string(),
-          types: sub.field("types").filter().deref().field("name", q.string())
+          name: zod.string(),
+          types: sub.field("types").filter().deref().field("name", zod.string())
         }))
     `),
   },
@@ -166,9 +166,9 @@ export const EXAMPLES_TODOS = {
       q.star
        .filterByType("todo")
        .project(sub => ({
-         user: sub.field("user").deref().field("name", q.string()),
-         title: q.string(),
-         completed: q.boolean(),
+         user: sub.field("user").deref().field("name", zod.string()),
+         title: zod.string(),
+         completed: zod.boolean(),
        }))
     `),
   },
@@ -178,9 +178,9 @@ export const EXAMPLES_TODOS = {
       q.star
        .filterByType("todo")
        .project(sub => ({
-         user: sub.field("user").deref().field("name", q.string()),
-         title: q.string(),
-         completed: q.boolean(),
+         user: sub.field("user").deref().field("name", zod.string()),
+         title: zod.string(),
+         completed: zod.boolean(),
        }))
     `),
   },
@@ -190,9 +190,9 @@ export const EXAMPLES_TODOS = {
       q.star
        .filterByType("todo")
        .project(sub => ({
-         user: sub.field("user").deref().field("name", q.default(q.string(), "")),
-         title: q.default(q.string(), ""),
-         completed: q.default(q.boolean().or(q.number().transform(x => x > 0)), false),
+         user: sub.field("user").deref().field("name", zod.default(zod.string(), "")),
+         title: zod.default(zod.string(), ""),
+         completed: zod.default(zod.boolean().or(zod.number().transform(x => x > 0)), false),
          completedRaw: "completed",
        }))
     `),

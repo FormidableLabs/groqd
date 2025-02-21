@@ -1,6 +1,8 @@
 import { createGroqBuilderWithZod, makeSafeQueryRunner } from "groqd";
 import type * as SanityTypes from "./pokemon.sanity.types";
 
+export { zod } from "groqd";
+
 type SchemaConfig = {
   schemaTypes: SanityTypes.AllSanitySchemaTypes;
   referenceSymbol: typeof SanityTypes.internalGroqTypeReferenceTo;

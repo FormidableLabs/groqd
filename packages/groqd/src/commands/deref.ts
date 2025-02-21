@@ -16,8 +16,8 @@ declare module "../groq-builder" {
      * q.star.filterByType("product").project(sub => ({
      *   category: sub.field("category").deref().field("title"),
      *   images: sub.field("images[]").field("asset").deref().project({
-     *     url: q.string(),
-     *     altText: q.string(),
+     *     url: zod.string(),
+     *     altText: zod.string(),
      *   }),
      * }))
      * // GROQ: *[_type == "product"]{

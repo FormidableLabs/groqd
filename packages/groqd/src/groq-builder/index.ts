@@ -28,13 +28,13 @@ export type GroqBuilderOptions = {
    *
    * q.project({
    *   example: true, // ⛔️ use a validation function instead
-   *   example: q.string(), // ✅
+   *   example: zod.string(), // ✅
    *
    *   example: "example.current", // ⛔️ use a tuple instead
-   *   example: ["example.current", q.string()], // ✅
+   *   example: ["example.current", zod.string()], // ✅
    *
    *   example: q.field("example.current"), // ⛔️ ensure you pass the 2nd validation parameter
-   *   example: q.field("example.current", q.string()), // ✅
+   *   example: q.field("example.current", zod.string()), // ✅
    * })
    *
    * @default false
@@ -61,21 +61,23 @@ export class GroqBuilderBase<
   /**
    * Returns a new GroqBuilder, appending the query.
    *
-   * Use this when the query changes the result type.
-   * Use `.pipe` when not changing the result type.
-   *
    * @internal
+   * @param query - This raw GROQ query gets appended to the current query
+   * @param parser - A function that validates the incoming data.
+   *                 Use "passthrough" to indicate that it's OK for
+   *                 the previous parser to be used with this new data
+   *                 (i.e. the raw query doesn't change the result type).
    */
   protected chain<TResultNew = TResult>(
     query: string,
-    parser?: Parser | null
+    parser?: Parser | null | "passthrough"
   ): GroqBuilder<TResultNew, TQueryConfig> {
-    if (this.internal.parser) {
+    if (this.internal.parser && parser !== "passthrough") {
       /**
        * This happens if you accidentally chain too many times, like:
        *
        * q.star
-       *   .project({ a: q.string() })
+       *   .project({ a: zod.string() })
        *   .field("a")
        *
        * The first part of this projection should NOT have validation,
@@ -84,7 +86,7 @@ export class GroqBuilderBase<
        *
        * q.star
        *   .project({ a: true })
-       *   .field("a", q.string())
+       *   .field("a", zod.string())
        */
       throw new InvalidQueryError(
         "CHAINED_ASSERTION_ERROR",
@@ -99,20 +101,10 @@ export class GroqBuilderBase<
     }
     return this.extend({
       query: this.internal.query + query,
-      parser: normalizeValidationFunction(parser),
-    });
-  }
-
-  /**
-   * Returns a new GroqBuilder, appending the query.
-   *
-   * This method should be used when NOT changing the result type.  Use `.chain` if you're changing the result type.
-   *
-   * @internal
-   */
-  protected pipe(query: string): GroqBuilder<TResult, TQueryConfig> {
-    return this.extend({
-      query: this.internal.query + query,
+      parser:
+        parser === "passthrough"
+          ? this.internal.parser
+          : normalizeValidationFunction(parser),
     });
   }
 
@@ -264,7 +256,7 @@ export class GroqBuilder<
       throw new InvalidQueryError(
         "MISSING_QUERY_VALIDATION",
         "Because 'validationRequired' is enabled, " +
-          "every query must have validation (like `q.string()`), " +
+          "every query must have validation (like `zod.string()`), " +
           "but this query is missing it!"
       );
     }

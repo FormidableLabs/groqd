@@ -92,7 +92,7 @@ const projectImplementation: ProjectDefinition<any, any> = {
         throw new InvalidQueryError(
           "MISSING_PROJECTION_VALIDATION",
           "Because 'validationRequired' is enabled, " +
-            "every field must have validation (like `q.string()`), " +
+            "every field must have validation (like `zod.string()`), " +
             "but the following fields are missing it: " +
             `${invalidFields.map((f) => `"${f.key}"`)}`
         );

@@ -49,7 +49,7 @@ GroqBuilder.implement({
   slice(this: GroqBuilder, start, end?, inclusive?): GroqBuilder<any> {
     if (typeof end === "number") {
       const ellipsis = inclusive ? ".." : "...";
-      return this.pipe(`[${start}${ellipsis}${end}]`);
+      return this.chain(`[${start}${ellipsis}${end}]`, "passthrough");
     }
     return this.chain(`[${start}]`);
   },

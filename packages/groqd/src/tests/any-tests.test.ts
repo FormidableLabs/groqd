@@ -1,18 +1,18 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { InferFragmentType, InferResultType } from "../types/public-types";
-import { createGroqBuilder } from "../index";
+import { createGroqBuilderLite, zod } from "../index";
 
 describe("when using createGroqBuilder<any>()", () => {
-  const q = createGroqBuilder<any>();
+  const q = createGroqBuilderLite<any>();
 
   describe("a normal query", () => {
     const query = q.star.filterByType("variant").project((sub) => ({
-      name: q.string(),
-      price: q.number(),
+      name: zod.string(),
+      price: zod.number(),
       categoryNames: sub
         .field("categories[]")
         .deref()
-        .field("name", q.string()),
+        .field("name", zod.string()),
     }));
     it("should have the right type", () => {
       expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<
@@ -26,12 +26,12 @@ describe("when using createGroqBuilder<any>()", () => {
   });
   describe("a fragment", () => {
     const frag = q.fragment<any>().project((sub) => ({
-      name: q.string(),
-      price: q.number(),
+      name: zod.string(),
+      price: zod.number(),
       categoryNames: sub
         .field("categories[]")
         .deref()
-        .field("name", q.string()),
+        .field("name", zod.string()),
     }));
     it("should have the right type", () => {
       expectTypeOf<InferFragmentType<typeof frag>>().toEqualTypeOf<{
