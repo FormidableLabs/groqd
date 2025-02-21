@@ -15,17 +15,18 @@ All methods of a query chain return a new chainable instance of `GroqBuilder`.  
 
 See the [Filters](./filters) and [Projections](./projections) documentation for more details.
 
-### Provide Zod's validation functions
-
-The root `q` object has shortcuts for Zod's validation functions, like `q.string()` and `q.number()`.  These are identical to `zod.string()` and `zod.number()`, and are added to the `q` object for convenience.
-
-See the [Validation documentation](./validation) for more details. 
-
 ### Create reusable fragments
 
 You can also define reusable "projection fragments" using the `q.fragment<T>()` method.
 
 See the [Fragments documentation](./fragments) for more details.
+
+### Provide GROQ functions
+
+The root `q` object provides various wrappers for GROQ functions,
+like `q.count(...)`, `q.coalesce(...)` and `q.select(...)`.
+
+See the [GROQ Functions documentation](./functions) for more details.
 
 
 ## An example query
@@ -37,11 +38,11 @@ const top10ProductsQuery = (
     .order("price asc")
     .slice(0, 10)
     .project(sub => ({
-      title: q.string(),
-      price: q.number(),
+      title: zod.string(),
+      price: zod.number(),
       images: sub.field("images[]").field("asset").deref().project({
-        url: q.string(),
-        altText: q.string(),
+        url: zod.string(),
+        altText: zod.string(),
       })
     }))
 );
@@ -67,8 +68,8 @@ const top10ProductsQuery = (
     ```ts
     q('*').grab({
       strength: q.select({
-        'base.Attack > 60': ['"strong"', q.literal('strong')],
-        'base.Attack <= 60': ['"weak"', q.literal('weak')]
+        'base.Attack > 60': ['"strong"', zod.literal('strong')],
+        'base.Attack <= 60': ['"weak"', zod.literal('weak')]
       })
     })
     ```
@@ -80,17 +81,17 @@ const top10ProductsQuery = (
     ```ts
     q('*').select({
       // Takes a raw [queryString, zodType] tuple. Creates the query string `base.Attack > 60 => name`
-      'base.Attack > 60': ['name', q.string()]
+      'base.Attack > 60': ['name', zod.string()]
     
       // Takes the "Selection" object used in `.grab` to create a projection. Creates the query string `base.Attack <= 60 => { name }`
-      'base.Attack < 60': { name: q.string() }
+      'base.Attack < 60': { name: zod.string() }
     
       // Takes a sub-query for the condition. Creates the query string `base.Attack == 60 => types[]->{ name }`
-      'base.Attack == 60': q("types").filter().deref().grab({ name: q.string() })
+      'base.Attack == 60': q("types").filter().deref().grab({ name: zod.string() })
     })
     ```
     
-    Similar to Groq's select operator, the `q.select` method also takes a `default` condition. If omitted, the condition `{ default: ['null', q.null()] }` will be appended to the supplied conditions.
+    Similar to Groq's select operator, the `q.select` method also takes a `default` condition. If omitted, the condition `{ default: ['null', zod.null()] }` will be appended to the supplied conditions.
     
     :::note
     If used on an `EntityQuery` or `ArrayQuery` the select operator is spread into an entity context and will convert any primitives into an empty object (including the `{ default: null }` condition if the default condition is omitted). This is why you often see empty objects show up in union types resulting from conditional selections.
@@ -104,22 +105,22 @@ const top10ProductsQuery = (
     q.star.filter().select({
       // For Bulbasaur, grab the HP
       'name == "Bulbasaur"': {
-        _id: q.string(),
-        name: q.literal("Bulbasaur"),
-        hp: ["base.HP", q.number()],
+        _id: zod.string(),
+        name: zod.literal("Bulbasaur"),
+        hp: ["base.HP", zod.number()],
       },
       // For Charmander, grab the Attack
       'name == "Charmander"': {
-        _id: q.string(),
-        name: q.literal("Charmander"),
-        attack: ["base.Attack", q.number()],
+        _id: zod.string(),
+        name: zod.literal("Charmander"),
+        attack: ["base.Attack", zod.number()],
       },
       // For all other pokemon, cast them into an unsupported selection
       // while retaining useful information for run-time logging
       default: {
-        _id: q.string(),
-        name: ['"unsupported pokemon"', q.literal("unsupported pokemon")],
-        unsupportedName: ['name', q.string()]
+        _id: zod.string(),
+        name: ['"unsupported pokemon"', zod.literal("unsupported pokemon")],
+        unsupportedName: ['name', zod.string()]
       }
     });
     
@@ -153,21 +154,21 @@ const top10ProductsQuery = (
     
     export const pokemonSelect = q.select({
       'name == "Bulbasaur"': {
-        _id: q.string(),
-        name: q.literal("Bulbasaur"),
-        hp: ["base.HP", q.number()],
+        _id: zod.string(),
+        name: zod.literal("Bulbasaur"),
+        hp: ["base.HP", zod.number()],
       },
     
       'name == "Charmander"': {
-        _id: q.string(),
-        name: q.literal("Charmander"),
-        attack: ["base.Attack", q.number()],
+        _id: zod.string(),
+        name: zod.literal("Charmander"),
+        attack: ["base.Attack", zod.number()],
       },
     
       default: {
-        _id: q.string(),
-        name: ['"unsupported pokemon"', q.literal("unsupported pokemon")],
-        unsupportedName: ['name', q.string()]
+        _id: zod.string(),
+        name: ['"unsupported pokemon"', zod.literal("unsupported pokemon")],
+        unsupportedName: ['name', zod.string()]
       }
     });
     
@@ -190,11 +191,11 @@ const top10ProductsQuery = (
     import { pokemonSelect } from '@/components/pokemon'
     
     const pokedexQuery = q('*').filterByType('Pokedex').grab({
-      _key: q.string(),
+      _key: zod.string(),
     
       owner: q('owner')
         .deref()
-        .grabOne('name', q.string()),
+        .grabOne('name', zod.string()),
     
       pokemon: q('pokemon')
         .filter()
