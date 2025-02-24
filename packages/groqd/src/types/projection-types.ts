@@ -11,7 +11,7 @@ import {
 } from "./utils";
 import { TypeMismatchError } from "./type-mismatch-error";
 import {
-  FragmentInputTypeTag,
+  FragmentResultTypeTag,
   IGroqBuilder,
   Parser,
   ParserWithWidenedInput,
@@ -22,6 +22,7 @@ import {
   ExtractConditionalProjectionTypes,
 } from "../commands/subquery/conditional-types";
 import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
+import { Simplify } from "type-fest";
 
 export type ProjectionMap<TResultItem> = {
   [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
@@ -54,23 +55,25 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
   // Use a GroqBuilder instance to create a nested projection
   | IGroqBuilder;
 
-export type ExtractProjectionResult<TResultItem, TProjectionMap> = Override<
-  // Extract the "..." operator:
-  (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
-    (TProjectionMap extends { "...": Parser<TResultItem, infer TOutput> }
-      ? TOutput
-      : Empty),
-  // Extract any conditional expressions:
-  ExtractConditionalProjectionTypes<TProjectionMap> &
-    // Extract all the fields:
-    ExtractProjectionResultFields<
-      TResultItem,
-      // Be sure to omit the Conditionals, "...", and fragment metadata:
-      Omit<
-        TProjectionMap,
-        "..." | typeof FragmentInputTypeTag | ConditionalKey<string>
+export type ExtractProjectionResult<TResultItem, TProjectionMap> = Simplify<
+  Override<
+    // Extract the "..." operator:
+    (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
+      (TProjectionMap extends { "...": Parser<TResultItem, infer TOutput> }
+        ? TOutput
+        : Empty),
+    // Extract any conditional expressions:
+    ExtractConditionalProjectionTypes<TProjectionMap> &
+      // Extract all the fields:
+      ExtractProjectionResultFields<
+        TResultItem,
+        // Be sure to omit the Conditionals, "...", and fragment metadata:
+        Omit<
+          TProjectionMap,
+          "..." | typeof FragmentResultTypeTag | ConditionalKey<string>
+        >
       >
-    >
+  >
 >;
 
 type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
@@ -98,7 +101,7 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
         }>
     : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', zod.string() ] */
     TProjectionMap[P] extends readonly [infer TKey, infer TParser]
-    ? TKey extends ProjectionPaths<TResultItem>
+    ? TKey extends ProjectionPaths<TResultItem> & string
       ? TParser extends Parser<infer TParserInput, infer TParserOutput>
         ? ValidateParserInput<
             ProjectionPathValue<TResultItem, TKey>,

@@ -67,7 +67,7 @@ export type FragmentUtil<TQueryConfig extends QueryConfig, TFragmentInput> = {
           sub: GroqBuilderSubquery<TFragmentInput, TQueryConfig>
         ) => TProjectionMap),
     ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
-  ): Fragment<TProjectionMap, TFragmentInput>;
+  ): Fragment<_TProjectionResult, TFragmentInput, TProjectionMap>;
 };
 
 GroqBuilderRoot.implement({

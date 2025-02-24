@@ -1,7 +1,5 @@
 import type { ZodType } from "zod";
 import type { ResultItem } from "./result-types";
-import type { Simplify } from "./utils";
-import type { ExtractProjectionResult } from "./projection-types";
 import type { QueryConfig } from "./query-config";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -139,11 +137,18 @@ export type InferParametersType<TGroqBuilder extends IGroqBuilder<any>> =
  * Used to store the Result types of a Fragment.
  * This symbol is not used at runtime.
  */
-export declare const FragmentInputTypeTag: unique symbol;
+export declare const FragmentResultTypeTag: unique symbol;
+/**
+ * Represents a projection fragment
+ */
 export type Fragment<
-  TProjectionMap,
-  TFragmentInput // This is used to capture the type, to be extracted by `InferFragmentType`
-> = TProjectionMap & { readonly [FragmentInputTypeTag]?: TFragmentInput };
+  TFragmentResult,
+  _TFragmentInput, // (this type parameter is only included so it shows in an IDE)
+  TProjectionMap
+> = TProjectionMap & {
+  // Track the result type, so we can extract it later:
+  readonly [FragmentResultTypeTag]?: TFragmentResult;
+};
 
 /**
  * Infers the result types of a fragment.
@@ -155,7 +160,11 @@ export type Fragment<
  *
  * type ProductFragment = InferFragmentType<typeof productFragment>;
  */
-export type InferFragmentType<TFragment extends Fragment<any, any>> =
-  TFragment extends Fragment<infer TProjectionMap, infer TFragmentInput>
-    ? Simplify<ExtractProjectionResult<TFragmentInput, TProjectionMap>>
+export type InferFragmentType<TFragment extends Fragment<any, any, any>> =
+  TFragment extends Fragment<
+    infer TFragmentResult,
+    infer _TFragmentInput,
+    infer _TProjectionMap
+  >
+    ? TFragmentResult
     : never;
