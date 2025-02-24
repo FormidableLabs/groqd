@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { q } from "../../tests/schemas/nextjs-sanity-fe";
-import { InferParametersType } from "../../index";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
+import { InferParametersType } from "../../types/parameter-types";
 
 describe("parameters", () => {
   const data = mock.generateSeedData({

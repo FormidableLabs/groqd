@@ -11,12 +11,14 @@ import {
 import { ZodMethods, zodMethods } from "./validation/zod";
 
 // Re-export all our public types:
-export * from "./groq-builder";
-export * from "./types/parser-types";
-export * from "./types/query-config";
-export { zodMethods as zod } from "./validation/zod";
-export * from "./makeSafeQueryRunner";
-export * from "./validation/validation-errors";
+export * from "./types/public-types";
+export {
+  makeSafeQueryRunner,
+  QueryRunnerFunction,
+  QueryRunnerOptions,
+} from "./makeSafeQueryRunner";
+export { ValidationErrors, ErrorDetails } from "./validation/validation-errors";
+export { InferParametersType } from "./types/parameter-types";
 
 /**
  * Creates the root `q` query builder.

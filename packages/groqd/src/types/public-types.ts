@@ -1,9 +1,5 @@
-export { ExtractDocumentTypes, SchemaDocument } from "./document-types";
-export {
-  InferFragmentType,
-  FragmentResultTypeTag,
-  Fragment,
-} from "./fragment-types";
+export { ExtractDocumentTypes } from "./document-types";
+export { InferFragmentType, Fragment } from "./fragment-types";
 export {
   InferParserInput,
   InferParserOutput,
@@ -11,7 +7,10 @@ export {
   ParserFunction,
   ParserObject,
 } from "./parser-types";
-export { ExtractRefType, RefType } from "./ref-types";
+export { InferParametersType } from "./parameter-types";
+export { QueryConfig } from "./query-config";
+export { RefType } from "./ref-types";
+export { zodMethods as zod } from "../validation/zod";
 
 export {
   InferResultItem,
@@ -21,5 +20,10 @@ export {
   IGroqBuilder,
   GroqBuilderConfigType,
   GroqBuilderResultType,
-  InferParametersType,
+  GroqBuilderRoot,
+  GroqBuilderSubquery,
+  RootResult,
+  GroqBuilderBase,
+  GroqBuilderOptions,
+  GroqBuilder,
 } from "../groq-builder";

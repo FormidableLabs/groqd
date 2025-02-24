@@ -70,8 +70,3 @@ export type InferResultType<TGroqBuilder extends IGroqBuilder<any>> =
  */
 export type InferResultItem<TGroqBuilder extends IGroqBuilder<any>> =
   ResultItem.Infer<InferResultType<TGroqBuilder>>;
-
-export type InferParametersType<TGroqBuilder extends IGroqBuilder<any>> =
-  TGroqBuilder extends IGroqBuilder<any, infer TQueryConfig>
-    ? TQueryConfig["parameters"]
-    : never;
