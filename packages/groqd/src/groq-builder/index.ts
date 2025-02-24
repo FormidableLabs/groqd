@@ -1,16 +1,17 @@
-import {
-  GroqBuilderConfigType,
-  GroqBuilderResultType,
-  IGroqBuilder,
-  Parser,
-  ParserFunction,
-} from "../types/public-types";
+import { Parser, ParserFunction } from "../types/parser-types";
 import type { QueryConfig } from "../types/query-config";
 import { normalizeValidationFunction } from "../commands/validate-utils";
 import { ValidationErrors } from "../validation/validation-errors";
 import type { Empty } from "../types/utils";
 import { InvalidQueryError } from "../types/invalid-query-error";
 import { Constructor } from "type-fest";
+import {
+  GroqBuilderConfigType,
+  GroqBuilderResultType,
+  IGroqBuilder,
+} from "./groq-builder-types";
+
+export * from "./groq-builder-types";
 
 export type RootResult = Empty;
 

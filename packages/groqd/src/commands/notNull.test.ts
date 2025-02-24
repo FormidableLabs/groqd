@@ -1,8 +1,8 @@
 import { describe, it, expectTypeOf, expect } from "vitest";
 import { q } from "../tests/schemas/nextjs-sanity-fe";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { InferResultItem } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
+import { InferResultItem } from "../groq-builder";
 
 describe("notNull", () => {
   const category = mock.category({});

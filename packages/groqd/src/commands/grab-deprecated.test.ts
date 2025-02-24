@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { InferResultType } from "../types/public-types";
 import { q, zod } from "../tests/schemas/nextjs-sanity-fe";
+import { InferResultType } from "../groq-builder";
 
 const qVariants = q.star.filterByType("variant");
 

@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
-import { IGroqBuilderNotChainable } from "../types/public-types";
 import { IsNullable } from "../types/utils";
+import { IGroqBuilderNotChainable } from "../groq-builder";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {

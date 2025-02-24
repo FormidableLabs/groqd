@@ -2,11 +2,8 @@ import { GroqBuilder, GroqBuilderSubquery } from "../../groq-builder";
 import { ResultItem } from "../../types/result-types";
 import { ExtractSelectResult, SelectProjections } from "./select-types";
 import { notNull } from "../../types/utils";
-import {
-  IGroqBuilder,
-  InferResultType,
-  ParserFunction,
-} from "../../types/public-types";
+import { ParserFunction } from "../../types/parser-types";
+import { IGroqBuilder, InferResultType } from "../../groq-builder";
 
 declare module "../../groq-builder" {
   export interface GroqBuilderSubquery<TResult, TQueryConfig> {

@@ -3,11 +3,11 @@ import {
   ExtractProjectionResult,
   ProjectionMap,
 } from "../../types/projection-types";
-import { Fragment } from "../../types/public-types";
 import { QueryConfig } from "../../types/query-config";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../../types/type-mismatch-error";
 import { ExtractDocumentTypes } from "../../types/document-types";
 import { Simplify } from "type-fest";
+import { Fragment } from "../../types/fragment-types";
 
 declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

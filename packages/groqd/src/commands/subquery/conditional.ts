@@ -7,7 +7,7 @@ import {
   ExtractConditionalProjectionResults,
 } from "./conditional-types";
 import { notNull } from "../../types/utils";
-import { ParserFunction } from "../../types/public-types";
+import { ParserFunction } from "../../types/parser-types";
 import { ProjectionMap } from "../../types/projection-types";
 
 declare module "../../groq-builder" {

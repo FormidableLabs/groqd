@@ -1,7 +1,7 @@
 import { GroqBuilder, GroqBuilderSubquery } from "../groq-builder";
 import { ResultItem } from "../types/result-types";
 import { ValidateParserInput } from "../types/projection-types";
-import { Parser, ParserWithWidenedInput } from "../types/public-types";
+import { Parser, ParserWithWidenedInput } from "../types/parser-types";
 import { maybeArrayParser } from "../validation/simple-validation";
 import { normalizeValidationFunction } from "./validate-utils";
 import {

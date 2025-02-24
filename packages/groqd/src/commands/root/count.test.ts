@@ -1,8 +1,8 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
 import { q } from "../../tests/schemas/nextjs-sanity-fe";
-import { InferResultItem, InferResultType } from "../../types/public-types";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
+import { InferResultItem, InferResultType } from "../../groq-builder";
 
 describe("count", () => {
   const data = mock.generateSeedData({

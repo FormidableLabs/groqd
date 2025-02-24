@@ -11,9 +11,9 @@ import {
 } from "../../types/utils";
 import { QueryConfig } from "../../types/query-config";
 import { GroqBuilderSubquery } from "../../groq-builder";
-import { IGroqBuilder, InferResultType } from "../../types/public-types";
 import { Expressions } from "../../types/groq-expressions";
 import { ExtractDocumentTypes } from "../../types/document-types";
+import { IGroqBuilder, InferResultType } from "../../groq-builder";
 
 export type ConditionalProjectionMap<
   TResultItem,

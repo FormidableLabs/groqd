@@ -5,8 +5,8 @@ import {
 } from "../../groq-builder";
 import { IsNullable } from "../../types/utils";
 import { QueryConfig } from "../../types/query-config";
-import { IGroqBuilder, isGroqBuilder } from "../../types/public-types";
 import { Expressions } from "../../types/groq-expressions";
+import { IGroqBuilder, isGroqBuilder } from "../../groq-builder";
 
 declare module "../../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */

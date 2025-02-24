@@ -5,13 +5,13 @@ import {
   q,
   zod,
 } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultItem, InferResultType } from "../types/public-types";
 import { Simplify } from "../types/utils";
 import { TypeMismatchError } from "../types/type-mismatch-error";
 import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
+import { InferResultItem, InferResultType } from "../groq-builder";
 
 const qVariants = q.star.filterByType("variant");
 

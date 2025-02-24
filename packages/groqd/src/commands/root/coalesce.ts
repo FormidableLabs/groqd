@@ -4,11 +4,11 @@ import {
   GroqBuilderSubquery,
 } from "../../groq-builder";
 import { QueryConfig } from "../../types/query-config";
-import { IGroqBuilder, isGroqBuilder } from "../../types/public-types";
 import { notNull } from "../../types/utils";
 import { InvalidQueryError } from "../../types/invalid-query-error";
 import { unionParser } from "../../validation/simple-validation";
 import { CoalesceExpressions } from "./coalesce-types";
+import { IGroqBuilder, isGroqBuilder } from "../../groq-builder";
 
 declare module "../../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */

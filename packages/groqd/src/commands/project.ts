@@ -1,6 +1,6 @@
 import { notNull, Simplify } from "../types/utils";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";
-import { isGroqBuilder, Parser, ParserFunction } from "../types/public-types";
+import { Parser, ParserFunction } from "../types/parser-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
 import { ResultItem } from "../types/result-types";
 import {
@@ -22,6 +22,7 @@ import {
   GroqBuilderRoot,
   GroqBuilderSubquery,
 } from "../groq-builder";
+import { isGroqBuilder } from "../groq-builder";
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 declare module "../groq-builder" {

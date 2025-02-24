@@ -12,7 +12,7 @@ import { ZodMethods, zodMethods } from "./validation/zod";
 
 // Re-export all our public types:
 export * from "./groq-builder";
-export * from "./types/public-types";
+export * from "./types/parser-types";
 export * from "./types/query-config";
 export { zodMethods as zod } from "./validation/zod";
 export * from "./makeSafeQueryRunner";
@@ -77,7 +77,3 @@ export type GroqBuilderWithZod<TRootConfig extends QueryConfig> = ZodMethods &
   GroqBuilderRoot<RootResult, TRootConfig>;
 
 export const createGroqBuilder = createGroqBuilderWithZod;
-export { ExtractRefType } from "./types/ref-types";
-export { RefType } from "./types/ref-types";
-export { ExtractDocumentTypes } from "./types/document-types";
-export { SchemaDocument } from "./types/document-types";

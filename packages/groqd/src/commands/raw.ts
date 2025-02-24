@@ -1,5 +1,5 @@
 import { GroqBuilderBase } from "../groq-builder";
-import { Parser } from "../types/public-types";
+import { Parser } from "../types/parser-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

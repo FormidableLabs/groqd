@@ -3,7 +3,7 @@ import {
   InferParserOutput,
   Parser,
   ParserFunction,
-} from "../types/public-types";
+} from "../types/parser-types";
 import { ValidationErrors } from "./validation-errors";
 import { Simplify } from "../types/utils";
 import { normalizeValidationFunction } from "../commands/validate-utils";

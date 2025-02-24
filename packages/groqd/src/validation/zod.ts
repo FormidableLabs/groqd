@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ParserFunction } from "../types/public-types";
+import { ParserFunction } from "../types/parser-types";
 import { pick } from "../types/utils";
 
 const zodPrimitives = pick(z, [

@@ -1,5 +1,5 @@
 import { GroqBuilder } from "../groq-builder";
-import { Parser } from "../types/public-types";
+import { Parser } from "../types/parser-types";
 import { chainParsers, normalizeValidationFunction } from "./validate-utils";
 
 declare module "../groq-builder" {

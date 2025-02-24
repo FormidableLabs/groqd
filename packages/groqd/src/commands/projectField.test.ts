@@ -1,10 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { InferResultType } from "../types/public-types";
 import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { zod } from "../index";
 import { getSubquery } from "../tests/getSubquery";
+import { InferResultType } from "../groq-builder";
 
 describe("field (naked projections)", () => {
   const qVariants = q.star.filterByType("variant");

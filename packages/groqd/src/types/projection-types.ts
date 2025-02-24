@@ -10,18 +10,15 @@ import {
   UndefinedToNull,
 } from "./utils";
 import { TypeMismatchError } from "./type-mismatch-error";
-import {
-  FragmentResultTypeTag,
-  IGroqBuilder,
-  Parser,
-  ParserWithWidenedInput,
-} from "./public-types";
+import { Parser, ParserWithWidenedInput } from "./parser-types";
 import { QueryConfig } from "./query-config";
 import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,
 } from "../commands/subquery/conditional-types";
 import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
+import { FragmentResultTypeTag } from "./fragment-types";
+import { IGroqBuilder } from "../groq-builder";
 
 export type ProjectionMap<TResultItem> = {
   [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
