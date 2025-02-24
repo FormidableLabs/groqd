@@ -1,6 +1,7 @@
 import { describe, it, expectTypeOf } from "vitest";
 import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { ExtractProjectionResult, ProjectionMap } from "./projection-types";
+import { Simplify } from "type-fest";
 
 describe("ExtractProjectionResult", () => {
   describe("with a simple projection map", () => {
@@ -12,7 +13,9 @@ describe("ExtractProjectionResult", () => {
       price: true,
     } satisfies ProjectionMap<TResultItem>;
     it("should extract the correct type", () => {
-      type Result = ExtractProjectionResult<TResultItem, typeof projectionMap>;
+      type Result = Simplify<
+        ExtractProjectionResult<TResultItem, typeof projectionMap>
+      >;
       expectTypeOf<Result>().toEqualTypeOf<{
         _type: "variant";
         name: string;
@@ -31,7 +34,9 @@ describe("ExtractProjectionResult", () => {
     } satisfies ProjectionMap<TResultItem>;
 
     it("should extract the correct type", () => {
-      type Result = ExtractProjectionResult<TResultItem, typeof projectionMap>;
+      type Result = Simplify<
+        ExtractProjectionResult<TResultItem, typeof projectionMap>
+      >;
       expectTypeOf<Result>().toEqualTypeOf<{
         t: "variant";
         name: string;
