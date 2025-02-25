@@ -1,17 +1,18 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { createGroqBuilderLite } from "../index";
 import {
   SanitySchema,
   SchemaConfig,
-  q,
   z,
 } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultItem, InferResultType } from "../types/public-types";
 import { Simplify } from "../types/utils";
 import { TypeMismatchError } from "../types/type-mismatch-error";
-import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
+
+const q = createGroqBuilderLite<SchemaConfig>({ indent: "" });
 
 const qVariants = q.star.filterByType("variant");
 
@@ -667,7 +668,7 @@ describe("project (object projections)", () => {
   });
 
   describe("with validationRequired", () => {
-    const q = createGroqBuilderWithZod<SchemaConfig>({
+    const q = createGroqBuilderLite<SchemaConfig>({
       validationRequired: true,
       indent: "  ",
     });
@@ -679,7 +680,7 @@ describe("project (object projections)", () => {
           price: true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`zod.string()\`), but the following fields are missing it: "price"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a projection uses a naked projection", () => {
@@ -688,7 +689,7 @@ describe("project (object projections)", () => {
           price: "price",
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`zod.string()\`), but the following fields are missing it: "price"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a nested projection is missing a parser", () => {
@@ -697,7 +698,7 @@ describe("project (object projections)", () => {
           nested: qV.field("price"),
         }))
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`zod.string()\`), but the following fields are missing it: "nested"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "nested"]`
       );
     });
     it("should throw when using ellipsis operator ...", () => {
@@ -706,7 +707,7 @@ describe("project (object projections)", () => {
           "...": true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`zod.string()\`), but the following fields are missing it: "..."]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "..."]`
       );
     });
     it("should work just fine when validation is provided", () => {
