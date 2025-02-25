@@ -1,5 +1,14 @@
 # website
 
+## 0.0.23
+
+### Patch Changes
+
+- Improvement: updated all examples to prefer using `zod` directly, like `z.string()` ([#366](https://github.com/FormidableLabs/groqd/pull/366))
+  Improvement: export zod as `z`
+- Updated dependencies [[`36ae741`](https://github.com/FormidableLabs/groqd/commit/36ae74126fb088e59fce702e5fa8691ae964bb69), [`295e8ff`](https://github.com/FormidableLabs/groqd/commit/295e8ffc5bddeba6e15447741d981cf7f5794392), [`295e8ff`](https://github.com/FormidableLabs/groqd/commit/295e8ffc5bddeba6e15447741d981cf7f5794392), [`4a6601b`](https://github.com/FormidableLabs/groqd/commit/4a6601b90e6d9fdf5ef7b1e6b23170f363b3764d)]:
+  - groqd@1.3.0
+
 ## 0.0.22
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # groqd
 
+## 1.3.0
+
+### Minor Changes
+
+- Feature: added `.asCombined()` utility, which allows projections from multiple types at once ([#366](https://github.com/FormidableLabs/groqd/pull/366))
+
+### Patch Changes
+
+- Feature: added "passthrough" parameter for `raw` ([#362](https://github.com/FormidableLabs/groqd/pull/362))
+
+- Improvement: updated all examples to prefer using `zod` directly, like `z.string()` ([#366](https://github.com/FormidableLabs/groqd/pull/366))
+  Improvement: export zod as `z`
+
+- Improvement: improved fragment types seen in IDEs ([#365](https://github.com/FormidableLabs/groqd/pull/365))
+
+  Chore: ensure we explicitly export types, rather than `export *`, to limit "noise"
+
 ## 1.2.0
 
 ### Minor Changes
