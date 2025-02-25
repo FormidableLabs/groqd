@@ -22,50 +22,50 @@ The all field-level methods utilize a `validation` parameter:
 
 ## Supported Zod methods
 
-For convenience, `groqd` exports a `zod` object, which contains just [Zod's validation methods](https://zod.dev/?id=primitives) that are most commonly used with GroqD.  It also contains a couple extra utilities for working with GroqD data.
+For convenience, `groqd` exports a `z` object, which contains just [Zod's validation methods](https://zod.dev/?id=primitives) that are most commonly used with GroqD.  It also contains a couple extra utilities for working with GroqD data.
 
 This includes the following Zod methods:
 
 - Primitives
-    - `zod.string()`
-    - `zod.number()`
-    - `zod.boolean()`
-    - `zod.null()`
-    - `zod.date()`
-    - `zod.literal(value)`
+    - `z.string()`
+    - `z.number()`
+    - `z.boolean()`
+    - `z.null()`
+    - `z.date()`
+    - `z.literal(value)`
 - Composite types
-    - `zod.union([ ...types ])`
-    - `zod.array(type)`
-    - `zod.object({ ...schema })`
+    - `z.union([ ...types ])`
+    - `z.array(type)`
+    - `z.object({ ...schema })`
 
-The Zod methods are chainable, like `zod.number().min(0).max(10).default(0)`.  See [their documentation](https://zod.dev/?id=primitives) for more details!
+The Zod methods are chainable, like `z.number().min(0).max(10).default(0)`.  See [their documentation](https://zod.dev/?id=primitives) for more details!
 
 ## Zod extras
 
 In addition to the above Zod methods, a few extra helpers are included:
 
-### `zod.default(parser, defaultValue)`
+### `z.default(parser, defaultValue)`
 
-Zod's chainable `.default()` method (e.g. `zod.string().default("")`) doesn't work well with GROQ, since GROQ only returns `null` and never `undefined`.
+Zod's chainable `.default()` method (e.g. `z.string().default("")`) doesn't work well with GROQ, since GROQ only returns `null` and never `undefined`.
 
 So instead of chaining Zod's `default` method, use this `default` method instead:
 
 ```ts
 // Before:
-zod.number().default(0)
+z.number().default(0)
 // After:
-zod.default(zod.number(), 0)
+z.default(z.number(), 0)
 ```
 
 ```ts
 q.star.filterByType("product").project({
-  name: zod.default(zod.string(), "Product"),
-  price: zod.default(zod.number().min(0), 0),
+  name: z.default(z.string(), "Product"),
+  price: z.default(z.number().min(0), 0),
 })
 ```
 
 
-### `zod.slug(field)`
+### `z.slug(field)`
 
 Shorthand for accessing the current value for a slug.
 
@@ -74,7 +74,7 @@ q.star.filterByType("product").project({
   // Before:
   slug: ["slug.current", z.string()],
   // After:
-  slug: zod.slug("slug"),
+  slug: z.slug("slug"),
 })
 ```
 
@@ -113,13 +113,13 @@ q.star
 
 ## Transformation
 
-In `GroqD`, **validation** is synonymous with **transformation**.  Any field-level `validation` parameter could also be used to transform the value at runtime.  For example, the `zod.date()` validation automatically transforms an incoming `string` or `number` into a `Date`.
+In `GroqD`, **validation** is synonymous with **transformation**.  Any field-level `validation` parameter could also be used to transform the value at runtime.  For example, the `z.date()` validation automatically transforms an incoming `string` or `number` into a `Date`.
 
 ```ts
 q.star.filterByType("product").project({
-  _createdAt: zod.date(),
+  _createdAt: z.date(),
   // Transform a 1 => "available", 2 => "out of stock"
-  status: zod.number().transform((status) => (status === 1 ? "available" : "out of stock")),
+  status: z.number().transform((status) => (status === 1 ? "available" : "out of stock")),
 })
 ```
 

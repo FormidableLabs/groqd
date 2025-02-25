@@ -97,7 +97,7 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
           actual: TProjectionMap[P];
           expected: SimplifyDeep<ProjectionPaths<TResultItem>>;
         }>
-    : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', zod.string() ] */
+    : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', z.string() ] */
     TProjectionMap[P] extends readonly [infer TKey, infer TParser]
     ? TKey extends ProjectionPaths<TResultItem> & string
       ? TParser extends Parser<infer TParserInput, infer TParserOutput>

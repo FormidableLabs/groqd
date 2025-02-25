@@ -8,7 +8,7 @@ import {
 /**
  * Creates the root `q` query builder.
  *
- * This method does not include the `zod` utilities
+ * This method does not include the `z` utilities
  * for runtime validation, like `q.string()`;
  * see `createGroqBuilderWithZod` for more information.
  *

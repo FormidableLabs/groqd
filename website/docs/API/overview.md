@@ -38,11 +38,11 @@ const top10ProductsQuery = (
     .order("price asc")
     .slice(0, 10)
     .project(sub => ({
-      title: zod.string(),
-      price: zod.number(),
+      title: z.string(),
+      price: z.number(),
       images: sub.field("images[]").field("asset").deref().project({
-        url: zod.string(),
-        altText: zod.string(),
+        url: z.string(),
+        altText: z.string(),
       })
     }))
 );
@@ -68,8 +68,8 @@ const top10ProductsQuery = (
     ```ts
     q('*').grab({
       strength: q.select({
-        'base.Attack > 60': ['"strong"', zod.literal('strong')],
-        'base.Attack <= 60': ['"weak"', zod.literal('weak')]
+        'base.Attack > 60': ['"strong"', z.literal('strong')],
+        'base.Attack <= 60': ['"weak"', z.literal('weak')]
       })
     })
     ```
@@ -81,17 +81,17 @@ const top10ProductsQuery = (
     ```ts
     q('*').select({
       // Takes a raw [queryString, zodType] tuple. Creates the query string `base.Attack > 60 => name`
-      'base.Attack > 60': ['name', zod.string()]
+      'base.Attack > 60': ['name', z.string()]
     
       // Takes the "Selection" object used in `.grab` to create a projection. Creates the query string `base.Attack <= 60 => { name }`
-      'base.Attack < 60': { name: zod.string() }
+      'base.Attack < 60': { name: z.string() }
     
       // Takes a sub-query for the condition. Creates the query string `base.Attack == 60 => types[]->{ name }`
-      'base.Attack == 60': q("types").filter().deref().grab({ name: zod.string() })
+      'base.Attack == 60': q("types").filter().deref().grab({ name: z.string() })
     })
     ```
     
-    Similar to Groq's select operator, the `q.select` method also takes a `default` condition. If omitted, the condition `{ default: ['null', zod.null()] }` will be appended to the supplied conditions.
+    Similar to Groq's select operator, the `q.select` method also takes a `default` condition. If omitted, the condition `{ default: ['null', z.null()] }` will be appended to the supplied conditions.
     
     :::note
     If used on an `EntityQuery` or `ArrayQuery` the select operator is spread into an entity context and will convert any primitives into an empty object (including the `{ default: null }` condition if the default condition is omitted). This is why you often see empty objects show up in union types resulting from conditional selections.
@@ -105,22 +105,22 @@ const top10ProductsQuery = (
     q.star.filter().select({
       // For Bulbasaur, grab the HP
       'name == "Bulbasaur"': {
-        _id: zod.string(),
-        name: zod.literal("Bulbasaur"),
-        hp: ["base.HP", zod.number()],
+        _id: z.string(),
+        name: z.literal("Bulbasaur"),
+        hp: ["base.HP", z.number()],
       },
       // For Charmander, grab the Attack
       'name == "Charmander"': {
-        _id: zod.string(),
-        name: zod.literal("Charmander"),
-        attack: ["base.Attack", zod.number()],
+        _id: z.string(),
+        name: z.literal("Charmander"),
+        attack: ["base.Attack", z.number()],
       },
       // For all other pokemon, cast them into an unsupported selection
       // while retaining useful information for run-time logging
       default: {
-        _id: zod.string(),
-        name: ['"unsupported pokemon"', zod.literal("unsupported pokemon")],
-        unsupportedName: ['name', zod.string()]
+        _id: z.string(),
+        name: ['"unsupported pokemon"', z.literal("unsupported pokemon")],
+        unsupportedName: ['name', z.string()]
       }
     });
     
@@ -154,21 +154,21 @@ const top10ProductsQuery = (
     
     export const pokemonSelect = q.select({
       'name == "Bulbasaur"': {
-        _id: zod.string(),
-        name: zod.literal("Bulbasaur"),
-        hp: ["base.HP", zod.number()],
+        _id: z.string(),
+        name: z.literal("Bulbasaur"),
+        hp: ["base.HP", z.number()],
       },
     
       'name == "Charmander"': {
-        _id: zod.string(),
-        name: zod.literal("Charmander"),
-        attack: ["base.Attack", zod.number()],
+        _id: z.string(),
+        name: z.literal("Charmander"),
+        attack: ["base.Attack", z.number()],
       },
     
       default: {
-        _id: zod.string(),
-        name: ['"unsupported pokemon"', zod.literal("unsupported pokemon")],
-        unsupportedName: ['name', zod.string()]
+        _id: z.string(),
+        name: ['"unsupported pokemon"', z.literal("unsupported pokemon")],
+        unsupportedName: ['name', z.string()]
       }
     });
     
@@ -191,11 +191,11 @@ const top10ProductsQuery = (
     import { pokemonSelect } from '@/components/pokemon'
     
     const pokedexQuery = q('*').filterByType('Pokedex').grab({
-      _key: zod.string(),
+      _key: z.string(),
     
       owner: q('owner')
         .deref()
-        .grabOne('name', zod.string()),
+        .grabOne('name', z.string()),
     
       pokemon: q('pokemon')
         .filter()

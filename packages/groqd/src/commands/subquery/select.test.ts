@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { InferResultType, zod } from "../../index";
+import { InferResultType, z } from "../../index";
 import { q } from "../../tests/schemas/nextjs-sanity-fe";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
@@ -128,13 +128,13 @@ describe("select", () => {
     const qSelect = qBase.project((qB) => ({
       selected: qB.select({
         '_type == "product"': qB.asType<"product">().project({
-          _type: zod.literal("product"),
-          name: zod.string(),
+          _type: z.literal("product"),
+          name: z.string(),
         }),
         '_type == "variant"': qB.asType<"variant">().project({
-          _type: zod.literal("variant"),
-          name: zod.string(),
-          price: zod.number(),
+          _type: z.literal("variant"),
+          name: z.string(),
+          price: z.number(),
         }),
       }),
     }));

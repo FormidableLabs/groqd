@@ -1,5 +1,5 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, q, zod } from "../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { InferResultType } from "../groq-builder";
@@ -33,11 +33,8 @@ describe("nullable", () => {
       InferResultType<typeof qNullableField>
     >().toEqualTypeOf<Array<string> | null>();
   });
-  it("to mark a field (naked projection) nullable, it's better to use zod", () => {
-    const qNullableFieldFixed = qVariants.field(
-      "name",
-      zod.string().nullable()
-    );
+  it("to mark a field (naked projection) nullable, it's better to use z", () => {
+    const qNullableFieldFixed = qVariants.field("name", z.string().nullable());
     expectTypeOf<InferResultType<typeof qNullableFieldFixed>>().toEqualTypeOf<
       Array<string | null>
     >();
@@ -81,7 +78,7 @@ describe("nullable", () => {
     });
 
     const qWithValidation = q.star.filterByType("variant").project((qV) => ({
-      name: qV.field("name", zod.string()).nullable(),
+      name: qV.field("name", z.string()).nullable(),
     }));
 
     it("should have the correct type", () => {

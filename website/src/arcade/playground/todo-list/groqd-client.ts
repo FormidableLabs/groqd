@@ -1,7 +1,7 @@
 import { createGroqBuilderWithZod, makeSafeQueryRunner } from "groqd";
 import type * as SanityTypes from "./todo-list.sanity.types";
 
-export { zod } from "groqd";
+export { z } from "groqd";
 
 type SchemaConfig = {
   schemaTypes: SanityTypes.AllSanitySchemaTypes;

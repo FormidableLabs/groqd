@@ -75,7 +75,7 @@ or provide a type validation parameter via `.raw(expression, validation)`.
 
 ```ts
 q.star.filterByType("storefront").project(sub => ({
-  distance: sub.raw("geo::distance(geoPoint, $currentLocation)", zod.number()),
+  distance: sub.raw("geo::distance(geoPoint, $currentLocation)", z.number()),
   isInDeliveryZone: sub.raw<boolean>("geo::contains(deliveryZone, $currentLocation)")
 }))
 ```

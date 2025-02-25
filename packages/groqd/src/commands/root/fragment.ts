@@ -18,8 +18,8 @@ declare module "../../groq-builder" {
      *
      * @example
      * const keyValueFragment = q.fragment<{ key: string, value: number }>().project({
-     *   key: zod.string(),
-     *   value: zod.number(),
+     *   key: z.string(),
+     *   value: z.number(),
      * })
      */
     fragment<TFragmentInput>(): FragmentUtil<TQueryConfig, TFragmentInput>;
@@ -29,11 +29,11 @@ declare module "../../groq-builder" {
      *
      * @example
      * const productFragment = q.fragmentForType<"product">().project(sub => ({
-     *   name: zod.string(),
-     *   price: zod.number(),
+     *   name: z.string(),
+     *   price: z.number(),
      *   images: sub.field("images[]").field("asset").deref().project({
-     *     url: zod.string(),
-     *     altText: zod.string(),
+     *     url: z.string(),
+     *     altText: z.string(),
      *   }),
      * }))
      */
