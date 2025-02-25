@@ -44,6 +44,7 @@ describe("GroqBuilderSubquery", () => {
       // General Utilities:
       | "as"
       | "asType"
+      | "asCombined"
       | "raw"
       // Subquery utils:
       | "count"
