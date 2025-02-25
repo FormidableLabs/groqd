@@ -16,7 +16,7 @@ declare module "../groq-builder" {
      *
      * @example
      * q.star.filterByType("user").project({
-     *   name: q.raw('firstName + " " + lastName', zod.string()),
+     *   name: q.raw('firstName + " " + lastName', z.string()),
      *   tags: q.raw<string>('array::join(tags, ", ")'),
      * })
      *

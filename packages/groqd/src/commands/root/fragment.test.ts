@@ -1,5 +1,5 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, q, zod } from "../../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q, z } from "../../tests/schemas/nextjs-sanity-fe";
 import { InferFragmentType, InferResultType } from "../../types/public-types";
 import { TypeMismatchError } from "../../types/type-mismatch-error";
 
@@ -222,8 +222,8 @@ describe("fragment", () => {
 
   describe("fragment<any>", () => {
     const anyFrag = q.fragment<any>().project({
-      foo: zod.string(),
-      bar: zod.number(),
+      foo: z.string(),
+      bar: z.number(),
     });
     type AnyFragType = InferFragmentType<typeof anyFrag>;
     it("simple fragment should have the correct type", () => {

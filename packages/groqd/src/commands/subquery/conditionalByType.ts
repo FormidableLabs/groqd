@@ -20,13 +20,13 @@ declare module "../../groq-builder" {
      *
      * @example
      * q.star.filterByType("product", "category").project(sub => ({
-     *   name: zod.string(),
+     *   name: z.string(),
      *   ...sub.conditionalByType({
      *     product: {
-     *       price: zod.number(),
+     *       price: z.number(),
      *     },
      *     category: {
-     *       title: zod.string(),
+     *       title: z.string(),
      *     },
      *   }),
      * }))

@@ -137,7 +137,7 @@ With `v1.x`, by [adding a strongly-typed Sanity schema](./configuration), we can
 - Safer to write (all commands are type-checked, all fields are verified)
 - Faster to execute (because runtime validation can be skipped)
 
-For example, in a projection, we can skip runtime validation by simply using `true` instead of a validation method like `zod.string()`.  For example:
+For example, in a projection, we can skip runtime validation by simply using `true` instead of a validation method like `z.string()`.  For example:
 ```ts
 const productsQuery = q.star
   .filterByType("product")

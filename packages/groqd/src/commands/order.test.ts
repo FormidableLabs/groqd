@@ -1,5 +1,5 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, q, zod } from "../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -52,7 +52,7 @@ describe("order", () => {
   it("you can order a query after a validated projection", () => {
     const query = qVariants
       .project({
-        name: zod.string(),
+        name: z.string(),
       })
       .order("name");
     expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<

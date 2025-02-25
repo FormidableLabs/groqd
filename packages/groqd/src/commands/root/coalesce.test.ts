@@ -1,5 +1,5 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { q, SanitySchema, zod } from "../../tests/schemas/nextjs-sanity-fe";
+import { q, SanitySchema, z } from "../../tests/schemas/nextjs-sanity-fe";
 import { InferResultItem, InferResultType } from "../../types/public-types";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
@@ -122,9 +122,9 @@ describe("coalesce", () => {
     it("executes correctly with validation", async () => {
       const query = qVariants.project((v) => ({
         coalesceTest: v.coalesce(
-          v.field("id", zod.string().nullable()),
-          v.field("_id", zod.string().nullable()),
-          q.value("DEFAULT", zod.literal("DEFAULT"))
+          v.field("id", z.string().nullable()),
+          v.field("_id", z.string().nullable()),
+          q.value("DEFAULT", z.literal("DEFAULT"))
         ),
       }));
       const results = await executeBuilder(query, data);
@@ -169,9 +169,9 @@ describe("coalesce", () => {
   });
 
   describe("with validation", () => {
-    const valueA = q.value("A", zod.literal("A"));
-    const valueB = q.value("B", zod.literal("B"));
-    const valueANull = q.value("A", zod.literal("A").nullable());
+    const valueA = q.value("A", z.literal("A"));
+    const valueB = q.value("B", z.literal("B"));
+    const valueANull = q.value("A", z.literal("A").nullable());
 
     describe("when all expressions include validation", () => {
       const query = q.coalesce(valueANull, valueA, valueB);

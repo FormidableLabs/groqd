@@ -24,9 +24,9 @@ const zodExtras = {
    *
    * @example
    * // Before:
-   * zod.number().default(0)
+   * z.number().default(0)
    * // After:
-   * zod.default(zod.number(), 0)
+   * z.default(z.number(), 0)
    */
   default<TZodSchema extends z.ZodType<any, any, any>>(
     schema: TZodSchema,
@@ -48,7 +48,7 @@ const zodExtras = {
    * })
    * // After:
    * q.star.filterByType("product").project({
-   *   slug: zod.slug("slug"),
+   *   slug: z.slug("slug"),
    * })
    */
   slug<TFieldName extends string>(fieldName: TFieldName) {

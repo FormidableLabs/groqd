@@ -14,14 +14,14 @@ import { ZodMethods, zodMethods } from "./validation/zod";
 export * from "./groq-builder";
 export * from "./types/public-types";
 export * from "./types/query-config";
-export { zodMethods as zod } from "./validation/zod";
+export { zodMethods as z } from "./validation/zod";
 export * from "./makeSafeQueryRunner";
 export * from "./validation/validation-errors";
 
 /**
  * Creates the root `q` query builder.
  *
- * This method does not include the `zod` utilities
+ * This method does not include the `z` utilities
  * for runtime validation, like `q.string()`;
  * see `createGroqBuilderWithZod` for more information.
  *
@@ -52,7 +52,7 @@ export function createGroqBuilderLite<TRootConfig extends QueryConfig>(
  * For convenience, includes all Zod validation methods attached to the `q` object, like `q.string()` etc.
  * This ensures an API that's backwards compatible with GroqD syntax.
  *
- * If you want to use `zod` directly,
+ * If you want to use `z` directly,
  * or a different validation library,
  * or don't need runtime validation,
  * use `createGroqBuilderLite` instead.
