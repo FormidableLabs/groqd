@@ -1,7 +1,8 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { getSubquery } from "../tests/getSubquery";
-import { createGroqBuilderLite } from "../index";
+
+import { createGroqBuilderLite } from "../createGroqBuilder";
 
 const q = createGroqBuilderLite<SchemaConfig>();
 

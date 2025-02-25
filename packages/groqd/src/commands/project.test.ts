@@ -7,11 +7,12 @@ import {
 } from "../tests/schemas/nextjs-sanity-fe";
 import { Simplify } from "../types/utils";
 import { TypeMismatchError } from "../types/type-mismatch-error";
-import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
 import { InferResultItem, InferResultType } from "../groq-builder";
+
+import { createGroqBuilderWithZod } from "../createGroqBuilderWithZod";
 
 const qVariants = q.star.filterByType("variant");
 

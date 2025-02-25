@@ -1,7 +1,8 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { createGroqBuilderLite, zod } from "../index";
+import { zod } from "../index";
 import { InferFragmentType } from "../types/fragment-types";
 import { InferResultType } from "../groq-builder";
+import { createGroqBuilderLite } from "../createGroqBuilder";
 
 describe("when using createGroqBuilder<any>()", () => {
   const q = createGroqBuilderLite<any>();
