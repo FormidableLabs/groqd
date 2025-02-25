@@ -1,9 +1,11 @@
 import { expect, describe, it, expectTypeOf } from "vitest";
-import { InferResultItem } from "../index";
-import { q, zod } from "../tests/schemas/nextjs-sanity-fe";
+import { createGroqBuilderLite, InferResultItem } from "../index";
+import { SchemaConfig, zod } from "../tests/schemas/nextjs-sanity-fe";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { TypeMismatchError } from "../types/type-mismatch-error";
+
+const q = createGroqBuilderLite<SchemaConfig>({ indent: "" });
 
 const qVariants = q.star.filterByType("variant");
 

@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { createGroqBuilderLite } from "../index";
 import {
   SanitySchema,
   SchemaConfig,
-  q,
   zod,
 } from "../tests/schemas/nextjs-sanity-fe";
 import { Simplify } from "../types/utils";
@@ -12,7 +12,7 @@ import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
 import { InferResultItem, InferResultType } from "../groq-builder";
 
-import { createGroqBuilderWithZod } from "../createGroqBuilderWithZod";
+const q = createGroqBuilderLite<SchemaConfig>({ indent: "" });
 
 const qVariants = q.star.filterByType("variant");
 
@@ -670,7 +670,7 @@ describe("project (object projections)", () => {
   });
 
   describe("with validationRequired", () => {
-    const q = createGroqBuilderWithZod<SchemaConfig>({
+    const q = createGroqBuilderLite<SchemaConfig>({
       validationRequired: true,
       indent: "  ",
     });

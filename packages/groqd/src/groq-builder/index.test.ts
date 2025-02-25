@@ -2,9 +2,9 @@ import { describe, expectTypeOf, it } from "vitest";
 import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
 import { getSubquery } from "../tests/getSubquery";
 
-import { createGroqBuilderLite } from "../createGroqBuilder";
+import { createGroqBuilderLite } from "../index";
 
-const q = createGroqBuilderLite<SchemaConfig>();
+const q = createGroqBuilderLite<SchemaConfig>({ indent: "" });
 
 describe("GroqBuilderRoot", () => {
   it("should only expose methods appropriate for the root", () => {
