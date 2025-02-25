@@ -152,8 +152,8 @@ export const EXAMPLES = {
         // then sort based on _score field
         .order("_score desc")
         .project(sub => ({
-          name: zod.string(),
-          types: sub.field("types").filter().deref().field("name", zod.string())
+          name: z.string(),
+          types: sub.field("types").filter().deref().field("name", z.string())
         }))
     `),
   },

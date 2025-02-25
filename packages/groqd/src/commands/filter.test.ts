@@ -1,5 +1,5 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, q, zod } from "../tests/schemas/nextjs-sanity-fe";
+import { SanitySchema, q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { InferResultItem, InferResultType } from "../groq-builder";
@@ -113,8 +113,8 @@ describe("filterBy", () => {
     const query = q.star
       .filterByType("variant")
       .project({
-        name: zod.string(),
-        price: zod.number(),
+        name: z.string(),
+        price: z.number(),
       })
       .filterBy("price == 99");
     expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{

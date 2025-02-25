@@ -18,8 +18,8 @@ export type Fragment<
  * Infers the result types of a fragment.
  * @example
  * const productFragment = q.fragment<Product>().project({
- *   name: zod.string(),
- *   price: zod.number(),
+ *   name: z.string(),
+ *   price: z.number(),
  * });
  *
  * type ProductFragment = InferFragmentType<typeof productFragment>;

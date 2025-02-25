@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { q, zod } from "../tests/schemas/nextjs-sanity-fe";
+import { q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultType } from "../groq-builder";
 
 const qVariants = q.star.filterByType("variant");
@@ -16,7 +16,7 @@ describe("grab (backwards compatibility)", () => {
     const qGrab = qVariants.grab((sub) => ({
       name: true,
       slug: "slug.current",
-      msrp: ["msrp", zod.number()],
+      msrp: ["msrp", z.number()],
       styles: sub.grabOne("style[]").deref().grabOne("name"),
     }));
 
