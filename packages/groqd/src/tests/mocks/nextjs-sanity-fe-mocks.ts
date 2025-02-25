@@ -1,12 +1,18 @@
-import { ContentBlock, SanitySchema } from "../schemas/nextjs-sanity-fe";
+import {
+  ContentBlock,
+  ReferenceTo,
+  SanitySchema,
+} from "../schemas/nextjs-sanity-fe";
 
 export class MockFactory {
   // Common helpers:
-  randomNumber(max: number) {
-    return Math.floor(Math.random() * max);
+  _ids: Record<string, number> = {};
+  reset(): void {
+    this._ids = {};
   }
   id(prefix: string) {
-    return `${prefix}:${this.randomNumber(99999)}`;
+    const id = (this._ids[prefix] = (this._ids[prefix] ?? 0) + 1);
+    return `${prefix}:${id}`;
   }
   date() {
     return new Date().toISOString();
@@ -28,28 +34,19 @@ export class MockFactory {
       .fill(null)
       .map((_, i) => ({ _key: `${i}`, ...factory(i) }));
   }
-  withKeys<T>(items: Array<T>): Array<T & { _key: string }> {
-    return items.map((item, index) => ({
-      _key: `key-${index}`,
-      ...item,
-    }));
-  }
 
   // Datalake helpers:
   slug(prefix: string | { current: string }) {
     const current =
-      typeof prefix === "string" ? this.id(prefix) : prefix.current;
+      typeof prefix === "string" ? this.id(`slug:${prefix}`) : prefix.current;
     return { _type: "slug" as const, current };
   }
   reference(data: { _id: string }) {
     return {
-      _type: "reference" as const,
-      _key: this.id("reference"),
+      _type: "reference",
+      _key: this.id("reference:key"),
       _ref: data._id,
-      // This value is not actually needed, but it's required by TypeScript::
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      [SanitySchema.internalGroqTypeReferenceTo]: null as any,
-    };
+    } as ReferenceTo<any> & { _key: string };
   }
 
   // Document types:
@@ -160,25 +157,28 @@ export class MockFactory {
   }
 
   // Entire datasets:
-  generateSeedData({
-    categories = this.array(10, (i) =>
-      this.category({ name: `Category ${i}` })
-    ),
-    variants = this.array(10, (i) => this.variant({ name: `Variant ${i}` })),
-    products = this.array(10, (i) =>
-      this.product({
-        name: `Product ${i}`,
-        categories: categories.map((c) => this.reference(c)),
-        variants: variants.map((c) => this.reference(c)),
-      })
-    ),
-    extraData = [],
-  }: {
+  generateSeedData(data: {
     categories?: SanitySchema.Category[];
     variants?: SanitySchema.Variant[];
     products?: SanitySchema.Product[];
     extraData?: Array<object>;
   }) {
+    this.reset();
+    const {
+      categories = this.array(2, (i) =>
+        this.category({ name: `Category ${i}` })
+      ),
+      variants = this.array(2, (i) => this.variant({ name: `Variant ${i}` })),
+      products = this.array(2, (i) =>
+        this.product({
+          name: `Product ${i}`,
+          categories: categories.map((c) => this.reference(c)),
+          variants: variants.map((c) => this.reference(c)),
+        })
+      ),
+      extraData = [],
+    } = data;
+
     const datalake = [...products, ...categories, ...variants, ...extraData];
 
     return { products, categories, variants, datalake };

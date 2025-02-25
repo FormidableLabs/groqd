@@ -45,4 +45,5 @@ export {
   createGroqBuilderWithZod,
   createGroqBuilderWithZod as createGroqBuilder,
   z,
+  zod,
 } from "./createGroqBuilderWithZod";

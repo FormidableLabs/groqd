@@ -1,4 +1,4 @@
-import { Simplify } from "type-fest";
+import { KeysOfUnion, Simplify } from "type-fest";
 
 /**
  * Converts a union (|) into an intersection (&);
@@ -27,14 +27,16 @@ export type SimplifyUnion<T> = Pick<T, keyof T>;
  *   b?: "B";
  * }
  */
-export type Combine<T> = { [K in keyof _Combine<T>]: _Combine<T>[K] };
+export type Combine<TUnion> = {
+  [P in keyof _Combine<TUnion>]: _Combine<TUnion>[P];
+};
 type _Combine<
-  T,
+  TUnion,
   // Calculate all possible keys:
-  K extends PropertyKey = T extends unknown ? keyof T : never
-> = T extends unknown // (makes sure we map each union separately)
-  ? // Extend each T with all missing keys:
-    T & Partial<Record<Exclude<K, keyof T>, never>>
+  AllKeys extends PropertyKey = KeysOfUnion<TUnion>
+> = TUnion extends unknown // (makes sure we map each union separately)
+  ? // Extend each TUnion with all missing keys:
+    TUnion & Partial<Record<Exclude<AllKeys, keyof TUnion>, never>>
   : never;
 
 /**

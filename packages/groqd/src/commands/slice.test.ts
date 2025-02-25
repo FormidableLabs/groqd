@@ -6,7 +6,9 @@ import { InferResultType } from "../groq-builder";
 
 describe("slice", () => {
   const qVariants = q.star.filterByType("variant");
-  const data = mock.generateSeedData({});
+  const data = mock.generateSeedData({
+    variants: mock.array(10, () => mock.variant({})),
+  });
   beforeAll(async function checkRootQuery() {
     const results = await executeBuilder(qVariants, data);
     expect(results).toStrictEqual(data.variants);

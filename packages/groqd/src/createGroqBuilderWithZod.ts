@@ -10,6 +10,11 @@ import { createGroqBuilderLite } from "./createGroqBuilder";
 export { zodMethods as z } from "./validation/zod";
 
 /**
+ * @deprecated Use `z` instead of `zod`
+ */
+export const zod = zodMethods;
+
+/**
  * Creates the root `q` query builder.
  *
  * For convenience, includes all Zod validation methods attached to the `q` object, like `q.string()` etc.
