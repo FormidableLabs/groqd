@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 80
 ---
 
 # Fragments
@@ -21,10 +21,10 @@ Creates a fragment for a Document, based on the document type.
 
 ```ts
 const productFragment = q.fragmentForType<"product">().project(sub => ({
-  name: q.string(),
-  price: q.number(),
+  name: z.string(),
+  price: z.number(),
   images: sub.field("images[]").field("asset").deref().project({
-    url: q.string(),
+    url: z.string(),
   }),
 }))
 ```
@@ -36,8 +36,8 @@ This is useful for inline types that do not have a top-level document type.
 
 ```ts
 const keyValueFragment = q.fragment<{ key: string, value: number }>().project({
-  key: q.string(),
-  value: q.number(),
+  key: z.string(),
+  value: z.number(),
 })
 ```
 

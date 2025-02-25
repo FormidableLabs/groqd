@@ -1,6 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
-import { IGroqBuilderNotChainable } from "../types/public-types";
 import { IsNullable } from "../types/utils";
+import { IGroqBuilderNotChainable } from "../groq-builder";
 
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
@@ -17,14 +17,14 @@ declare module "../groq-builder" {
      * q.star
      *  .filter("slug.current == $slug")
      *  .slice(0) // <- this return type is nullable, even though we expect there will be a match
-     *  .project({ name: q.string() })
+     *  .project({ name: z.string() })
      *  .notNull() // <- this ensures that the results are not null
      *
      * @example
      * q.star.filterByType("product").project(sub => ({
      *   categories: sub.field("categories[]") // <- nullable array
      *                  .deref()
-     *                  .field("name", q.string())
+     *                  .field("name", z.string())
      *                  .notNull()
      * }));
      *

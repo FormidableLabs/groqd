@@ -1,16 +1,17 @@
-import {
-  GroqBuilderConfigType,
-  GroqBuilderResultType,
-  IGroqBuilder,
-  Parser,
-  ParserFunction,
-} from "../types/public-types";
+import { Parser, ParserFunction } from "../types/parser-types";
 import type { QueryConfig } from "../types/query-config";
 import { normalizeValidationFunction } from "../commands/validate-utils";
 import { ValidationErrors } from "../validation/validation-errors";
 import type { Empty } from "../types/utils";
 import { InvalidQueryError } from "../types/invalid-query-error";
 import { Constructor } from "type-fest";
+import {
+  GroqBuilderConfigType,
+  GroqBuilderResultType,
+  IGroqBuilder,
+} from "./groq-builder-types";
+
+export * from "./groq-builder-types";
 
 export type RootResult = Empty;
 
@@ -28,13 +29,13 @@ export type GroqBuilderOptions = {
    *
    * q.project({
    *   example: true, // ⛔️ use a validation function instead
-   *   example: q.string(), // ✅
+   *   example: z.string(), // ✅
    *
    *   example: "example.current", // ⛔️ use a tuple instead
-   *   example: ["example.current", q.string()], // ✅
+   *   example: ["example.current", z.string()], // ✅
    *
    *   example: q.field("example.current"), // ⛔️ ensure you pass the 2nd validation parameter
-   *   example: q.field("example.current", q.string()), // ✅
+   *   example: q.field("example.current", z.string()), // ✅
    * })
    *
    * @default false
@@ -77,7 +78,7 @@ export class GroqBuilderBase<
        * This happens if you accidentally chain too many times, like:
        *
        * q.star
-       *   .project({ a: q.string() })
+       *   .project({ a: z.string() })
        *   .field("a")
        *
        * The first part of this projection should NOT have validation,
@@ -86,7 +87,7 @@ export class GroqBuilderBase<
        *
        * q.star
        *   .project({ a: true })
-       *   .field("a", q.string())
+       *   .field("a", z.string())
        */
       throw new InvalidQueryError(
         "CHAINED_ASSERTION_ERROR",
@@ -256,7 +257,7 @@ export class GroqBuilder<
       throw new InvalidQueryError(
         "MISSING_QUERY_VALIDATION",
         "Because 'validationRequired' is enabled, " +
-          "every query must have validation (like `q.string()`), " +
+          "every query must have validation (like `z.string()`), " +
           "but this query is missing it!"
       );
     }

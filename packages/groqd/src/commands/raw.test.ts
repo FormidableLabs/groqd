@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { q } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultItem, InferResultType } from "../types/public-types";
+import { q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { InferResultItem, InferResultType } from "../groq-builder";
 
 describe("raw", () => {
   const qRaw = q.star
@@ -65,9 +65,9 @@ describe("raw", () => {
       ],
     });
     const qRawValidate = q.star.filterByType("product").project(() => ({
-      imageCount: q.raw("count(images[])", q.number()),
-      coalesce: q.raw("coalesce(INVALID, name)", q.string()),
-      null: q.raw("INVALID", q.string().nullable()),
+      imageCount: q.raw("count(images[])", z.number()),
+      coalesce: q.raw("coalesce(INVALID, name)", z.string()),
+      null: q.raw("INVALID", z.string().nullable()),
     }));
 
     it("should infer types correctly", () => {
@@ -133,7 +133,7 @@ describe("raw", () => {
   describe('"passthrough"', () => {
     const queryWithValidation = q.star.filterByType("product").project({
       // This projection has validation:
-      name: q.string(),
+      name: z.string(),
     });
 
     it("should throw an error if there's already a parser", () => {

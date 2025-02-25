@@ -1,8 +1,8 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultType } from "../types/public-types";
+import { SanitySchema, q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { InferResultType } from "../groq-builder";
 
 const qVariants = q.star.filterByType("variant");
 
@@ -52,7 +52,7 @@ describe("order", () => {
   it("you can order a query after a validated projection", () => {
     const query = qVariants
       .project({
-        name: q.string(),
+        name: z.string(),
       })
       .order("name");
     expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<

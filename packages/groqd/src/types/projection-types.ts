@@ -10,18 +10,15 @@ import {
   UndefinedToNull,
 } from "./utils";
 import { TypeMismatchError } from "./type-mismatch-error";
-import {
-  FragmentInputTypeTag,
-  IGroqBuilder,
-  Parser,
-  ParserWithWidenedInput,
-} from "./public-types";
+import { Parser, ParserWithWidenedInput } from "./parser-types";
 import { QueryConfig } from "./query-config";
 import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,
 } from "../commands/subquery/conditional-types";
 import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
+import { FragmentResultTypeTag } from "./fragment-types";
+import { IGroqBuilder } from "../groq-builder";
 
 export type ProjectionMap<TResultItem> = {
   [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
@@ -56,10 +53,7 @@ export type ProjectionFieldConfig<TResultItem, TFieldType> =
 
 export type ExtractProjectionResult<TResultItem, TProjectionMap> = Override<
   // Extract the "..." operator:
-  (TProjectionMap extends { "...": true } ? TResultItem : Empty) &
-    (TProjectionMap extends { "...": Parser<TResultItem, infer TOutput> }
-      ? TOutput
-      : Empty),
+  ExtractSpreadOperator<TResultItem, TProjectionMap>,
   // Extract any conditional expressions:
   ExtractConditionalProjectionTypes<TProjectionMap> &
     // Extract all the fields:
@@ -68,10 +62,17 @@ export type ExtractProjectionResult<TResultItem, TProjectionMap> = Override<
       // Be sure to omit the Conditionals, "...", and fragment metadata:
       Omit<
         TProjectionMap,
-        "..." | typeof FragmentInputTypeTag | ConditionalKey<string>
+        "..." | typeof FragmentResultTypeTag | ConditionalKey<string>
       >
     >
 >;
+
+type ExtractSpreadOperator<TResultItem, TProjectionMap> =
+  TProjectionMap extends { "...": true }
+    ? TResultItem
+    : TProjectionMap extends { "...": Parser<TResultItem, infer TOutput> }
+    ? TOutput
+    : Empty;
 
 type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
   [P in keyof TProjectionMap]: TProjectionMap[P] extends IGroqBuilder<
@@ -96,9 +97,9 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
           actual: TProjectionMap[P];
           expected: SimplifyDeep<ProjectionPaths<TResultItem>>;
         }>
-    : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', q.string() ] */
+    : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', z.string() ] */
     TProjectionMap[P] extends readonly [infer TKey, infer TParser]
-    ? TKey extends ProjectionPaths<TResultItem>
+    ? TKey extends ProjectionPaths<TResultItem> & string
       ? TParser extends Parser<infer TParserInput, infer TParserOutput>
         ? ValidateParserInput<
             ProjectionPathValue<TResultItem, TKey>,

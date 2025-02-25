@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { InferResultItem, InferResultType } from "../types/public-types";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import {
@@ -7,6 +6,7 @@ import {
   ReferenceTo,
   SanitySchema,
 } from "../tests/schemas/nextjs-sanity-fe";
+import { InferResultItem, InferResultType } from "../groq-builder";
 
 const data = mock.generateSeedData({});
 

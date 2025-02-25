@@ -1,14 +1,18 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { SanitySchema, SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultItem, InferResultType } from "../types/public-types";
+import { createGroqBuilderLite } from "../index";
+import {
+  SanitySchema,
+  SchemaConfig,
+  z,
+} from "../tests/schemas/nextjs-sanity-fe";
 import { Simplify } from "../types/utils";
 import { TypeMismatchError } from "../types/type-mismatch-error";
-import { createGroqBuilderWithZod } from "../index";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { currencyFormat } from "../tests/utils";
+import { InferResultItem, InferResultType } from "../groq-builder";
 
-const q = createGroqBuilderWithZod<SchemaConfig>();
+const q = createGroqBuilderLite<SchemaConfig>({ indent: "" });
 
 const qVariants = q.star.filterByType("variant");
 
@@ -71,7 +75,7 @@ describe("project (object projections)", () => {
       const qInvalid = qVariants.project({
         name: true,
         INVALID: true,
-        INVALID_PARSER: q.string(),
+        INVALID_PARSER: z.string(),
       });
 
       expectTypeOf<InferResultType<typeof qInvalid>>().toEqualTypeOf<
@@ -193,8 +197,8 @@ describe("project (object projections)", () => {
 
   describe("projection with validation", () => {
     const qValidation = qVariants.project({
-      name: q.string(),
-      price: q.number(),
+      name: z.string(),
+      price: z.number(),
     });
     it("query should be typed correctly", () => {
       expect(qValidation.query).toMatchInlineSnapshot(
@@ -240,8 +244,8 @@ describe("project (object projections)", () => {
     it("we should not be able to use the wrong parser type", () => {
       // @ts-expect-error ---
       const qNameInvalid = qVariants.project({
-        name: q.number(),
-        price: q.string(),
+        name: z.number(),
+        price: z.string(),
       });
       expectTypeOf<InferResultType<typeof qNameInvalid>>().toEqualTypeOf<
         Array<{
@@ -260,7 +264,7 @@ describe("project (object projections)", () => {
 
       // @ts-expect-error ---
       const qIdIsNullable = qVariants.project({
-        id: q.string(),
+        id: z.string(),
       });
       expectTypeOf<InferResultType<typeof qIdIsNullable>>().toEqualTypeOf<
         Array<{
@@ -311,18 +315,18 @@ describe("project (object projections)", () => {
 
   describe("a projection with naked, validated projections", () => {
     const qNakedProjections = qVariants.project({
-      NAME: ["name", q.string()],
-      SLUG: ["slug.current", q.string()],
-      msrp: ["msrp", q.number()],
+      NAME: ["name", z.string()],
+      SLUG: ["slug.current", z.string()],
+      msrp: ["msrp", z.number()],
     });
 
     it("invalid projections should have type errors", () => {
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID", q.number()] });
+      qVariants.project({ NAME: ["INVALID", z.number()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["slug.INVALID", q.string()] });
+      qVariants.project({ NAME: ["slug.INVALID", z.string()] });
       // @ts-expect-error ---
-      qVariants.project({ NAME: ["INVALID.current", q.string()] });
+      qVariants.project({ NAME: ["INVALID.current", z.string()] });
     });
 
     it("query should be correct", () => {
@@ -453,7 +457,7 @@ describe("project (object projections)", () => {
       name: variant.field("name"),
       images: variant.field("images[]").project((image) => ({
         name: true,
-        description: image.field("description").validate(q.string().nullable()),
+        description: image.field("description").validate(z.string().nullable()),
       })),
     }));
 
@@ -596,7 +600,7 @@ describe("project (object projections)", () => {
     const qParser = qVariants.project((sub) => ({
       name: true,
       msrp: sub.field("msrp").validate((msrp) => currencyFormat(msrp)),
-      price: sub.field("price").validate(q.number()),
+      price: sub.field("price").validate(z.number()),
     }));
 
     it("the types should match", () => {
@@ -664,7 +668,7 @@ describe("project (object projections)", () => {
   });
 
   describe("with validationRequired", () => {
-    const q = createGroqBuilderWithZod<SchemaConfig>({
+    const q = createGroqBuilderLite<SchemaConfig>({
       validationRequired: true,
       indent: "  ",
     });
@@ -676,7 +680,7 @@ describe("project (object projections)", () => {
           price: true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a projection uses a naked projection", () => {
@@ -685,7 +689,7 @@ describe("project (object projections)", () => {
           price: "price",
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "price"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "price"]`
       );
     });
     it("should throw if a nested projection is missing a parser", () => {
@@ -694,7 +698,7 @@ describe("project (object projections)", () => {
           nested: qV.field("price"),
         }))
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "nested"]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "nested"]`
       );
     });
     it("should throw when using ellipsis operator ...", () => {
@@ -703,15 +707,15 @@ describe("project (object projections)", () => {
           "...": true,
         })
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`q.string()\`), but the following fields are missing it: "..."]`
+        `[Error: [MISSING_PROJECTION_VALIDATION] Because 'validationRequired' is enabled, every field must have validation (like \`z.string()\`), but the following fields are missing it: "..."]`
       );
     });
     it("should work just fine when validation is provided", () => {
       const qNormal = qVariant.project((qV) => ({
-        price: q.number(),
-        price2: ["price", q.number()],
-        price3: qV.field("price", q.number()),
-        price4: qV.field("price").validate(q.number()),
+        price: z.number(),
+        price2: ["price", z.number()],
+        price3: qV.field("price", z.number()),
+        price4: qV.field("price").validate(z.number()),
       }));
       expect(qNormal.query).toMatchInlineSnapshot(`
         "*[_type == "variant"][0] {
@@ -772,11 +776,11 @@ describe("project (object projections)", () => {
 
     describe("when set to a parser", () => {
       const qEllipsisWithParser = qVariants.project({
-        "...": q.object({
-          name: q.string(),
-          msrp: q.number(),
+        "...": z.object({
+          name: z.string(),
+          msrp: z.number(),
         }),
-        price: q.number(),
+        price: z.number(),
       });
 
       it("a parser is created", () => {
@@ -815,7 +819,7 @@ describe("project (object projections)", () => {
     describe("when other fields have parsers", () => {
       const qEllipsis = qVariants.project((sub) => ({
         "...": true,
-        VALIDATED: sub.field("name", q.string().toUpperCase()),
+        VALIDATED: sub.field("name", z.string().toUpperCase()),
       }));
 
       it("query should be correct", () => {

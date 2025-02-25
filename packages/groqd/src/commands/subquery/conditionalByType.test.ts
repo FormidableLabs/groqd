@@ -1,17 +1,17 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
-  ExtractDocumentTypes,
   GroqBuilderBase,
   IGroqBuilder,
   InferResultItem,
   InferResultType,
-} from "../../index";
+} from "../../groq-builder";
 import { q, SchemaConfig } from "../../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 import { Simplify, SimplifyDeep } from "../../types/utils";
 import { getSubquery } from "../../tests/getSubquery";
+import { ExtractDocumentTypes } from "../../types/document-types";
 
 const data = mock.generateSeedData({
   products: mock.array(5, (i) =>

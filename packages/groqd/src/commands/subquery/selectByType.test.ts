@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { InferResultType, zod } from "../../index";
+import { InferResultType, z } from "../../index";
 import { q } from "../../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
@@ -208,14 +208,14 @@ describe("selectByType", () => {
       selected: qB.selectByType({
         product: (qP) =>
           qP.project({
-            _type: zod.literal("product"),
-            name: zod.string(),
+            _type: z.literal("product"),
+            name: z.string(),
           }),
         variant: (qV) =>
           qV.project({
-            _type: zod.literal("variant"),
-            name: zod.string(),
-            price: zod.number(),
+            _type: z.literal("variant"),
+            name: z.string(),
+            price: z.number(),
           }),
       }),
     }));

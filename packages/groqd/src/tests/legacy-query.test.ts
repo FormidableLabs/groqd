@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { q } from "./schemas/nextjs-sanity-fe";
-import { InferResultType } from "../types/public-types";
+
+import { InferResultType } from "../groq-builder";
 
 describe("legacy tests", () => {
   describe("getProductBySlug", () => {

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 40
 ---
 
 # Projections
@@ -18,9 +18,9 @@ Example:
 
 ```ts
 q.star.filterByType("product").project(sub => ({
-  imageUrl: sub.field("image.asset").deref().field("url", q.string()),
-  slug: sub.field("slug.current", q.string()),
-  price: sub.field("price", q.number()),
+  imageUrl: sub.field("image.asset").deref().field("url", z.string()),
+  slug: sub.field("slug.current", z.string()),
+  price: sub.field("price", z.number()),
 }))
 // Result GROQ: 
 //   *[_type == "product"]{
@@ -35,8 +35,8 @@ q.star.filterByType("product").project(sub => ({
 Since it's extremely common to select a field, there are several shorthand methods to make this easy!  The fields above could be rewritten as follows:
 
 ```ts
-  slug: ["slug.current", q.string()],
-  price: q.number(), // (when the key and field names are the same)
+  slug: ["slug.current", z.string()],
+  price: z.number(), // (when the key and field names are the same)
 ```
 
 Since runtime validation is optional, you could also omit the validation functions, and use this very short syntax:
@@ -48,8 +48,8 @@ Since runtime validation is optional, you could also omit the validation functio
 Finally, if you're only using these shorthands, and you're NOT using the `sub` parameter at all, you can remove it, and everything will still be strongly-typed:
 ```ts
 q.star.filterByType("product").project({
-  slug: ["slug.current", q.string()],
-  price: q.number(), 
+  slug: ["slug.current", z.string()],
+  price: z.number(), 
 })
 ```
 
@@ -76,7 +76,7 @@ Sanity calls this a "naked projection". This selects a single field from the obj
 
 ```ts
 // Select all product names:
-q.star.filterByType("product").field("name", q.string())
+q.star.filterByType("product").field("name", z.string())
 // Result GROQ: *[_type == "product"].name
 // Result Type: Array<string>
 ```
@@ -96,8 +96,8 @@ q.star
 q.star.filterByType("product").project(sub => ({
   category: sub.field("category").deref().field("title"),
   images: sub.field("images[]").field("asset").deref().project({
-    url: q.string(),
-    altText: q.string(),
+    url: z.string(),
+    altText: z.string(),
   }),
 }))
 // GROQ: *[_type == "product"]{
@@ -110,18 +110,20 @@ q.star.filterByType("product").project(sub => ({
 
 Selects a literal value. Especially useful with [conditional selections](./conditionals).
 
-> Not to be confused with `q.literal(literal)` which is a Zod validation function.
+> Not to be confused with `z.literal(literal)` which is a Zod validation function that can be used together.
 
 ```ts
 q.star.filterByType("product").project({
   a: q.value("LITERAL"),
   b: q.value(true),
-  c: q.value(42),
+  c: q.value(42, z.number()), // Validation is optional
+  d: q.value("VALIDATED", z.literal("VALIDATED")),
 })
 // Result GROQ: *[_type == "product"]{
 //  "a": "LITERAL",
 //  "b": true,
 //  "c": 42,
+//  "d": "VALIDATED",
 // }
 ```
 
@@ -134,6 +136,6 @@ This should only be used for unsupported features, since it bypasses all strongl
 
 ```ts
 q.star.filterByType("product").project({
-  imageCount: q.raw("count(images[])", q.number())
+  imageCount: q.raw("count(images[])", z.number())
 })
 ```

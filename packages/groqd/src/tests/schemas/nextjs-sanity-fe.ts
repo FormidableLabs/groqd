@@ -3,9 +3,9 @@ import {
   internalGroqTypeReferenceTo,
 } from "./nextjs-sanity-fe.sanity-typegen";
 import * as SanitySchema from "./nextjs-sanity-fe.sanity-typegen";
-import { createGroqBuilderWithZod, zod } from "../../index";
+import { createGroqBuilderLite, z } from "../../index";
 
-export { SanitySchema, zod };
+export { SanitySchema, z };
 
 export type ReferenceTo<TypeName extends string> = {
   _ref: string;
@@ -21,4 +21,4 @@ export type SchemaConfig = {
 
 export type ContentBlock = SanitySchema.Description[number];
 
-export const q = createGroqBuilderWithZod<SchemaConfig>({ indent: "  " });
+export const q = createGroqBuilderLite<SchemaConfig>({ indent: "  " });

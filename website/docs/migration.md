@@ -22,11 +22,13 @@ Create a file `./groqd-client.ts` with these contents:
 ```ts
 import { createGroqBuilder } from 'groqd';
 type SchemaConfig = any; // TODO: use generated Sanity Schema types
-export const q = createGroqBuilder<SchemaConfig>();
+export const q = createGroqBuilderWithZod<SchemaConfig>();
 ```
 
-By creating the root `q` this way, we'll be able to bind it to our `SchemaConfig`.  We'll bind it to `any` for now, so our `q` will be schema-unaware -- same as `v0.x`.  
-Later, take a look at the [Configuration](./configuration) docs to see how to generate a strongly-typed schema from your Sanity configuration.
+By creating the root `q` this way, we'll be able to bind it to our `SchemaConfig`.  
+We'll bind it to `any` for now, so our `q` will be schema-unaware -- same as `v0.x`.  
+
+> Later, you should take a look at the [Configuration](./configuration) docs to see how to generate a strongly-typed schema from your Sanity configuration.
 
 
 ## Update all imports
@@ -121,7 +123,7 @@ q.grab$({
 ```
 q.project({ 
   title: q.default(q.string(), "DEFAULT")),
-  imageUrls: q.field("images[]").field("asset").deref().field("url"),
+  imageUrls: q.field("images[].asset").deref().field("url"),
 })
 ```
 
@@ -135,7 +137,7 @@ With `v1.x`, by [adding a strongly-typed Sanity schema](./configuration), we can
 - Safer to write (all commands are type-checked, all fields are verified)
 - Faster to execute (because runtime validation can be skipped)
 
-For example, in a projection, we can skip runtime validation by simply using `true` instead of a validation method like `q.string()`.  For example:
+For example, in a projection, we can skip runtime validation by simply using `true` instead of a validation method like `z.string()`.  For example:
 ```ts
 const productsQuery = q.star
   .filterByType("product")

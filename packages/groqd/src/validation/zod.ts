@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ParserFunction } from "../types/public-types";
+import { ParserFunction } from "../types/parser-types";
 import { pick } from "../types/utils";
 
 const zodPrimitives = pick(z, [
@@ -24,9 +24,9 @@ const zodExtras = {
    *
    * @example
    * // Before:
-   * q.number().default(0)
+   * z.number().default(0)
    * // After:
-   * q.default(q.number(), 0)
+   * z.default(z.number(), 0)
    */
   default<TZodSchema extends z.ZodType<any, any, any>>(
     schema: TZodSchema,
@@ -48,7 +48,7 @@ const zodExtras = {
    * })
    * // After:
    * q.star.filterByType("product").project({
-   *   slug: q.slug("slug"),
+   *   slug: z.slug("slug"),
    * })
    */
   slug<TFieldName extends string>(fieldName: TFieldName) {

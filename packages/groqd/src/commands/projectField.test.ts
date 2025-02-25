@@ -1,10 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { InferResultType } from "../types/public-types";
 import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
-import { zod } from "../index";
+import { z } from "../index";
 import { getSubquery } from "../tests/getSubquery";
+import { InferResultType } from "../groq-builder";
 
 describe("field (naked projections)", () => {
   const qVariants = q.star.filterByType("variant");
@@ -137,7 +137,7 @@ describe("field (naked projections)", () => {
       expect(qPrices.parser).toBeNull();
     });
 
-    const qPrice = qVariants.slice(0).field("price", zod.number()).notNull();
+    const qPrice = qVariants.slice(0).field("price", z.number()).notNull();
     it("should have the correct result type", () => {
       expectTypeOf<InferResultType<typeof qPrice>>().toEqualTypeOf<number>();
     });
@@ -167,7 +167,7 @@ describe("field (naked projections)", () => {
     });
 
     describe("with arrays of data", () => {
-      const qPrices = qVariants.field("price", zod.number());
+      const qPrices = qVariants.field("price", z.number());
       it("should execute correctly", async () => {
         const results = await executeBuilder(qPrices, data);
         expect(results).toMatchInlineSnapshot(`

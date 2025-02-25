@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { q } from "../tests/schemas/nextjs-sanity-fe";
+import { q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { InferResultItem, InferResultType } from "../index";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
@@ -32,7 +32,7 @@ describe("validate", () => {
   });
   describe("Zod parsers", () => {
     const qPriceParse = qPrice.validate<string>(
-      q.number().transform((p) => currencyFormat(p))
+      z.number().transform((p) => currencyFormat(p))
     );
 
     it("shouldn't affect the query at all", () => {

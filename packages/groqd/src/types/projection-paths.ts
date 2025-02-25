@@ -20,6 +20,20 @@ export type ProjectionPathIgnoreTypes =
   | { _type: "block" };
 
 /**
+ * These simple types are shallow, and do not need to
+ * include any deeper entries.
+ */
+type IsShallowType<Value> = IsAny<Value> extends true
+  ? true
+  : IsNever<Value> extends true
+  ? true
+  : Value extends Primitive
+  ? true
+  : Value extends ProjectionPathIgnoreTypes
+  ? true
+  : false;
+
+/**
  * Takes a deeply nested object, and returns
  * a flattened map of all possible GROQ projections,
  * with their resulting types
@@ -40,50 +54,41 @@ export type ProjectionPathEntries<Value> = IsAny<Value> extends true
       UnionToIntersectionFast<_ProjectionPathEntries<"", SimplifyUnion<Value>>>
     >;
 
-type IsShallowType<Value> = IsAny<Value> extends true
-  ? true
-  : IsNever<Value> extends true
-  ? true
-  : Value extends Primitive
-  ? true
-  : Value extends ProjectionPathIgnoreTypes
-  ? true
-  : false;
-
 // The actual implementation:
-type _ProjectionPathEntries<CurrentPath extends string, Value> =
-  // If it's one of these simple types, we don't need to include any deeper entries:
-  IsShallowType<Value> extends true
-    ? never
-    : Value extends { _type: "slug" }
-    ? Record<JoinPath<CurrentPath, "current">, string>
-    : // Check for Arrays:
-    Value extends Array<infer U>
-    ?
-        | Record<`${CurrentPath}[]`, Value>
-        | (_ProjectionPathEntries<
-            `${CurrentPath}[]`,
-            UndefinedToNull<U>
-          > extends infer ChildEntries
-            ? ValuesAsArrays<ChildEntries>
-            : never)
-    : // It must be an object; let's map it:
-      ValueOf<{
-        [Key in StringKeys<keyof Value>]:
-          | (IsArray<Value[Key]> extends true
-              ? never // We want arrays to require the `[]`
-              : // Include an entry for the current item:
-                Record<JoinPath<CurrentPath, Key>, UndefinedToNull<Value[Key]>>)
+type _ProjectionPathEntries<
+  CurrentPath extends string,
+  Value
+> = IsShallowType<Value> extends true
+  ? never
+  : Value extends { _type: "slug" }
+  ? Record<JoinPath<CurrentPath, "current">, string>
+  : // Check for Arrays:
+  Value extends Array<infer U>
+  ?
+      | Record<`${CurrentPath}[]`, Value>
+      | (_ProjectionPathEntries<
+          `${CurrentPath}[]`,
+          UndefinedToNull<U>
+        > extends infer ChildEntries
+          ? ValuesAsArrays<ChildEntries>
+          : never)
+  : // It must be an object; let's map it:
+    ValueOf<{
+      [Key in StringKeys<keyof Value>]:
+        | (IsArray<Value[Key]> extends true
+            ? never // We want arrays to require the `[]`
+            : // Include an entry for the current item:
+              Record<JoinPath<CurrentPath, Key>, UndefinedToNull<Value[Key]>>)
 
-          // Include all nested entries:
-          | ValuesAsMaybeNullable<
-              _ProjectionPathEntries<
-                JoinPath<CurrentPath, Key>,
-                UndefinedToNull<Value[Key]>
-              >,
-              IsNullable<Value[Key]>
-            >;
-      }>;
+        // Include all nested entries:
+        | ValuesAsMaybeNullable<
+            _ProjectionPathEntries<
+              JoinPath<CurrentPath, Key>,
+              UndefinedToNull<Value[Key]>
+            >,
+            IsNullable<Value[Key]>
+          >;
+    }>;
 
 type JoinPath<
   CurrentPath extends string,

@@ -3,10 +3,11 @@ import {
   ExtractProjectionResult,
   ProjectionMap,
 } from "../../types/projection-types";
-import { Fragment } from "../../types/public-types";
 import { QueryConfig } from "../../types/query-config";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../../types/type-mismatch-error";
 import { ExtractDocumentTypes } from "../../types/document-types";
+import { Simplify } from "type-fest";
+import { Fragment } from "../../types/fragment-types";
 
 declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -17,8 +18,8 @@ declare module "../../groq-builder" {
      *
      * @example
      * const keyValueFragment = q.fragment<{ key: string, value: number }>().project({
-     *   key: q.string(),
-     *   value: q.number(),
+     *   key: z.string(),
+     *   value: z.number(),
      * })
      */
     fragment<TFragmentInput>(): FragmentUtil<TQueryConfig, TFragmentInput>;
@@ -28,11 +29,11 @@ declare module "../../groq-builder" {
      *
      * @example
      * const productFragment = q.fragmentForType<"product">().project(sub => ({
-     *   name: q.string(),
-     *   price: q.number(),
+     *   name: z.string(),
+     *   price: z.number(),
      *   images: sub.field("images[]").field("asset").deref().project({
-     *     url: q.string(),
-     *     altText: q.string(),
+     *     url: z.string(),
+     *     altText: z.string(),
      *   }),
      * }))
      */
@@ -67,7 +68,7 @@ export type FragmentUtil<TQueryConfig extends QueryConfig, TFragmentInput> = {
           sub: GroqBuilderSubquery<TFragmentInput, TQueryConfig>
         ) => TProjectionMap),
     ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
-  ): Fragment<TProjectionMap, TFragmentInput>;
+  ): Fragment<Simplify<_TProjectionResult>, TFragmentInput, TProjectionMap>;
 };
 
 GroqBuilderRoot.implement({

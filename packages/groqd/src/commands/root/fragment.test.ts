@@ -1,7 +1,8 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, q } from "../../tests/schemas/nextjs-sanity-fe";
-import { InferFragmentType, InferResultType } from "../../types/public-types";
+import { SanitySchema, q, z } from "../../tests/schemas/nextjs-sanity-fe";
 import { TypeMismatchError } from "../../types/type-mismatch-error";
+import { InferFragmentType } from "../../types/fragment-types";
+import { InferResultType } from "../../groq-builder";
 
 describe("fragment", () => {
   // define a fragment:
@@ -222,8 +223,8 @@ describe("fragment", () => {
 
   describe("fragment<any>", () => {
     const anyFrag = q.fragment<any>().project({
-      foo: q.string(),
-      bar: q.number(),
+      foo: z.string(),
+      bar: z.number(),
     });
     type AnyFragType = InferFragmentType<typeof anyFrag>;
     it("simple fragment should have the correct type", () => {

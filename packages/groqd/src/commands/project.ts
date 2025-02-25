@@ -1,6 +1,6 @@
 import { notNull, Simplify } from "../types/utils";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../types/type-mismatch-error";
-import { isGroqBuilder, Parser, ParserFunction } from "../types/public-types";
+import { Parser, ParserFunction } from "../types/parser-types";
 import { isParser, normalizeValidationFunction } from "./validate-utils";
 import { ResultItem } from "../types/result-types";
 import {
@@ -16,52 +16,50 @@ import {
   UnknownObjectParser,
 } from "../validation/simple-validation";
 import { InvalidQueryError } from "../types/invalid-query-error";
-import { QueryConfig } from "../types/query-config";
 import {
   GroqBuilder,
   GroqBuilderBase,
   GroqBuilderRoot,
   GroqBuilderSubquery,
 } from "../groq-builder";
+import { isGroqBuilder } from "../groq-builder";
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 declare module "../groq-builder" {
   // The `project` method can be used at any part of a query (Root, SubRoot, Chain):
   export interface GroqBuilderRoot<TResult, TQueryConfig>
-    extends ProjectDefinition<TResult, TQueryConfig> {}
+    extends Pick<GroqBuilder<TResult, TQueryConfig>, "project"> {}
+
   export interface GroqBuilderSubquery<TResult, TQueryConfig>
-    extends ProjectDefinition<TResult, TQueryConfig> {}
-  export interface GroqBuilder<TResult, TQueryConfig>
-    extends ProjectDefinition<TResult, TQueryConfig> {}
-}
+    extends Pick<GroqBuilder<TResult, TQueryConfig>, "project"> {}
 
-interface ProjectDefinition<TResult, TQueryConfig extends QueryConfig> {
-  /**
-   * Performs an "object projection", returning an object with the fields specified.
-   *
-   * @param projectionMap - The projection map is an object, mapping field names to projection values
-   * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
-   */
-  project<
-    TProjection extends ProjectionMap<ResultItem.Infer<TResult>>,
-    _TProjectionResult = ExtractProjectionResult<
-      ResultItem.Infer<TResult>,
-      TProjection
-    >
-  >(
-    projectionMap:
-      | TProjection
-      | ((
-          sub: GroqBuilderSubquery<ResultItem.Infer<TResult>, TQueryConfig>
-        ) => TProjection),
-    ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
-  ): GroqBuilder<
-    ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
-    TQueryConfig
-  >;
+  export interface GroqBuilder<TResult, TQueryConfig> {
+    /**
+     * Performs an "object projection", returning an object with the fields specified.
+     *
+     * @param projectionMap - The projection map is an object, mapping field names to projection values
+     * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
+     */
+    project<
+      TProjectionMap extends ProjectionMap<ResultItem.Infer<TResult>>,
+      _TProjectionResult = ExtractProjectionResult<
+        ResultItem.Infer<TResult>,
+        TProjectionMap
+      >
+    >(
+      projectionMap:
+        | TProjectionMap
+        | ((
+            sub: GroqBuilderSubquery<ResultItem.Infer<TResult>, TQueryConfig>
+          ) => TProjectionMap),
+      ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
+    ): GroqBuilder<
+      ResultItem.Override<TResult, Simplify<_TProjectionResult>>,
+      TQueryConfig
+    >;
+  }
 }
-
-const projectImplementation: ProjectDefinition<any, any> = {
+const projectImplementation: Pick<GroqBuilder, "project"> = {
   project(
     this: GroqBuilderBase,
     projectionMapArg: object | ((sub: any) => object),
@@ -92,7 +90,7 @@ const projectImplementation: ProjectDefinition<any, any> = {
         throw new InvalidQueryError(
           "MISSING_PROJECTION_VALIDATION",
           "Because 'validationRequired' is enabled, " +
-            "every field must have validation (like `q.string()`), " +
+            "every field must have validation (like `z.string()`), " +
             "but the following fields are missing it: " +
             `${invalidFields.map((f) => `"${f.key}"`)}`
         );

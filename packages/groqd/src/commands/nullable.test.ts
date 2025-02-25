@@ -1,8 +1,8 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
-import { InferResultType } from "../types/public-types";
+import { SanitySchema, q, z } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
+import { InferResultType } from "../groq-builder";
 
 const qVariants = q.star.filterByType("variant");
 
@@ -33,8 +33,8 @@ describe("nullable", () => {
       InferResultType<typeof qNullableField>
     >().toEqualTypeOf<Array<string> | null>();
   });
-  it("to mark a field (naked projection) nullable, it's better to use zod", () => {
-    const qNullableFieldFixed = qVariants.field("name", q.string().nullable());
+  it("to mark a field (naked projection) nullable, it's better to use z", () => {
+    const qNullableFieldFixed = qVariants.field("name", z.string().nullable());
     expectTypeOf<InferResultType<typeof qNullableFieldFixed>>().toEqualTypeOf<
       Array<string | null>
     >();
@@ -78,7 +78,7 @@ describe("nullable", () => {
     });
 
     const qWithValidation = q.star.filterByType("variant").project((qV) => ({
-      name: qV.field("name", q.string()).nullable(),
+      name: qV.field("name", z.string()).nullable(),
     }));
 
     it("should have the correct type", () => {

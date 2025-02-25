@@ -1,20 +1,20 @@
 import { expect, describe, it, expectTypeOf } from "vitest";
-import { createGroqBuilderWithZod, InferResultItem } from "../index";
-import { SchemaConfig } from "../tests/schemas/nextjs-sanity-fe";
+import { createGroqBuilderLite, InferResultItem } from "../index";
+import { SchemaConfig, z } from "../tests/schemas/nextjs-sanity-fe";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { TypeMismatchError } from "../types/type-mismatch-error";
 
-const q = createGroqBuilderWithZod<SchemaConfig>();
+const q = createGroqBuilderLite<SchemaConfig>({ indent: "" });
 
 const qVariants = q.star.filterByType("variant");
 
-describe("with zod", () => {
+describe("with z", () => {
   describe("simple projections", () => {
     const qWithZod = qVariants.project({
-      name: q.string(),
-      price: q.number(),
-      id: q.string().nullable(),
+      name: z.string(),
+      price: z.number(),
+      id: z.string().nullable(),
     });
 
     it("should infer the right type", () => {
@@ -74,10 +74,10 @@ describe("with zod", () => {
     });
   });
   describe("q.default helper", () => {
-    it('should have a type error if zod.string().default("") is used', () => {
+    it('should have a type error if z.string().default("") is used', () => {
       // @ts-expect-error --- The parser for the 'id' field expects the wrong input type
       const qErr = qVariants.project({
-        id: q.string().default("DEFAULT"),
+        id: z.string().default("DEFAULT"),
       });
       expectTypeOf<InferResultItem<typeof qErr>>().toEqualTypeOf<{
         id:
@@ -91,7 +91,7 @@ describe("with zod", () => {
 
       // @ts-expect-error --- The parser for the 'id' field expects the wrong input type
       const qRes = qVariants.project({
-        id: q.string(),
+        id: z.string(),
       });
       expectTypeOf<InferResultItem<typeof qRes>>().toEqualTypeOf<{
         id:
@@ -110,7 +110,7 @@ describe("with zod", () => {
       }>();
 
       const query = qVariants.project({
-        id: q.default(q.string(), "DEFAULT"),
+        id: z.default(z.string(), "DEFAULT"),
       });
       expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{
         id: string;
@@ -119,7 +119,7 @@ describe("with zod", () => {
   });
   describe("q.slug helper", () => {
     const qVariantSlugs = qVariants.project({
-      SLUG: q.slug("slug"),
+      SLUG: z.slug("slug"),
     });
 
     it("should have the correct type", () => {
@@ -131,9 +131,9 @@ describe("with zod", () => {
     it("should not allow invalid fields to be slugged", () => {
       qVariants.project({
         // @ts-expect-error ---
-        name: q.slug("name"),
+        name: z.slug("name"),
         // @ts-expect-error ---
-        INVALID: q.slug("INVALID"),
+        INVALID: z.slug("INVALID"),
       });
     });
 
@@ -177,7 +177,7 @@ describe("with zod", () => {
     });
   });
 
-  describe("zod input widening", () => {
+  describe("z input widening", () => {
     it("should complain if the parser's input is narrower than the input", () => {
       // First, show that `id` is optional/nullable
       const qResultNormal = qVariants.project({ id: true });
@@ -187,7 +187,7 @@ describe("with zod", () => {
 
       // Now, let's pick `id` with a too-narrow parser:
       // @ts-expect-error ---
-      const qResult = qVariants.project({ id: q.string() });
+      const qResult = qVariants.project({ id: z.string() });
       // Ensure we return an error result:
       expectTypeOf<InferResultItem<typeof qResult>>().toEqualTypeOf<{
         id:
@@ -208,7 +208,7 @@ describe("with zod", () => {
 
       // Now let's use a parser that allows for string | null:
       const qWideParser = qVariants.project({
-        name: q.string().nullable(),
+        name: z.string().nullable(),
       });
       expectTypeOf<InferResultItem<typeof qWideParser>>().toEqualTypeOf<{
         name: string | null;

@@ -1,5 +1,5 @@
 import { GroqBuilderBase } from "../groq-builder";
-import { Parser } from "../types/public-types";
+import { Parser } from "../types/parser-types";
 
 declare module "../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -16,7 +16,7 @@ declare module "../groq-builder" {
      *
      * @example
      * q.star.filterByType("user").project({
-     *   name: q.raw('firstName + " " + lastName', zod.string()),
+     *   name: q.raw('firstName + " " + lastName', z.string()),
      *   tags: q.raw<string>('array::join(tags, ", ")'),
      * })
      *

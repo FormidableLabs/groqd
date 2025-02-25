@@ -7,7 +7,7 @@ import {
   ExtractConditionalProjectionResults,
 } from "./conditional-types";
 import { notNull } from "../../types/utils";
-import { ParserFunction } from "../../types/public-types";
+import { ParserFunction } from "../../types/parser-types";
 import { ProjectionMap } from "../../types/projection-types";
 
 declare module "../../groq-builder" {
@@ -20,15 +20,15 @@ declare module "../../groq-builder" {
      *
      * @example
      * q.star.filterByType("product").project(sub => ({
-     *   name: q.string(),
+     *   name: z.string(),
      *   ...sub.conditional({
      *     "price == msrp": {
      *       onSale: q.value(false),
      *     },
      *     "price < msrp": {
      *       onSale: q.value(true),
-     *       price: q.number(),
-     *       msrp: q.number(),
+     *       price: z.number(),
+     *       msrp: z.number(),
      *     },
      *   }),
      * }))

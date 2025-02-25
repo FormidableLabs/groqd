@@ -1,18 +1,20 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { InferFragmentType, InferResultType } from "../types/public-types";
-import { createGroqBuilder } from "../index";
+import { z } from "../index";
+import { InferFragmentType } from "../types/fragment-types";
+import { InferResultType } from "../groq-builder";
+import { createGroqBuilderLite } from "../createGroqBuilder";
 
 describe("when using createGroqBuilder<any>()", () => {
-  const q = createGroqBuilder<any>();
+  const q = createGroqBuilderLite<any>();
 
   describe("a normal query", () => {
     const query = q.star.filterByType("variant").project((sub) => ({
-      name: q.string(),
-      price: q.number(),
+      name: z.string(),
+      price: z.number(),
       categoryNames: sub
         .field("categories[]")
         .deref()
-        .field("name", q.string()),
+        .field("name", z.string()),
     }));
     it("should have the right type", () => {
       expectTypeOf<InferResultType<typeof query>>().toEqualTypeOf<
@@ -26,12 +28,12 @@ describe("when using createGroqBuilder<any>()", () => {
   });
   describe("a fragment", () => {
     const frag = q.fragment<any>().project((sub) => ({
-      name: q.string(),
-      price: q.number(),
+      name: z.string(),
+      price: z.number(),
       categoryNames: sub
         .field("categories[]")
         .deref()
-        .field("name", q.string()),
+        .field("name", z.string()),
     }));
     it("should have the right type", () => {
       expectTypeOf<InferFragmentType<typeof frag>>().toEqualTypeOf<{
