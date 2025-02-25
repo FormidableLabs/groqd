@@ -8,7 +8,7 @@ export declare const FragmentResultTypeTag: unique symbol;
  */
 export type Fragment<
   TFragmentResult,
-  _TFragmentInput, // (this type parameter is only included so it shows in an IDE)
+  _TFragmentInput, // (this type parameter is only included so that it shows in an IDE)
   TProjectionMap
 > = TProjectionMap & {
   // Track the result type, so we can extract it later:
