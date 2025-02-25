@@ -7,5 +7,7 @@ describe("root exports", () => {
     expect(typeof root.createGroqBuilderWithZod).toBe("function");
     expect(typeof root.createGroqBuilderLite).toBe("function");
     expect(typeof root.createGroqBuilder).toBe("function");
+    root.z.string();
+    root.zod.string();
   });
 });

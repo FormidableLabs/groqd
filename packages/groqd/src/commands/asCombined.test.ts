@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { InferResultItem } from "../groq-builder";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { q, SanitySchema, zod } from "../tests/schemas/nextjs-sanity-fe";
+import { q, SanitySchema, z } from "../tests/schemas/nextjs-sanity-fe";
 import { Combine } from "../types/union-to-intersection";
 import { UndefinedToNull } from "../types/utils";
 
@@ -13,7 +13,7 @@ describe("asCombined", () => {
   const qCombinedProjection = qCombined.project({
     // Common:
     _type: true,
-    _id: zod.string(),
+    _id: z.string(),
     name: true,
     slug: "slug.current",
 
@@ -22,7 +22,7 @@ describe("asCombined", () => {
     variants: true,
 
     // Variant only:
-    price: zod.number().nullable(),
+    price: z.number().nullable(),
     flavour: true,
     style: true,
   });
