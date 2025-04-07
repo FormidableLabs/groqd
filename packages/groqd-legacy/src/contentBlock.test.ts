@@ -54,7 +54,7 @@ describe("contentBlock", () => {
     ]);
   });
 
-  it.skip("can handle blocks without marks", async () => {
+  it("can handle blocks without marks", async () => {
     const { data } = await runUserQuery(
       q("*")
         .filterByType("user")
