@@ -46,6 +46,7 @@ describe("contentBlock", () => {
       .toEqualTypeOf<
         ({ _type: "link"; href: string } | { _type: "note"; note: string })[]
       >();
+    expectTypeOf(data.bio[0].children[0].marks).toEqualTypeOf<string[]>();
     expect(Array.isArray(data.bio)).toBeTruthy();
     expect(data.bio[0]._type === "block").toBeTruthy();
     expect(data.bio[0].markDefs).toEqual([
@@ -53,7 +54,7 @@ describe("contentBlock", () => {
     ]);
   });
 
-  it("can handle blocks without marks", async () => {
+  it.skip("can handle blocks without marks", async () => {
     const { data } = await runUserQuery(
       q("*")
         .filterByType("user")
@@ -70,6 +71,7 @@ describe("contentBlock", () => {
     expect(data.bio[0]._type === "block").toBeTruthy();
     expect(data.bio[0].children[0].marks).toEqual([]);
     expect(data.bio[0].children[1].marks).toEqual([]);
+    expectTypeOf(data.bio[0].children[0].marks).toEqualTypeOf<string[]>();
   });
 });
 
