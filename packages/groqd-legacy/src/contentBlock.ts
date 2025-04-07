@@ -32,7 +32,7 @@ function makeContentBlockQuery<T extends z.ZodType>(markDefs: T) {
         _key: z.string(),
         _type: z.string(),
         text: z.string(),
-        marks: z.array(z.string()),
+        marks: z.array(z.string()).optional().default([]),
       })
     ),
     markDefs: z.array(markDefs).optional(),

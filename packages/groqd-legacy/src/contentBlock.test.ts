@@ -52,6 +52,25 @@ describe("contentBlock", () => {
       { _type: "link", href: "https://google.com" },
     ]);
   });
+
+  it("can handle blocks without marks", async () => {
+    const { data } = await runUserQuery(
+      q("*")
+        .filterByType("user")
+        .filter("name == 'Matas Buzelis'")
+        .slice(0)
+        .grab({
+          bio: q.array(q.contentBlock()),
+        })
+    );
+
+    invariant(data);
+    expect(Array.isArray(data.bio)).toBeTruthy();
+    expect(data.bio).toHaveLength(1);
+    expect(data.bio[0]._type === "block").toBeTruthy();
+    expect(data.bio[0].children[0].marks).toEqual([]);
+    expect(data.bio[0].children[1].marks).toEqual([]);
+  });
 });
 
 describe("contentBlocks", () => {
