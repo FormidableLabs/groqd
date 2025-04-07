@@ -1,4 +1,7 @@
-import { sampleContentBlocks } from "./sampleContentBlocks";
+import {
+  sampleContentBlocks,
+  sampleContentBlocksWithoutMarks,
+} from "./sampleContentBlocks";
 
 const userData: {
   slug: { current: string };
@@ -16,6 +19,13 @@ const userData: {
     nicknames: ["Johnny", "J Boi", "Dat Boi Doe"],
   },
   { slug: { current: "jane" }, name: "Jane", age: 30, role: "admin" },
+  {
+    slug: { current: "matas" },
+    name: "Matas Buzelis",
+    age: 20,
+    role: "guest",
+    bio: sampleContentBlocksWithoutMarks,
+  },
 ];
 
 const users = userData.map((user) => ({
@@ -26,7 +36,7 @@ const users = userData.map((user) => ({
     _type: "reference",
     _ref: `role.${user.role}`,
   },
-  bio: sampleContentBlocks,
+  bio: user.bio ?? sampleContentBlocks,
 }));
 
 type RoleType = "guest" | "admin";

@@ -72,3 +72,23 @@ export const sampleContentBlocks = [
     style: "normal",
   },
 ];
+
+export const sampleContentBlocksWithoutMarks = [
+  {
+    _key: "62dc4f6c6236",
+    _type: "block",
+    children: [
+      {
+        _key: "7ad29d2c3069",
+        _type: "span",
+        text: "Hello world.",
+      },
+      {
+        _key: "8d6df66fd3e3",
+        _type: "span",
+        text: "Hello world.",
+      },
+    ],
+    style: "normal",
+  },
+];
