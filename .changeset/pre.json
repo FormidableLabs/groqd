@@ -4,5 +4,7 @@
   "initialVersions": {
     "groqd": "0.15.12"
   },
-  "changesets": []
+  "changesets": [
+    "seven-rice-flash"
+  ]
 }
