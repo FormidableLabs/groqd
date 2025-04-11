@@ -1,0 +1,13 @@
+{
+  "mode": "pre",
+  "tag": "legacy",
+  "initialVersions": {
+    "playground-example": "0.0.2",
+    "groqd": "1.3.0",
+    "groqd-legacy": "0.15.12",
+    "groqd-playground": "0.0.20",
+    "groqd-playground-editor": "0.0.6",
+    "website": "0.0.23"
+  },
+  "changesets": []
+}
