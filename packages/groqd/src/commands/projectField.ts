@@ -52,7 +52,8 @@ declare module "../groq-builder" {
       TParser extends ParserWithWidenedInput<
         ProjectionPathValue<
           ResultItem.Infer<TResult> & TQueryConfig["scope"],
-           TProjectionPath>
+          TProjectionPath
+        >
       >
     >(
       fieldName: TProjectionPath,
@@ -64,8 +65,8 @@ declare module "../groq-builder" {
           ? ValidateParserInput<
               ProjectionPathValue<
                 ResultItem.Infer<TResult> & TQueryConfig["scope"],
-
-                 TProjectionPath>,
+                TProjectionPath
+              >,
               TParserInput,
               TParserOutput,
               TProjectionPath

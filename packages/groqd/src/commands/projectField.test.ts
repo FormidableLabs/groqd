@@ -1,11 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
-import { InferResultItem, InferResultType } from "../types/public-types";
 import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
-import { z } from "../index";
 import { getSubquery } from "../tests/getSubquery";
-import { InferResultType } from "../groq-builder";
+import { InferResultItem, InferResultType, z } from "../index";
 
 describe("field (naked projections)", () => {
   const qVariants = q.star.filterByType("variant");
@@ -197,15 +195,15 @@ describe("field (naked projections)", () => {
 
   describe('parent selector "^"', () => {
     describe("with filterBy", () => {
-      const query = q.star.filterByType("category").project((sub) => ({
-        products: sub.star
-          .filterByType("product")
-          .filterBy("references(^._id)"),
+      const query = q.star.filterByType("variant").project((sub) => ({
+        flavours: sub.field("flavour[]").filterRaw("references(^._id)").deref(),
       }));
 
-      it("should have the right type", () => {
-        expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{
-          products: Array<SanitySchema.Product>;
+      it("should have the correct type", () => {
+        type ResultItem = InferResultItem<typeof query>;
+
+        expectTypeOf<ResultItem>().toEqualTypeOf<{
+          flavours: null | Array<SanitySchema.Flavour>;
         }>();
       });
     });

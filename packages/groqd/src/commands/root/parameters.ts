@@ -3,10 +3,7 @@ import {
   GroqBuilderBase,
   GroqBuilderRoot,
 } from "../../groq-builder";
-import { Override } from "../../types/utils";
-import { Simplify } from "type-fest";
-import { ParametersWith$Sign } from "../../types/parameter-types";
-import { QueryConfig } from "../../types/query-config";
+import { ConfigAddParameters, QueryConfig } from "../../types/query-config";
 import { GroqBuilderOfType } from "../as";
 
 declare module "../../groq-builder" {
@@ -46,19 +43,7 @@ declare module "../../groq-builder" {
      */
     parameters<TParameters>(): GroqBuilderOfType<
       TResult,
-      Simplify<
-        Override<
-          TQueryConfig,
-          {
-            // Merge existing parameters with the new parameters:
-            parameters: Simplify<TQueryConfig["parameters"] & TParameters>;
-            // Add all these parameters to the scope:
-            scope: Simplify<
-              TQueryConfig["scope"] & ParametersWith$Sign<TParameters>
-            >;
-          }
-        >
-      >,
+      ConfigAddParameters<TQueryConfig, TParameters>,
       ReturnType
     >;
     /** @deprecated Use `parameters` to define parameters */

@@ -23,7 +23,7 @@ import {
   GroqBuilderSubquery,
 } from "../groq-builder";
 import { isGroqBuilder } from "../groq-builder";
-import { AddToScope } from "../types/query-config";
+import { ConfigCreateNestedScope } from "../types/query-config";
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 declare module "../groq-builder" {
@@ -53,7 +53,7 @@ declare module "../groq-builder" {
         | ((
             sub: GroqBuilder<
               ResultItem.Infer<TResult>,
-              AddToScope<TQueryConfig, { "^": ResultItem.Infer<TResult> }>
+              ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
             >
           ) => TProjectionMap),
       ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
@@ -63,6 +63,7 @@ declare module "../groq-builder" {
     >;
   }
 }
+
 const projectImplementation: Pick<GroqBuilder, "project"> = {
   project(
     this: GroqBuilderBase,

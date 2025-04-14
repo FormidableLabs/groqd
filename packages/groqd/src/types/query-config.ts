@@ -1,3 +1,4 @@
+import { ParametersWith$Sign } from "./parameter-types";
 import { Override, Simplify } from "./utils";
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -32,7 +33,39 @@ export type QueryConfig = {
   scope?: {};
 };
 
-export type AddToScope<TQueryConfig extends QueryConfig, TNewScope> = Override<
+export type ConfigAddScope<
+  TNewScope,
+  TQueryConfig extends QueryConfig
+> = Override<
   TQueryConfig,
   { scope: Simplify<Override<TQueryConfig["scope"], TNewScope>> }
+>;
+export type ConfigAddParameters<
+  TQueryConfig extends QueryConfig,
+  TNewParameters
+> = Override<
+  TQueryConfig,
+  {
+    parameters: Simplify<Override<TQueryConfig["parameters"], TNewParameters>>;
+    scope: Simplify<
+      Override<TQueryConfig["scope"], ParametersWith$Sign<TNewParameters>>
+    >;
+  }
+>;
+
+export type ScopeWithCurrent<TCurrent = unknown> = { "@": TCurrent };
+export type ScopeWithParent<TParent> = { "^": TParent };
+
+/**
+ * Creates a new nested scope, with a current value ("@"),
+ * and existing current ("@") gets hoisted to parent ("^")
+ */
+export type ConfigCreateNestedScope<
+  TQueryConfig extends QueryConfig,
+  TCurrent
+> = ConfigAddScope<
+  TQueryConfig["scope"] extends ScopeWithCurrent<infer TPrevCurrent>
+    ? ScopeWithCurrent<TCurrent> & ScopeWithParent<TPrevCurrent>
+    : ScopeWithCurrent<TCurrent>,
+  TQueryConfig
 >;

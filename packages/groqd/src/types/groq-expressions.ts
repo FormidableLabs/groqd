@@ -87,8 +87,8 @@ export namespace Expressions {
     "match"
   >;
 
-  type References<TScope> = `references(${KeysByType<
-    PathEntries<TScope>,
+  type References<TScope> = `references(${ProjectionPathsByType<
+    TScope,
     string | string[]
   >})`;
 

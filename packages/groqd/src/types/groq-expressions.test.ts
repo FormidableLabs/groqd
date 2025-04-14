@@ -1,6 +1,10 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Expressions } from "./groq-expressions";
-import { AddToScope, QueryConfig } from "./query-config";
+import {
+  ConfigAddParameters,
+  ConfigCreateNestedScope,
+  QueryConfig,
+} from "./query-config";
 import { ParametersWith$Sign } from "./parameter-types";
 import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 
@@ -203,7 +207,7 @@ describe("Expressions", () => {
   });
 });
 describe("Expressions.Conditional", () => {
-  type T = Expressions.Conditional<FooBarBaz, QueryConfig>;
+  type Result = Expressions.Conditional<FooBarBaz, QueryConfig>;
   it("should include a good list of possible expressions, including booleans", () => {
     type Expected =
       | "foo == (string)"
@@ -214,7 +218,7 @@ describe("Expressions.Conditional", () => {
       | `baz == false`
       | `baz`
       | `!baz`;
-    expectTypeOf<T>().toEqualTypeOf<Expected>();
+    expectTypeOf<Result>().toEqualTypeOf<Expected>();
   });
 
   it("unions should work just fine", () => {
@@ -222,7 +226,8 @@ describe("Expressions.Conditional", () => {
       | { _type: "TypeA"; a: "A" }
       //
       | { _type: "TypeB"; b: "B" };
-    expectTypeOf<Expressions.Conditional<TUnion, QueryConfig>>().toEqualTypeOf<
+    type Result = Expressions.Conditional<TUnion, QueryConfig>;
+    expectTypeOf<Result>().toEqualTypeOf<
       | '_type == "TypeA"'
       //
       | '_type == "TypeB"'
@@ -237,9 +242,13 @@ describe("Expressions.Conditional", () => {
       num: number;
       bool: boolean;
     };
-    type QueryConfigWithScope = AddToScope<
-      QueryConfig,
-      { "^": Parent; $param: "PARAM_VALUE" }
+    type DoubleNestedConfig = ConfigCreateNestedScope<
+      ConfigCreateNestedScope<QueryConfig, Parent>,
+      {}
+    >;
+    type QueryConfigWithScope = ConfigAddParameters<
+      DoubleNestedConfig,
+      { param: "PARAM_VALUE" }
     >;
 
     type StandardSuggestions = Expressions.Conditional<FooBarBaz, QueryConfig>;
