@@ -9,6 +9,7 @@ import "./subquery/conditional";
 import "./subquery/conditionalByType";
 import "./subquery/select";
 import "./subquery/selectByType";
+import "./subquery/self";
 
 import "./as";
 import "./asCombined";
