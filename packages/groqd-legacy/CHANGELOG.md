@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.13
+
+### Patch Changes
+
+- Fixed a bug where the q.contentBlock() function would miss blocks whose marks property was omitted or undefined. ([#370](https://github.com/FormidableLabs/groqd/pull/370))
+
 ## 0.15.12
 
 ### Patch Changes

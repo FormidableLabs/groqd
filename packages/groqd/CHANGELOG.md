@@ -1,5 +1,11 @@
 # groqd
 
+## 1.3.1
+
+### Patch Changes
+
+- Fix: ensure we can get fields from `block` and `reference` objects ([#373](https://github.com/FormidableLabs/groqd/pull/373))
+
 ## 1.3.0
 
 ### Minor Changes
