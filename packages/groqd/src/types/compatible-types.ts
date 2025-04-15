@@ -18,8 +18,6 @@ export type CompatibleKeys<Base, Condition> = {
 /**
  * Returns true if A and B are compatible types, like strings, literals, numbers, etc.
  */
-export type TypesAreCompatible<A, B> = A extends B
-  ? true
-  : B extends A
-  ? true
-  : false;
+export type TypesAreCompatible<A, B> =
+  // Wrap in a Tuple to avoid Distributed Conditional Types
+  [A] extends [B] ? true : [B] extends [A] ? true : false;

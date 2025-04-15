@@ -85,11 +85,11 @@ export namespace Expressions {
   type Comparison<
     TPathEntries,
     TQueryConfig extends QueryConfig,
-    ComparisonType extends string = "=="
+    ComparisonOperator extends string
   > = ValueOf<{
     [Key in StringKeys<
       keyof TPathEntries
-    >]: `${Key} ${ComparisonType} ${SuggestedKeysByType<
+    >]: `${Key} ${ComparisonOperator} ${SuggestedKeysByType<
       TQueryConfig,
       TPathEntries[Key]
     >}`;
