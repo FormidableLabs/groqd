@@ -1,3 +1,4 @@
+import { IsEmptyObject } from "type-fest";
 import { ParametersWith$Sign } from "./parameter-types";
 import { Override, Simplify } from "./utils";
 
@@ -34,8 +35,8 @@ export type QueryConfig = {
 };
 
 export type ConfigAddScope<
-  TNewScope,
-  TQueryConfig extends QueryConfig
+  TQueryConfig extends QueryConfig,
+  TNewScope
 > = Override<
   TQueryConfig,
   { scope: Simplify<Override<TQueryConfig["scope"], TNewScope>> }
@@ -53,19 +54,27 @@ export type ConfigAddParameters<
   }
 >;
 
-export type ScopeWithCurrent<TCurrent = unknown> = { "@": TCurrent };
-export type ScopeWithParent<TParent> = { "^": TParent };
-
 /**
  * Creates a new nested scope, with a current value ("@"),
- * and existing current ("@") gets hoisted to parent ("^")
+ * and existing scope gets hoisted to parent ("^")
  */
 export type ConfigCreateNestedScope<
   TQueryConfig extends QueryConfig,
   TCurrent
 > = ConfigAddScope<
-  TQueryConfig["scope"] extends ScopeWithCurrent<infer TPrevCurrent>
-    ? ScopeWithCurrent<TCurrent> & ScopeWithParent<TPrevCurrent>
-    : ScopeWithCurrent<TCurrent>,
-  TQueryConfig
+  TQueryConfig,
+  TQueryConfig["scope"] extends { "@": infer TCurrentOld }
+    ? {
+        "@": TCurrent;
+        "^": TCurrentOld & PickMaybe<TQueryConfig["scope"], "^">;
+      }
+    : { "@": TCurrent }
+>;
+
+type PickMaybe<T, Keys> = Pick<T, Extract<Keys, keyof T>>;
+
+export type ConfigGetScope<TQueryConfig extends QueryConfig> = Omit<
+  TQueryConfig["scope"],
+  // Don't include "@" when we're looking at the scope:
+  "@"
 >;

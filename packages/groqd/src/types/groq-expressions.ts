@@ -1,4 +1,4 @@
-import { QueryConfig } from "./query-config";
+import { ConfigGetScope, QueryConfig } from "./query-config";
 import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
 import { StringKeys, ValueOf } from "./utils";
 import {
@@ -53,7 +53,7 @@ export namespace Expressions {
     // Currently we only support these simple expressions:
     | Equality<TResultItem, TQueryConfig>
     | BooleanSuggestions<TResultItem>
-    | References<TQueryConfig["scope"]>;
+    | References<TQueryConfig>;
 
   type Comparison<
     TPathEntries,
@@ -63,7 +63,7 @@ export namespace Expressions {
     [Key in StringKeys<
       keyof TPathEntries
     >]: `${Key} ${ComparisonType} ${SuggestedKeysByType<
-      TQueryConfig["scope"],
+      TQueryConfig,
       TPathEntries[Key]
     >}`;
   }>;
@@ -87,10 +87,16 @@ export namespace Expressions {
     "match"
   >;
 
-  type References<TScope> = `references(${ProjectionPathsByType<
-    TScope,
-    string | string[]
+  type References<TQueryConfig extends QueryConfig> = `references(${IgnorePaths<
+    ProjectionPathsByType<ConfigGetScope<TQueryConfig>, string | string[]>,
+    // Ignore common string types that aren't ids:
+    "_type" | "_createdAt" | "_updatedAt" | "_rev" | "_key"
   >})`;
+
+  type IgnorePaths<Paths extends string, Key extends string> = Exclude<
+    Paths,
+    Key | `${string}.${Key}`
+  >;
 
   type BooleanSuggestions<TResultItem> = ValueOf<{
     [Key in ProjectionPathsByType<TResultItem, boolean>]: Key | `!${Key}`;
@@ -120,9 +126,9 @@ export namespace Expressions {
     ? "(number)"
     : never;
 
-  type SuggestedKeysByType<TScope, TValue> =
+  type SuggestedKeysByType<TQueryConfig extends QueryConfig, TValue> =
     // First, suggest scope items (eg. parameters, parent selectors):
-    | ProjectionPathsByType<TScope, TValue>
+    | ProjectionPathsByType<ConfigGetScope<TQueryConfig>, TValue>
     // Next, make some literal suggestions:
     | LiteralSuggestion<TValue>
     // Suggest all literal values:
