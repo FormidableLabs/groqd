@@ -1,6 +1,5 @@
 import { ConfigGetScope, QueryConfig } from "./query-config";
 import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
-import { ResultItem } from "./result-types";
 import { StringKeys, ValueOf } from "./utils";
 import {
   ProjectionPathEntries,
@@ -79,6 +78,7 @@ export namespace Expressions {
   export type Conditional<TResultItem, TQueryConfig extends QueryConfig> =
     // Currently we only support these simple expressions:
     | Equality<TResultItem, TQueryConfig>
+    | Inequality<TResultItem, TQueryConfig>
     | BooleanSuggestions<TResultItem>
     | References<TQueryConfig>;
 
@@ -102,8 +102,8 @@ export namespace Expressions {
 
   export type Inequality<
     TResultItem,
-    TQueryConfig extends QueryConfig
-  > = Comparison<ProjectionPathEntries<TResultItem>, TQueryConfig, "!=">;
+    _TQueryConfig extends QueryConfig
+  > = `${ProjectionPathsByType<TResultItem, null>} != null`;
 
   export type MatchExpression<
     TResultItem,
@@ -191,7 +191,7 @@ export namespace Expressions {
   type SortableTypes = string | number | boolean | null;
 
   export type CountableEntries<TResult> = PickByKey<
-    ProjectionPathEntriesByType<TResult, Array<any> | null>,
+    ProjectionPathEntriesByType<TResult, Array<any>>,
     `${string}[]` // We only want "actual" arrays, not nested ones
   >;
   type PickByKey<T, Key> = {

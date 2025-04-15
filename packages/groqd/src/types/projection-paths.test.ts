@@ -431,9 +431,12 @@ describe("ProjectionPathEntriesByType", () => {
 
     expectTypeOf<ProjectionPathEntriesByType<Nested, string>>().toEqualTypeOf<{
       str: string;
+      strOpt: string | null;
+      strNum: string | number;
       literalStr: "L";
       "deep.str": string;
       "deep.literalStr": "L";
+      "deepOpt.str": string | null;
     }>();
   });
 });

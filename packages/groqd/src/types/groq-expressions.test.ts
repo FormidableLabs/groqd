@@ -8,7 +8,11 @@ import {
 import { ParametersWith$Sign } from "./parameter-types";
 import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 
-type FooBarBaz = { foo: string; bar: number; baz: boolean };
+type FooBarBaz = {
+  foo: string;
+  bar?: number;
+  baz: boolean;
+};
 
 type WithParameters<TVars> = QueryConfig & {
   scope: ParametersWith$Sign<TVars>;
@@ -161,7 +165,7 @@ describe("Expressions", () => {
         FooBarBaz,
         WithParameters<ManyParameters>
       >;
-      expectTypeOf<Res>().toEqualTypeOf<
+      type Expected =
         | "foo == $str1"
         | "foo == $str2"
         | "foo == (string)"
@@ -169,9 +173,12 @@ describe("Expressions", () => {
         | "bar == $num1"
         | "bar == (number)"
         | `bar == ${number}`
+        | `bar == null`
         | "baz == $bool"
-        | `baz == ${boolean}`
-      >();
+        | `baz == ${boolean}`;
+
+      expectTypeOf<Exclude<Res, Expected>>().toEqualTypeOf<never>();
+      expectTypeOf<Exclude<Expected, Res>>().toEqualTypeOf<never>();
     });
 
     type NestedParameters = {
@@ -194,6 +201,7 @@ describe("Expressions", () => {
         | `foo == "${string}"`
         | `bar == (number)`
         | `bar == ${number}`
+        | `bar == null`
         | `baz == ${boolean}`;
       type NestedSuggestions = Exclude<Res, StandardSuggestions>;
       expectTypeOf<NestedSuggestions>().toEqualTypeOf<
@@ -211,7 +219,9 @@ describe("Expressions.Field", () => {
     type Expected = "foo" | "bar" | "baz";
     expectTypeOf<Exclude<Result, Expected>>().toEqualTypeOf<never>();
     expectTypeOf<Exclude<Expected, Result>>().toEqualTypeOf<never>();
-    expectTypeOf<ResultValue>().toEqualTypeOf<string | number | boolean>();
+    expectTypeOf<ResultValue>().toEqualTypeOf<
+      string | number | boolean | null
+    >();
   });
 
   it("unions should work just fine", () => {
@@ -279,7 +289,7 @@ describe("Expressions.Field", () => {
         Expressions.FieldValue<FooBarBaz, QueryConfigWithScope, TField>;
 
       expectTypeOf<GetFieldValue<"foo">>().toEqualTypeOf<string>();
-      expectTypeOf<GetFieldValue<"bar">>().toEqualTypeOf<number>();
+      expectTypeOf<GetFieldValue<"bar">>().toEqualTypeOf<number | null>();
       expectTypeOf<GetFieldValue<"baz">>().toEqualTypeOf<boolean>();
       expectTypeOf<GetFieldValue<"@">>().toEqualTypeOf<Child>();
       expectTypeOf<GetFieldValue<"^">>().toMatchTypeOf<Parent>();
@@ -296,14 +306,17 @@ describe("Expressions.Conditional", () => {
   type Result = Expressions.Conditional<FooBarBaz, QueryConfig>;
   it("should include a good list of possible expressions, including booleans", () => {
     type Expected =
-      | "foo == (string)"
+      | `foo == (string)`
       | `foo == "${string}"`
       | `bar == (number)`
       | `bar == ${number}`
+      | `bar == null`
+      | `bar != null`
       | `baz == ${boolean}`
       | `baz`
       | `!baz`;
-    expectTypeOf<Result>().toEqualTypeOf<Expected>();
+    expectTypeOf<Exclude<Result, Expected>>().toEqualTypeOf<never>();
+    expectTypeOf<Exclude<Expected, Result>>().toEqualTypeOf<never>();
   });
 
   it("unions should work just fine", () => {
@@ -351,7 +364,7 @@ describe("Expressions.Conditional", () => {
 
     it("should suggest items from the scope", () => {
       type NewSuggestions = Exclude<ScopeSuggestions, StandardSuggestions>;
-      expectTypeOf<NewSuggestions>().toEqualTypeOf<
+      type Expected =
         | "foo == $param"
         | "foo == ^._id"
         | "foo == ^._type"
@@ -360,8 +373,10 @@ describe("Expressions.Conditional", () => {
         | "baz == ^.bool"
         | "references(^._id)"
         | "references(^.str)"
-        | "references($param)"
-      >();
+        | "references($param)";
+
+      expectTypeOf<Exclude<NewSuggestions, Expected>>().toEqualTypeOf<never>();
+      expectTypeOf<Exclude<Expected, NewSuggestions>>().toEqualTypeOf<never>();
     });
   });
 
@@ -381,12 +396,13 @@ describe("Expressions.Conditional", () => {
       | `foo == "${string}"`
       | "bar == (number)"
       | `bar == ${number}`
+      | `bar == null`
       | "baz"
       | "!baz"
       | `baz == ${boolean}`;
 
     it("should suggest items from Depth 0 and Depth 1", () => {
-      type Expected = "bar == $param";
+      type Expected = "bar == $param" | "bar != null";
 
       expectTypeOf<
         Exclude<Expression0, ExpectedFooBarBaz>
@@ -398,12 +414,14 @@ describe("Expressions.Conditional", () => {
     it("should suggest items from Depth 2", () => {
       type Expected =
         | "bar == $param"
+        | "bar != null"
         | "foo == ^._id"
         | "foo == ^._createdAt"
         | "foo == ^._updatedAt"
         | "foo == ^._rev"
         | "foo == ^._type"
         | "foo == ^.name"
+        | "foo == ^.description"
         | "foo == ^.slug.current"
         | "references(^._id)"
         | "references(^.name)"
@@ -419,11 +437,13 @@ describe("Expressions.Conditional", () => {
         | "foo == ^._rev"
         | "foo == ^._type"
         | "foo == ^._updatedAt"
+        | "foo == ^.id"
         | "foo == ^.name"
         | "foo == ^.slug.current"
         | "bar == $param"
         | "bar == ^.msrp"
         | "bar == ^.price"
+        | "bar != null"
         | "references(^._id)"
         | "references(^.name)"
         | "references(^.slug.current)"
@@ -433,6 +453,7 @@ describe("Expressions.Conditional", () => {
         | "foo == ^.^._rev"
         | "foo == ^.^._type"
         | "foo == ^.^._updatedAt"
+        | "foo == ^.^.description"
         | "foo == ^.^.name"
         | "foo == ^.^.slug.current"
         | "references(^.^._id)"
