@@ -51,7 +51,7 @@ declare module "../groq-builder" {
       projectionMap:
         | TProjectionMap
         | ((
-            sub: GroqBuilder<
+            sub: GroqBuilderSubquery<
               ResultItem.Infer<TResult>,
               ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
             >
