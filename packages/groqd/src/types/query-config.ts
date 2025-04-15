@@ -1,3 +1,4 @@
+import { IsAny } from "type-fest";
 import { ParametersWith$Sign } from "./parameter-types";
 import { Override, Simplify } from "./utils";
 
@@ -33,13 +34,6 @@ export type QueryConfig = {
   scope?: {};
 };
 
-export type ConfigAddScope<
-  TQueryConfig extends QueryConfig,
-  TNewScope
-> = Override<
-  TQueryConfig,
-  { scope: Simplify<Override<TQueryConfig["scope"], TNewScope>> }
->;
 export type ConfigAddParameters<
   TQueryConfig extends QueryConfig,
   TNewParameters
@@ -60,15 +54,24 @@ export type ConfigAddParameters<
 export type ConfigCreateNestedScope<
   TQueryConfig extends QueryConfig,
   TCurrent
-> = ConfigAddScope<
-  TQueryConfig,
-  TQueryConfig["scope"] extends { "@": infer TCurrentOld }
-    ? {
-        "@": TCurrent;
-        "^": TCurrentOld & PickMaybe<TQueryConfig["scope"], "^">;
+> = IsAny<TQueryConfig> extends true
+  ? any
+  : Override<
+      TQueryConfig,
+      {
+        scope: Simplify<
+          Override<
+            TQueryConfig["scope"],
+            TQueryConfig["scope"] extends { "@": infer TCurrentOld }
+              ? {
+                  "@": TCurrent;
+                  "^": TCurrentOld & PickMaybe<TQueryConfig["scope"], "^">;
+                }
+              : { "@": TCurrent }
+          >
+        >;
       }
-    : { "@": TCurrent }
->;
+    >;
 
 type PickMaybe<T, Keys> = Pick<T, Extract<Keys, keyof T>>;
 
