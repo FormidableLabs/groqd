@@ -259,5 +259,81 @@ describe("field (naked projections)", () => {
         }>();
       });
     });
+
+    describe("deep parent selectors ^.^.", () => {
+      const query = q.star.filterByType("product").project((q) => ({
+        variants: q
+          .field("variants[]")
+          .deref()
+          .project((q) => ({
+            flavour: q
+              .field("flavour[]")
+              .deref()
+              .project((q) => ({
+                flavourName: q.field("name"),
+                flavourType: q.field("_type"),
+
+                variantName: q.field("^.name"),
+                variantType: q.field("^._type"),
+
+                productName: q.field("^.^.name"),
+                productType: q.field("^.^._type"),
+              })),
+          })),
+      }));
+
+      const flavour = mock.flavour({ name: "FLAVOR" });
+      const variant = mock.variant({
+        name: "VARIANT",
+        flavour: [mock.reference(flavour)],
+      });
+      const product = mock.product({
+        name: "PRODUCT",
+        variants: [mock.reference(variant)],
+      });
+      const data = { datalake: [flavour, variant, product] };
+
+      it("should generate the correct type", () => {
+        type Actual = InferResultType<typeof query>;
+        type Expected = Array<{
+          variants: null | Array<{
+            flavour: null | Array<{
+              flavourName: string | null;
+              flavourType: "flavour";
+
+              variantName: string;
+              variantType: "variant";
+
+              productName: string;
+              productType: "product";
+            }>;
+          }>;
+        }>;
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      });
+      it("should execute correctly", async () => {
+        const results = await executeBuilder(query, data);
+        expect(results).toMatchInlineSnapshot(`
+          [
+            {
+              "variants": [
+                {
+                  "flavour": [
+                    {
+                      "flavourName": "FLAVOR",
+                      "flavourType": "flavour",
+                      "productName": "PRODUCT",
+                      "productType": "product",
+                      "variantName": "VARIANT",
+                      "variantType": "variant",
+                    },
+                  ],
+                },
+              ],
+            },
+          ]
+        `);
+      });
+    });
   });
 });

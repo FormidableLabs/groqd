@@ -44,11 +44,11 @@ declare module "../groq-builder" {
     project<
       TProjectionMap extends ProjectionMap<
         ResultItem.Infer<TResult>,
-        TQueryConfig
+        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
       >,
       _TProjectionResult = ExtractProjectionResult<
         ResultItem.Infer<TResult>,
-        TQueryConfig,
+        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>,
         TProjectionMap
       >
     >(
