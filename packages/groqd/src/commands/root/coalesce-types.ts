@@ -1,9 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-namespace
 import { ProjectionPathEntries } from "../../types/projection-paths";
 
 import { IGroqBuilder } from "../../groq-builder";
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CoalesceExpressions {
   /**
    * Represents the array of args that can be

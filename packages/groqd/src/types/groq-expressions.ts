@@ -7,7 +7,6 @@ import {
   ProjectionPathsByType,
 } from "./projection-paths";
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Expressions {
   /**
    * This type allows any string, but provides
