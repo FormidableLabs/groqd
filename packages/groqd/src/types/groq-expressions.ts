@@ -1,13 +1,41 @@
 import { ConfigGetScope, QueryConfig } from "./query-config";
 import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
+import { ResultItem } from "./result-types";
 import { StringKeys, ValueOf } from "./utils";
 import {
   ProjectionPathEntries,
   ProjectionPathEntriesByType,
+  ProjectionPaths,
   ProjectionPathsByType,
+  ProjectionPathValue,
 } from "./projection-paths";
 
 export namespace Expressions {
+  /**
+   * Represents valid expressions for selecting a value.
+   * This includes:
+   *   - fields of the current item (e.g. `"_type"`)
+   *   - parameters (e.g. `"$id"`)
+   *   - parent selectors (e.g. `"^._id"`)
+   *   - self (e.g. `"@"`)
+   */
+  export type Field<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = ProjectionPaths<TResultItem & ConfigGetScope<TQueryConfig>>;
+
+  /**
+   * Retrieves the value of the
+   */
+  export type FieldValue<
+    TResultItem,
+    TQueryConfig extends QueryConfig,
+    TFieldPath extends Field<TResultItem, TQueryConfig>
+  > = ProjectionPathValue<
+    TResultItem & ConfigGetScope<TQueryConfig>,
+    TFieldPath
+  >;
+
   /**
    * This type allows any string, but provides
    * TypeScript suggestions for common expressions,

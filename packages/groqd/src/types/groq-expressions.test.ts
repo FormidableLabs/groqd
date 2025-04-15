@@ -204,6 +204,94 @@ describe("Expressions", () => {
     });
   });
 });
+describe("Expressions.Field", () => {
+  type Result = Expressions.Field<FooBarBaz, QueryConfig>;
+  type ResultValue = Expressions.FieldValue<FooBarBaz, QueryConfig, Result>;
+  it("should include a good list of possible expressions, including booleans", () => {
+    type Expected = "foo" | "bar" | "baz";
+    expectTypeOf<Exclude<Result, Expected>>().toEqualTypeOf<never>();
+    expectTypeOf<Exclude<Expected, Result>>().toEqualTypeOf<never>();
+    expectTypeOf<ResultValue>().toEqualTypeOf<string | number | boolean>();
+  });
+
+  it("unions should work just fine", () => {
+    type TUnion =
+      | { _type: "TypeA"; a: "A" }
+      //
+      | { _type: "TypeB"; b: "B" };
+    type Result = Expressions.Field<TUnion, QueryConfig>;
+    type ResultValue = Expressions.FieldValue<TUnion, QueryConfig, Result>;
+    type Expected = "_type";
+    expectTypeOf<Exclude<Result, Expected>>().toEqualTypeOf<never>();
+    expectTypeOf<Exclude<Expected, Result>>().toEqualTypeOf<never>();
+    expectTypeOf<ResultValue>().toEqualTypeOf<"TypeA" | "TypeB">();
+  });
+
+  describe("when there are fields in scope", () => {
+    type Parent = {
+      _id: string;
+      _type: "parent";
+      str: string;
+      num: number;
+      bool: boolean;
+    };
+    type Child = {
+      _id: string;
+      _type: "child";
+      str: string;
+      num: number;
+      bool: boolean;
+    };
+    type DoubleNestedConfig = ConfigCreateNestedScope<
+      ConfigCreateNestedScope<QueryConfig, Parent>,
+      Child
+    >;
+    type QueryConfigWithScope = ConfigAddParameters<
+      DoubleNestedConfig,
+      { param: "PARAM_VALUE" }
+    >;
+
+    type ScopeSuggestions = Expressions.Field<FooBarBaz, QueryConfigWithScope>;
+
+    it("should suggest items from the scope", () => {
+      type Expected =
+        | "foo"
+        | "bar"
+        | "baz"
+        | "@"
+        | "^"
+        | "$param"
+        | "^._type"
+        | "^._id"
+        | "^.str"
+        | "^.bool"
+        | "^.num";
+
+      expectTypeOf<
+        Exclude<ScopeSuggestions, Expected>
+      >().toEqualTypeOf<never>();
+      expectTypeOf<
+        Exclude<Expected, ScopeSuggestions>
+      >().toEqualTypeOf<never>();
+    });
+    it("should have correct value types", () => {
+      type GetFieldValue<TField extends ScopeSuggestions> =
+        Expressions.FieldValue<FooBarBaz, QueryConfigWithScope, TField>;
+
+      expectTypeOf<GetFieldValue<"foo">>().toEqualTypeOf<string>();
+      expectTypeOf<GetFieldValue<"bar">>().toEqualTypeOf<number>();
+      expectTypeOf<GetFieldValue<"baz">>().toEqualTypeOf<boolean>();
+      expectTypeOf<GetFieldValue<"@">>().toEqualTypeOf<Child>();
+      expectTypeOf<GetFieldValue<"^">>().toMatchTypeOf<Parent>();
+      expectTypeOf<GetFieldValue<"$param">>().toEqualTypeOf<"PARAM_VALUE">();
+      expectTypeOf<GetFieldValue<"^._type">>().toEqualTypeOf<"parent">();
+      expectTypeOf<GetFieldValue<"^._id">>().toEqualTypeOf<string>();
+      expectTypeOf<GetFieldValue<"^.str">>().toEqualTypeOf<string>();
+      expectTypeOf<GetFieldValue<"^.bool">>().toEqualTypeOf<boolean>();
+      expectTypeOf<GetFieldValue<"^.num">>().toEqualTypeOf<number>();
+    });
+  });
+});
 describe("Expressions.Conditional", () => {
   type Result = Expressions.Conditional<FooBarBaz, QueryConfig>;
   it("should include a good list of possible expressions, including booleans", () => {
