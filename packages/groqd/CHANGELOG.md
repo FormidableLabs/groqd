@@ -1,8 +1,8 @@
 # groqd
 
-## 1.3.2
+## 1.4.0
 
-### Patch Changes
+### Minor Changes
 
 - Feature: in filters, support ` != null` syntax, and added support for comparisons between nullish values ([#376](https://github.com/FormidableLabs/groqd/pull/376))
 
