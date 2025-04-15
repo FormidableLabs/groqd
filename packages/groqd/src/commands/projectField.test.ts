@@ -193,10 +193,38 @@ describe("field (naked projections)", () => {
     });
   });
 
+  describe('self selector "@"', () => {
+    it("can select entire object", () => {
+      const qSelf = qVariants.project((q) => ({
+        self: q.field("@"),
+      }));
+      type Actual = InferResultType<typeof qSelf>;
+      type Expected = Array<{ self: SanitySchema.Variant }>;
+      expectTypeOf<Actual>().toMatchTypeOf<Expected>();
+    });
+    it("can be used to dereference elements", () => {
+      const qSelf = qVariants.project((q) => ({
+        flavour: q.field("flavour[]").project((q) => ({
+          _type: q.field("_type"),
+          dereferenced: q.field("@").deref(),
+        })),
+      }));
+      type Actual = InferResultType<typeof qSelf>;
+      expectTypeOf<Actual>().toEqualTypeOf<
+        Array<{
+          flavour: null | Array<{
+            _type: "reference";
+            dereferenced: SanitySchema.Flavour;
+          }>;
+        }>
+      >();
+    });
+  });
+
   describe('parent selector "^"', () => {
     describe("with filterBy", () => {
       const query = q.star.filterByType("variant").project((sub) => ({
-        flavours: sub.field("flavour[]").filterRaw("references(^._id)").deref(),
+        flavours: sub.field("flavour[]").filterBy("references(^._id)").deref(),
       }));
 
       it("should have the correct type", () => {
@@ -207,7 +235,6 @@ describe("field (naked projections)", () => {
         }>();
       });
     });
-
     describe("can select parent fields", () => {
       const query = q.star.filterByType("product").project((product) => ({
         _type: true,
@@ -216,8 +243,8 @@ describe("field (naked projections)", () => {
           .deref()
           .project((cat) => ({
             _type: true,
-            parentType: cat.field("^._type"),
-            parentName: cat.field("^.name"),
+            productType: cat.field("^._type"),
+            productName: cat.field("^.name"),
           })),
       }));
       type Result = InferResultItem<typeof query>;
@@ -226,8 +253,8 @@ describe("field (naked projections)", () => {
           _type: "product";
           categories: null | Array<{
             _type: "category";
-            parentType: "product";
-            parentName: string;
+            productType: "product";
+            productName: string;
           }>;
         }>();
       });

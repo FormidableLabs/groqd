@@ -8,7 +8,7 @@ import {
   ProjectionPaths,
   ProjectionPathValue,
 } from "../types/projection-paths";
-import { QueryConfig } from "../types/query-config";
+import { ConfigGetScope, QueryConfig } from "../types/query-config";
 
 declare module "../groq-builder" {
   /* eslint-disable @typescript-eslint/no-empty-interface */
@@ -25,7 +25,7 @@ declare module "../groq-builder" {
      */
     field<
       TProjectionPath extends ProjectionPaths<
-        ResultItem.Infer<TResult> & TQueryConfig["scope"]
+        ResultItem.Infer<TResult> & ConfigGetScope<TQueryConfig>
       >
     >(
       fieldName: TProjectionPath
@@ -33,7 +33,7 @@ declare module "../groq-builder" {
       ResultItem.Override<
         TResult,
         ProjectionPathValue<
-          ResultItem.Infer<TResult> & TQueryConfig["scope"],
+          ResultItem.Infer<TResult> & ConfigGetScope<TQueryConfig>,
           TProjectionPath
         >
       >,
@@ -47,11 +47,11 @@ declare module "../groq-builder" {
      */
     field<
       TProjectionPath extends ProjectionPaths<
-        ResultItem.Infer<TResult> & TQueryConfig["scope"]
+        ResultItem.Infer<TResult> & ConfigGetScope<TQueryConfig>
       >,
       TParser extends ParserWithWidenedInput<
         ProjectionPathValue<
-          ResultItem.Infer<TResult> & TQueryConfig["scope"],
+          ResultItem.Infer<TResult> & ConfigGetScope<TQueryConfig>,
           TProjectionPath
         >
       >
@@ -64,7 +64,7 @@ declare module "../groq-builder" {
         TParser extends Parser<infer TParserInput, infer TParserOutput>
           ? ValidateParserInput<
               ProjectionPathValue<
-                ResultItem.Infer<TResult> & TQueryConfig["scope"],
+                ResultItem.Infer<TResult> & ConfigGetScope<TQueryConfig>,
                 TProjectionPath
               >,
               TParserInput,

@@ -1,4 +1,3 @@
-import { IsEmptyObject } from "type-fest";
 import { ParametersWith$Sign } from "./parameter-types";
 import { Override, Simplify } from "./utils";
 
@@ -73,8 +72,5 @@ export type ConfigCreateNestedScope<
 
 type PickMaybe<T, Keys> = Pick<T, Extract<Keys, keyof T>>;
 
-export type ConfigGetScope<TQueryConfig extends QueryConfig> = Omit<
-  TQueryConfig["scope"],
-  // Don't include "@" when we're looking at the scope:
-  "@"
->;
+export type ConfigGetScope<TQueryConfig extends QueryConfig> =
+  TQueryConfig["scope"];
