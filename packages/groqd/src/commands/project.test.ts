@@ -1,11 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { Simplify } from "type-fest";
 import { createGroqBuilderLite } from "../index";
 import {
   SanitySchema,
   SchemaConfig,
   z,
 } from "../tests/schemas/nextjs-sanity-fe";
-import { Simplify } from "../types/utils";
 import { TypeMismatchError } from "../types/type-mismatch-error";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
@@ -308,6 +308,107 @@ describe("project (object projections)", () => {
           NAME: string;
           SLUG: string;
           msrp: number;
+        }>
+      >();
+    });
+  });
+
+  describe("deep parent selectors ^.^.", () => {
+    const query = q.star.filterByType("product").project((q) => ({
+      variants: q
+        .field("variants[]")
+        .deref()
+        .project((q) => ({
+          flavour: q
+            .field("flavour[]")
+            .deref()
+            .project(() => ({
+              flavourName: "name",
+              flavourType: "_type",
+
+              variantName: "^.name",
+              variantType: "^._type",
+
+              productName: "^.^.name",
+              productType: "^.^._type",
+            })),
+        })),
+    }));
+
+    const flavour = mock.flavour({ name: "FLAVOR" });
+    const variant = mock.variant({
+      name: "VARIANT",
+      flavour: [mock.reference(flavour)],
+    });
+    const product = mock.product({
+      name: "PRODUCT",
+      variants: [mock.reference(variant)],
+    });
+    const data = { datalake: [flavour, variant, product] };
+
+    it("should generate the correct type", () => {
+      type Actual = InferResultType<typeof query>;
+      type Expected = Array<{
+        variants: null | Array<{
+          flavour: null | Array<{
+            flavourName: string | null;
+            flavourType: "flavour";
+
+            variantName: string;
+            variantType: "variant";
+
+            productName: string;
+            productType: "product";
+          }>;
+        }>;
+      }>;
+      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+    });
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(query, data);
+      expect(results).toMatchInlineSnapshot(`
+          [
+            {
+              "variants": [
+                {
+                  "flavour": [
+                    {
+                      "flavourName": "FLAVOR",
+                      "flavourType": "flavour",
+                      "productName": "PRODUCT",
+                      "productType": "product",
+                      "variantName": "VARIANT",
+                      "variantType": "variant",
+                    },
+                  ],
+                },
+              ],
+            },
+          ]
+        `);
+    });
+  });
+
+  describe("a projection with parent selectors", () => {
+    const qDeep = qVariants.project((q) => ({
+      flavour: q
+        .field("flavour[]")
+        .deref()
+        .project((q) => ({
+          _type: "_type",
+          parentType: "^._type",
+          parentTypeQ: q.field("^._type"),
+        })),
+    }));
+    it("should infer the correct type", () => {
+      type Actual = InferResultType<typeof qDeep>;
+      expectTypeOf<Actual>().toEqualTypeOf<
+        Array<{
+          flavour: null | Array<{
+            _type: "flavour";
+            parentType: "variant";
+            parentTypeQ: "variant";
+          }>;
         }>
       >();
     });

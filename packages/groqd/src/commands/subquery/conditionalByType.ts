@@ -1,4 +1,5 @@
 import { GroqBuilderSubquery } from "../../groq-builder";
+import { QueryConfig } from "../../types/query-config";
 import { ResultItem } from "../../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
@@ -50,6 +51,7 @@ declare module "../../groq-builder" {
       config?: Partial<ConditionalConfig<TKey, TIsExhaustive>>
     ): ExtractConditionalByTypeProjectionResults<
       ResultItem.Infer<TResult>,
+      TQueryConfig,
       TConditionalProjections,
       ConditionalConfig<TKey, TIsExhaustive>
     >;
@@ -71,9 +73,10 @@ GroqBuilderSubquery.implement({
 
     const subquery = this.subquery;
     const conditions = typeNames.map((_type) => {
-      const projectionMap = conditionalProjections[
-        _type
-      ] as ProjectionMap<unknown>;
+      const projectionMap = conditionalProjections[_type] as ProjectionMap<
+        unknown,
+        QueryConfig
+      >;
       const conditionQuery = subquery
         .chain(`_type == "${_type}" =>`)
         .project(projectionMap);

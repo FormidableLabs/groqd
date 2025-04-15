@@ -1,7 +1,5 @@
 import { IsNullable, MakeNullable, Override as _Override } from "./utils";
 
-/* eslint-disable @typescript-eslint/no-namespace */
-
 /**
  * The results of a query can be a single item, or an array of items,
  * and the results can be nullable too.

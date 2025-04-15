@@ -15,7 +15,7 @@ export class MockFactory {
     return `${prefix}:${id}`;
   }
   date() {
-    return new Date().toISOString();
+    return "2025-01-01T00:00:00.000Z";
   }
   common<TType extends string>(_type: TType) {
     return {

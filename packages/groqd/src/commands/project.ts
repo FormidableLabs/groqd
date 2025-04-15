@@ -23,6 +23,7 @@ import {
   GroqBuilderSubquery,
 } from "../groq-builder";
 import { isGroqBuilder } from "../groq-builder";
+import { ConfigCreateNestedScope } from "../types/query-config";
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 declare module "../groq-builder" {
@@ -41,16 +42,23 @@ declare module "../groq-builder" {
      * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
      */
     project<
-      TProjectionMap extends ProjectionMap<ResultItem.Infer<TResult>>,
+      TProjectionMap extends ProjectionMap<
+        ResultItem.Infer<TResult>,
+        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
+      >,
       _TProjectionResult = ExtractProjectionResult<
         ResultItem.Infer<TResult>,
+        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>,
         TProjectionMap
       >
     >(
       projectionMap:
         | TProjectionMap
         | ((
-            sub: GroqBuilderSubquery<ResultItem.Infer<TResult>, TQueryConfig>
+            sub: GroqBuilderSubquery<
+              ResultItem.Infer<TResult>,
+              ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
+            >
           ) => TProjectionMap),
       ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
     ): GroqBuilder<
@@ -59,6 +67,7 @@ declare module "../groq-builder" {
     >;
   }
 }
+
 const projectImplementation: Pick<GroqBuilder, "project"> = {
   project(
     this: GroqBuilderBase,
@@ -115,7 +124,7 @@ GroqBuilder.implement(projectImplementation);
 
 function normalizeProjectionField(
   key: string,
-  fieldConfig: ProjectionFieldConfig<any, any>
+  fieldConfig: ProjectionFieldConfig<any, any, any>
 ): null | NormalizedProjectionField {
   // Analyze the field configuration:
   const value: unknown = fieldConfig;

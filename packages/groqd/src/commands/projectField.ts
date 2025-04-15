@@ -1,13 +1,10 @@
 import { GroqBuilder, GroqBuilderSubquery } from "../groq-builder";
+import { Expressions } from "../types/groq-expressions";
 import { ResultItem } from "../types/result-types";
 import { ValidateParserInput } from "../types/projection-types";
 import { Parser, ParserWithWidenedInput } from "../types/parser-types";
 import { maybeArrayParser } from "../validation/simple-validation";
 import { normalizeValidationFunction } from "./validate-utils";
-import {
-  ProjectionPaths,
-  ProjectionPathValue,
-} from "../types/projection-paths";
 import { QueryConfig } from "../types/query-config";
 
 declare module "../groq-builder" {
@@ -23,12 +20,21 @@ declare module "../groq-builder" {
      *
      * This overload does NOT perform any runtime validation; the return type is inferred.
      */
-    field<TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>>(
+    field<
+      TProjectionPath extends Expressions.Field<
+        ResultItem.Infer<TResult>,
+        TQueryConfig
+      >
+    >(
       fieldName: TProjectionPath
     ): GroqBuilder<
       ResultItem.Override<
         TResult,
-        ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
+        Expressions.FieldValue<
+          ResultItem.Infer<TResult>,
+          TQueryConfig,
+          TProjectionPath
+        >
       >,
       TQueryConfig
     >;
@@ -39,9 +45,16 @@ declare module "../groq-builder" {
      * This overload allows a parser to be passed, for validating the results.
      */
     field<
-      TProjectionPath extends ProjectionPaths<ResultItem.Infer<TResult>>,
+      TProjectionPath extends Expressions.Field<
+        ResultItem.Infer<TResult>,
+        TQueryConfig
+      >,
       TParser extends ParserWithWidenedInput<
-        ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>
+        Expressions.FieldValue<
+          ResultItem.Infer<TResult>,
+          TQueryConfig,
+          TProjectionPath
+        >
       >
     >(
       fieldName: TProjectionPath,
@@ -51,7 +64,11 @@ declare module "../groq-builder" {
         TResult,
         TParser extends Parser<infer TParserInput, infer TParserOutput>
           ? ValidateParserInput<
-              ProjectionPathValue<ResultItem.Infer<TResult>, TProjectionPath>,
+              Expressions.FieldValue<
+                ResultItem.Infer<TResult>,
+                TQueryConfig,
+                TProjectionPath
+              >,
               TParserInput,
               TParserOutput,
               TProjectionPath

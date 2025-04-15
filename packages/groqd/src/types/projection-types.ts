@@ -1,4 +1,5 @@
 import { GroqBuilderSubquery } from "../groq-builder";
+import { Expressions } from "./groq-expressions";
 import {
   Empty,
   ExtractString,
@@ -16,13 +17,13 @@ import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,
 } from "../commands/subquery/conditional-types";
-import { ProjectionPaths, ProjectionPathValue } from "./projection-paths";
 import { FragmentResultTypeTag } from "./fragment-types";
 import { IGroqBuilder } from "../groq-builder";
 
-export type ProjectionMap<TResultItem> = {
+export type ProjectionMap<TResultItem, TQueryConfig extends QueryConfig> = {
   [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
     TResultItem,
+    TQueryConfig,
     P extends keyof TResultItem ? UndefinedToNull<TResultItem[P]> : any
   >;
 } & {
@@ -34,24 +35,35 @@ export type ProjectionMapOrCallback<
   TResultItem,
   TQueryConfig extends QueryConfig
 > =
-  | ProjectionMap<TResultItem>
+  | ProjectionMap<TResultItem, TQueryConfig>
   | ((
       sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
-    ) => ProjectionMap<TResultItem>);
+    ) => ProjectionMap<TResultItem, TQueryConfig>);
 
-export type ProjectionFieldConfig<TResultItem, TFieldType> =
+export type ProjectionFieldConfig<
+  TResultItem,
+  TQueryConfig extends QueryConfig,
+  TFieldType
+> =
   // Use 'true' to include a field as-is
   | true
-  // Use a string for naked projections, like 'slug.current'
-  | ProjectionPaths<TResultItem>
+  // Use a string for naked projections, like '_type', 'slug.current', or '^._id'
+  | Expressions.Field<TResultItem, TQueryConfig>
   // Use a parser to include a field, passing it through the parser at run-time
   | ParserWithWidenedInput<TFieldType>
   // Use a tuple for naked projections with a parser
-  | readonly [ProjectionPaths<TResultItem>, ParserWithWidenedInput<TFieldType>]
+  | readonly [
+      Expressions.Field<TResultItem, TQueryConfig>,
+      ParserWithWidenedInput<TFieldType>
+    ]
   // Use a GroqBuilder instance to create a nested projection
   | IGroqBuilder;
 
-export type ExtractProjectionResult<TResultItem, TProjectionMap> = Override<
+export type ExtractProjectionResult<
+  TResultItem,
+  TQueryConfig extends QueryConfig,
+  TProjectionMap
+> = Override<
   // Extract the "..." operator:
   ExtractSpreadOperator<TResultItem, TProjectionMap>,
   // Extract any conditional expressions:
@@ -59,6 +71,7 @@ export type ExtractProjectionResult<TResultItem, TProjectionMap> = Override<
     // Extract all the fields:
     ExtractProjectionResultFields<
       TResultItem,
+      TQueryConfig,
       // Be sure to omit the Conditionals, "...", and fragment metadata:
       Omit<
         TProjectionMap,
@@ -74,7 +87,11 @@ type ExtractSpreadOperator<TResultItem, TProjectionMap> =
     ? TOutput
     : Empty;
 
-type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
+type ExtractProjectionResultFields<
+  TResultItem,
+  TQueryConfig extends QueryConfig,
+  TProjectionMap
+> = {
   [P in keyof TProjectionMap]: TProjectionMap[P] extends IGroqBuilder<
     infer TValue
   > // Extract the type from GroqBuilder:
@@ -90,19 +107,19 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
         }>
     : /* Extract type from a ProjectionKey string, like 'slug.current': */
     TProjectionMap[P] extends string
-    ? TProjectionMap[P] extends ProjectionPaths<TResultItem>
-      ? ProjectionPathValue<TResultItem, TProjectionMap[P]>
+    ? TProjectionMap[P] extends Expressions.Field<TResultItem, TQueryConfig>
+      ? Expressions.FieldValue<TResultItem, TQueryConfig, TProjectionMap[P]>
       : TypeMismatchError<{
           error: `⛔️ Naked projections can only be used for known properties; '${TProjectionMap[P]}' is not known ⛔️`;
           actual: TProjectionMap[P];
-          expected: SimplifyDeep<ProjectionPaths<TResultItem>>;
+          expected: SimplifyDeep<Expressions.Field<TResultItem, TQueryConfig>>;
         }>
     : /* Extract type from a [ProjectionKey, Parser] tuple, like ['slug.current', z.string() ] */
     TProjectionMap[P] extends readonly [infer TKey, infer TParser]
-    ? TKey extends ProjectionPaths<TResultItem> & string
+    ? TKey extends Expressions.Field<TResultItem, TQueryConfig> & string
       ? TParser extends Parser<infer TParserInput, infer TParserOutput>
         ? ValidateParserInput<
-            ProjectionPathValue<TResultItem, TKey>,
+            Expressions.FieldValue<TResultItem, TQueryConfig, TKey>,
             TParserInput,
             TParserOutput,
             TKey
@@ -110,12 +127,14 @@ type ExtractProjectionResultFields<TResultItem, TProjectionMap> = {
         : TypeMismatchError<{
             error: `⛔️ Naked projections can only be used for known properties; '${TKey}' is not known ⛔️`;
             actual: TKey;
-            expected: SimplifyDeep<ProjectionPaths<TResultItem>>;
+            expected: SimplifyDeep<
+              Expressions.Field<TResultItem, TQueryConfig>
+            >;
           }>
       : TypeMismatchError<{
           error: `⛔️ Naked projections can only be used for known properties; '${ExtractString<TKey>}' is not known ⛔️`;
           actual: TKey;
-          expected: SimplifyDeep<ProjectionPaths<TResultItem>>;
+          expected: SimplifyDeep<Expressions.Field<TResultItem, TQueryConfig>>;
         }>
     : /* Extract type from Parser: */
     TProjectionMap[P] extends Parser<infer TParserInput, infer TParserOutput>

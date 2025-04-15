@@ -1,5 +1,6 @@
 import { GroqBuilder } from "../groq-builder";
 import { Expressions } from "../types/groq-expressions";
+import { ConfigCreateNestedScope } from "../types/query-config";
 import { ResultItem } from "../types/result-types";
 
 declare module "../groq-builder" {
@@ -36,7 +37,7 @@ declare module "../groq-builder" {
     filterRaw(
       filterExpression: Expressions.AnyConditional<
         ResultItem.Infer<TResult>,
-        TQueryConfig
+        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
       >
     ): GroqBuilder<TResult, TQueryConfig>;
 
@@ -46,7 +47,7 @@ declare module "../groq-builder" {
     filterBy(
       filterExpression: Expressions.Conditional<
         ResultItem.Infer<TResult>,
-        TQueryConfig
+        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
       >
     ): GroqBuilder<TResult, TQueryConfig>;
   }

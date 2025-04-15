@@ -1,14 +1,40 @@
-import { QueryConfig } from "./query-config";
+import { ConfigGetScope, QueryConfig } from "./query-config";
 import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
 import { StringKeys, ValueOf } from "./utils";
 import {
   ProjectionPathEntries,
   ProjectionPathEntriesByType,
+  ProjectionPaths,
   ProjectionPathsByType,
+  ProjectionPathValue,
 } from "./projection-paths";
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Expressions {
+  /**
+   * Represents valid expressions for selecting a value.
+   * This includes:
+   *   - fields of the current item (e.g. `"_type"`)
+   *   - parameters (e.g. `"$id"`)
+   *   - parent selectors (e.g. `"^._id"`)
+   *   - self (e.g. `"@"`)
+   */
+  export type Field<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = ProjectionPaths<TResultItem & ConfigGetScope<TQueryConfig>>;
+
+  /**
+   * Retrieves the value of the
+   */
+  export type FieldValue<
+    TResultItem,
+    TQueryConfig extends QueryConfig,
+    TFieldPath extends Field<TResultItem, TQueryConfig>
+  > = ProjectionPathValue<
+    TResultItem & ConfigGetScope<TQueryConfig>,
+    TFieldPath
+  >;
+
   /**
    * This type allows any string, but provides
    * TypeScript suggestions for common expressions,
@@ -50,18 +76,21 @@ export namespace Expressions {
    * like '_type == "product"' or 'slug.current == $slug'.
    * */
   export type Conditional<TResultItem, TQueryConfig extends QueryConfig> =
-    // Currently we only support simple expressions:
-    Equality<TResultItem, TQueryConfig> | BooleanSuggestions<TResultItem>;
+    // Currently we only support these simple expressions:
+    | Equality<TResultItem, TQueryConfig>
+    | Inequality<TResultItem, TQueryConfig>
+    | BooleanSuggestions<TResultItem>
+    | References<TQueryConfig>;
 
   type Comparison<
     TPathEntries,
     TQueryConfig extends QueryConfig,
-    ComparisonType extends string = "=="
+    ComparisonOperator extends string
   > = ValueOf<{
     [Key in StringKeys<
       keyof TPathEntries
-    >]: `${Key} ${ComparisonType} ${SuggestedKeysByType<
-      TQueryConfig["scope"],
+    >]: `${Key} ${ComparisonOperator} ${SuggestedKeysByType<
+      TQueryConfig,
       TPathEntries[Key]
     >}`;
   }>;
@@ -73,8 +102,8 @@ export namespace Expressions {
 
   export type Inequality<
     TResultItem,
-    TQueryConfig extends QueryConfig
-  > = Comparison<ProjectionPathEntries<TResultItem>, TQueryConfig, "!=">;
+    _TQueryConfig extends QueryConfig
+  > = `${ProjectionPathsByType<TResultItem, null>} != null`;
 
   export type MatchExpression<
     TResultItem,
@@ -83,6 +112,17 @@ export namespace Expressions {
     ConditionalPick<ProjectionPathEntries<TResultItem>, string>,
     TQueryConfig,
     "match"
+  >;
+
+  type References<TQueryConfig extends QueryConfig> = `references(${IgnorePaths<
+    ProjectionPathsByType<ConfigGetScope<TQueryConfig>, string | string[]>,
+    // Ignore common string types that aren't ids:
+    "_type" | "_createdAt" | "_updatedAt" | "_rev" | "_key"
+  >})`;
+
+  type IgnorePaths<Paths extends string, Key extends string> = Exclude<
+    Paths,
+    Key | `${string}.${Key}`
   >;
 
   type BooleanSuggestions<TResultItem> = ValueOf<{
@@ -113,9 +153,9 @@ export namespace Expressions {
     ? "(number)"
     : never;
 
-  type SuggestedKeysByType<TScope, TValue> =
+  type SuggestedKeysByType<TQueryConfig extends QueryConfig, TValue> =
     // First, suggest scope items (eg. parameters, parent selectors):
-    | ProjectionPathsByType<TScope, TValue>
+    | ProjectionPathsByType<ConfigGetScope<TQueryConfig>, TValue>
     // Next, make some literal suggestions:
     | LiteralSuggestion<TValue>
     // Suggest all literal values:
@@ -151,7 +191,7 @@ export namespace Expressions {
   type SortableTypes = string | number | boolean | null;
 
   export type CountableEntries<TResult> = PickByKey<
-    ProjectionPathEntriesByType<TResult, Array<any> | null>,
+    ProjectionPathEntriesByType<TResult, Array<any>>,
     `${string}[]` // We only want "actual" arrays, not nested ones
   >;
   type PickByKey<T, Key> = {

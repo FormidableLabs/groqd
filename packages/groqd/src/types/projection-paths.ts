@@ -73,7 +73,11 @@ type _ProjectionPathEntries<
   ? never
   : ShouldBeShallow<Value, CurrentPath> extends true
   ? never
-  : Value extends { _type: "slug" }
+  : // Don't go deep for the self-selector "@":
+  CurrentPath extends "@"
+  ? never
+  : // Only show "slug.current":
+  Value extends { _type: "slug" }
   ? Record<JoinPath<CurrentPath, "current">, string>
   : // Check for Arrays:
   Value extends Array<infer U>

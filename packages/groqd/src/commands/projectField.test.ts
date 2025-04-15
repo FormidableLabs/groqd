@@ -2,9 +2,8 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { SanitySchema, q } from "../tests/schemas/nextjs-sanity-fe";
 import { executeBuilder } from "../tests/mocks/executeQuery";
-import { z } from "../index";
 import { getSubquery } from "../tests/getSubquery";
-import { InferResultType } from "../groq-builder";
+import { InferResultItem, InferResultType, z } from "../index";
 
 describe("field (naked projections)", () => {
   const qVariants = q.star.filterByType("variant");
@@ -189,6 +188,150 @@ describe("field (naked projections)", () => {
         }).toThrowErrorMatchingInlineSnapshot(`
           [ValidationErrors: 1 Parsing Error:
           result[1]: Expected number, received string]
+        `);
+      });
+    });
+  });
+
+  describe('self selector "@"', () => {
+    it("can select entire object", () => {
+      const qSelf = qVariants.project((q) => ({
+        self: q.field("@"),
+      }));
+      type Actual = InferResultType<typeof qSelf>;
+      type Expected = Array<{ self: SanitySchema.Variant }>;
+      expectTypeOf<Actual>().toMatchTypeOf<Expected>();
+    });
+    it("can be used to dereference elements", () => {
+      const qSelf = qVariants.project((q) => ({
+        flavour: q.field("flavour[]").project((q) => ({
+          _type: q.field("_type"),
+          dereferenced: q.field("@").deref(),
+        })),
+      }));
+      type Actual = InferResultType<typeof qSelf>;
+      expectTypeOf<Actual>().toEqualTypeOf<
+        Array<{
+          flavour: null | Array<{
+            _type: "reference";
+            dereferenced: SanitySchema.Flavour;
+          }>;
+        }>
+      >();
+    });
+  });
+
+  describe('parent selector "^"', () => {
+    describe("with filterBy", () => {
+      const query = q.star.filterByType("variant").project((sub) => ({
+        flavours: sub.field("flavour[]").filterBy("references(^._id)").deref(),
+      }));
+
+      it("should have the correct type", () => {
+        type ResultItem = InferResultItem<typeof query>;
+
+        expectTypeOf<ResultItem>().toEqualTypeOf<{
+          flavours: null | Array<SanitySchema.Flavour>;
+        }>();
+      });
+    });
+    describe("can select parent fields", () => {
+      const query = q.star.filterByType("product").project((product) => ({
+        _type: true,
+        categories: product
+          .field("categories[]")
+          .deref()
+          .project((cat) => ({
+            _type: true,
+            productType: cat.field("^._type"),
+            productName: cat.field("^.name"),
+          })),
+      }));
+      type Result = InferResultItem<typeof query>;
+      it("should have the correct type", () => {
+        expectTypeOf<Result>().toEqualTypeOf<{
+          _type: "product";
+          categories: null | Array<{
+            _type: "category";
+            productType: "product";
+            productName: string;
+          }>;
+        }>();
+      });
+    });
+
+    describe("deep parent selectors ^.^.", () => {
+      const query = q.star.filterByType("product").project((q) => ({
+        variants: q
+          .field("variants[]")
+          .deref()
+          .project((q) => ({
+            flavour: q
+              .field("flavour[]")
+              .deref()
+              .project((q) => ({
+                flavourName: q.field("name"),
+                flavourType: q.field("_type"),
+
+                variantName: q.field("^.name"),
+                variantType: q.field("^._type"),
+
+                productName: q.field("^.^.name"),
+                productType: q.field("^.^._type"),
+              })),
+          })),
+      }));
+
+      const flavour = mock.flavour({ name: "FLAVOR" });
+      const variant = mock.variant({
+        name: "VARIANT",
+        flavour: [mock.reference(flavour)],
+      });
+      const product = mock.product({
+        name: "PRODUCT",
+        variants: [mock.reference(variant)],
+      });
+      const data = { datalake: [flavour, variant, product] };
+
+      it("should generate the correct type", () => {
+        type Actual = InferResultType<typeof query>;
+        type Expected = Array<{
+          variants: null | Array<{
+            flavour: null | Array<{
+              flavourName: string | null;
+              flavourType: "flavour";
+
+              variantName: string;
+              variantType: "variant";
+
+              productName: string;
+              productType: "product";
+            }>;
+          }>;
+        }>;
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      });
+      it("should execute correctly", async () => {
+        const results = await executeBuilder(query, data);
+        expect(results).toMatchInlineSnapshot(`
+          [
+            {
+              "variants": [
+                {
+                  "flavour": [
+                    {
+                      "flavourName": "FLAVOR",
+                      "flavourType": "flavour",
+                      "productName": "PRODUCT",
+                      "productType": "product",
+                      "variantName": "VARIANT",
+                      "variantType": "variant",
+                    },
+                  ],
+                },
+              ],
+            },
+          ]
         `);
       });
     });
