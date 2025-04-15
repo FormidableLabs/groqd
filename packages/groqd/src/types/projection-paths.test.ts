@@ -3,6 +3,7 @@ import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
 import {
   ProjectionPathEntries,
+  ProjectionPathEntriesByType,
   ProjectionPaths,
   ProjectionPathsByType,
   ProjectionPathValue,
@@ -401,5 +402,38 @@ describe("ProjectionPathEntries", () => {
         "crop.right": null | number;
       }>();
     });
+  });
+});
+describe("ProjectionPathEntriesByType", () => {
+  it("works with optional fields and arrays", () => {
+    type Nested = {
+      str: string;
+      strOpt?: string;
+      literalStr: "L";
+
+      num: number;
+      numOpt?: number;
+      literalNum: 5;
+
+      strNum: string | number;
+      bool: boolean;
+      true: true;
+
+      deep: {
+        str: string;
+        numOpt?: number;
+        literalStr: "L";
+      };
+      deepOpt?: {
+        str: string;
+      };
+    };
+
+    expectTypeOf<ProjectionPathEntriesByType<Nested, string>>().toEqualTypeOf<{
+      str: string;
+      literalStr: "L";
+      "deep.str": string;
+      "deep.literalStr": "L";
+    }>();
   });
 });
