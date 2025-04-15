@@ -13,23 +13,34 @@ import { CompatibleKeys, CompatiblePick } from "./compatible-types";
 
 /**
  * These types are ignored when calculating projection paths,
- * since they're rarely traversed into
+ * since they're rarely traversed into.
+ *
+ * This interface is extensible, if you want to add your
+ * own shallow types.
  */
-export type ProjectionPathIgnoreTypes =
-  | { _type: "reference" }
-  | { _type: "block" };
+export interface ProjectionPathShallowTypes {
+  "reference blocks": { _type: "reference" };
+  "portable text blocks": { _type: "block" };
+}
+
+type ShouldBeShallow<Value, CurrentPath> =
+  // When at the top-level, we should allow deep nesting:
+  CurrentPath extends ""
+    ? false
+    : // These types should not be deeply-traversed:
+    NonNullable<Value> extends ValueOf<ProjectionPathShallowTypes>
+    ? true
+    : false;
 
 /**
  * These simple types are shallow, and do not need to
  * include any deeper entries.
  */
-type IsShallowType<Value> = IsAny<Value> extends true
+type IsSimpleType<Value> = IsAny<Value> extends true
   ? true
   : IsNever<Value> extends true
   ? true
   : Value extends Primitive
-  ? true
-  : Value extends ProjectionPathIgnoreTypes
   ? true
   : false;
 
@@ -58,7 +69,9 @@ export type ProjectionPathEntries<Value> = IsAny<Value> extends true
 type _ProjectionPathEntries<
   CurrentPath extends string,
   Value
-> = IsShallowType<Value> extends true
+> = IsSimpleType<Value> extends true
+  ? never
+  : ShouldBeShallow<Value, CurrentPath> extends true
   ? never
   : // Don't go deep for the self-selector "@":
   CurrentPath extends "@"

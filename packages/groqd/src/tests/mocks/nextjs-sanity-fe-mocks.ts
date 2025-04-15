@@ -152,6 +152,8 @@ export class MockFactory {
       children: [{ _type: "span", _key: "", text: "", marks: [] }],
       markDefs: [],
       style: undefined,
+      listItem: undefined,
+      level: undefined,
       ...data,
     };
   }

@@ -1,8 +1,8 @@
 {
   "name": "groqd-legacy",
   "private": true,
-  "version": "0.15.12",
   "license": "MIT",
+  "version": "0.15.13",
   "author": {
     "name": "Formidable",
     "url": "https://formidable.com"

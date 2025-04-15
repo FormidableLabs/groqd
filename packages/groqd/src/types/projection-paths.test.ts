@@ -1,12 +1,12 @@
-import { describe, it, expectTypeOf } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
+import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
+import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
 import {
   ProjectionPathEntries,
   ProjectionPaths,
   ProjectionPathsByType,
   ProjectionPathValue,
 } from "./projection-paths";
-import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
-import { Slug } from "../tests/schemas/nextjs-sanity-fe.sanity-typegen";
 import { UndefinedToNull } from "./utils";
 
 type TestObject = {
@@ -252,12 +252,65 @@ describe("ProjectionPathEntries", () => {
     >();
   });
 
+  describe("built-in types should not be deeply parsed", () => {
+    type Block = SanitySchema.Description[number];
+    type Reference = NonNullable<SanitySchema.Variant["flavour"]>[number];
+    type Example = {
+      blocks: Block[];
+      ref: Reference;
+      optionalRef?: Reference;
+      deep: { foo: "bar" };
+    };
+    it("should not show deep results for built-in types", () => {
+      expectTypeOf<ProjectionPathEntries<Example>>().toEqualTypeOf<{
+        "blocks[]": Block[];
+        ref: Reference;
+        optionalRef: Reference | null;
+        deep: Example["deep"];
+        "deep.foo": "bar";
+      }>();
+    });
+    describe("when at the top level", () => {
+      it("should show deep results for a 'block'", () => {
+        type Actual = ProjectionPathEntries<Block>;
+        type Expected = {
+          _type: "block";
+          _key: string;
+          style: UndefinedToNull<Block["style"]>;
+          level: UndefinedToNull<Block["level"]>;
+          listItem: UndefinedToNull<Block["listItem"]>;
+          "children[]": UndefinedToNull<Block["children"]>;
+          "children[]._type": null | Array<"span">;
+          "children[]._key": null | Array<string>;
+          "children[].text": null | Array<string | null>;
+          "children[].marks[]": null | Array<string[] | null>;
+          "markDefs[]": UndefinedToNull<Block["markDefs"]>;
+          "markDefs[]._type": null | Array<"link">;
+          "markDefs[]._key": null | Array<string>;
+          "markDefs[].href": null | Array<string | null>;
+        };
+
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      });
+      it("should show deep results for a 'reference'", () => {
+        type Actual = ProjectionPathEntries<Reference>;
+        type Expected = {
+          _type: "reference";
+          _key: string;
+          _ref: string;
+          _weak: null | boolean;
+        };
+        expectTypeOf<Actual>().toEqualTypeOf<Expected>();
+      });
+    });
+  });
+
   describe("when dealing with unions", () => {
     type Union = { _type: "TypeA"; a: "A" } | { _type: "TypeB"; b: "B" };
 
     it("should only return types for common properties", () => {
-      type Result = ProjectionPathEntries<Union>;
-      expectTypeOf<Result>().toEqualTypeOf<{
+      type Actual = ProjectionPathEntries<Union>;
+      expectTypeOf<Actual>().toEqualTypeOf<{
         _type: "TypeA" | "TypeB";
       }>();
     });
