@@ -42,9 +42,13 @@ declare module "../groq-builder" {
      * @param __projectionMapTypeMismatchErrors - (internal; this is only used for reporting errors from the projection)
      */
     project<
-      TProjectionMap extends ProjectionMap<ResultItem.Infer<TResult>>,
+      TProjectionMap extends ProjectionMap<
+        ResultItem.Infer<TResult>,
+        TQueryConfig
+      >,
       _TProjectionResult = ExtractProjectionResult<
         ResultItem.Infer<TResult>,
+        TQueryConfig,
         TProjectionMap
       >
     >(
@@ -120,7 +124,7 @@ GroqBuilder.implement(projectImplementation);
 
 function normalizeProjectionField(
   key: string,
-  fieldConfig: ProjectionFieldConfig<any, any>
+  fieldConfig: ProjectionFieldConfig<any, any, any>
 ): null | NormalizedProjectionField {
   // Analyze the field configuration:
   const value: unknown = fieldConfig;

@@ -21,15 +21,16 @@ export type ConditionalProjectionMap<
 > = Partial<
   Record<
     Expressions.AnyConditional<TResultItem, TQueryConfig>,
-    | ProjectionMap<TResultItem>
+    | ProjectionMap<TResultItem, TQueryConfig>
     | ((
         sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
-      ) => ProjectionMap<TResultItem>)
+      ) => ProjectionMap<TResultItem, TQueryConfig>)
   >
 >;
 
 export type ExtractConditionalProjectionResults<
   TResultItem,
+  TQueryConfig extends QueryConfig,
   TConditionalProjectionMap extends ConditionalProjectionMap<any, any>,
   TConfig extends ConditionalConfig
 > = SpreadableConditionals<
@@ -38,6 +39,7 @@ export type ExtractConditionalProjectionResults<
   | ValueOf<{
       [P in keyof TConditionalProjectionMap]: ExtractProjectionResult<
         TResultItem,
+        TQueryConfig,
         TConditionalProjectionMap[P]
       >;
     }>
@@ -64,6 +66,7 @@ export type ConditionalByTypeProjectionMap<
 
 export type ExtractConditionalByTypeProjectionResults<
   TResultItem,
+  TQueryConfig extends QueryConfig,
   TConditionalByTypeProjectionMap extends ConditionalByTypeProjectionMap<
     any,
     any
@@ -92,6 +95,7 @@ export type ExtractConditionalByTypeProjectionResults<
         _type: _type;
       } & ExtractProjectionResult<
         Extract<TResultItem, { _type: _type }>,
+        TQueryConfig,
         TConditionalByTypeProjectionMap[_type] extends (
           q: any
         ) => infer TProjectionMap

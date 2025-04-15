@@ -59,8 +59,12 @@ export type FragmentUtil<TQueryConfig extends QueryConfig, TFragmentInput> = {
    * @param __projectionMapTypeMismatchErrors - (internal: this is only used for reporting errors from the projection)
    */
   project<
-    TProjectionMap extends ProjectionMap<TFragmentInput>,
-    _TProjectionResult = ExtractProjectionResult<TFragmentInput, TProjectionMap>
+    TProjectionMap extends ProjectionMap<TFragmentInput, TQueryConfig>,
+    _TProjectionResult = ExtractProjectionResult<
+      TFragmentInput,
+      TQueryConfig,
+      TProjectionMap
+    >
   >(
     projectionMap:
       | TProjectionMap
