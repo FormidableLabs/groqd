@@ -1,4 +1,5 @@
 import {
+  GroqBuilder,
   GroqBuilderBase,
   GroqBuilderRoot,
   GroqBuilderSubquery,
@@ -11,41 +12,36 @@ import { CoalesceExpressions } from "./coalesce-types";
 import { IGroqBuilder, isGroqBuilder } from "../../groq-builder";
 
 declare module "../../groq-builder" {
-  /* eslint-disable @typescript-eslint/no-empty-interface */
   export interface GroqBuilderRoot<TResult, TQueryConfig>
     extends CoalesceDefinition<TResult, TQueryConfig> {}
   export interface GroqBuilderSubquery<TResult, TQueryConfig>
     extends CoalesceDefinition<TResult, TQueryConfig> {}
-
-  interface CoalesceDefinition<TResult, TQueryConfig extends QueryConfig> {
-    /**
-     * Wraps the expressions with GROQ's `coalesce(...)` function.
-     *
-     * Each `expression` can be either a projection string, or any valid query.
-     *
-     * @example
-     * q.star.filterByType("product").project(product => ({
-     *   title: product.coalesce(
-     *     "title",
-     *     "category.title",
-     *     product.field("variant").slice(0).deref().field("title"),
-     *     q.value("DEFAULT")
-     *   ),
-     * }));
-     */
-    coalesce<TExpressions extends CoalesceExpressions.CoalesceArgs<TResult>>(
-      ...expressions: TExpressions
-    ): GroqBuilder<
-      CoalesceExpressions.CoalesceResult<TResult, TExpressions>,
-      TQueryConfig
-    >;
-  }
 }
 
-const coalesceImplementation: Pick<
-  GroqBuilderRoot & GroqBuilderSubquery,
-  "coalesce"
-> = {
+interface CoalesceDefinition<TResult, TQueryConfig extends QueryConfig> {
+  /**
+   * Wraps the expressions with GROQ's `coalesce(...)` function.
+   *
+   * Each `expression` can be either a projection string, or any valid query.
+   *
+   * @example
+   * q.star.filterByType("product").project(product => ({
+   *   title: product.coalesce(
+   *     "title",
+   *     "category.title",
+   *     product.field("variant").slice(0).deref().field("title"),
+   *     q.value("DEFAULT")
+   *   ),
+   * }));
+   */
+  coalesce<TExpressions extends CoalesceExpressions.CoalesceArgs<TResult>>(
+    ...expressions: TExpressions
+  ): GroqBuilder<
+    CoalesceExpressions.CoalesceResult<TResult, TExpressions>,
+    TQueryConfig
+  >;
+}
+const coalesceImplementation: CoalesceDefinition<any, any> = {
   coalesce(
     this: GroqBuilderBase,
     ...expressions: Array<IGroqBuilder | string>

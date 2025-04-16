@@ -1,5 +1,9 @@
 import { describe, it, expect, expectTypeOf } from "vitest";
-import { SchemaConfig, q } from "../../tests/schemas/nextjs-sanity-fe";
+import {
+  SchemaConfig,
+  q,
+  SanitySchema,
+} from "../../tests/schemas/nextjs-sanity-fe";
 import { SchemaDocument } from "../../types/document-types";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
@@ -18,6 +22,16 @@ describe("star", () => {
     expect(star).toMatchObject({
       query: "*",
     });
+  });
+  it("sub-queries can be started with '*'", () => {
+    const subQuery = q.star.filterByType("category").project((sub) => ({
+      products: sub.star.filterByType("product").filterBy("references(^._id)"),
+    }));
+    expectTypeOf<InferResultType<typeof subQuery>>().toEqualTypeOf<
+      Array<{
+        products: Array<SanitySchema.Product>;
+      }>
+    >();
   });
 
   describe("execution", () => {
