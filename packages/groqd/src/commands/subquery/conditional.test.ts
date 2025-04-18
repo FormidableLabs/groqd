@@ -201,9 +201,9 @@ describe("conditional", () => {
       name: true,
       ...sub.conditional(
         {
-          "price >= msrp": {
+          "price >= msrp": (q) => ({
             onSale: q.value(false),
-          },
+          }),
           "price < msrp": {
             onSale: q.value(true),
             price: true,
@@ -235,6 +235,32 @@ describe("conditional", () => {
       // include the "empty" types:
       type NonExhaustiveResult = { name: string } & ExpectedResultItem;
       expectTypeOf<Result>().not.toEqualTypeOf<Array<NonExhaustiveResult>>();
+    });
+  });
+
+  describe("using query syntax", () => {
+    const qAll = qVariants.project((q) => ({
+      name: true,
+      ...q.conditional({
+        "price == msrp": q.project({
+          onSale: q.value(false),
+        }),
+        "price < msrp": (q) =>
+          q.project({
+            onSale: q.value(true),
+            price: true,
+            msrp: true,
+          }),
+      }),
+    }));
+    it("should have the correct expected type", () => {
+      type Result = InferResultType<typeof qAll>;
+      type Expected = Array<
+        | { name: string }
+        | { name: string; onSale: false }
+        | { name: string; onSale: true; price: number; msrp: number }
+      >;
+      expectTypeOf<Result>().toEqualTypeOf<Expected>();
     });
   });
 });

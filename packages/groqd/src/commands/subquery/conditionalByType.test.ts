@@ -25,12 +25,22 @@ describe("conditionalByType", () => {
   const conditionalByType = getSubquery(q)
     .asType() // All types
     .conditionalByType({
-      variant: { name: true, price: true },
-      product: { name: true, slug: "slug.current" },
-      category: (qC) => ({
-        name: true,
-        slug: qC.field("slug.current"),
+      // There are 3 ways to select data:
+      // 1. Using a raw object (ProjectionMap)
+      variant: { name: true, price: "price" },
+      // 2. Using a callback that returns a ProjectionMap
+      // (because the `q` is strongly-typed)
+      product: (q) => ({
+        name: q.field("name"),
+        slug: q.field("slug.current"),
       }),
+      // 3. Using a callback that returns any query
+      // (for advanced use-cases)
+      category: (q) =>
+        q.project({
+          name: true,
+          slug: q.field("slug.current"),
+        }),
     });
 
   type ExpectedConditionalUnion =
