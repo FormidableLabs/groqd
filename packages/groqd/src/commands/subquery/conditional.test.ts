@@ -262,5 +262,23 @@ describe("conditional", () => {
       >;
       expectTypeOf<Result>().toEqualTypeOf<Expected>();
     });
+    it("should generate the correct query", () => {
+      expect(qAll.query).toMatchInlineSnapshot(`
+        "*[_type == "variant"] {
+            name,
+            price == msrp => {
+              "onSale": false
+            },
+            price < msrp => {
+                "onSale": true,
+                price,
+                msrp
+              }
+          }"
+      `);
+    });
+    it("should execute correctly", () => {
+      // (we actually already test this exact query in a previous test)
+    });
   });
 });
