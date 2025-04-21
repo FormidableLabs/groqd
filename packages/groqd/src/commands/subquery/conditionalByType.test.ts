@@ -6,12 +6,12 @@ import {
   InferResultType,
 } from "../../groq-builder";
 import { q, SchemaConfig } from "../../tests/schemas/nextjs-sanity-fe";
-import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { executeBuilder } from "../../tests/mocks/executeQuery";
 import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 import { Simplify, SimplifyDeep } from "../../types/utils";
 import { getSubquery } from "../../tests/getSubquery";
 import { ExtractDocumentTypes } from "../../types/document-types";
+import { ExtractConditionalProjectionTypes } from "./conditional-types";
 
 const data = mock.generateSeedData({
   products: mock.array(5, (i) =>
@@ -28,7 +28,7 @@ describe("conditionalByType", () => {
       // There are 3 ways to select data:
       // 1. Using a raw object (ProjectionMap)
       variant: { name: true, price: "price" },
-      // 2. Using a callback that returns a ProjectionMap
+      // 2. Using a callback that returns an object (ProjectionMap)
       // (because the `q` is strongly-typed)
       product: (q) => ({
         name: q.field("name"),

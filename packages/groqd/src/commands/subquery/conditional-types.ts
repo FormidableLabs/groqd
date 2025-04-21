@@ -1,3 +1,4 @@
+import { InvalidQueryError } from "../../types/invalid-query-error";
 import {
   ExtractProjectionResult,
   ProjectionMap,
@@ -9,7 +10,7 @@ import {
   ValueOf,
 } from "../../types/utils";
 import { QueryConfig } from "../../types/query-config";
-import { GroqBuilderSubquery } from "../../groq-builder";
+import { GroqBuilderSubquery, isGroqBuilder } from "../../groq-builder";
 import { Expressions } from "../../types/groq-expressions";
 import { ExtractDocumentTypes } from "../../types/document-types";
 import { IGroqBuilder, InferResultType } from "../../groq-builder";
@@ -175,3 +176,31 @@ export type ConditionalConfig<
    */
   isExhaustive: TIsExhaustive;
 };
+
+export function normalizeConditionalQuery(
+  subquery: GroqBuilderSubquery,
+  condition: string,
+  conditionalQuery: ConditionalQuery<any, any>
+): IGroqBuilder {
+  // If it's a function, execute it:
+  if (typeof conditionalQuery === "function") {
+    conditionalQuery = conditionalQuery(subquery);
+  }
+  if (typeof conditionalQuery !== "object") {
+    throw new InvalidQueryError(
+      "INVALID_CONDITIONAL_QUERY",
+      `Expected conditionalQuery to be an object, but got a ${typeof conditionalQuery}}`,
+      { conditionalQuery }
+    );
+  }
+
+  // Handle a nested query:
+  const result = subquery.raw(`${condition} =>`);
+  if (isGroqBuilder(conditionalQuery)) {
+    return result.raw(conditionalQuery.query, conditionalQuery.parser);
+  }
+
+  // Handle a projectionMap:
+  const projectionMap = conditionalQuery as ProjectionMap<Empty, QueryConfig>;
+  return result.project(projectionMap);
+}
