@@ -46,6 +46,8 @@ describe("GroqBuilderSubquery", () => {
       | "asType"
       | "asCombined"
       | "raw"
+      | "star"
+      | "value"
       // Subquery utils:
       | "count"
       | "coalesce"

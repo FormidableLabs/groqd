@@ -1,13 +1,13 @@
 import { GroqBuilderSubquery } from "../../groq-builder";
-import { QueryConfig } from "../../types/query-config";
 import { ResultItem } from "../../types/result-types";
 import {
   ExtractConditionalByTypeProjectionResults,
   ConditionalByTypeProjectionMap,
   ConditionalKey,
   ConditionalConfig,
+  ConditionalQuery,
+  normalizeConditionalQuery,
 } from "./conditional-types";
-import { ProjectionMap } from "../../types/projection-types";
 import { keys } from "../../types/utils";
 import { ExtractDocumentTypes } from "../../types/document-types";
 
@@ -73,14 +73,15 @@ GroqBuilderSubquery.implement({
 
     const subquery = this.subquery;
     const conditions = typeNames.map((_type) => {
-      const projectionMap = conditionalProjections[_type] as ProjectionMap<
-        unknown,
-        QueryConfig
-      >;
-      const conditionQuery = subquery
-        .chain(`_type == "${_type}" =>`)
-        .project(projectionMap);
-      const { query, parser } = conditionQuery;
+      const condition = `_type == "${_type}"`;
+      const conditionalQuery = conditionalProjections[
+        _type
+      ] as ConditionalQuery<any, any>;
+      const { query, parser } = normalizeConditionalQuery(
+        subquery,
+        condition,
+        conditionalQuery
+      );
       return { _type, query, parser };
     });
 

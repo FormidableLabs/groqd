@@ -1,4 +1,3 @@
-import { GroqBuilderSubquery } from "../groq-builder";
 import { Expressions } from "./groq-expressions";
 import {
   Empty,
@@ -30,15 +29,6 @@ export type ProjectionMap<TResultItem, TQueryConfig extends QueryConfig> = {
   // Obviously this allows the ellipsis operator:
   "..."?: true | Parser;
 };
-
-export type ProjectionMapOrCallback<
-  TResultItem,
-  TQueryConfig extends QueryConfig
-> =
-  | ProjectionMap<TResultItem, TQueryConfig>
-  | ((
-      sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
-    ) => ProjectionMap<TResultItem, TQueryConfig>);
 
 export type ProjectionFieldConfig<
   TResultItem,

@@ -1,7 +1,7 @@
+import { InvalidQueryError } from "../../types/invalid-query-error";
 import {
   ExtractProjectionResult,
   ProjectionMap,
-  ProjectionMapOrCallback,
 } from "../../types/projection-types";
 import {
   Empty,
@@ -10,7 +10,7 @@ import {
   ValueOf,
 } from "../../types/utils";
 import { QueryConfig } from "../../types/query-config";
-import { GroqBuilderSubquery } from "../../groq-builder";
+import { GroqBuilderSubquery, isGroqBuilder } from "../../groq-builder";
 import { Expressions } from "../../types/groq-expressions";
 import { ExtractDocumentTypes } from "../../types/document-types";
 import { IGroqBuilder, InferResultType } from "../../groq-builder";
@@ -18,15 +18,43 @@ import { IGroqBuilder, InferResultType } from "../../groq-builder";
 export type ConditionalProjectionMap<
   TResultItem,
   TQueryConfig extends QueryConfig
-> = Partial<
-  Record<
-    Expressions.AnyConditional<TResultItem, TQueryConfig>,
-    | ProjectionMap<TResultItem, TQueryConfig>
-    | ((
-        sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
-      ) => ProjectionMap<TResultItem, TQueryConfig>)
-  >
->;
+> = {
+  [P in Expressions.AnyConditional<
+    TResultItem,
+    TQueryConfig
+  >]?: ConditionalQuery<TResultItem, TQueryConfig>;
+};
+
+/**
+ * The ConditionalQuery can be one of these values:
+ * @example
+ * q.conditional({
+ *   // a Raw Projection:
+ *   "condition1": { slug: "slug.current" },
+ *   // a Query (for some edge-cases):
+ *   "condition2": q.project({ slug: "slug.current" }),
+ *   // a function that returns either a Raw Projection or a Query:
+ *   "condition3": (q) => ({ slug: "slug.current" }),
+ *   "condition4": (q) => q.project({ slug: "slug.current" }),
+ * })
+ *
+ * @example
+ * ...q.conditionalByType({
+ *   link: { href: true },
+ *   // The "callback" syntax allows `q` to be strongly-typed:
+ *   button: q => ({ href: q.field("url") })
+ *   reference: q => q.field("@").deref().project({ href: true }),
+ * })
+ */
+export type ConditionalQuery<TResultItem, TQueryConfig extends QueryConfig> =
+  // The ConditionalQuery can be o
+  | ProjectionMap<TResultItem, TQueryConfig>
+  | IGroqBuilder<object, TQueryConfig>
+  | ((
+      sub: GroqBuilderSubquery<TResultItem, TQueryConfig>
+    ) =>
+      | ProjectionMap<TResultItem, TQueryConfig>
+      | IGroqBuilder<object, TQueryConfig>);
 
 export type ExtractConditionalProjectionResults<
   TResultItem,
@@ -37,13 +65,32 @@ export type ExtractConditionalProjectionResults<
   TConfig["key"],
   | (TConfig["isExhaustive"] extends true ? never : Empty)
   | ValueOf<{
-      [P in keyof TConditionalProjectionMap]: ExtractProjectionResult<
+      [P in keyof TConditionalProjectionMap]: ExtractConditionalQueryResult<
         TResultItem,
         TQueryConfig,
-        TConditionalProjectionMap[P]
+        NonNullable<TConditionalProjectionMap[P]>
       >;
     }>
 >;
+
+type ExtractConditionalQueryResult<
+  TResultItem,
+  TQueryConfig extends QueryConfig,
+  TConditionalQueryResult extends ConditionalQuery<TResultItem, TQueryConfig>
+> =
+  // Return the type of the GroqBuilder:
+  ReturnTypeMaybe<TConditionalQueryResult> extends IGroqBuilder<infer TResult>
+    ? TResult
+    : // Or the result of a raw projection:
+      ExtractProjectionResult<
+        TResultItem,
+        TQueryConfig,
+        ReturnTypeMaybe<TConditionalQueryResult>
+      >;
+
+type ReturnTypeMaybe<T> = T extends (...params: any) => infer TResult
+  ? TResult
+  : T;
 
 export type ExtractConditionalProjectionTypes<TProjectionMap> = Simplify<
   IntersectionOfValues<{
@@ -58,7 +105,7 @@ export type ConditionalByTypeProjectionMap<
   TResultItem,
   TQueryConfig extends QueryConfig
 > = {
-  [_type in ExtractDocumentTypes<TResultItem>]?: ProjectionMapOrCallback<
+  [_type in ExtractDocumentTypes<TResultItem>]?: ConditionalQuery<
     Extract<TResultItem, { _type: _type }>,
     TQueryConfig
   >;
@@ -93,14 +140,10 @@ export type ExtractConditionalByTypeProjectionResults<
          * this _type is automatically added to the query.
          */
         _type: _type;
-      } & ExtractProjectionResult<
+      } & ExtractConditionalQueryResult<
         Extract<TResultItem, { _type: _type }>,
         TQueryConfig,
-        TConditionalByTypeProjectionMap[_type] extends (
-          q: any
-        ) => infer TProjectionMap
-          ? TProjectionMap
-          : TConditionalByTypeProjectionMap[_type]
+        NonNullable<TConditionalByTypeProjectionMap[_type]>
       >;
     }>
 >;
@@ -133,3 +176,31 @@ export type ConditionalConfig<
    */
   isExhaustive: TIsExhaustive;
 };
+
+export function normalizeConditionalQuery(
+  subquery: GroqBuilderSubquery,
+  condition: string,
+  conditionalQuery: ConditionalQuery<any, any>
+): IGroqBuilder {
+  // If it's a function, execute it:
+  if (typeof conditionalQuery === "function") {
+    conditionalQuery = conditionalQuery(subquery);
+  }
+  if (typeof conditionalQuery !== "object") {
+    throw new InvalidQueryError(
+      "INVALID_CONDITIONAL_QUERY",
+      `Expected conditionalQuery to be an object, but got a ${typeof conditionalQuery}}`,
+      { conditionalQuery }
+    );
+  }
+
+  // Handle a nested query:
+  const result = subquery.raw(`${condition} =>`);
+  if (isGroqBuilder(conditionalQuery)) {
+    return result.raw(conditionalQuery.query, conditionalQuery.parser);
+  }
+
+  // Handle a projectionMap:
+  const projectionMap = conditionalQuery as ProjectionMap<Empty, QueryConfig>;
+  return result.project(projectionMap);
+}

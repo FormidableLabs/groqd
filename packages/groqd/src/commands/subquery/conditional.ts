@@ -1,15 +1,15 @@
 import { GroqBuilderSubquery } from "../../groq-builder";
-import { QueryConfig } from "../../types/query-config";
 import { ResultItem } from "../../types/result-types";
 import {
   ConditionalConfig,
   ConditionalKey,
   ConditionalProjectionMap,
+  ConditionalQuery,
   ExtractConditionalProjectionResults,
+  normalizeConditionalQuery,
 } from "./conditional-types";
 import { notNull } from "../../types/utils";
 import { ParserFunction } from "../../types/parser-types";
-import { ProjectionMap } from "../../types/projection-types";
 
 declare module "../../groq-builder" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -68,13 +68,11 @@ GroqBuilderSubquery.implement({
     const subquery = this.subquery;
     const allConditionalProjections = Object.entries(
       conditionalProjections
-    ).map(([condition, projectionMap]) => {
-      const conditionalProjection = subquery
-        .chain(`${condition} =>`)
-        .project(projectionMap as ProjectionMap<unknown, QueryConfig>);
-
-      return conditionalProjection;
-    });
+    ).map(
+      ([condition, conditionalQuery]: [string, ConditionalQuery<any, any>]) => {
+        return normalizeConditionalQuery(subquery, condition, conditionalQuery);
+      }
+    );
 
     const { newLine } = this.indentation;
     const query = allConditionalProjections
