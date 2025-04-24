@@ -1,5 +1,12 @@
 # groqd
 
+## 1.5.0
+
+### Minor Changes
+
+- Feature: support "query syntax" in conditionals ([#378](https://github.com/FormidableLabs/groqd/pull/378))
+  Feature: support `.value(...)` and `.star` at the subquery level
+
 ## 1.4.0
 
 ### Minor Changes
