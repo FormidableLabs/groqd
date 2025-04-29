@@ -142,3 +142,16 @@ export type JustOneOf<TUnion> = UnionToIntersection<
 > extends () => infer R
   ? R
   : never;
+
+/**
+ * TSGenerics doesn't provide a way to create variables.
+ * This utility adds a way to create a variable.
+ * @example
+ * type Example<T> =
+ *   // Create a variable using this "extends infer" approach:
+ *   Variable<{ foo: T, bar: T, baz: T }> extends infer FooBarBaz
+ *   // Now you can use the FooBarBaz variable:
+ *   ? FooBarBaz
+ *   : never;
+ */
+export type Variable<T> = T;

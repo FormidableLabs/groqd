@@ -1,6 +1,6 @@
 import { ConfigGetScope, QueryConfig } from "./query-config";
 import type { ConditionalPick, IsLiteral, LiteralUnion } from "type-fest";
-import { StringKeys, ValueOf } from "./utils";
+import { StringKeys, ValueOf, Variable } from "./utils";
 import {
   ProjectionPathEntries,
   ProjectionPathEntriesByType,
@@ -72,15 +72,20 @@ export namespace Expressions {
 
   /**
    * A strongly-typed conditional Groq conditional expression.
-   * Currently, this only supports simple "equality" expressions,
+   * Currently, this only supports various simple expressions,
    * like '_type == "product"' or 'slug.current == $slug'.
    * */
-  export type Conditional<TResultItem, TQueryConfig extends QueryConfig> =
-    // Currently we only support these simple expressions:
-    | Equality<TResultItem, TQueryConfig>
-    | Inequality<TResultItem, TQueryConfig>
-    | BooleanSuggestions<TResultItem>
-    | References<TQueryConfig>;
+  export type Conditional<
+    TResultItem,
+    TQueryConfig extends QueryConfig
+  > = Variable<ProjectionPathEntries<TResultItem>> extends infer $PathEntries
+    ? // Currently we only support these simple expressions:
+      | Equality<$PathEntries, TQueryConfig>
+        | Inequality<$PathEntries, TQueryConfig>
+        | NumberComparisons<$PathEntries, TQueryConfig>
+        | BooleanSuggestions<$PathEntries>
+        | References<TQueryConfig>
+    : never;
 
   type Comparison<
     TPathEntries,
@@ -95,17 +100,19 @@ export namespace Expressions {
     >}`;
   }>;
 
-  export type Equality<
-    TResultItem,
-    TQueryConfig extends QueryConfig
-  > = Comparison<ProjectionPathEntries<TResultItem>, TQueryConfig, "==">;
+  type Equality<TPathEntries, TQueryConfig extends QueryConfig> = Comparison<
+    TPathEntries,
+    TQueryConfig,
+    "=="
+  >;
 
-  export type Inequality<
-    TResultItem,
-    _TQueryConfig extends QueryConfig
-  > = `${ProjectionPathsByType<TResultItem, null>} != null`;
+  type Inequality<TPathEntries, TQueryConfig extends QueryConfig> = Comparison<
+    ConditionalPick<TPathEntries, string | number | boolean | null>,
+    TQueryConfig,
+    "!="
+  >;
 
-  export type MatchExpression<
+  type MatchExpression<
     TResultItem,
     TQueryConfig extends QueryConfig
   > = Comparison<
@@ -125,8 +132,19 @@ export namespace Expressions {
     Key | `${string}.${Key}`
   >;
 
-  type BooleanSuggestions<TResultItem> = ValueOf<{
-    [Key in ProjectionPathsByType<TResultItem, boolean>]: Key | `!${Key}`;
+  export type NumberComparisons<
+    TPathEntries,
+    TQueryConfig extends QueryConfig
+  > = Comparison<
+    ConditionalPick<TPathEntries, number>,
+    TQueryConfig,
+    ">" | ">=" | "<" | "<="
+  >;
+
+  type BooleanSuggestions<TPathEntries> = ValueOf<{
+    [Key in StringKeys<keyof ConditionalPick<TPathEntries, boolean>>]:
+      | Key
+      | `!${Key}`;
   }>;
 
   /**
@@ -134,7 +152,7 @@ export namespace Expressions {
    */
   type LiteralValue<TValue> = TValue extends string
     ? `"${TValue}"`
-    : TValue extends number | boolean | null
+    : TValue extends number | null
     ? TValue
     : TValue extends undefined
     ? null

@@ -1,12 +1,13 @@
 import { describe, expectTypeOf, it } from "vitest";
+import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 import { Expressions } from "./groq-expressions";
+import { ParametersWith$Sign } from "./parameter-types";
+import { ProjectionPathEntries } from "./projection-paths";
 import {
   ConfigAddParameters,
   ConfigCreateNestedScope,
   QueryConfig,
 } from "./query-config";
-import { ParametersWith$Sign } from "./parameter-types";
-import { SanitySchema } from "../tests/schemas/nextjs-sanity-fe";
 
 type FooBarBaz = {
   foo: string;
@@ -17,88 +18,111 @@ type FooBarBaz = {
 type WithParameters<TVars> = QueryConfig & {
   scope: ParametersWith$Sign<TVars>;
 };
-
-describe("Expressions", () => {
+describe("Expressions.Conditional (simple)", () => {
+  type eq = "==" | "!=";
+  type gte = ">=" | ">" | "<" | "<=" | eq;
   it("literal values are properly escaped", () => {
     expectTypeOf<
-      Expressions.Equality<{ foo: "FOO" }, QueryConfig>
-    >().toEqualTypeOf<'foo == "FOO"'>();
+      Expressions.Conditional<{ foo: "FOO" }, QueryConfig>
+    >().toEqualTypeOf<'foo == "FOO"' | 'foo != "FOO"'>();
     expectTypeOf<
-      Expressions.Equality<{ foo: 999 }, QueryConfig>
-    >().toEqualTypeOf<"foo == 999">();
+      Expressions.Conditional<{ foo: 999 }, QueryConfig>
+    >().toEqualTypeOf<
+      | "foo == 999"
+      | "foo != 999"
+      | "foo >= 999"
+      | "foo > 999"
+      | "foo < 999"
+      | "foo <= 999"
+    >();
     expectTypeOf<
-      Expressions.Equality<{ foo: true }, QueryConfig>
-    >().toEqualTypeOf<"foo == true">();
+      Expressions.Conditional<{ foo: true }, QueryConfig>
+    >().toEqualTypeOf<"foo" | "!foo">();
     expectTypeOf<
-      Expressions.Equality<{ foo: null }, QueryConfig>
-    >().toEqualTypeOf<"foo == null">();
+      Expressions.Conditional<{ foo: null }, QueryConfig>
+    >().toEqualTypeOf<"foo == null" | "foo != null">();
   });
   it("primitive values are properly typed", () => {
     expectTypeOf<
-      Expressions.Equality<{ foo: string }, QueryConfig>
-    >().toEqualTypeOf<`foo == "${string}"` | "foo == (string)">();
+      Expressions.Conditional<{ foo: string }, QueryConfig>
+    >().toEqualTypeOf<`foo ${eq} "${string}"` | `foo ${eq} (string)`>();
     expectTypeOf<
-      Expressions.Equality<{ foo: number }, QueryConfig>
-    >().toEqualTypeOf<`foo == ${number}` | "foo == (number)">();
+      Expressions.Conditional<{ foo: number }, QueryConfig>
+    >().toEqualTypeOf<`foo ${gte} ${number}` | `foo ${gte} (number)`>();
     expectTypeOf<
-      Expressions.Equality<{ foo: boolean }, QueryConfig>
-    >().toEqualTypeOf<`foo == ${boolean}`>();
+      Expressions.Conditional<{ foo: boolean }, QueryConfig>
+    >().toEqualTypeOf<"foo" | "!foo">();
     expectTypeOf<
-      Expressions.Equality<{ foo: null }, QueryConfig>
-    >().toEqualTypeOf<`foo == null`>();
+      Expressions.Conditional<{ foo: null }, QueryConfig>
+    >().toEqualTypeOf<`foo ${eq} null`>();
   });
   it("optional values are properly typed", () => {
     expectTypeOf<
-      Expressions.Equality<{ foo: undefined }, QueryConfig>
-    >().toEqualTypeOf<"foo == null">();
+      Expressions.Conditional<{ foo: undefined }, QueryConfig>
+    >().toEqualTypeOf<`foo ${eq} null`>();
     expectTypeOf<
-      Expressions.Equality<{ foo?: 999 }, QueryConfig>
-    >().toEqualTypeOf<"foo == null" | "foo == 999" | "foo == (number)">();
+      Expressions.Conditional<{ foo?: 999 }, QueryConfig>
+    >().toEqualTypeOf<
+      `foo ${eq} null` | `foo ${eq} 999` | `foo ${eq} (number)`
+    >();
   });
 
   it("multiple literals", () => {
     expectTypeOf<
-      Expressions.Equality<{ foo: "FOO"; bar: 999 }, QueryConfig>
-    >().toEqualTypeOf<'foo == "FOO"' | "bar == 999">();
+      Expressions.Conditional<{ foo: "FOO"; bar: 999 }, QueryConfig>
+    >().toEqualTypeOf<`foo ${eq} "FOO"` | `bar ${gte} 999`>();
   });
   it("multiple primitives", () => {
     expectTypeOf<
-      Expressions.Equality<{ foo: string; bar: number }, QueryConfig>
+      Expressions.Conditional<{ foo: string; bar: number }, QueryConfig>
     >().toEqualTypeOf<
-      | "foo == (string)"
-      | `foo == "${string}"`
-      | "bar == (number)"
-      | `bar == ${number}`
+      | `foo ${eq} (string)`
+      | `foo ${eq} "${string}"`
+      | `bar ${gte} (number)`
+      | `bar ${gte} ${number}`
     >();
   });
   it("mixed types", () => {
     expectTypeOf<
-      Expressions.Equality<{ foo: "FOO"; bar: number }, QueryConfig>
+      Expressions.Conditional<{ foo: "FOO"; bar: number }, QueryConfig>
     >().toEqualTypeOf<
-      'foo == "FOO"' | "bar == (number)" | `bar == ${number}`
+      `foo ${eq} "FOO"` | `bar ${gte} (number)` | `bar ${gte} ${number}`
     >();
   });
 
   describe("with parameters", () => {
     it("a literal value can be compared to parameters with the same type", () => {
       expectTypeOf<
-        Expressions.Equality<{ foo: "FOO" }, WithParameters<{ str: string }>>
-      >().toEqualTypeOf<'foo == "FOO"' | "foo == $str">();
-      expectTypeOf<
-        Expressions.Equality<{ foo: string }, WithParameters<{ str: "FOO" }>>
+        Expressions.Conditional<{ foo: "FOO" }, WithParameters<{ str: string }>>
       >().toEqualTypeOf<
-        `foo == "${string}"` | "foo == (string)" | "foo == $str"
+        `foo ${eq} "FOO"` | `foo ${eq} $str` | "references($str)"
       >();
       expectTypeOf<
-        Expressions.Equality<{ bar: number }, WithParameters<{ str: string }>>
-      >().toEqualTypeOf<`bar == ${number}` | "bar == (number)">();
-      expectTypeOf<
-        Expressions.Equality<{ foo: 999 }, WithParameters<{ num: number }>>
-      >().toEqualTypeOf<`foo == 999` | "foo == $num">();
-      expectTypeOf<
-        Expressions.Equality<{ foo: number }, WithParameters<{ num: number }>>
+        Expressions.Conditional<{ foo: string }, WithParameters<{ str: "FOO" }>>
       >().toEqualTypeOf<
-        "foo == $num" | "foo == (number)" | `foo == ${number}`
+        | `foo ${eq} "${string}"`
+        | `foo ${eq} (string)`
+        | `foo ${eq} $str`
+        | "references($str)"
+      >();
+      expectTypeOf<
+        Expressions.Conditional<
+          { bar: number },
+          WithParameters<{ str: string }>
+        >
+      >().toEqualTypeOf<
+        `bar ${gte} ${number}` | `bar ${gte} (number)` | "references($str)"
+      >();
+      expectTypeOf<
+        Expressions.Conditional<{ foo: 999 }, WithParameters<{ num: number }>>
+      >().toEqualTypeOf<`foo ${gte} 999` | `foo ${gte} $num`>();
+      expectTypeOf<
+        Expressions.Conditional<
+          { foo: number },
+          WithParameters<{ num: number }>
+        >
+      >().toEqualTypeOf<
+        `foo ${gte} $num` | `foo ${gte} (number)` | `foo ${gte} ${number}`
       >();
     });
 
@@ -111,29 +135,25 @@ describe("Expressions", () => {
           num: number;
         };
       };
-      type Actual = Expressions.Equality<
-        WithNested,
+      type Actual = Expressions.Conditional<
+        ProjectionPathEntries<WithNested>,
         WithParameters<{ str: string; num: number }>
       >;
       type Expected =
-        | "foo == $str"
-        | 'foo == "FOO"'
-        | 'bar.baz == "BAZ"'
-        | "bar.baz == $str"
-        | "bar.str == $str"
-        | "bar.str == (string)"
-        | `bar.str == "${string}"`
-        | "bar.num == $num"
-        | "bar.num == (number)"
-        | `bar.num == ${number}`;
+        | `foo ${eq} $str`
+        | `foo ${eq} "FOO"`
+        | `bar.baz ${eq} "BAZ"`
+        | `bar.baz ${eq} $str`
+        | `bar.str ${eq} $str`
+        | `bar.str ${eq} (string)`
+        | `bar.str ${eq} "${string}"`
+        | `bar.num ${gte} $num`
+        | `bar.num ${gte} (number)`
+        | `bar.num ${gte} ${number}`
+        | "references($str)";
 
-      // This is really hard to debug:
-      expectTypeOf<Actual>().toEqualTypeOf<Expected>();
-      // Here are 2 easier ways to debug:
-      type ActualExtras = Exclude<Expected, Actual>;
-      type ActualMissing = Exclude<Actual, Expected>;
-      expectTypeOf<ActualExtras>().toEqualTypeOf<never>();
-      expectTypeOf<ActualMissing>().toEqualTypeOf<never>();
+      expectTypeOf<Exclude<Expected, Actual>>().toEqualTypeOf<never>();
+      expectTypeOf<Exclude<Actual, Expected>>().toEqualTypeOf<never>();
     });
 
     type ManyParameters = {
@@ -161,21 +181,24 @@ describe("Expressions", () => {
     });
 
     it("multiple values are compared to same-typed parameters", () => {
-      type Res = Expressions.Equality<
+      type Res = Expressions.Conditional<
         FooBarBaz,
         WithParameters<ManyParameters>
       >;
       type Expected =
-        | "foo == $str1"
-        | "foo == $str2"
-        | "foo == (string)"
-        | `foo == "${string}"`
-        | "bar == $num1"
-        | "bar == (number)"
-        | `bar == ${number}`
-        | `bar == null`
-        | "baz == $bool"
-        | `baz == ${boolean}`;
+        | `foo ${eq} $str1`
+        | `foo ${eq} $str2`
+        | `foo ${eq} (string)`
+        | `foo ${eq} "${string}"`
+        | `bar ${eq} $num1`
+        | `bar ${eq} (number)`
+        | `bar ${eq} ${number}`
+        | `bar ${eq} null`
+        | `baz ${eq} $bool`
+        | "baz"
+        | "!baz"
+        | "references($str1)"
+        | "references($str2)";
 
       expectTypeOf<Exclude<Res, Expected>>().toEqualTypeOf<never>();
       expectTypeOf<Exclude<Expected, Res>>().toEqualTypeOf<never>();
@@ -191,24 +214,34 @@ describe("Expressions", () => {
       };
     };
     it("should work with deeply-nested parameters", () => {
-      type Res = Expressions.Equality<
+      type Res = Expressions.Conditional<
         FooBarBaz,
         WithParameters<NestedParameters>
       >;
 
       type StandardSuggestions =
-        | "foo == (string)"
-        | `foo == "${string}"`
-        | `bar == (number)`
-        | `bar == ${number}`
-        | `bar == null`
-        | `baz == ${boolean}`;
+        | `foo ${eq} (string)`
+        | `foo ${eq} "${string}"`
+        | `bar ${eq} (number)`
+        | `bar ${eq} ${number}`
+        | `bar ${eq} null`
+        | `baz ${eq} ${boolean}`;
       type NestedSuggestions = Exclude<Res, StandardSuggestions>;
-      expectTypeOf<NestedSuggestions>().toEqualTypeOf<
-        | "foo == $nested.str1"
-        | "foo == $nested.deep.str2"
-        | "bar == $nested.deep.num1"
-      >();
+      type Expected =
+        | `foo ${eq} $nested.str1`
+        | `foo ${eq} $nested.deep.str2`
+        | `bar ${eq} $nested.deep.num1`
+        | "baz"
+        | "!baz"
+        | "references($nested.str1)"
+        | "references($nested.deep.str2)";
+
+      expectTypeOf<
+        Exclude<Expected, NestedSuggestions>
+      >().toEqualTypeOf<never>();
+      expectTypeOf<
+        Exclude<NestedSuggestions, Expected>
+      >().toEqualTypeOf<never>();
     });
   });
 });
@@ -303,16 +336,24 @@ describe("Expressions.Field", () => {
   });
 });
 describe("Expressions.Conditional", () => {
+  type eq = "==" | "!=";
+
   type Result = Expressions.Conditional<FooBarBaz, QueryConfig>;
   it("should include a good list of possible expressions, including booleans", () => {
     type Expected =
+      // Equality:
       | `foo == (string)`
       | `foo == "${string}"`
       | `bar == (number)`
       | `bar == ${number}`
       | `bar == null`
+      // Inequality:
+      | `foo != (string)`
+      | `foo != "${string}"`
+      | `bar != (number)`
+      | `bar != ${number}`
       | `bar != null`
-      | `baz == ${boolean}`
+      // Boolean:
       | `baz`
       | `!baz`;
     expectTypeOf<Exclude<Result, Expected>>().toEqualTypeOf<never>();
@@ -327,8 +368,9 @@ describe("Expressions.Conditional", () => {
     type Result = Expressions.Conditional<TUnion, QueryConfig>;
     expectTypeOf<Result>().toEqualTypeOf<
       | '_type == "TypeA"'
-      //
       | '_type == "TypeB"'
+      | '_type != "TypeA"'
+      | '_type != "TypeB"'
     >();
   });
 
@@ -365,12 +407,12 @@ describe("Expressions.Conditional", () => {
     it("should suggest items from the scope", () => {
       type NewSuggestions = Exclude<ScopeSuggestions, StandardSuggestions>;
       type Expected =
-        | "foo == $param"
-        | "foo == ^._id"
-        | "foo == ^._type"
-        | "foo == ^.str"
-        | "bar == ^.num"
-        | "baz == ^.bool"
+        | `foo ${eq} $param`
+        | `foo ${eq} ^._id`
+        | `foo ${eq} ^._type`
+        | `foo ${eq} ^.str`
+        | `bar ${eq} ^.num`
+        | `baz ${eq} ^.bool`
         | "references(^._id)"
         | "references(^.str)"
         | "references($param)";
@@ -392,37 +434,36 @@ describe("Expressions.Conditional", () => {
     type Expression3 = Expressions.Conditional<FooBarBaz, Depth3>;
 
     type ExpectedFooBarBaz =
-      | "foo == (string)"
-      | `foo == "${string}"`
-      | "bar == (number)"
-      | `bar == ${number}`
-      | `bar == null`
+      | `foo ${eq} (string)`
+      | `foo ${eq} "${string}"`
+      | `bar ${eq} (number)`
+      | `bar ${eq} ${number}`
+      | `bar ${eq} null`
       | "baz"
-      | "!baz"
-      | `baz == ${boolean}`;
+      | "!baz";
 
     it("should suggest items from Depth 0 and Depth 1", () => {
-      type Expected = "bar == $param" | "bar != null";
+      type Expected = "bar == $param" | "bar != $param";
 
-      expectTypeOf<
-        Exclude<Expression0, ExpectedFooBarBaz>
-      >().toEqualTypeOf<Expected>();
-      expectTypeOf<
-        Exclude<Expression1, ExpectedFooBarBaz>
-      >().toEqualTypeOf<Expected>();
+      type Actual0 = Exclude<Expression0, ExpectedFooBarBaz>;
+      expectTypeOf<Exclude<Actual0, Expected>>().toEqualTypeOf<never>();
+      expectTypeOf<Exclude<Expected, Actual0>>().toEqualTypeOf<never>();
+
+      type Actual1 = Exclude<Expression1, ExpectedFooBarBaz>;
+      expectTypeOf<Exclude<Actual1, Expected>>().toEqualTypeOf<never>();
+      expectTypeOf<Exclude<Expected, Actual1>>().toEqualTypeOf<never>();
     });
     it("should suggest items from Depth 2", () => {
       type Expected =
-        | "bar == $param"
-        | "bar != null"
-        | "foo == ^._id"
-        | "foo == ^._createdAt"
-        | "foo == ^._updatedAt"
-        | "foo == ^._rev"
-        | "foo == ^._type"
-        | "foo == ^.name"
-        | "foo == ^.description"
-        | "foo == ^.slug.current"
+        | `foo ${eq} ^._id`
+        | `foo ${eq} ^._createdAt`
+        | `foo ${eq} ^._updatedAt`
+        | `foo ${eq} ^._rev`
+        | `foo ${eq} ^._type`
+        | `foo ${eq} ^.name`
+        | `foo ${eq} ^.description`
+        | `foo ${eq} ^.slug.current`
+        | `bar ${eq} $param`
         | "references(^._id)"
         | "references(^.name)"
         | "references(^.slug.current)";
@@ -432,30 +473,29 @@ describe("Expressions.Conditional", () => {
     });
     it("should suggest items from Depth 3", () => {
       type Expected =
-        | "foo == ^._createdAt"
-        | "foo == ^._id"
-        | "foo == ^._rev"
-        | "foo == ^._type"
-        | "foo == ^._updatedAt"
-        | "foo == ^.id"
-        | "foo == ^.name"
-        | "foo == ^.slug.current"
-        | "bar == $param"
-        | "bar == ^.msrp"
-        | "bar == ^.price"
-        | "bar != null"
+        | `foo ${eq} ^._createdAt`
+        | `foo ${eq} ^._id`
+        | `foo ${eq} ^._rev`
+        | `foo ${eq} ^._type`
+        | `foo ${eq} ^._updatedAt`
+        | `foo ${eq} ^.id`
+        | `foo ${eq} ^.name`
+        | `foo ${eq} ^.slug.current`
+        | `bar ${eq} $param`
+        | `bar ${eq} ^.msrp`
+        | `bar ${eq} ^.price`
         | "references(^._id)"
         | "references(^.name)"
         | "references(^.slug.current)"
         // Double-parent:
-        | "foo == ^.^._createdAt"
-        | "foo == ^.^._id"
-        | "foo == ^.^._rev"
-        | "foo == ^.^._type"
-        | "foo == ^.^._updatedAt"
-        | "foo == ^.^.description"
-        | "foo == ^.^.name"
-        | "foo == ^.^.slug.current"
+        | `foo ${eq} ^.^._createdAt`
+        | `foo ${eq} ^.^._id`
+        | `foo ${eq} ^.^._rev`
+        | `foo ${eq} ^.^._type`
+        | `foo ${eq} ^.^._updatedAt`
+        | `foo ${eq} ^.^.description`
+        | `foo ${eq} ^.^.name`
+        | `foo ${eq} ^.^.slug.current`
         | "references(^.^._id)"
         | "references(^.^.name)"
         | "references(^.^.slug.current)";
@@ -470,16 +510,13 @@ describe("Expressions.Score", () => {
   type StandardConditionals = Expressions.Conditional<FooBarBaz, QueryConfig>;
   type ScoreSuggestions = Expressions.Score<FooBarBaz, QueryConfig>;
   it('should include "match" with suggestions', () => {
-    type ExpectedSuggestions =
+    type Actual = Exclude<ScoreSuggestions, StandardConditionals>;
+    type Expected =
       // Only string-fields (e.g. "foo") should be suggested with "match"
       `foo match "${string}"` | "foo match (string)";
 
-    type ActualSuggestions = Exclude<ScoreSuggestions, StandardConditionals>;
-    expectTypeOf<ActualSuggestions>().toEqualTypeOf<ExpectedSuggestions>();
-    type Missing = Exclude<ExpectedSuggestions, ActualSuggestions>;
-    expectTypeOf<Missing>().toEqualTypeOf<never>();
-    type Extra = Exclude<ActualSuggestions, ExpectedSuggestions>;
-    expectTypeOf<Extra>().toEqualTypeOf<never>();
+    expectTypeOf<Exclude<Expected, Actual>>().toEqualTypeOf<never>();
+    expectTypeOf<Exclude<Actual, Expected>>().toEqualTypeOf<never>();
   });
 });
 describe("Expressions.Order", () => {
