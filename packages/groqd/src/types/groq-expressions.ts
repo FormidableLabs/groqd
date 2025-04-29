@@ -72,7 +72,7 @@ export namespace Expressions {
 
   /**
    * A strongly-typed conditional Groq conditional expression.
-   * Currently, this only supports simple "equality" expressions,
+   * Currently, this only supports various simple expressions,
    * like '_type == "product"' or 'slug.current == $slug'.
    * */
   export type Conditional<
@@ -82,6 +82,7 @@ export namespace Expressions {
     ? // Currently we only support these simple expressions:
       | Equality<$PathEntries, TQueryConfig>
         | Inequality<$PathEntries, TQueryConfig>
+        | NumberComparisons<$PathEntries, TQueryConfig>
         | BooleanSuggestions<$PathEntries>
         | References<TQueryConfig>
     : never;
