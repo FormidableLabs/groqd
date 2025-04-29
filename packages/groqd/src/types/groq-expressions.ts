@@ -102,8 +102,15 @@ export namespace Expressions {
 
   export type Inequality<
     TResultItem,
-    _TQueryConfig extends QueryConfig
-  > = `${ProjectionPathsByType<TResultItem, null>} != null`;
+    TQueryConfig extends QueryConfig
+  > = Comparison<
+    ConditionalPick<
+      ProjectionPathEntries<TResultItem>,
+      string | number | boolean | null
+    >,
+    TQueryConfig,
+    "!="
+  >;
 
   export type MatchExpression<
     TResultItem,
@@ -134,7 +141,7 @@ export namespace Expressions {
    */
   type LiteralValue<TValue> = TValue extends string
     ? `"${TValue}"`
-    : TValue extends number | boolean | null
+    : TValue extends number | null
     ? TValue
     : TValue extends undefined
     ? null
