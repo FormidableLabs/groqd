@@ -113,9 +113,13 @@ export namespace Expressions {
   >;
 
   type MatchExpression<
-    TPathEntries,
+    TResultItem,
     TQueryConfig extends QueryConfig
-  > = Comparison<ConditionalPick<TPathEntries, string>, TQueryConfig, "match">;
+  > = Comparison<
+    ConditionalPick<ProjectionPathEntries<TResultItem>, string>,
+    TQueryConfig,
+    "match"
+  >;
 
   type References<TQueryConfig extends QueryConfig> = `references(${IgnorePaths<
     ProjectionPathsByType<ConfigGetScope<TQueryConfig>, string | string[]>,

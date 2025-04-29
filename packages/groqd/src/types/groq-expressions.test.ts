@@ -510,16 +510,13 @@ describe("Expressions.Score", () => {
   type StandardConditionals = Expressions.Conditional<FooBarBaz, QueryConfig>;
   type ScoreSuggestions = Expressions.Score<FooBarBaz, QueryConfig>;
   it('should include "match" with suggestions', () => {
-    type ExpectedSuggestions =
+    type Actual = Exclude<ScoreSuggestions, StandardConditionals>;
+    type Expected =
       // Only string-fields (e.g. "foo") should be suggested with "match"
       `foo match "${string}"` | "foo match (string)";
 
-    type ActualSuggestions = Exclude<ScoreSuggestions, StandardConditionals>;
-    expectTypeOf<ActualSuggestions>().toEqualTypeOf<ExpectedSuggestions>();
-    type Missing = Exclude<ExpectedSuggestions, ActualSuggestions>;
-    expectTypeOf<Missing>().toEqualTypeOf<never>();
-    type Extra = Exclude<ActualSuggestions, ExpectedSuggestions>;
-    expectTypeOf<Extra>().toEqualTypeOf<never>();
+    expectTypeOf<Exclude<Expected, Actual>>().toEqualTypeOf<never>();
+    expectTypeOf<Exclude<Actual, Expected>>().toEqualTypeOf<never>();
   });
 });
 describe("Expressions.Order", () => {
