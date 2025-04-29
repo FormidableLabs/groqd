@@ -20,13 +20,21 @@ type WithParameters<TVars> = QueryConfig & {
 };
 describe("Expressions.Conditional (simple)", () => {
   type eq = "==" | "!=";
+  type gte = ">=" | ">" | "<" | "<=" | eq;
   it("literal values are properly escaped", () => {
     expectTypeOf<
       Expressions.Conditional<{ foo: "FOO" }, QueryConfig>
     >().toEqualTypeOf<'foo == "FOO"' | 'foo != "FOO"'>();
     expectTypeOf<
       Expressions.Conditional<{ foo: 999 }, QueryConfig>
-    >().toEqualTypeOf<"foo == 999" | "foo != 999">();
+    >().toEqualTypeOf<
+      | "foo == 999"
+      | "foo != 999"
+      | "foo >= 999"
+      | "foo > 999"
+      | "foo < 999"
+      | "foo <= 999"
+    >();
     expectTypeOf<
       Expressions.Conditional<{ foo: true }, QueryConfig>
     >().toEqualTypeOf<"foo" | "!foo">();
@@ -40,7 +48,7 @@ describe("Expressions.Conditional (simple)", () => {
     >().toEqualTypeOf<`foo ${eq} "${string}"` | `foo ${eq} (string)`>();
     expectTypeOf<
       Expressions.Conditional<{ foo: number }, QueryConfig>
-    >().toEqualTypeOf<`foo ${eq} ${number}` | `foo ${eq} (number)`>();
+    >().toEqualTypeOf<`foo ${gte} ${number}` | `foo ${gte} (number)`>();
     expectTypeOf<
       Expressions.Conditional<{ foo: boolean }, QueryConfig>
     >().toEqualTypeOf<"foo" | "!foo">();
@@ -62,7 +70,7 @@ describe("Expressions.Conditional (simple)", () => {
   it("multiple literals", () => {
     expectTypeOf<
       Expressions.Conditional<{ foo: "FOO"; bar: 999 }, QueryConfig>
-    >().toEqualTypeOf<`foo ${eq} "FOO"` | `bar ${eq} 999`>();
+    >().toEqualTypeOf<`foo ${eq} "FOO"` | `bar ${gte} 999`>();
   });
   it("multiple primitives", () => {
     expectTypeOf<
@@ -70,15 +78,15 @@ describe("Expressions.Conditional (simple)", () => {
     >().toEqualTypeOf<
       | `foo ${eq} (string)`
       | `foo ${eq} "${string}"`
-      | `bar ${eq} (number)`
-      | `bar ${eq} ${number}`
+      | `bar ${gte} (number)`
+      | `bar ${gte} ${number}`
     >();
   });
   it("mixed types", () => {
     expectTypeOf<
       Expressions.Conditional<{ foo: "FOO"; bar: number }, QueryConfig>
     >().toEqualTypeOf<
-      `foo ${eq} "FOO"` | `bar ${eq} (number)` | `bar ${eq} ${number}`
+      `foo ${eq} "FOO"` | `bar ${gte} (number)` | `bar ${gte} ${number}`
     >();
   });
 
@@ -103,18 +111,18 @@ describe("Expressions.Conditional (simple)", () => {
           WithParameters<{ str: string }>
         >
       >().toEqualTypeOf<
-        `bar ${eq} ${number}` | `bar ${eq} (number)` | "references($str)"
+        `bar ${gte} ${number}` | `bar ${gte} (number)` | "references($str)"
       >();
       expectTypeOf<
         Expressions.Conditional<{ foo: 999 }, WithParameters<{ num: number }>>
-      >().toEqualTypeOf<`foo ${eq} 999` | `foo ${eq} $num`>();
+      >().toEqualTypeOf<`foo ${gte} 999` | `foo ${gte} $num`>();
       expectTypeOf<
         Expressions.Conditional<
           { foo: number },
           WithParameters<{ num: number }>
         >
       >().toEqualTypeOf<
-        `foo ${eq} $num` | `foo ${eq} (number)` | `foo ${eq} ${number}`
+        `foo ${gte} $num` | `foo ${gte} (number)` | `foo ${gte} ${number}`
       >();
     });
 
@@ -139,9 +147,9 @@ describe("Expressions.Conditional (simple)", () => {
         | `bar.str ${eq} $str`
         | `bar.str ${eq} (string)`
         | `bar.str ${eq} "${string}"`
-        | `bar.num ${eq} $num`
-        | `bar.num ${eq} (number)`
-        | `bar.num ${eq} ${number}`
+        | `bar.num ${gte} $num`
+        | `bar.num ${gte} (number)`
+        | `bar.num ${gte} ${number}`
         | "references($str)";
 
       expectTypeOf<Exclude<Expected, Actual>>().toEqualTypeOf<never>();

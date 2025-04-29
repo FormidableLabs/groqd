@@ -116,7 +116,7 @@ describe("filterBy", () => {
         name: z.string(),
         price: z.number(),
       })
-      .filterBy("price == 99");
+      .filterBy("price > 99");
     expectTypeOf<InferResultItem<typeof query>>().toEqualTypeOf<{
       name: string;
       price: number;
@@ -138,12 +138,16 @@ describe("filterBy", () => {
     const qWithVars = qVariants.parameters<Parameters>();
     it("should support strongly-typed parameters", () => {
       qWithVars.filterBy("name == $str");
-      qWithVars.filterBy("price == $num");
+      qWithVars.filterBy("price <= $num");
     });
     it("should fail for invalid / mismatched parameters", () => {
       qWithVars.filterBy(
         // @ts-expect-error ---
         "name == $num"
+      );
+      qWithVars.filterBy(
+        // @ts-expect-error ---
+        "name > $num"
       );
       qWithVars.filterBy(
         // @ts-expect-error ---
