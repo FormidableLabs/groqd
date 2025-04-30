@@ -1,5 +1,13 @@
 # groqd
 
+## 1.6.0
+
+### Minor Changes
+
+- Feature: ([#381](https://github.com/FormidableLabs/groqd/pull/381))
+  - Added support for "not equal" expressions (`!=`).
+  - This applies to the `.filterBy` and `.conditional` methods
+
 ## 1.5.0
 
 ### Minor Changes
