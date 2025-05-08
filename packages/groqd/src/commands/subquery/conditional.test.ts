@@ -431,5 +431,34 @@ describe("conditional", () => {
         `);
       });
     });
+    describe("when multiple conditions can be true", () => {
+      const qConditional = qVariants.project((q) => ({
+        name: z.string(),
+        ...q.conditional({
+          "price < msrp": {
+            price: z.number(),
+          },
+          "price <= msrp": {
+            msrp: z.number(),
+          },
+        }),
+      }));
+      it("should include fields from both conditions", async () => {
+        const results = await executeBuilder(qConditional, data);
+        expect(results).toMatchInlineSnapshot(`
+          [
+            {
+              "msrp": 10,
+              "name": "Variant 1",
+            },
+            {
+              "msrp": 9,
+              "name": "Variant 2",
+              "price": 8,
+            },
+          ]
+        `);
+      });
+    });
   });
 });
