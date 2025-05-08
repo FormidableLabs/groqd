@@ -1,5 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { z } from "zod";
 import { GroqBuilderBase, InferResultItem, InferResultType } from "../../index";
+import { executeBuilder } from "../../tests/mocks/executeQuery";
+import { mock } from "../../tests/mocks/nextjs-sanity-fe-mocks";
 import { q } from "../../tests/schemas/nextjs-sanity-fe";
 import { ExtractConditionalProjectionTypes } from "./conditional-types";
 import { Empty, Simplify } from "../../types/utils";
@@ -37,7 +40,7 @@ describe("conditional", () => {
     });
   });
 
-  const qAll = qVariants.project((qV) => ({
+  const qConditional = qVariants.project((qV) => ({
     name: true,
     ...qV.conditional({
       "price == msrp": {
@@ -50,9 +53,8 @@ describe("conditional", () => {
       },
     }),
   }));
-
   it("should be able to extract the return type", () => {
-    expectTypeOf<InferResultType<typeof qAll>>().toEqualTypeOf<
+    expectTypeOf<InferResultType<typeof qConditional>>().toEqualTypeOf<
       Array<
         | { name: string }
         | { name: string; onSale: false }
@@ -60,9 +62,8 @@ describe("conditional", () => {
       >
     >();
   });
-
   it("the query should look correct", () => {
-    expect(qAll.query).toMatchInlineSnapshot(
+    expect(qConditional.query).toMatchInlineSnapshot(
       `
       "*[_type == "variant"] {
           name,
@@ -238,47 +239,226 @@ describe("conditional", () => {
     });
   });
 
+  const data = mock.generateSeedData({
+    variants: [
+      //
+      mock.variant({
+        name: "Variant 1",
+        price: 10,
+        msrp: 10,
+      }),
+      mock.variant({ name: "Variant 2", price: 8, msrp: 9 }),
+    ],
+  });
   describe("using query syntax", () => {
-    const qAll = qVariants.project((q) => ({
+    const qConditional = qVariants.project((q) => ({
       name: true,
       ...q.conditional({
         "price == msrp": q.project({
           onSale: q.value(false),
+          msrp: true,
         }),
         "price < msrp": (q) =>
           q.project({
             onSale: q.value(true),
             price: true,
-            msrp: true,
           }),
       }),
     }));
     it("should have the correct expected type", () => {
-      type Result = InferResultType<typeof qAll>;
+      type Result = InferResultType<typeof qConditional>;
       type Expected = Array<
         | { name: string }
-        | { name: string; onSale: false }
-        | { name: string; onSale: true; price: number; msrp: number }
+        | { name: string; onSale: false; msrp: number }
+        | { name: string; onSale: true; price: number }
       >;
       expectTypeOf<Result>().toEqualTypeOf<Expected>();
     });
     it("should generate the correct query", () => {
-      expect(qAll.query).toMatchInlineSnapshot(`
+      expect(qConditional.query).toMatchInlineSnapshot(`
         "*[_type == "variant"] {
             name,
             price == msrp => {
-              "onSale": false
+              "onSale": false,
+              msrp
             },
             price < msrp => {
                 "onSale": true,
-                price,
-                msrp
+                price
               }
           }"
       `);
     });
-    it("should execute correctly", () => {
-      // (we actually already test this exact query in a previous test)
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qConditional, data);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "msrp": 10,
+            "name": "Variant 1",
+            "onSale": false,
+          },
+          {
+            "name": "Variant 2",
+            "onSale": true,
+            "price": 8,
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("with validation", () => {
+    const qConditional = qVariants.project((q) => ({
+      name: z.string(),
+      ...q.conditional({
+        "price == msrp": {
+          onSale: q.value(false, z.literal(false)),
+          msrp: z.number(),
+        },
+        "price < msrp": {
+          onSale: q.value(true, z.literal(true)),
+          price: z.number(),
+        },
+      }),
+    }));
+    it("should have the correct expected type", () => {
+      type Result = InferResultType<typeof qConditional>;
+      type Expected = Array<
+        | { name: string }
+        | { name: string; onSale: false; msrp: number }
+        | { name: string; onSale: true; price: number }
+      >;
+      expectTypeOf<Result>().toEqualTypeOf<Expected>();
+    });
+    it("should generate the correct query", () => {
+      expect(qConditional.query).toMatchInlineSnapshot(`
+        "*[_type == "variant"] {
+            name,
+            price == msrp => {
+                "onSale": false,
+                msrp
+              },
+            price < msrp => {
+                "onSale": true,
+                price
+              }
+          }"
+      `);
+    });
+    it("should execute correctly", async () => {
+      const results = await executeBuilder(qConditional, data);
+      expect(results).toMatchInlineSnapshot(`
+        [
+          {
+            "msrp": 10,
+            "name": "Variant 1",
+            "onSale": false,
+          },
+          {
+            "name": "Variant 2",
+            "onSale": true,
+            "price": 8,
+          },
+        ]
+      `);
+    });
+
+    const invalidData = mock.generateSeedData({
+      variants: [
+        mock.variant({ name: "Variant 1 (valid)", price: 10, msrp: 10 }),
+        mock.variant({ name: "Variant 2 (valid)", price: 9, msrp: 10 }),
+        mock.variant({ name: "Variant 3 (invalid)", price: 11, msrp: 10 }),
+        // @ts-expect-error -- must be numbers
+        mock.variant({ name: "Variant 4 (invalid)", price: "10", msrp: "10" }),
+        // @ts-expect-error -- must be numbers
+        mock.variant({ name: "Variant 5 (invalid)", price: "8", msrp: "9" }),
+      ],
+    });
+    describe("when the data is invalid", () => {
+      it("should strip invalid fields", async () => {
+        const result = await executeBuilder(qConditional, invalidData);
+        expect(result).toMatchInlineSnapshot(`
+          [
+            {
+              "msrp": 10,
+              "name": "Variant 1 (valid)",
+              "onSale": false,
+            },
+            {
+              "name": "Variant 2 (valid)",
+              "onSale": true,
+              "price": 9,
+            },
+            {
+              "name": "Variant 3 (invalid)",
+            },
+            {
+              "name": "Variant 4 (invalid)",
+            },
+            {
+              "name": "Variant 5 (invalid)",
+            },
+          ]
+        `);
+      });
+    });
+    describe("when the isExhaustive flag is set", () => {
+      const qConditional = qVariants.project((q) => ({
+        name: z.string(),
+        ...q.conditional(
+          {
+            "price == msrp": {
+              onSale: q.value(false, z.literal(false)),
+              msrp: z.number(),
+            },
+            "price < msrp": {
+              onSale: q.value(true, z.literal(true)),
+              price: z.number(),
+            },
+          },
+          { isExhaustive: true }
+        ),
+      }));
+      it("should throw an error", async () => {
+        await expect(async () => {
+          return await executeBuilder(qConditional, invalidData);
+        }).rejects.toThrowErrorMatchingInlineSnapshot(`
+          [ValidationErrors: 3 Parsing Errors:
+          result[2]: The data did not match any of the 2 conditional assertions
+          result[3]: The data did not match any of the 2 conditional assertions
+          result[4]: The data did not match any of the 2 conditional assertions]
+        `);
+      });
+    });
+    describe("when multiple conditions can be true", () => {
+      const qConditional = qVariants.project((q) => ({
+        name: z.string(),
+        ...q.conditional({
+          "price < msrp": {
+            price: z.number(),
+          },
+          "price <= msrp": {
+            msrp: z.number(),
+          },
+        }),
+      }));
+      it("should include fields from both conditions", async () => {
+        const results = await executeBuilder(qConditional, data);
+        expect(results).toMatchInlineSnapshot(`
+          [
+            {
+              "msrp": 10,
+              "name": "Variant 1",
+            },
+            {
+              "msrp": 9,
+              "name": "Variant 2",
+              "price": 8,
+            },
+          ]
+        `);
+      });
     });
   });
 });

@@ -100,20 +100,24 @@ function createConditionalParserUnion(
   isExhaustive: boolean
 ) {
   return function parserUnion(input: unknown) {
+    let foundMatch = false;
+    const result = {};
     for (const parser of parsers) {
       try {
-        return parser(input);
+        const parsed = parser(input);
+        Object.assign(result, parsed);
+        foundMatch = true;
       } catch (err) {
         // All errors are ignored,
         // since we never know if it errored due to invalid data,
         // or if it errored due to not meeting the conditional check.
       }
     }
-    if (isExhaustive) {
+    if (isExhaustive && !foundMatch) {
       throw new TypeError(
         `The data did not match any of the ${parsers.length} conditional assertions`
       );
     }
-    return {};
+    return result;
   };
 }
