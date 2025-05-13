@@ -1,18 +1,22 @@
-/**
- * Used to store the Result types of a Fragment.
- * This symbol is not used at runtime.
- */
-export declare const FragmentResultTypeTag: unique symbol;
+import { ExtractProjectionResult } from "./projection-types";
+import { QueryConfig } from "./query-config";
+import { Simplify } from "./utils";
+
+export declare type FragmentMetadata =
+  | typeof FragmentInputTypeTag
+  | typeof FragmentQueryConfigTypeTag;
+declare const FragmentInputTypeTag: unique symbol;
+declare const FragmentQueryConfigTypeTag: unique symbol;
 /**
  * Represents a projection fragment
  */
 export type Fragment<
-  TFragmentResult,
-  _TFragmentInput, // (this type parameter is only included so that it shows in an IDE)
+  TFragmentInput, // These are used to capture the type, to be extracted by `InferFragmentType`
+  TQueryConfig extends QueryConfig,
   TProjectionMap
 > = TProjectionMap & {
-  // Track the result type, so we can extract it later:
-  readonly [FragmentResultTypeTag]?: TFragmentResult;
+  readonly [FragmentInputTypeTag]?: TFragmentInput;
+  readonly [FragmentQueryConfigTypeTag]?: TQueryConfig;
 };
 /**
  * Infers the result types of a fragment.
@@ -26,9 +30,11 @@ export type Fragment<
  */
 export type InferFragmentType<TFragment extends Fragment<any, any, any>> =
   TFragment extends Fragment<
-    infer TFragmentResult,
-    infer _TFragmentInput,
-    infer _TProjectionMap
+    infer TFragmentInput,
+    infer TQueryConfig,
+    infer TProjectionMap
   >
-    ? TFragmentResult
+    ? Simplify<
+        ExtractProjectionResult<TFragmentInput, TQueryConfig, TProjectionMap>
+      >
     : never;

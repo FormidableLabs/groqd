@@ -6,7 +6,6 @@ import {
 import { QueryConfig } from "../../types/query-config";
 import { RequireAFakeParameterIfThereAreTypeMismatchErrors } from "../../types/type-mismatch-error";
 import { ExtractDocumentTypes } from "../../types/document-types";
-import { Simplify } from "type-fest";
 import { Fragment } from "../../types/fragment-types";
 
 declare module "../../groq-builder" {
@@ -72,7 +71,7 @@ export type FragmentUtil<TQueryConfig extends QueryConfig, TFragmentInput> = {
           sub: GroqBuilderSubquery<TFragmentInput, TQueryConfig>
         ) => TProjectionMap),
     ...__projectionMapTypeMismatchErrors: RequireAFakeParameterIfThereAreTypeMismatchErrors<_TProjectionResult>
-  ): Fragment<Simplify<_TProjectionResult>, TFragmentInput, TProjectionMap>;
+  ): Fragment<TFragmentInput, TQueryConfig, TProjectionMap>;
 };
 
 GroqBuilderRoot.implement({

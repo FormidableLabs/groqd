@@ -16,8 +16,8 @@ import {
   ConditionalKey,
   ExtractConditionalProjectionTypes,
 } from "../commands/subquery/conditional-types";
-import { FragmentResultTypeTag } from "./fragment-types";
 import { IGroqBuilder } from "../groq-builder";
+import { FragmentMetadata } from "./fragment-types";
 
 export type ProjectionMap<TResultItem, TQueryConfig extends QueryConfig> = {
   [P in LiteralUnion<keyof TResultItem, string>]?: ProjectionFieldConfig<
@@ -62,11 +62,8 @@ export type ExtractProjectionResult<
     ExtractProjectionResultFields<
       TResultItem,
       TQueryConfig,
-      // Be sure to omit the Conditionals, "...", and fragment metadata:
-      Omit<
-        TProjectionMap,
-        "..." | typeof FragmentResultTypeTag | ConditionalKey<string>
-      >
+      // Be sure to omit the spread operator, fragment metadata, and Conditionals:
+      Omit<TProjectionMap, "..." | FragmentMetadata | ConditionalKey<string>>
     >
 >;
 
