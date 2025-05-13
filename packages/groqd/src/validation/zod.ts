@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ParserFunction } from "../types/parser-types";
 import { pick } from "../types/utils";
+import { ZodType } from "../types/zod-like";
 
 const zodPrimitives = pick(z, [
   "string",
@@ -28,10 +29,10 @@ const zodExtras = {
    * // After:
    * z.default(z.number(), 0)
    */
-  default<TZodSchema extends z.ZodType<any, any, any>>(
-    schema: TZodSchema,
-    defaultValue: z.output<TZodSchema>
-  ): ParserFunction<z.input<TZodSchema> | null, z.output<TZodSchema>> {
+  default<TInput, TOutput>(
+    schema: ZodType<TOutput, any, TInput>,
+    defaultValue: TOutput
+  ): ParserFunction<TInput | null, TOutput> {
     return (input) => {
       if (input === null) return defaultValue;
       return schema.parse(input);

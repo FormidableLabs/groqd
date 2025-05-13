@@ -32,11 +32,11 @@ export type IGroqBuilder<
   /**
    * The parser function that should be used to parse result data
    */
-  readonly parser: ParserFunction | null;
+  readonly parser: ParserFunction<unknown, TResult> | null;
   /**
    * Parses and validates the query results, passing all data through the parsers.
    */
-  readonly parse: ParserFunction;
+  readonly parse: ParserFunction<unknown, TResult>;
 };
 
 export function isGroqBuilder(
@@ -70,3 +70,8 @@ export type InferResultType<TGroqBuilder extends IGroqBuilder<any>> =
  */
 export type InferResultItem<TGroqBuilder extends IGroqBuilder<any>> =
   ResultItem.Infer<InferResultType<TGroqBuilder>>;
+
+export type InferQueryConfig<TGroqBuilder extends IGroqBuilder<any>> =
+  TGroqBuilder extends IGroqBuilder<any, infer TQueryConfig>
+    ? TQueryConfig
+    : never;

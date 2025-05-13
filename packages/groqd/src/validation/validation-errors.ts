@@ -1,4 +1,4 @@
-import type { ZodError } from "zod";
+import { isZodError } from "../types/zod-like";
 
 export type ErrorDetails = {
   /**
@@ -30,7 +30,7 @@ export class ValidationErrors extends TypeError {
   /**
    * Adds a validation error to the list
    *
-   * @param path - Relative path name for this error (eg. object key, array index)
+   * @param path - Relative path name for this error (e.g. object key, array index)
    * @param value - Actual value at this path
    * @param error - The error - can be a ZodError, another ValidationError, or just any Error object
    */
@@ -93,16 +93,4 @@ function formatPath(paths: PathSegment[]) {
     }
   }
   return res;
-}
-
-/**
- * Determines if the error is Zod-like
- */
-function isZodError(err: Error): err is ZodError {
-  const errZ = err as ZodError;
-  return (
-    Array.isArray(errZ.errors) &&
-    Array.isArray(errZ.issues) &&
-    typeof errZ.isEmpty === "boolean"
-  );
 }

@@ -1,4 +1,4 @@
-import type { ZodType } from "zod";
+import type { ZodType } from "./zod-like";
 
 /**
  * A Parser is either a generic mapping function, or a Zod schema.
