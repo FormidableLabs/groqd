@@ -1,5 +1,15 @@
 # groqd
 
+## 1.7.0
+
+### Minor Changes
+
+- Fix: simplify Fragments types to eliminate `"Type instantiation is excessively deep and possibly infinite."` errors ([#385](https://github.com/FormidableLabs/groqd/pull/385))
+
+### Patch Changes
+
+- Feature: reduce dependency on Zod to ensure wider compatibility between Zod versions ([#385](https://github.com/FormidableLabs/groqd/pull/385))
+
 ## 1.6.0
 
 ### Minor Changes
