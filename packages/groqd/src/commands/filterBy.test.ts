@@ -280,4 +280,57 @@ describe("filterBy", () => {
       }>();
     });
   });
+
+  describe("should support multiple filters", () => {
+    const qMultiple = q.star
+      .filterByType("variant")
+      .filterBy("msrp < 50", "price <= 50")
+      .project({ name: true, msrp: true, price: true });
+    it("should have the correct type", () => {
+      expectTypeOf<InferResultItem<typeof qMultiple>>().toEqualTypeOf<{
+        name: string;
+        msrp: number;
+        price: number;
+      }>();
+    });
+    it("should generate the correct query", () => {
+      expect(qMultiple.query).toMatchInlineSnapshot(`
+        "*[_type == "variant"][msrp < 50 || price <= 50] {
+            name,
+            msrp,
+            price
+          }"
+      `);
+    });
+    it("should execute correctly", async () => {
+      const data = mock.generateSeedData({
+        variants: [
+          mock.variant({ name: "Yes 1", price: 99, msrp: 5 }),
+          mock.variant({ name: "Yes 2", price: 5, msrp: 99 }),
+          mock.variant({ name: "No", price: 99, msrp: 99 }),
+          mock.variant({ name: "Yes 3", price: 5, msrp: 5 }),
+        ],
+      });
+      const result = await executeBuilder(qMultiple, data);
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "msrp": 5,
+            "name": "Yes 1",
+            "price": 99,
+          },
+          {
+            "msrp": 99,
+            "name": "Yes 2",
+            "price": 5,
+          },
+          {
+            "msrp": 5,
+            "name": "Yes 3",
+            "price": 5,
+          },
+        ]
+      `);
+    });
+  });
 });

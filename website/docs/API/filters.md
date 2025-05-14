@@ -11,7 +11,7 @@ Selects all documents, via GROQ's `*` selector.
 This is how most queries start.
 
 ```ts
-q.star.filter(...).project(...)
+q.star.filterByType(...).project(...)
 ```
 
 ## `.filterByType(type)`
@@ -36,10 +36,10 @@ q.star
  .filterBy('category == "shoe"')
 ```
 
-> For more complex expressions, use `.filter(expression)`:
+> For more complex expressions, use `.filterRaw(expression)`:
 
 
-## `.filter(expression)`
+## `.filterRaw(expression)`
 
 Filters the query based on **any** GROQ expression.
 
@@ -48,7 +48,7 @@ Filters the query based on **any** GROQ expression.
 ```ts
 q.star
  .filterByType("product")
- .filter("price >= 50");
+ .filterRaw("price >= 50");
 // Result GROQ: *[_type == "product"][price >= 50]
 // Result Type: Product[]
 ```
@@ -64,25 +64,6 @@ q.star
 // Result GROQ: *[_type == "product"] | order(price asc, slug.current desc)
 // Result Type: Product[]
 ```
-
-<!--    
-    ## `.score(expression)`
-    ## `.score(expression)`
-    
-    Used to pipe a list of results through the `score` GROQ function.
-    
-    ```ts
-    // Fetch first 9 Pokemon's names, bubble Char* (Charmander, etc) to the top.
-    q.star
-      .filter("_type == 'pokemon'")
-      .slice(0, 8)
-      .score(`name match "char*"`)
-      .order("_score desc")
-      .grabOne("name", z.string());
-    ```
--->
-
-
 
 ## `.slice(index)`
 

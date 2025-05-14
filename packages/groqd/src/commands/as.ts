@@ -28,7 +28,7 @@ declare module "../groq-builder" {
      * Use this carefully, since it's essentially "lying" to TypeScript, and there's no runtime validation.
      *
      * @example
-     * q.star.filter("slug.current == $productSlug").as<Product>()...
+     * q.star.filterBy("slug.current == $productSlug").as<Product>()...
      *
      */
     as<TResultNew>(): GroqBuilderOfType<TResultNew, TQueryConfig, ReturnType>;
@@ -39,7 +39,7 @@ declare module "../groq-builder" {
      * Use this carefully, since it's essentially "lying" to TypeScript, and there's no runtime validation.
      *
      * @example
-     * q.star.filter("slug.current == $productSlug").asType<"product">()...
+     * q.star.filterBy("slug.current == $productSlug").asType<"product">()...
      */
     asType<
       _type extends ExtractDocumentTypes<TQueryConfig["schemaTypes"]>

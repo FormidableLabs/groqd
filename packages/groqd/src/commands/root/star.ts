@@ -21,7 +21,7 @@ interface StarDefinition<TResult, TQueryConfig extends QueryConfig> {
    * This is how most queries start.
    *
    * @example
-   * q.star.filter(...).project(...)
+   * q.star.filterByType(...).project(...)
    *
    */
   star: GroqBuilder<
