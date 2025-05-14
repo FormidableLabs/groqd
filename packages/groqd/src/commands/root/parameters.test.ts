@@ -20,7 +20,7 @@ describe("parameters", () => {
   const qWithParameters = q
     .parameters<{ slug: string }>()
     .star.filterByType("variant")
-    .filter("slug.current == $slug")
+    .filterBy("slug.current == $slug")
     .project({ slug: "slug.current" });
 
   it("chains should retain the parameters type", () => {
