@@ -6,10 +6,10 @@ import { ResultItem } from "../types/result-types";
 declare module "../groq-builder" {
   export interface GroqBuilder<TResult, TQueryConfig> {
     /**
-     * Allows you to write any raw filter expression.
-     * This method is NOT type-checked, but does provide suggestions.
-     *
      * This is an alias for the `filterRaw` method; please use that instead.
+     *
+     * Filters based on any raw filter expression.
+     * This method is NOT type-checked, but does provide suggestions.
      *
      * @deprecated Please use `filterRaw` instead!
      *
@@ -19,15 +19,16 @@ declare module "../groq-builder" {
      * @param filterExpression - Any valid GROQ expression that can be used for filtering
      */
     filter(
-      filterExpression: Expressions.AnyConditional<
-        ResultItem.Infer<TResult>,
-        TQueryConfig
+      ...filterExpression: NonEmptyArray<
+        Expressions.AnyConditional<ResultItem.Infer<TResult>, TQueryConfig>
       >
     ): GroqBuilder<TResult, TQueryConfig>;
 
     /**
-     * Allows you to write any raw filter expression.
+     * Filters based on any raw filter expression(s).
      * This method is NOT type-checked, but does provide suggestions.
+     *
+     * Multiple expressions will be combined with "OR" logic.
      *
      * @example
      * q.star.filterRaw("count(items[]) > 5")
@@ -35,34 +36,54 @@ declare module "../groq-builder" {
      * @param filterExpression - Any valid GROQ expression that can be used for filtering
      */
     filterRaw(
-      filterExpression: Expressions.AnyConditional<
-        ResultItem.Infer<TResult>,
-        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
+      ...filterExpression: NonEmptyArray<
+        Expressions.AnyConditional<
+          ResultItem.Infer<TResult>,
+          ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
+        >
       >
     ): GroqBuilder<TResult, TQueryConfig>;
 
     /**
-     * Same as `filter`, but only supports simple, strongly-typed equality expressions.
+     * Filters the results based on a simple,
+     * strongly-typed equality expression.
+     *
+     * Multiple calls will result in "AND" logic.
+     * Multiple arguments will be combined with "OR" logic.
+     *
+     * This method is strongly-typed, but only supports common expressions.
+     * If you'd like to filter based off more complex logic, use `filterRaw` instead.
+     *
+     * @example
+     * q.star.filterByType("product")
+     *  .filterBy("image.url != null")
+     *  .filterBy('category == "food"')
+     *  .filterBy("price < 50", "msrp < 50")
+     *  .filterBy("references(^._id)")
      */
     filterBy(
-      filterExpression: Expressions.Conditional<
-        ResultItem.Infer<TResult>,
-        ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
+      ...filterExpression: NonEmptyArray<
+        Expressions.Conditional<
+          ResultItem.Infer<TResult>,
+          ConfigCreateNestedScope<TQueryConfig, ResultItem.Infer<TResult>>
+        >
       >
     ): GroqBuilder<TResult, TQueryConfig>;
   }
 }
 
+type NonEmptyArray<T> = [T, ...T[]];
+
 GroqBuilder.implement({
-  filter(this: GroqBuilder, filterExpression) {
-    return this.filterRaw(filterExpression);
+  filter(this: GroqBuilder, ...filterExpressions) {
+    return this.filterRaw(...filterExpressions);
   },
-  filterRaw(this: GroqBuilder, filterExpression) {
+  filterRaw(this: GroqBuilder, ...filterExpressions) {
     const needsWrap = this.query.endsWith("->");
     const self = needsWrap ? this.extend({ query: `(${this.query})` }) : this;
-    return self.chain(`[${filterExpression}]`, "passthrough");
+    return self.chain(`[${filterExpressions.join(" || ")}]`, "passthrough");
   },
-  filterBy(this: GroqBuilder, filterExpression) {
-    return this.filterRaw(filterExpression);
+  filterBy(this: GroqBuilder, ...filterExpressions) {
+    return this.filterRaw(...filterExpressions);
   },
 });
