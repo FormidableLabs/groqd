@@ -13,7 +13,7 @@ import "./subquery/selectByType";
 import "./as";
 import "./asCombined";
 import "./deref";
-import "./filter";
+import "./filterBy";
 import "./filterByType";
 import "./grab-deprecated";
 import "./notNull";

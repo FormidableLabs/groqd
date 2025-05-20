@@ -15,7 +15,7 @@ declare module "../groq-builder" {
      *
      * @example
      * q.star
-     *  .filter("slug.current == $slug")
+     *  .filterBy("slug.current == $slug")
      *  .slice(0) // <- this return type is nullable, even though we expect there will be a match
      *  .project({ name: z.string() })
      *  .notNull() // <- this ensures that the results are not null
