@@ -1,5 +1,14 @@
 # website
 
+## 0.0.29
+
+### Patch Changes
+
+- `filterBy`: support multiple expressions. Expressions will be combined using the `||` "OR" operator. ([#387](https://github.com/FormidableLabs/groqd/pull/387))
+
+- Updated dependencies [[`4dc641d`](https://github.com/FormidableLabs/groqd/commit/4dc641d7948615678e9f5bc1c5088f3a93b92185)]:
+  - groqd@1.7.1
+
 ## 0.0.28
 
 ### Patch Changes
