@@ -1,15 +1,13 @@
-import { themes as prismThemes } from "prism-react-renderer";
-import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
+import type { Config } from "@docusaurus/types";
 import MonacoEditorWebpackPlugin from "monaco-editor-webpack-plugin";
-
-const title = "GROQD";
-const tagline = "Typesafe GROQ Query Builder";
+import { themes as prismThemes } from "prism-react-renderer";
+import { metadata } from "./src/metadata";
 
 const config: Config = {
-  title,
-  tagline,
-  url: "https://commerce.nearform.com/",
+  title: metadata.longTitle,
+  tagline: metadata.description,
+  url: "https://nearform.com/",
   favicon: "img/nearform-icon.svg",
   baseUrl: process.env.VERCEL_ENV === "preview" ? "/" : "/open-source/groqd",
   onBrokenLinks: "throw",
@@ -83,11 +81,11 @@ const config: Config = {
     metadata: [
       {
         name: "title",
-        content: title,
+        content: metadata.longTitle,
       },
       {
         name: "description",
-        content: tagline,
+        content: metadata.description,
       },
       {
         name: "viewport",
@@ -103,11 +101,11 @@ const config: Config = {
       },
       {
         property: "og:title",
-        content: title,
+        content: metadata.longTitle,
       },
       {
         property: "og:description",
-        content: tagline,
+        content: metadata.description,
       },
       {
         property: "og:image",
@@ -120,11 +118,11 @@ const config: Config = {
       },
       {
         property: "twitter:title",
-        content: title,
+        content: metadata.longTitle,
       },
       {
         property: "twitter:description",
-        content: tagline,
+        content: metadata.description,
       },
       {
         property: "twitter:image",

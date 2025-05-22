@@ -1,5 +1,4 @@
 import React from "react";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 
 import { LandingHero } from "../components/landing/landing-hero";
@@ -12,67 +11,70 @@ import {
   feature3,
 } from "../components/landing/landing-images";
 import { Divider } from "../components/landing/divider";
+import { metadata } from "../metadata";
 
 export default function Home(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout title={siteConfig.title} description={siteConfig.tagline}>
-      <div className="dark:bg-gray-500 bg-gray-200 dark:text-white text-theme-2">
-        <LandingHero
-          heading={siteConfig.title}
-          body={siteConfig.tagline}
-          copyText="npm install groqd"
-          navItems={[
-            { link: "/open-source/groqd/docs", title: "Documentation" },
-            { link: "/open-source/groqd/arcade", title: "Demo" },
+    <Layout>
+      <main>
+        <div className="dark:bg-gray-500 bg-gray-200 dark:text-white text-theme-2">
+          <LandingHero
+            heading={metadata.title}
+            subheading={metadata.tagline}
+            body={metadata.description}
+            copyText="npm install groqd"
+            navItems={[
+              { link: "/open-source/groqd/docs", title: "Documentation" },
+              { link: "/open-source/groqd/arcade", title: "Demo" },
+              {
+                link: "https://github.com/FormidableLabs/groqd",
+                title: "Github",
+              },
+            ]}
+          ></LandingHero>
+        </div>
+        <LandingFeatures
+          heading="Features"
+          list={[
             {
-              link: "https://github.com/FormidableLabs/groqd",
-              title: "Github",
+              imgSrc: feature1,
+              alt: "Flexible",
+              title: "Flexible",
+              html: {
+                __html: "GROQD maintains the flexibility of GROQ.",
+              },
+            },
+            {
+              imgSrc: feature3,
+              alt: "Type Safe",
+              title: "Type Safe",
+              body: "Leverages the type safety of TypeScript.",
+            },
+            {
+              imgSrc: feature2,
+              alt: "Runtime Safe",
+              title: "Runtime Safe",
+              html: {
+                __html:
+                  "Automatically layers in the runtime safety of <a href='https://github.com/colinhacks/zod' target='_blank'>Zod</a>.",
+              },
             },
           ]}
-        ></LandingHero>
-      </div>
-      <LandingFeatures
-        heading="Features"
-        list={[
-          {
-            imgSrc: feature1,
-            alt: "Flexible",
-            title: "Flexible",
-            html: {
-              __html: "GROQD maintains the flexibility of GROQ.",
-            },
-          },
-          {
-            imgSrc: feature2,
-            alt: "Runtime Safe",
-            title: "Runtime Safe",
-            html: {
-              __html:
-                "Automatically layers in the runtime safety of <a href='https://github.com/colinhacks/zod' target='_blank'>Zod</a>.",
-            },
-          },
-          {
-            imgSrc: feature3,
-            alt: "Type Safe",
-            title: "Type Safe",
-            body: "Leverages the type safety of TypeScript.",
-          },
-        ]}
-      />
-      <Divider />
-      <div className="flex gap-20 flex-col md:flex-row mx-16 lg:mx-32 xl:mx-64">
-        <LandingBanner
-          heading="Get Started"
-          body="Get the flexibility of GROQ with the runtime/type safety of Zod and TypeScript today!"
-          cta={{ link: "/open-source/groqd/docs", text: "Documentation" }}
         />
-        <LandingBanner
-          heading="GROQD Arcade"
-          body="View sample queries, and play with live examples in the GROQD Arcade."
-          cta={{ link: "/open-source/groqd/arcade", text: "Arcade" }}
-        />
-      </div>
+        <Divider />
+        <div className="flex gap-20 flex-col md:flex-row mx-16 lg:mx-32 xl:mx-64">
+          <LandingBanner
+            heading="Get Started"
+            body="Get the flexibility of GROQ with the runtime/type safety of Zod and TypeScript today!"
+            cta={{ link: "/open-source/groqd/docs", text: "Documentation" }}
+          />
+          <LandingBanner
+            heading="GROQD Arcade"
+            body="View sample queries, and play with live examples in the GROQD Arcade."
+            cta={{ link: "/open-source/groqd/arcade", text: "Arcade" }}
+          />
+        </div>
+      </main>
       <Divider />
       <LandingFeaturedProjects
         heading="Other Open Source"

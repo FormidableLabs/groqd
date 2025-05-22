@@ -5,11 +5,13 @@ export const LandingHero = ({
   body,
   copyText,
   heading,
+  subheading,
   navItems,
 }: {
   body: string;
   copyText: string;
   heading: string;
+  subheading: string;
   navItems: { link: string; title: string }[];
 }) => {
   const [buttonText, setButtonText] = useState("Copy");
@@ -29,6 +31,9 @@ export const LandingHero = ({
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               {heading}
             </h1>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              {subheading}
+            </h2>
             <p className="mt-6 text-lg leading-8">{body}</p>
             <div className="mt-10 flex flex-wrap flex-col xl:flex-row xl:items-center justify-start gap-6">
               <button
