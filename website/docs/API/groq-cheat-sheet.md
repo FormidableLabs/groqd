@@ -122,79 +122,61 @@ q.star.filterByType("movie") // all movies are returned (no slice specified)
 > No matter what sort order is specified, the ascending order by _id will always remain the final tie-breaker.
 
 ```typescript
-// order results
-q.star.filterByType("movie").order("_createdAt asc")
-
-// order results by multiple attributes
-q.star.filterByType("movie").order("releaseDate desc").order("_createdAt asc")
-
-// order todo items by descending priority, then most recently updated
-q.star.filterByType("todo").order("priority desc, _updatedAt desc")
-
-// the single, oldest document
-q.star.filterByType("movie").order("_createdAt asc").slice(0)
-
-// the single, newest document
-q.star.filterByType("movie").order("_createdAt desc").slice(0)
-
-// oldest 10 documents
-q.star.filterByType("movie").order("_createdAt asc").slice(0, 10)
-
-// BEWARE! This selects 10 documents using the default ordering, and *only the selection* is ordered by _createdAt in ascending order
-q.star.filterByType("movie").slice(0, 10).order("_createdAt asc")
-
-// limit/offset using external params (see client documentation)
-q.star.filterByType("movie").order("_createdAt asc").slice("$start", "$end")
-
-// order results alphabetically by a string field
-q.star.filterByType("movie").order("title asc")
-
-// order results alphabetically by a string field, ignoring case
-q.star.filterByType("movie").order("lower(title) asc")
+q.star.filterByType("movie").order("_createdAt asc") // order results
+q.star.filterByType("movie").order("releaseDate desc").order("_createdAt asc") // order results by multiple attributes
+q.star.filterByType("todo").order("priority desc, _updatedAt desc") // order todo items by descending priority, then most recently updated
+q.star.filterByType("movie").order("_createdAt asc").slice(0) // the single, oldest document
+q.star.filterByType("movie").order("_createdAt desc").slice(0) // the single, newest document
+q.star.filterByType("movie").order("_createdAt asc").slice(0, 10) // oldest 10 documents
+q.star.filterByType("movie").slice(0, 10).order("_createdAt asc") // BEWARE! This selects 10 documents using the default ordering, and *only the selection* is ordered by _createdAt in ascending order
+q.star.filterByType("movie").order("_createdAt asc").slice("$start", "$end") // limit/offset using external params (see client documentation)
+q.star.filterByType("movie").order("title asc") // order results alphabetically by a string field
+q.star.filterByType("movie").order("lower(title) asc") // order results alphabetically by a string field, ignoring case
 ```
 
 ## Joins
 
 ```typescript
 // Fetch movies with title, and join with poster asset with path + url
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   title: true,
-  poster: q.field("poster").project({
+  poster: q.field("poster").project(q => ({
     asset: q.field("asset").deref().project({
       path: true,
       url: true,
     }),
-  }),
-})
+  })),
+}))
 
 // Say castMembers is an array containing objects with character name and a reference to the person:
 // We want to fetch movie with title and an attribute named "cast" which is an array of actor names
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   title: true,
-  cast: q.field("castMembers[]").field("person").deref().field("name"),
-})
+  cast: q.field("castMembers[].person").deref().field("name"),
+}))
 
 // Same query as above, except "cast" now contains objects with person._id and person.name
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   title: true,
-  cast: q.field("castMembers[]").field("person").deref().project({
+  cast: q.field("castMembers[].person").deref().project({
     _id: true,
     name: true,
   }),
-})
+}))
 
 // Using the ^ operator to refer to the enclosing document. Here ^._id refers to the id
 // of the enclosing person record.
-q.star.filterByType("person").project((q) => ({
+q.star.filterByType("person").project(q => ({
   name: true,
-  relatedMovies: q
-    .groq('*[_type=="movie" && references(^._id)]')
+  relatedMovies: q.star
+    .filterByType("movie")
+    .filterBy("references(^._id)")
     .project({ title: true }),
 }))
 
 // Books by author.name (book.author is a reference)
-q.star
-  .filter('_type == "book" && author._ref in *[_type=="author" && name=="John Doe"]._id')
+q.star.filterByType("book")
+  .filterRaw('author._ref in *[_type=="author" && name=="John Doe"]._id')
   .project({ /* ... */ })
 ```
 
@@ -202,27 +184,31 @@ q.star
 
 ```typescript
 // Create your own objects
-const qPeopleByPrizeYear = q.star.order("prizes[0].year desc").project({
-  name: q.field("firstname").groq('+ " " +').field("surname"),
-  orderYear: q.field("prizes[0].year"),
-  prizes: true,
-})
+q.project(q => ({
+  // People ordered by Nobel prize year
+  peopleByPrizeYear: q.star.order("prizes[0].year desc").project(q => ({
+    name: q.raw('firstname + " " + surname'),
+    orderYear: q.field("prizes[0].year"),
+    prizes: true
+  })),
+  // List of all prizes ordered by year awarded
+  allPrizes: q.star.field("prizes[]").order("year desc")
+}))
 
-const qAllPrizes = q.star.field("prizes[]").order("year desc")
 
 // Get all Nobel prizes from all root person documents
 q.star.field("prizes[]")
 
-// Array helpers (use groq functions via .groq())
-q.field("tags").groq('array::join(@, ", ")')
-q.groq('array::join(["a", "b", "c"], ".")')
-q.field("year").groq('array::join(@, ".")')
-q.field("values").groq('array::join(@, 1)')
-q.field("numbers").groq('array::compact(@)')
-q.field("items").groq('array::unique(@)')
-q.field("records").groq('array::unique(@)')
-q.groq('array::intersects(firstList, secondList)')
-q.groq('array::intersects(tags, keywords)')
+// Array helpers (use groq functions via .raw())
+q.field("tags").raw<string>('array::join(@, ", ")')
+q.raw<string>('array::join(["a", "b", "c"], ".")')
+q.field("year").raw<string>('array::join(@, ".")')
+q.field("values").raw<string>('array::join(@, 1)')
+q.field("numbers").raw<any[]>('array::compact(@)')
+q.field("items").raw<any[]>('array::unique(@)')
+q.field("records").raw<any[]>('array::unique(@)')
+q.raw<boolean>('array::intersects(firstList, secondList)')
+q.raw<boolean>('array::intersects(tags, keywords)')
 ```
 
 ## Object Projections
@@ -259,12 +245,12 @@ q.star.filterByType("movie").project({
 // Default values when missing or null in document
 q.star.filterByType("movie").project({
   "...": true,
-  rating: q.groq('coalesce(rating, "unknown")'),
+  rating: q.raw<string>('coalesce(rating, "unknown")'),
 })
 
 // Number of elements in array 'actors' on each movie
 q.star.filterByType("movie").project({
-  actorCount: q.groq('count(actors)'),
+  actorCount: q.raw<number>('count(actors)'),
 })
 
 // Apply a projection to every member of an array
@@ -314,7 +300,7 @@ q.star.filter('@["1"]')
 q.star.filter('@[$prop]._ref == $refId')
 q.project({
   arraySizes: q.field("arrays[]").project({
-    size: q.groq("count(@)"),
+    size: q.raw<number>("count(@)"),
   }),
 })
 
@@ -322,7 +308,7 @@ q.project({
 q.star.filterByType("person").project((q) => ({
   name: true,
   relatedMovies: q
-    .groq('*[_type=="movie" && references(^._id)]')
+    .star.filterByType("movie").filterBy("references(^._id)")
     .project({ title: true }),
 }))
 ```
@@ -333,23 +319,23 @@ q.star.filterByType("person").project((q) => ({
 // select() returns the first => pair whose left-hand side evaluates to true
 q.star.filterByType("movie").project({
   "...": true,
-  popularity: q.groq('select(popularity > 20 => "high", popularity > 10 => "medium", popularity <= 10 => "low")'),
+  popularity: q.raw<string>('select(popularity > 20 => "high", popularity > 10 => "medium", popularity <= 10 => "low")'),
 })
 
 // The first select() parameter without => is returned if no previous matches are found
 q.star.filterByType("movie").project({
   "...": true,
-  popularity: q.groq('select(popularity > 20 => "high", popularity > 10 => "medium", "low")'),
+  popularity: q.raw<string>('select(popularity > 20 => "high", popularity > 10 => "medium", "low")'),
 })
 
 // Projections also have syntactic sugar for inline conditionals
 q.star.filterByType("movie").project((q) => ({
   "...": true,
-  ...q.groq(`releaseDate >= '2018-06-01' => {
+  ...q.raw<any>(`releaseDate >= '2018-06-01' => {
     "screenings": *[_type == 'screening' && movie._ref == ^._id],
     "news": *[_type == 'news' && movie._ref == ^._id],
   }`),
-  ...q.groq(`popularity > 20 && rating > 7.0 => {
+  ...q.raw<any>(`popularity > 20 && rating > 7.0 => {
     "featured": true,
     "awards": *[_type == 'award' && movie._ref == ^._id],
   }`),
@@ -358,11 +344,11 @@ q.star.filterByType("movie").project((q) => ({
 // The above is exactly equivalent to:
 q.star.filterByType("movie").project((q) => ({
   "...": true,
-  ...q.groq(`...select(releaseDate >= '2018-06-01' => {
+  ...q.raw<any>(`...select(releaseDate >= '2018-06-01' => {
     "screenings": *[_type == 'screening' && movie._ref == ^._id],
     "news": *[_type == 'news' && movie._ref == ^._id],
   })`),
-  ...q.groq(`...select(popularity > 20 && rating > 7.0 => {
+  ...q.raw<any>(`...select(popularity > 20 && rating > 7.0 => {
     "featured": true,
     "awards": *[_type == 'award' && movie._ref == ^._id],
   })`),
@@ -370,7 +356,7 @@ q.star.filterByType("movie").project((q) => ({
 
 // Specify sets of projections for different content types in an array
 q.field("content[]").project((q) => ({
-  ...q.groq(`_type == 'type1' => {
+  ...q.raw<any>(`_type == 'type1' => {
     // Your selection of fields for type1
   },
   _type == 'type2' => {
@@ -387,7 +373,7 @@ In cases where an array contains both [references and non-references](https://ww
 ```typescript
 q.project({
   content: q.field("content[]").project((q) => ({
-    ...q.groq(`_type == 'reference' => @->, _type != 'reference' => @`),
+    ...q.raw<any>(`_type == 'reference' => @->, _type != 'reference' => @`),
   })),
 })
 ```
@@ -406,21 +392,21 @@ q.star.filter('defined(tags)')
 
 // coalesce takes a number of attribute references and returns the value of the first attribute that is non-null
 q.project({
-  title: q.groq('coalesce(title.fi, title.en)'),
+  title: q.raw<string>('coalesce(title.fi, title.en)'),
 })
 
 // count counts the number of items in a collection
-q.groq('count(*[_type == "movie" && rating == "R"])')
+q.raw<number>('count(*[_type == "movie" && rating == "R"])')
 
 // Counts the number of elements in the array actors
 q.star.filterByType("movie").project({
   title: true,
-  actorCount: q.groq('count(actors)'),
+  actorCount: q.raw<number>('count(actors)'),
 })
 
 // round() rounds number to the nearest integer, or the given number of decimals
-q.groq('round(3.14)')
-q.groq('round(3.14, 1)')
+q.raw<number>('round(3.14)')
+q.raw<number>('round(3.14, 1)')
 
 // score() adds points to the score value depending on the use of the string "GROQ" in each post's description
 q.star.filterByType("post")
@@ -438,7 +424,7 @@ q.star.filter('_type == "movie" && movieRating > 3')
 
 // Returns the body Portable Text data as plain text
 q.star.filterByType("post").project({
-  plaintextBody: q.groq('pt::text(body)'),
+  plaintextBody: q.raw<string>('pt::text(body)'),
 })
 
 // Get all versions and drafts of a document. Use with the raw perspective or a perspective stack to ensure accurate results.
