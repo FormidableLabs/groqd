@@ -391,13 +391,13 @@ q.project({
 
 ```typescript
 // any document that references the document with id person_sigourney-weaver, return only title
-q.star.filter('references("person_sigourney-weaver")').project({ title: true })
+q.star.filterRaw('references("person_sigourney-weaver")').project({ title: true })
 
 // Movies which reference ancient people
-q.star.filter('_type=="movie" && references(*[_type=="person" && age > 99]._id)').project({ title: true })
+q.star.filterByType("movie").filterRaw('references(*[_type=="person" && age > 99]._id)').project({ title: true })
 
 // any document that has the attribute 'tags'
-q.star.filter('defined(tags)')
+q.star.filterRaw('defined(tags)')
 
 // coalesce takes a number of attribute references and returns the value of the first attribute that is non-null
 q.star.project(q => ({
@@ -410,7 +410,7 @@ q.count(q.star.filterByType("movie").filterBy("rating == 'R'"))
 // Counts the number of elements in the array actors
 q.star.filterByType("movie").project(q => ({
   title: true,
-  actorCount: q.count("actors"),
+  actorCount: q.count("actors[]"),
 }))
 
 // round() rounds number to the nearest integer, or the given number of decimals
@@ -483,7 +483,3 @@ q.raw<{a:number,b:number,c:number}>('{"a":1,"b":2} + {"c":3}') // {"a":1,"b":2,"
 q.raw<null>('3 + " p.m."')         // null
 q.raw<string>('string(3) + " p.m."') // "3 p.m."
 ```
-
-
-
-
