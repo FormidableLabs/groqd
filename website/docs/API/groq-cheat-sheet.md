@@ -294,23 +294,28 @@ q.project({
 ## Special variables
 
 ```typescript
-// * (everything)
-q.star
+// *
+q.star // Everything, i.e. all documents
 
-// @ (root value of the scope)
+// @
+// @ refers to the root value (document) of the scope
+
 q.star.filterRaw('@["1"]')
-q.star.filterRaw('@[$prop]._ref == $refId')
-q.project(q => ({
+q.star.filterRaw('@[$prop]._ref == $refId') // Select reference prop from an outside variable.
+q.star.project(q => ({
   arraySizes: q.field("arrays[]").project(q => ({
-    size: q.count("@"),
+    size: q.count("@"), // @ also works for nested scopes
   })),
 }))
 
-// ^ (enclosing document)
+// ^
+// ^ refers to the enclosing document. Here ^._id refers to the id
+// of the enclosing person record.
 q.star.filterByType("person").project((q) => ({
   name: true,
-  relatedMovies: q
-    .star.filterByType("movie").filterBy("references(^._id)")
+  relatedMovies: q.star
+    .filterByType("movie")
+    .filterBy("references(^._id)")
     .project({ title: true }),
 }))
 ```
