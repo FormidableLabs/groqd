@@ -197,18 +197,18 @@ q.project(q => ({
 
 
 // Get all Nobel prizes from all root person documents
-q.star.field("prizes[]")
+q.star.filterByType("person").field("prizes[]")
 
 // Array helpers (use groq functions via .raw())
-q.field("tags").raw<string>('array::join(@, ", ")')
-q.raw<string>('array::join(["a", "b", "c"], ".")')
-q.field("year").raw<string>('array::join(@, ".")')
-q.field("values").raw<string>('array::join(@, 1)')
-q.field("numbers").raw<any[]>('array::compact(@)')
-q.field("items").raw<any[]>('array::unique(@)')
-q.field("records").raw<any[]>('array::unique(@)')
-q.raw<boolean>('array::intersects(firstList, secondList)')
-q.raw<boolean>('array::intersects(tags, keywords)')
+q.raw<string>('array::join(tags, ", ")') // tags = ["Rust", "Go", null, "GROQ"] => "Rust, Go, <INVALID>, GROQ"
+q.raw<string>('array::join(["a", "b", "c"], ".")') // "a.b.c"
+q.raw<string|null>('array::join(year, ".")') // year = 2024 => null (not an array)
+q.raw<null>('array::join(values, 1)') // values = [10, 20, 30] => null (separator must be a string)
+q.raw<number[]>('array::compact(numbers)') // numbers = [1, null, 2, null, 3] => [1, 2, 3]
+q.raw<number[]>('array::unique(items)') // items = [1, 2, 2, 3, 4, 5, 5] => [1, 2, 3, 4, 5]
+q.raw<number[][]>('array::unique(records)') // records = [[1], [1]] => [[1], [1]] (arrays are not comparable)
+q.raw<boolean>('array::intersects(firstList, secondList)') // firstList = [1, 2, 3], secondList = [3, 4, 5] => true
+q.raw<boolean>('array::intersects(tags, keywords)') // tags = ["tech", "science"], keywords = ["art", "design"] => false
 ```
 
 ## Object Projections
@@ -221,24 +221,26 @@ q.star.filterByType("movie").project({ title: true })
 q.star.filterByType("movie").project({ _id: true, _type: true, title: true })
 
 // explicitly name the return field for _id
-q.star.filterByType("movie").project({ renamedId: "._id", _type: true, title: true })
+q.star.filterByType("movie").project({ renamedId: "_id", _type: true, title: true })
 
 // Return an array of attribute values (no object wrapper)
 q.star.filterByType("movie").field("title")
-q.star.filterByType("movie").project({ characterNames: q.field("castMembers[]").field("characterName") })
+q.star.filterByType("movie").project(q => ({ 
+  characterNames: q.field("castMembers[].characterName")
+}))
 
 // movie titled Arrival and its posterUrl
-q.star.filter('_type=="movie" && title == "Arrival"').project({
+q.star.filterByType("movie").filterBy('title == "Arrival"').project(q => ({
   title: true,
-  posterUrl: q.field("poster").field("asset").deref().field("url"),
-})
+  posterUrl: q.field("poster.asset").deref().field("url"),
+}))
 
 // Explicitly return all attributes
 q.star.filterByType("movie").project({ "...": true })
 
 // Some computed attributes, then also add all attributes of the result
 q.star.filterByType("movie").project(q => ({
-  posterUrl: q.field("poster").field("asset").deref().field("url"),
+  posterUrl: q.field("poster.asset").deref().field("url"),
   "...": true,
 }))
 
@@ -262,12 +264,12 @@ q.star.filterByType("movie").project(q => ({
 }))
 
 // Filter embedded objects
-q.star.filterByType("movie").project({
-  castMembers: q.field("castMembers").filterRaw('characterName match "Ripley"').project({
+q.star.filterByType("movie").project(q => ({
+  castMembers: q.field("castMembers[]").filterRaw('characterName match "Ripley"').project({
     characterName: true,
     person: true,
   }),
-})
+}))
 
 // Follow every reference in an array of references
 q.star.filterByType("book").project(q => ({
