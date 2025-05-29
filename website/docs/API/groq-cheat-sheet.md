@@ -324,52 +324,51 @@ q.star.filterByType("person").project((q) => ({
 
 ```typescript
 // select() returns the first => pair whose left-hand side evaluates to true
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   "...": true,
-  popularity: q.raw<string>('select(popularity > 20 => "high", popularity > 10 => "medium", popularity <= 10 => "low")'),
-})
+  popularity: q.select({
+    "popularity > 20": q.value("high"),
+    "popularity > 10": q.value("medium"),
+    "popularity <= 10": q.value("low"),
+  }),
+}))
 
-// The first select() parameter without => is returned if no previous matches are found
-q.star.filterByType("movie").project({
+// The second parameter to select() is returned if no previous matches are found
+q.star.filterByType("movie").project(q => ({
   "...": true,
-  popularity: q.raw<string>('select(popularity > 20 => "high", popularity > 10 => "medium", "low")'),
-})
+  popularity: q.select({
+    "popularity > 20": q.value("high"),
+    "popularity > 10": q.value("medium"),
+    // Default value if no conditions match:
+  }, q.value("low")),
+}))
 
 // Projections also have syntactic sugar for inline conditionals
 q.star.filterByType("movie").project((q) => ({
   "...": true,
-  ...q.raw<any>(`releaseDate >= '2018-06-01' => {
-    "screenings": *[_type == 'screening' && movie._ref == ^._id],
-    "news": *[_type == 'news' && movie._ref == ^._id],
-  }`),
-  ...q.raw<any>(`popularity > 20 && rating > 7.0 => {
-    "featured": true,
-    "awards": *[_type == 'award' && movie._ref == ^._id],
-  }`),
+  ...q.conditional({
+    "releaseDate >= '2018-06-01'": q.project({
+      screenings: q.star.filterByType("screening").filterBy('movie._ref == ^._id'),
+      news: q.star.filterByType("news").filterBy('movie._ref == ^._id'),
+    }),
+    "popularity > 20 && rating > 7.0": q.project({
+      featured: q.value(true),
+      awards: q.star.filterByType("award").filterBy('movie._ref == ^._id'),
+    }),
+  }),
 }))
 
-// The above is exactly equivalent to:
-q.star.filterByType("movie").project((q) => ({
-  "...": true,
-  ...q.raw<any>(`...select(releaseDate >= '2018-06-01' => {
-    "screenings": *[_type == 'screening' && movie._ref == ^._id],
-    "news": *[_type == 'news' && movie._ref == ^._id],
-  })`),
-  ...q.raw<any>(`...select(popularity > 20 && rating > 7.0 => {
-    "featured": true,
-    "awards": *[_type == 'award' && movie._ref == ^._id],
-  })`),
-}))
-
-// Specify sets of projections for different content types in an array
+// Specify sets of projections for different content types in an object
 q.field("content[]").project((q) => ({
-  ...q.raw<any>(`_type == 'type1' => {
-    // Your selection of fields for type1
-  },
-  _type == 'type2' => {
-    // Your selection of fields for type2
-    "url": file.asset->url
-  }`),
+  ...q.conditionalByType({
+    type1: q => ({
+      // Your selection of fields for type1
+    }),
+    type2: q => ({
+      // Your selection of fields for type2
+      url: q.field("file.asset").deref().field("url"),
+    }),
+  }),
 }))
 ```
 
@@ -380,7 +379,10 @@ In cases where an array contains both [references and non-references](https://ww
 ```typescript
 q.project({
   content: q.field("content[]").project((q) => ({
-    ...q.raw<any>(`_type == 'reference' => @->, _type != 'reference' => @`),
+    ...q.conditionalByType({
+      reference: q => q.field("@").deref(),
+      item: q => q.field("@"),
+    }),
   })),
 })
 ```
