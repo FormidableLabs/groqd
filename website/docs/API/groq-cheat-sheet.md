@@ -3,28 +3,13 @@
 Here are some typical queries in GroqD (TypeScript).
 These examples were adapted from the [GROQ Cheat Sheet](https://www.sanity.io/docs/query-cheat-sheet)
 
-<!--
-You can also check out [our introduction to GROQ](/docs/content-lake/how-queries-work) and [the complete reference documentation](/docs/groq). To actually run queries you can:
-
-- Hit your content lake's query [HTTP endpoint](/docs/http-reference/query) directly
-- Use the [JavaScript](/docs/js-client) or [PHP](/docs/php-client) SDKs, or [another client](https://www.sanity.io/exchange/type=plugins/solution=apis)
-- Install the [Vision plugin](/docs/content-lake/the-vision-plugin) that runs queries right inside Sanity Studio
-- Go to [groq.dev](https://groq.dev) to run queries against any JSON dataset
-
-> [!WARNING]
-> Gotcha
-> If your query doesn't work as expected, it might be related to:
->
-> API versioning
->
-> Perspectives
--->
-
 ## Filters
 
-> [!TIP]
-> Protip
-> You will get null as a value on a query if the key you ask for doesn't exist. That means you can filter on key != null to check if it exists with a value or not.
+### `filterByType(_type, ..._type)`
+
+Use `filterByType` to retrieve the appropriate documents.
+The `_type` is a **strongly-typed** string, representing one of your document types.
+
 
 ```typescript
 // Everything, i.e. all documents
@@ -45,76 +30,50 @@ q.star.filterByType("movie").filterBy("popularity > 15").filterBy('releaseDate =
 // multiple filters OR
 q.star.filterByType("movie").filterBy('popularity > 15', 'releaseDate == "2016-04-25"')
 
+```
+
+### `filterBy(expression, ...expression)`
+
+Use `filterBy` to filter the documents. The `expression` is a **strongly-typed** string. 
+
+> This method only supports basic GROQ expressions, like `slug.current == "abc"` or `value > 10`.
+> Use `filterRaw` for more complex expressions.
+
+```typescript
+q.star.filterByType("movie") // gives us a strongly-typed `.filterBy` method 
+  .filterBy('popularity < 15') // less than
+  .filterBy('popularity > 15') // greater than
+  .filterBy('popularity <= 15') // less than or equal
+  .filterBy('popularity >= 15') // greater than or equal
+  .filterBy('popularity == 15') // equal
+  .filterBy('releaseDate != "2016-04-27"') // not equal
+  .filterBy('awardWinner') // match boolean
+  .filterBy('awardWinner') // true if awardWinner == true
+  .filterBy('!awardWinner') // true if awardWinner == false
+  .filterBy('defined(awardWinner)') // has been assigned an award winner status (any kind of value)
+  .filterBy('!defined(awardWinner)') // has not been assigned an award winner status (any kind of value)
+  .filterBy('title == "Aliens"') // title equals
+  .filterBy('slug.current == "some-slug"') // nested properties
+```
+
+### `filterRaw(expression, ...expression)`
+Use `filterRaw` for expressions that are more complex than `filterBy` supports.
+
+```typescript
+
 q.star.filterByType("movie")
-  // less than
-  .filterBy('popularity < 15')
-  // greater than
-  .filterBy('popularity > 15')
-  // less than or equal
-  .filterBy('popularity <= 15')
-  // greater than or equal
-  .filterBy('popularity >= 15')
-  // equal
-  .filterBy('popularity == 15')
-  // not equal
-  .filterBy('releaseDate != "2016-04-27"')
-
-// Use zulu-time when comparing datetimes to strings
-q.star.filterRaw('dateTime(_updatedAt) > dateTime("2018-04-20T20:43:31Z")')
-
-// Updated within the past week
-q.star.filterRaw('dateTime(_updatedAt) > dateTime(now()) - 60*60*24*7')
-
-// Records whose name precedes "Baker" alphabetically
-q.star.filterRaw('name < "Baker"')
-
-// match boolean
-q.star.filterBy('awardWinner')
-
-// true if awardWinner == true
-q.star.filterBy('awardWinner')
-
-// true if awardWinner == false
-q.star.filterBy('!awardWinner')
-
-// has been assigned an award winner status (any kind of value)
-q.star.filterBy('defined(awardWinner)')
-
-// has not been assigned an award winner status (any kind of value)
-q.star.filterBy('!defined(awardWinner)')
-
-// title equals
-q.star.filterBy('title == "Aliens"')
-
-// title in list
-q.star.filterRaw('title in ["Aliens", "Interstellar", "Passengers"]')
-
-// _id matches a.b.c.d but not a.b.c.d.e
-q.star.filterRaw('_id in path("a.b.c.*")')
-
-// _id matches a.b.c.d, and also a.b.c.d.e.f.g, but not a.b.x.1
-q.star.filterRaw('_id in path("a.b.c.**")')
-
-// _id matches anything that is not under the a.b.c path or deeper
-q.star.filterRaw('!(_id in path("a.b.c.**"))')
-
-// documents that have the string "yolo" in the array "tags"
-q.star.filterRaw('"yolo" in tags')
-
-// the string field status is either == "completed" or "archived"
-q.star.filterRaw('status in ["completed", "archived"]')
-
-// Any document having a castMember referencing sigourney as its person
-q.star.filterRaw('"person_sigourney-weaver" in castMembers[].person._ref')
-
-// nested properties
-q.star.filterBy('slug.current == "some-slug"')
-
-// documents that reference categories with slugs of "action" or "thriller"
-q.star.filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) > 0')
-
-// documents that reference categories with slugs of "action" and "thriller"
-q.star.filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) == 2')
+  .filterRaw('dateTime(_updatedAt) > dateTime("2018-04-20T20:43:31Z")') // Use zulu-time when comparing datetimes to strings
+  .filterRaw('dateTime(_updatedAt) > dateTime(now()) - 60*60*24*7') // Updated within the past week
+  .filterRaw('name < "Baker"') // Records whose name precedes "Baker" alphabetically
+  .filterRaw('title in ["Aliens", "Interstellar", "Passengers"]') // title in list
+  .filterRaw('_id in path("a.b.c.*")') // _id matches a.b.c.d but not a.b.c.d.e
+  .filterRaw('_id in path("a.b.c.**")') // _id matches a.b.c.d, and also a.b.c.d.e.f.g, but not a.b.x.1
+  .filterRaw('!(_id in path("a.b.c.**"))') // _id matches anything that is not under the a.b.c path or deeper
+  .filterRaw('"yolo" in tags') // documents that have the string "yolo" in the array "tags"
+  .filterRaw('status in ["completed", "archived"]') // the string field status is either == "completed" or "archived"
+  .filterRaw('"person_sigourney-weaver" in castMembers[].person._ref') // Any document having a castMember referencing sigourney as its person
+  .filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) > 0') // documents that reference categories with slugs of "action" or "thriller"
+  .filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) == 2') // documents that reference categories with slugs of "action" and "thriller"
 ```
 
 ## Text matching
@@ -123,23 +82,17 @@ q.star.filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]
 > Gotcha
 > The match operator is designed for human-language text and might not do what you expect!
 
+GroqD does not have strongly-typed support for text matching, so simply use `.filterRaw`:
+
 ```typescript
-// Text contains the word "word"
-q.star.filter('text match "word"')
-
-// Title contains a word starting with "wo"
-q.star.filter('title match "wo*"')
-
-// Inverse of the previous query; animal matches the start of the word "caterpillar"
-q.star.filter('"caterpillar" match animal + "*"')
-
-// Title and body combined contains a word starting with "wo" and the full word "zero"
-q.star.filter('[title, body] match ["wo*", "zero"]')
-
-// Are there aliens in my rich text?
-q.star.filter('body[].children[].text match "aliens"')
-
-// Note: match operates on tokens!
+q.star.filterRaw('text match "word"') // Text contains the word "word"
+q.star.filterRaw('title match "wo*"') // Title contains a word starting with "wo"
+q.star.filterRaw('"caterpillar" match animal + "*"') // Inverse of the previous query; animal matches the start of the word "caterpillar"
+q.star.filterRaw('[title, body] match ["wo*", "zero"]') // Title and body combined contains a word starting with "wo" and the full word "zero"
+q.star.filterRaw('body[].children[].text match "aliens"') // Are there aliens in my rich text?
+// Note how match operates on tokens!
+q.star.filterRaw('"foo bar" match "fo*"')  // -> true
+q.star.filterRaw('"my-pretty-pony-123.jpg" match "my*.jpg" ') // -> false
 ```
 
 ## Slice Operations
@@ -149,26 +102,13 @@ q.star.filter('body[].children[].text match "aliens"')
 > There is no default limit, meaning that if you're not explicit about slice, you'll get everything.
 
 ```typescript
-// a single movie (an object is returned, not an array)
-q.star.filterByType("movie").slice(0)
-
-// first 6 movies (inclusive)
-q.star.filterByType("movie").slice(0, 5, true)
-
-// first 5 movies (non-inclusive)
-q.star.filterByType("movie").slice(0, 5)
-
-// first 10 movie titles
-q.star.filterByType("movie").project({ title: true }).slice(0, 10)
-
-// first 10 movie titles (alternative order)
-q.star.filterByType("movie").slice(0, 10).project({ title: true })
-
-// first 10 movie titles, offset by 10
-q.star.filterByType("movie").slice(10, 20).project({ title: true })
-
-// all movies are returned (no slice specified)
-q.star.filterByType("movie")
+q.star.filterByType("movie").slice(0) // a single movie (an object is returned, not an array)
+q.star.filterByType("movie").slice(0, 5, true) // first 6 movies (inclusive)
+q.star.filterByType("movie").slice(0, 5) // first 5 movies (non-inclusive)
+q.star.filterByType("movie").project({ title: true }).slice(0, 10) // first 10 movie titles
+q.star.filterByType("movie").slice(0, 10).project({ title: true }) // first 10 movie titles (alternative order)
+q.star.filterByType("movie").slice(10, 20).project({ title: true }) // first 10 movie titles, offset by 10
+q.star.filterByType("movie") // all movies are returned (no slice specified)
 ```
 
 **Also note**: The above queries don't make much sense without also specifying an order. E.g. the "first 6 movies" query only returns "first" movies in the sense that these are the first six movies the backend happens to pull out.
