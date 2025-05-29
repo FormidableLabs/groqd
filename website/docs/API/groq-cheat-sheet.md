@@ -237,55 +237,55 @@ q.star.filter('_type=="movie" && title == "Arrival"').project({
 q.star.filterByType("movie").project({ "...": true })
 
 // Some computed attributes, then also add all attributes of the result
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   posterUrl: q.field("poster").field("asset").deref().field("url"),
   "...": true,
-})
+}))
 
 // Default values when missing or null in document
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   "...": true,
-  rating: q.raw<string>('coalesce(rating, "unknown")'),
-})
+  rating: q.coalesce("rating", q.value("unknown")),
+}))
 
 // Number of elements in array 'actors' on each movie
-q.star.filterByType("movie").project({
-  actorCount: q.raw<number>('count(actors)'),
-})
+q.star.filterByType("movie").project(q => ({
+  actorCount: q.count("actors"),
+}))
 
 // Apply a projection to every member of an array
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   castMembers: q.field("castMembers[]").project({
     characterName: true,
     person: true,
   }),
-})
+}))
 
 // Filter embedded objects
 q.star.filterByType("movie").project({
-  castMembers: q.field('castMembers[characterName match "Ripley"]').project({
+  castMembers: q.field("castMembers").filterRaw('characterName match "Ripley"').project({
     characterName: true,
     person: true,
   }),
 })
 
 // Follow every reference in an array of references
-q.star.filterByType("book").project({
+q.star.filterByType("book").project(q => ({
   authors: q.field("authors[]").deref().project({
     name: true,
     bio: true,
   }),
-})
+}))
 
 // Explicity name the outer return field
-qRoot.project({
+q.project({
   threeMovieTitles: q.star.filterByType("movie").slice(0, 2).field("title"),
 })
 
 // Combining several unrelated queries in one request
-qRoot.project({
-  featuredMovie: q.star.filter('_type == "movie" && title == "Alien"').slice(0),
-  scifiMovies: q.star.filter('_type == "movie" && "sci-fi" in genres'),
+q.project({
+  featuredMovie: q.star.filterByType("movie").filterBy('title == "Alien"').slice(0),
+  scifiMovies: q.star.filterByType("movie").filterBy('"sci-fi" in genres'),
 })
 ```
 
@@ -296,13 +296,13 @@ qRoot.project({
 q.star
 
 // @ (root value of the scope)
-q.star.filter('@["1"]')
-q.star.filter('@[$prop]._ref == $refId')
-q.project({
-  arraySizes: q.field("arrays[]").project({
-    size: q.raw<number>("count(@)"),
-  }),
-})
+q.star.filterRaw('@["1"]')
+q.star.filterRaw('@[$prop]._ref == $refId')
+q.project(q => ({
+  arraySizes: q.field("arrays[]").project(q => ({
+    size: q.count("@"),
+  })),
+}))
 
 // ^ (enclosing document)
 q.star.filterByType("person").project((q) => ({
@@ -391,18 +391,18 @@ q.star.filter('_type=="movie" && references(*[_type=="person" && age > 99]._id)'
 q.star.filter('defined(tags)')
 
 // coalesce takes a number of attribute references and returns the value of the first attribute that is non-null
-q.project({
-  title: q.raw<string>('coalesce(title.fi, title.en)'),
-})
+q.star.project(q => ({
+  title: q.coalesce("title.fi", "title.en"),
+}))
 
 // count counts the number of items in a collection
-q.raw<number>('count(*[_type == "movie" && rating == "R"])')
+q.count(q.star.filterByType("movie").filterBy("rating == 'R'"))
 
 // Counts the number of elements in the array actors
-q.star.filterByType("movie").project({
+q.star.filterByType("movie").project(q => ({
   title: true,
-  actorCount: q.raw<number>('count(actors)'),
-})
+  actorCount: q.count("actors"),
+}))
 
 // round() rounds number to the nearest integer, or the given number of decimals
 q.raw<number>('round(3.14)')
@@ -410,17 +410,17 @@ q.raw<number>('round(3.14, 1)')
 
 // score() adds points to the score value depending on the use of the string "GROQ" in each post's description
 q.star.filterByType("post")
-  .score('description match "GROQ"')
+  .scoreRaw('description match "GROQ"')
   .order("_score desc")
   .project({ _score: true, title: true })
 
 // boost() adds a defined boost integer to scores of items matching a condition
-q.star.filter('_type == "movie" && movieRating > 3')
-  .score('title match $term', 'boost(movieRating > 8, 3)')
+q.star.filterByType("movie").filterBy('movieRating > 3')
+  .scoreRaw('title match $term', 'boost(movieRating > 8, 3)')
 
 // Creates a scoring system where $term matching in the title is worth more than matching in the body
-q.star.filter('_type == "movie" && movieRating > 3')
-  .score('boost(title match $term, 4)', 'boost(body match $term, 1)')
+q.star.filterByType("movie").filterBy('movieRating > 3')
+  .scoreRaw('boost(title match $term, 4)', 'boost(body match $term, 1)')
 
 // Returns the body Portable Text data as plain text
 q.star.filterByType("post").project({
@@ -428,25 +428,25 @@ q.star.filterByType("post").project({
 })
 
 // Get all versions and drafts of a document. Use with the raw perspective or a perspective stack to ensure accurate results.
-q.star.filter('sanity::versionOf("document-id")')
+q.star.filterRaw('sanity::versionOf("document-id")')
 
 // Get all documents that are part of a release. Use with the raw perspective to ensure accurate results.
-q.star.filter('sanity::partOfRelease("release-id")')
+q.star.filterRaw('sanity::partOfRelease("release-id")')
 ```
 
 ## Geolocation
 
 ```typescript
 // Returns all documents that are storefronts within 10 miles of the user-provided currentLocation parameter
-q.star.filter('_type == "storefront" && geo::distance(geoPoint, $currentLocation) < 16093.4')
+q.star.filterByType("storefront").filterRaw('geo::distance(geoPoint, $currentLocation) < 16093.4')
 
 // For a given $currentLocation geopoint and deliveryZone area
 // Return stores that deliver to a user's location
-q.star.filter('_type == "storefront" && geo::contains(deliveryZone, $currentLocation)')
+q.star.filterByType("storefront").filterBy('geo::contains(deliveryZone, $currentLocation)')
 
 // Creates a "marathonRoutes" array that contains all marathons whose routes intersect with the current neighborhood
 q.star.filterByType("neighborhood").project({
-  marathonRoutes: q.star.filter('_type == "marathon" && geo::intersects(^.neighborhoodRegion, routeLine)'),
+  marathonRoutes: q.star.filterByType("marathon").filterBy('geo::intersects(^.neighborhoodRegion, routeLine)'),
 })
 ```
 
@@ -474,3 +474,7 @@ q.raw<{a:number,b:number,c:number}>('{"a":1,"b":2} + {"c":3}') // {"a":1,"b":2,"
 q.raw<null>('3 + " p.m."')         // null
 q.raw<string>('string(3) + " p.m."') // "3 p.m."
 ```
+
+
+
+
