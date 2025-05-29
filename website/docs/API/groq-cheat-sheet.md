@@ -30,104 +30,91 @@ You can also check out [our introduction to GROQ](/docs/content-lake/how-queries
 // Everything, i.e. all documents
 q.star
 
-// Everything with no filters applied, i.e. all documents
-q.star
-
 // All movie documents
 q.star.filterByType("movie")
 
 // _id equals
-q.star.filter('_id == "abc.123"')
+q.star.filterBy('_id == "abc.123"')
 
 // _type is movie or person
-q.star.filter('_type in ["movie", "person"]')
+q.star.filterByType("movie", "person")
 
 // multiple filters AND
-q.star.filter('_type == "movie" && popularity > 15 && releaseDate > "2016-04-25"')
+q.star.filterByType("movie").filterBy("popularity > 15").filterBy('releaseDate == "2016-04-25"')
 
 // multiple filters OR
-q.star.filter('_type == "movie" && (popularity > 15 || releaseDate > "2016-04-25")')
+q.star.filterByType("movie").filterBy('popularity > 15', 'releaseDate == "2016-04-25"')
 
-// less than
-q.star.filter('popularity < 15')
-
-// greater than
-q.star.filter('popularity > 15')
-
-// less than or equal
-q.star.filter('popularity <= 15')
-
-// greater than or equal
-q.star.filter('popularity >= 15')
-
-// equal
-q.star.filter('popularity == 15')
-
-// not equal
-q.star.filter('releaseDate != "2016-04-27"')
-
-// not equal (alternative)
-q.star.filter('!(releaseDate == "2016-04-27")')
-
-// even equal via double negatives "not not equal"
-q.star.filter('!(releaseDate != "2016-04-27")')
+q.star.filterByType("movie")
+  // less than
+  .filterBy('popularity < 15')
+  // greater than
+  .filterBy('popularity > 15')
+  // less than or equal
+  .filterBy('popularity <= 15')
+  // greater than or equal
+  .filterBy('popularity >= 15')
+  // equal
+  .filterBy('popularity == 15')
+  // not equal
+  .filterBy('releaseDate != "2016-04-27"')
 
 // Use zulu-time when comparing datetimes to strings
-q.star.filter('dateTime(_updatedAt) > dateTime("2018-04-20T20:43:31Z")')
+q.star.filterRaw('dateTime(_updatedAt) > dateTime("2018-04-20T20:43:31Z")')
 
 // Updated within the past week
-q.star.filter('dateTime(_updatedAt) > dateTime(now()) - 60*60*24*7')
+q.star.filterRaw('dateTime(_updatedAt) > dateTime(now()) - 60*60*24*7')
 
 // Records whose name precedes "Baker" alphabetically
-q.star.filter('name < "Baker"')
+q.star.filterRaw('name < "Baker"')
 
 // match boolean
-q.star.filter('awardWinner == true')
+q.star.filterBy('awardWinner')
 
 // true if awardWinner == true
-q.star.filter('awardWinner')
+q.star.filterBy('awardWinner')
 
 // true if awardWinner == false
-q.star.filter('!awardWinner')
+q.star.filterBy('!awardWinner')
 
 // has been assigned an award winner status (any kind of value)
-q.star.filter('defined(awardWinner)')
+q.star.filterBy('defined(awardWinner)')
 
 // has not been assigned an award winner status (any kind of value)
-q.star.filter('!defined(awardWinner)')
+q.star.filterBy('!defined(awardWinner)')
 
 // title equals
-q.star.filter('title == "Aliens"')
+q.star.filterBy('title == "Aliens"')
 
 // title in list
-q.star.filter('title in ["Aliens", "Interstellar", "Passengers"]')
+q.star.filterRaw('title in ["Aliens", "Interstellar", "Passengers"]')
 
 // _id matches a.b.c.d but not a.b.c.d.e
-q.star.filter('_id in path("a.b.c.*")')
+q.star.filterRaw('_id in path("a.b.c.*")')
 
 // _id matches a.b.c.d, and also a.b.c.d.e.f.g, but not a.b.x.1
-q.star.filter('_id in path("a.b.c.**")')
+q.star.filterRaw('_id in path("a.b.c.**")')
 
 // _id matches anything that is not under the a.b.c path or deeper
-q.star.filter('!(_id in path("a.b.c.**"))')
+q.star.filterRaw('!(_id in path("a.b.c.**"))')
 
 // documents that have the string "yolo" in the array "tags"
-q.star.filter('"yolo" in tags')
+q.star.filterRaw('"yolo" in tags')
 
 // the string field status is either == "completed" or "archived"
-q.star.filter('status in ["completed", "archived"]')
+q.star.filterRaw('status in ["completed", "archived"]')
 
 // Any document having a castMember referencing sigourney as its person
-q.star.filter('"person_sigourney-weaver" in castMembers[].person._ref')
+q.star.filterRaw('"person_sigourney-weaver" in castMembers[].person._ref')
 
 // nested properties
-q.star.filter('slug.current == "some-slug"')
+q.star.filterBy('slug.current == "some-slug"')
 
 // documents that reference categories with slugs of "action" or "thriller"
-q.star.filter('count((categories[]->slug.current)[@ in ["action", "thriller"]]) > 0')
+q.star.filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) > 0')
 
 // documents that reference categories with slugs of "action" and "thriller"
-q.star.filter('count((categories[]->slug.current)[@ in ["action", "thriller"]]) == 2')
+q.star.filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) == 2')
 ```
 
 ## Text matching
@@ -541,26 +528,23 @@ q.star.filterByType("neighborhood").project({
 
 ```typescript
 // Standard arithmetic operations are supported
-q.groq('1 + 2')  // 3 (addition)
-q.groq('3 - 2')  // 1 (subtraction)
-q.groq('2 * 3')  // 6 (multiplication)
-q.groq('8 / 4')  // 2 (division)
-q.groq('2 ** 4') // 16 (exponentiation)
-q.groq('8 % 3')  // 2 (modulo)
+q.raw<number>('1 + 2')  // 3 (addition)
+q.raw<number>('3 - 2')  // 1 (subtraction)
+q.raw<number>('2 * 3')  // 6 (multiplication)
+q.raw<number>('8 / 4')  // 2 (division)
+q.raw<number>('2 ** 4') // 16 (exponentiation)
+q.raw<number>('8 % 3')  // 2 (modulo)
 
 // Exponentiation can be used to take square- and cube-roots too
-q.groq('9 ** (1/2)')  // 3 (square root)
-q.groq('27 ** (1/3)') // 3 (cube root)
+q.raw<number>('9 ** (1/2)')  // 3 (square root)
+q.raw<number>('27 ** (1/3)') // 3 (cube root)
 
 // + can also concatenate strings, arrays, and objects:
-q.groq('"abc" + "def"') // "abcdef"
-q.groq('[1,2] + [3,4]') // [1,2,3,4]
-q.groq('{"a":1,"b":2} + {"c":3}') // {"a":1,"b":2,"c":3}
+q.raw<string>('"abc" + "def"') // "abcdef"
+q.raw<number[]>('[1,2] + [3,4]') // [1,2,3,4]
+q.raw<{a:number,b:number,c:number}>('{"a":1,"b":2} + {"c":3}') // {"a":1,"b":2,"c":3}
 
 // Concatenation of a string and a number requires the number be converted to a string. Otherwise, the operation returns null
-q.groq('3 + " p.m."')         // null
-q.groq('string(3) + " p.m."') // "3 p.m."
+q.raw<null>('3 + " p.m."')         // null
+q.raw<string>('string(3) + " p.m."') // "3 p.m."
 ```
-````
-
-</file>
