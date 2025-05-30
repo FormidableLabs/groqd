@@ -1,4 +1,8 @@
-# Query Cheat Sheet - GROQD
+---
+sidebar_position: 10
+---
+
+# GroqD Cheat Sheet
 
 Here are some typical queries in GroqD (TypeScript).
 These examples were adapted from the [GROQ Cheat Sheet](https://www.sanity.io/docs/query-cheat-sheet)
@@ -34,9 +38,10 @@ q.star.filterByType("movie").filterBy('popularity > 15', 'releaseDate == "2016-0
 
 ### `filterBy(expression, ...expression)`
 
-Use `filterBy` to filter the documents. The `expression` is a **strongly-typed** string. 
+Use `filterBy` to filter the documents.  
+The `expression` is a **strongly-typed** string. 
 
-> This method only supports basic GROQ expressions, like `slug.current == "abc"` or `value > 10`.
+> This method is strongly-typed, so it only supports basic GROQ expressions, like `slug.current == "abc"` or `value > 10`.
 > Use `filterRaw` for more complex expressions.
 
 ```typescript
@@ -57,7 +62,9 @@ q.star.filterByType("movie") // gives us a strongly-typed `.filterBy` method
 ```
 
 ### `filterRaw(expression, ...expression)`
-Use `filterRaw` for expressions that are more complex than `filterBy` supports.
+Use `filterRaw` for expressions that are more complex than `filterBy` supports.  
+The `expression` is **NOT strongly-typed**; any string is allowed.
+
 
 ```typescript
 
