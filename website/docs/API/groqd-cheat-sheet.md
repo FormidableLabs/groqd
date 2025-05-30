@@ -14,16 +14,12 @@ These examples were adapted from the [GROQ Cheat Sheet](https://www.sanity.io/do
 Use `filterByType` to retrieve the appropriate documents.
 The `_type` is a **strongly-typed** string, representing one of your document types.
 
-
 ```typescript
 // Everything, i.e. all documents
 q.star
 
 // All movie documents
 q.star.filterByType("movie")
-
-// _id equals
-q.star.filterBy('_id == "abc.123"')
 
 // _type is movie or person
 q.star.filterByType("movie", "person")
@@ -46,6 +42,7 @@ The `expression` is a **strongly-typed** string.
 
 ```typescript
 q.star.filterByType("movie") // gives us a strongly-typed `.filterBy` method 
+  .filterBy('_id == "abc.123"') // _id equals
   .filterBy('popularity < 15') // less than
   .filterBy('popularity > 15') // greater than
   .filterBy('popularity <= 15') // less than or equal
@@ -55,8 +52,6 @@ q.star.filterByType("movie") // gives us a strongly-typed `.filterBy` method
   .filterBy('awardWinner') // match boolean
   .filterBy('awardWinner') // true if awardWinner == true
   .filterBy('!awardWinner') // true if awardWinner == false
-  .filterBy('defined(awardWinner)') // has been assigned an award winner status (any kind of value)
-  .filterBy('!defined(awardWinner)') // has not been assigned an award winner status (any kind of value)
   .filterBy('title == "Aliens"') // title equals
   .filterBy('slug.current == "some-slug"') // nested properties
 ```
@@ -81,6 +76,9 @@ q.star.filterByType("movie")
   .filterRaw('"person_sigourney-weaver" in castMembers[].person._ref') // Any document having a castMember referencing sigourney as its person
   .filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) > 0') // documents that reference categories with slugs of "action" or "thriller"
   .filterRaw('count((categories[]->slug.current)[@ in ["action", "thriller"]]) == 2') // documents that reference categories with slugs of "action" and "thriller"
+  .filterRaw('defined(awardWinner)') // has been assigned an award winner status (any kind of value)
+  .filterRaw('!defined(awardWinner)') // has not been assigned an award winner status (any kind of value)
+
 ```
 
 ## Text matching
@@ -130,15 +128,15 @@ q.star.filterByType("movie") // all movies are returned (no slice specified)
 
 ```typescript
 q.star.filterByType("movie").order("_createdAt asc") // order results
-q.star.filterByType("movie").order("releaseDate desc").order("_createdAt asc") // order results by multiple attributes
-q.star.filterByType("todo").order("priority desc, _updatedAt desc") // order todo items by descending priority, then most recently updated
+q.star.filterByType("movie").order("releaseDate desc", "_createdAt asc") // order results by multiple attributes
+q.star.filterByType("todo").order("priority desc", "_updatedAt desc") // order todo items by descending priority, then most recently updated
 q.star.filterByType("movie").order("_createdAt asc").slice(0) // the single, oldest document
 q.star.filterByType("movie").order("_createdAt desc").slice(0) // the single, newest document
 q.star.filterByType("movie").order("_createdAt asc").slice(0, 10) // oldest 10 documents
 q.star.filterByType("movie").slice(0, 10).order("_createdAt asc") // BEWARE! This selects 10 documents using the default ordering, and *only the selection* is ordered by _createdAt in ascending order
-q.star.filterByType("movie").order("_createdAt asc").slice("$start", "$end") // limit/offset using external params (see client documentation)
+q.star.filterByType("movie").order("_createdAt asc").slice(0, 10) // selects the first 10 created documents
 q.star.filterByType("movie").order("title asc") // order results alphabetically by a string field
-q.star.filterByType("movie").order("lower(title) asc") // order results alphabetically by a string field, ignoring case
+q.star.filterByType("movie").raw("| order(lower(title) asc)", "passthrough") // order results alphabetically by a string field, ignoring case (TODO: implement 'orderRaw' instead of this)
 ```
 
 ## Joins
