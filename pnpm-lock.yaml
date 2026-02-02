@@ -46,7 +46,7 @@ importers:
     dependencies:
       '@sanity/vision':
         specifier: ^3.0.0
-        version: 3.8.3(@babel/runtime@7.26.0)(@codemirror/lint@6.3.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@lezer/common@1.0.3)(codemirror@6.0.1(@lezer/common@1.0.3))(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))
+        version: 3.8.3(@babel/runtime@7.26.0)(@codemirror/lint@6.3.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@lezer/common@1.0.3)(codemirror@6.0.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))
       groqd-playground:
         specifier: '*'
         version: 0.0.20(@sanity/icons@2.11.8(react@18.2.0))(@sanity/ui@2.1.4(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)))(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(sanity@3.15.0(@types/node@18.15.11)(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))(terser@5.31.0))(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))
@@ -98,8 +98,8 @@ importers:
         specifier: ^6.24.1
         version: 6.24.1
       groq-js:
-        specifier: ^1.1.9
-        version: 1.1.9
+        specifier: ^1.26.0
+        version: 1.26.0
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5
@@ -1099,6 +1099,9 @@ packages:
   '@changesets/write@0.2.3':
     resolution: {integrity: sha512-Dbamr7AIMvslKnNYsLFafaVORx4H0pvCA2MHqgtNCySMe1blImEyAEOzDmcgKAkgz4+uwoLz7demIrX+JBr/Xw==}
 
+  '@codemirror/autocomplete@6.20.0':
+    resolution: {integrity: sha512-bOwvTOIJcG5FVo5gUUupiwYh8MioPLQ4UcqbcRf7UQ98X90tCa9E1kZ3Z7tqwpZxYyOvh1YTYbmZE9RTfTp5hg==}
+
   '@codemirror/autocomplete@6.8.1':
     resolution: {integrity: sha512-HpphvDcTdOx+9R3eUw9hZK9JA77jlaBF0kOt2McbyfvY0rX9pnMoO8rkkZc0GzSbzhIY4m5xJ0uHHgjfqHNmXQ==}
     peerDependencies:
@@ -1107,11 +1110,17 @@ packages:
       '@codemirror/view': ^6.0.0
       '@lezer/common': ^1.0.0
 
+  '@codemirror/commands@6.10.1':
+    resolution: {integrity: sha512-uWDWFypNdQmz2y1LaNJzK7fL7TYKLeUAU0npEC685OKTF3KcQ2Vu3klIM78D7I6wGhktme0lh3CuQLv0ZCrD9Q==}
+
   '@codemirror/commands@6.2.4':
     resolution: {integrity: sha512-42lmDqVH0ttfilLShReLXsDfASKLXzfyC36bzwcqzox9PlHulMcsUOfHXNo2X2aFMVNUoQ7j+d4q5bnfseYoOA==}
 
   '@codemirror/lang-javascript@6.1.6':
     resolution: {integrity: sha512-TTK28z+vJQY9GAefLTDDptI2LMqMfAiuTpt8s9SsNwocjVQ1v9yTzfReMf1hYhspQCdhfa7fdKnQJ78mKe/bHQ==}
+
+  '@codemirror/language@6.12.1':
+    resolution: {integrity: sha512-Fa6xkSiuGKc8XC8Cn96T+TQHYj4ZZ7RdFmXA3i9xe/3hLHfwPZdM+dqfX0Cp0zQklBKhVD8Yzc8LS45rkqcwpQ==}
 
   '@codemirror/language@6.8.0':
     resolution: {integrity: sha512-r1paAyWOZkfY0RaYEZj3Kul+MiQTEbDvYqf8gPGaRvNneHXCmfSaAVFjwRUPlgxS8yflMxw2CTu6uCMp8R8A2g==}
@@ -1122,14 +1131,23 @@ packages:
   '@codemirror/search@6.5.0':
     resolution: {integrity: sha512-64/M40YeJPToKvGO6p3fijo2vwUEj4nACEAXElCaYQ50HrXSvRaK+NHEhSh73WFBGdvIdhrV+lL9PdJy2RfCYA==}
 
+  '@codemirror/search@6.6.0':
+    resolution: {integrity: sha512-koFuNXcDvyyotWcgOnZGmY7LZqEOXZaaxD/j6n18TCLx2/9HieZJ5H6hs1g8FiRxBD0DNfs0nXn17g872RmYdw==}
+
   '@codemirror/state@6.2.1':
     resolution: {integrity: sha512-RupHSZ8+OjNT38zU9fKH2sv+Dnlr8Eb8sl4NOnnqz95mCFTZUaiRP8Xv5MeeaG0px2b8Bnfe7YGwCV3nsBhbuw==}
+
+  '@codemirror/state@6.5.4':
+    resolution: {integrity: sha512-8y7xqG/hpB53l25CIoit9/ngxdfoG+fx+V3SHBrinnhOtLvKHRyAJJuHzkWrR4YXXLX8eXBsejgAAxHUOdW1yw==}
 
   '@codemirror/theme-one-dark@6.1.2':
     resolution: {integrity: sha512-F+sH0X16j/qFLMAfbciKTxVOwkdAS336b7AXTKOZhy8BR3eH/RelsnLgLFINrpST63mmN2OuwUt0W2ndUgYwUA==}
 
   '@codemirror/view@6.14.0':
     resolution: {integrity: sha512-I263FPs4In42MNmrdwN2DfmYPFMVMXgT7o/mxdGp4jv5LPs8i0FOxzmxF5yeeQdYSTztb2ZhmPIu0ahveInVTg==}
+
+  '@codemirror/view@6.39.12':
+    resolution: {integrity: sha512-f+/VsHVn/kOA9lltk/GFzuYwVVAKmOnNjxbrhkk3tPHntFqjWeI2TbIXx006YkBkqC10wZ4NsnWXCQiFPeAISQ==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -2159,8 +2177,14 @@ packages:
   '@lezer/common@1.0.3':
     resolution: {integrity: sha512-JH4wAXCgUOcCGNekQPLhVeUtIqjH0yPBs7vvUdSjyQama9618IOKFJwkv2kcqdhF0my8hQEgCTEJU0GIgnahvA==}
 
+  '@lezer/common@1.5.0':
+    resolution: {integrity: sha512-PNGcolp9hr4PJdXR4ix7XtixDrClScvtSCYW3rQG106oVMOOI+jFb+0+J3mbeL/53g1Zd6s0kJzaw6Ri68GmAA==}
+
   '@lezer/highlight@1.1.6':
     resolution: {integrity: sha512-cmSJYa2us+r3SePpRCjN5ymCqCPv+zyXmDl0ciWtVaNiORT/MxM7ZgOMQZADD0o51qOaOg24qc/zBViOIwAjJg==}
+
+  '@lezer/highlight@1.2.3':
+    resolution: {integrity: sha512-qXdH7UqTvGfdVBINrgKhDsVTJTxactNNxLk7+UMwZhU13lMHaOBlJe9Vqp907ya56Y3+ed2tlqzys7jDkTmW0g==}
 
   '@lezer/javascript@1.4.2':
     resolution: {integrity: sha512-77qdAD4zanmImPiAu4ibrMUzRc79UHoccdPa+Ey5iwS891TAkhnMAodUe17T7zV7tnF7e9HXM0pfmjoGEhrppg==}
@@ -2168,11 +2192,17 @@ packages:
   '@lezer/lr@1.3.7':
     resolution: {integrity: sha512-ssHKb3p0MxhJXT2i7UBmgAY1BIM3Uq/D772Qutu3EVmxWIyNMU12nQ0rL3Fhu+MiFtiTzyTmd3xGwEf3ON5PSA==}
 
+  '@lezer/lr@1.4.8':
+    resolution: {integrity: sha512-bPWa0Pgx69ylNlMlPvBPryqeLYQjyJjqPx+Aupm5zydLIF3NE+6MMLT8Yi23Bd9cif9VS00aUebn+6fDIGBcDA==}
+
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
 
   '@manypkg/get-packages@1.1.3':
     resolution: {integrity: sha512-fo+QhuU3qE/2TQMQmbVMqaQ6EWbMhi4ABWP+O4AM1NqPBuy0OrApV5LO6BrrgnhtAHS2NH6RrVk9OL181tTi8A==}
+
+  '@marijn/find-cluster-break@1.0.2':
+    resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
   '@mdx-js/mdx@3.0.1':
     resolution: {integrity: sha512-eIQ4QTrOWyL3LWEe/bu6Taqzq2HQvHcyTMaOrI95P2/LmJE7AsfPfgJGuFLPVqBUE1BC1rik3VIhU+s9u72arA==}
@@ -4071,6 +4101,15 @@ packages:
       supports-color:
         optional: true
 
+  debug@4.4.3:
+    resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
   decamelize-keys@1.1.1:
     resolution: {integrity: sha512-WiPxgEirIV0/eIOMcnFBA3/IJZAZqKnwAwWyvvdi4lsr1WCN22nhdf/3db3DoZcUjTV2SqfzIwNyp6y2xs3nmg==}
     engines: {node: '>=0.10.0'}
@@ -4846,6 +4885,7 @@ packages:
 
   get-random-values-esm@1.0.0:
     resolution: {integrity: sha512-BVgZ1PZwR5NKDpHpUcPmWcAQpoIOPXaFy6Vni3UdPbOlxO7eknhxsfytxwss16f75EABfnAC+XZjzTurNlPY/g==}
+    deprecated: use crypto.getRandomValues() instead
 
   get-random-values@1.2.2:
     resolution: {integrity: sha512-lMyPjQyl0cNNdDf2oR+IQ/fM3itDvpoHy45Ymo2r0L1EjazeSl13SfbKZs7KtZ/3MDCeueiaJiuOEfKqRTsSgA==}
@@ -4976,6 +5016,10 @@ packages:
 
   groq-js@1.1.9:
     resolution: {integrity: sha512-Kml1SgKotOOEmm1rK1w/K4UprIWJ/UU0SzeO2dPy8ab2wcAGfE82X5CTdaD1AMaP+40Ug1gAsVgPF5S2H/fcPw==}
+    engines: {node: '>= 14'}
+
+  groq-js@1.26.0:
+    resolution: {integrity: sha512-1WxWfmeownBbB2UhvFGyLT3yl/NFGF2qUoev+650Or2qDnoyXjvL83lwspUFuG4piWdDRh2iETljXKoDxacH+w==}
     engines: {node: '>= 14'}
 
   groqd-playground@0.0.20:
@@ -7803,6 +7847,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   space-separated-tokens@1.1.5:
     resolution: {integrity: sha512-q/JSVd1Lptzhf5bkYm4ob4iWPjx0KiRe3sRFBNrVqbJkFaBm5vbbowy1mymoPNLRa52+oadOhJ+K49wsSeSjTA==}
@@ -7966,6 +8011,9 @@ packages:
 
   style-mod@4.0.3:
     resolution: {integrity: sha512-78Jv8kYJdjbvRwwijtCevYADfsI0lGzYJe4mMFdceO8l75DFFDoqBhR1jVDicDRRaX4//g1u9wKeo+ztc2h1Rw==}
+
+  style-mod@4.1.3:
+    resolution: {integrity: sha512-i/n8VsZydrugj3Iuzll8+x/00GH2vnYsk1eomD8QiRrSAeW6ItbCQDtfXCeJHd0iwiNagqjQkvpvREEPtW3IoQ==}
 
   style-to-object@0.4.4:
     resolution: {integrity: sha512-HYNoHZa2GorYNyqiCaBgsxvcJIn7OHq6inEga+E6Ke3m5JkoqpQbnFssk4jwe+K7AhGa2fcha4wSOf1Kn01dMg==}
@@ -8714,10 +8762,12 @@ packages:
   whatwg-encoding@2.0.0:
     resolution: {integrity: sha512-p41ogyeMUrw3jWclHWTQg1k05DSVXPLcVxRTYsXUk+ZooOCZLcoYgPZ/HL/D/N+uQPOtcp1me1WhBEaX02mhWg==}
     engines: {node: '>=12'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
@@ -9050,7 +9100,7 @@ snapshots:
       '@babel/traverse': 7.26.4(supports-color@5.5.0)
       '@babel/types': 7.26.3
       convert-source-map: 2.0.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -9110,7 +9160,7 @@ snapshots:
       '@babel/core': 7.26.0
       '@babel/helper-compilation-targets': 7.25.9
       '@babel/helper-plugin-utils': 7.25.9
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
       lodash.debounce: 4.0.8
       resolve: 1.22.2
     transitivePeerDependencies:
@@ -9776,7 +9826,7 @@ snapshots:
       '@babel/parser': 7.26.3
       '@babel/template': 7.25.9
       '@babel/types': 7.26.3
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -9942,12 +9992,26 @@ snapshots:
       human-id: 1.0.2
       prettier: 2.8.7
 
+  '@codemirror/autocomplete@6.20.0':
+    dependencies:
+      '@codemirror/language': 6.12.1
+      '@codemirror/state': 6.2.1
+      '@codemirror/view': 6.39.12
+      '@lezer/common': 1.0.3
+
   '@codemirror/autocomplete@6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3)':
     dependencies:
       '@codemirror/language': 6.8.0
       '@codemirror/state': 6.2.1
       '@codemirror/view': 6.14.0
       '@lezer/common': 1.0.3
+
+  '@codemirror/commands@6.10.1':
+    dependencies:
+      '@codemirror/language': 6.12.1
+      '@codemirror/state': 6.5.4
+      '@codemirror/view': 6.39.12
+      '@lezer/common': 1.5.0
 
   '@codemirror/commands@6.2.4':
     dependencies:
@@ -9965,6 +10029,15 @@ snapshots:
       '@codemirror/view': 6.14.0
       '@lezer/common': 1.0.3
       '@lezer/javascript': 1.4.2
+
+  '@codemirror/language@6.12.1':
+    dependencies:
+      '@codemirror/state': 6.2.1
+      '@codemirror/view': 6.39.12
+      '@lezer/common': 1.5.0
+      '@lezer/highlight': 1.2.3
+      '@lezer/lr': 1.4.8
+      style-mod: 4.1.3
 
   '@codemirror/language@6.8.0':
     dependencies:
@@ -9987,19 +10060,36 @@ snapshots:
       '@codemirror/view': 6.14.0
       crelt: 1.0.6
 
+  '@codemirror/search@6.6.0':
+    dependencies:
+      '@codemirror/state': 6.2.1
+      '@codemirror/view': 6.39.12
+      crelt: 1.0.6
+
   '@codemirror/state@6.2.1': {}
+
+  '@codemirror/state@6.5.4':
+    dependencies:
+      '@marijn/find-cluster-break': 1.0.2
 
   '@codemirror/theme-one-dark@6.1.2':
     dependencies:
-      '@codemirror/language': 6.8.0
+      '@codemirror/language': 6.12.1
       '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.14.0
-      '@lezer/highlight': 1.1.6
+      '@codemirror/view': 6.39.12
+      '@lezer/highlight': 1.2.3
 
   '@codemirror/view@6.14.0':
     dependencies:
       '@codemirror/state': 6.2.1
       style-mod: 4.0.3
+      w3c-keyname: 2.2.8
+
+  '@codemirror/view@6.39.12':
+    dependencies:
+      '@codemirror/state': 6.5.4
+      crelt: 1.0.6
+      style-mod: 4.1.3
       w3c-keyname: 2.2.8
 
   '@colors/colors@1.5.0':
@@ -11161,7 +11251,7 @@ snapshots:
       cheerio: 1.0.0
       clsx: 1.2.1
       comlink: 4.4.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       fs-extra: 10.1.0
       klaw-sync: 6.0.0
       lunr: 2.3.9
@@ -11428,7 +11518,7 @@ snapshots:
   '@eslint/eslintrc@2.0.2':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       espree: 9.5.1
       globals: 13.20.0
       ignore: 5.2.4
@@ -11479,7 +11569,7 @@ snapshots:
   '@humanwhocodes/config-array@0.11.8':
     dependencies:
       '@humanwhocodes/object-schema': 1.2.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -11547,9 +11637,15 @@ snapshots:
 
   '@lezer/common@1.0.3': {}
 
+  '@lezer/common@1.5.0': {}
+
   '@lezer/highlight@1.1.6':
     dependencies:
       '@lezer/common': 1.0.3
+
+  '@lezer/highlight@1.2.3':
+    dependencies:
+      '@lezer/common': 1.5.0
 
   '@lezer/javascript@1.4.2':
     dependencies:
@@ -11559,6 +11655,10 @@ snapshots:
   '@lezer/lr@1.3.7':
     dependencies:
       '@lezer/common': 1.0.3
+
+  '@lezer/lr@1.4.8':
+    dependencies:
+      '@lezer/common': 1.5.0
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -11575,6 +11675,8 @@ snapshots:
       fs-extra: 8.1.0
       globby: 11.1.0
       read-yaml-file: 1.1.0
+
+  '@marijn/find-cluster-break@1.0.2': {}
 
   '@mdx-js/mdx@3.0.1':
     dependencies:
@@ -11992,7 +12094,7 @@ snapshots:
       '@types/uuid': 8.3.4
       uuid: 8.3.2
 
-  '@sanity/vision@3.8.3(@babel/runtime@7.26.0)(@codemirror/lint@6.3.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@lezer/common@1.0.3)(codemirror@6.0.1(@lezer/common@1.0.3))(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))':
+  '@sanity/vision@3.8.3(@babel/runtime@7.26.0)(@codemirror/lint@6.3.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@lezer/common@1.0.3)(codemirror@6.0.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))':
     dependencies:
       '@codemirror/autocomplete': 6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3)
       '@codemirror/commands': 6.2.4
@@ -12007,7 +12109,7 @@ snapshots:
       '@sanity/color': 2.2.5
       '@sanity/icons': 2.11.8(react@18.2.0)
       '@sanity/ui': 1.9.3(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))
-      '@uiw/react-codemirror': 4.19.16(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3))(@codemirror/language@6.8.0)(@codemirror/lint@6.3.0)(@codemirror/search@6.5.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.14.0)(codemirror@6.0.1(@lezer/common@1.0.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@uiw/react-codemirror': 4.19.16(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3))(@codemirror/language@6.8.0)(@codemirror/lint@6.3.0)(@codemirror/search@6.5.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.14.0)(codemirror@6.0.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       hashlru: 2.3.0
       is-hotkey: 0.1.8
       json5: 2.2.3
@@ -12449,7 +12551,7 @@ snapshots:
       '@typescript-eslint/scope-manager': 5.58.0
       '@typescript-eslint/type-utils': 5.58.0(eslint@8.38.0)(typescript@4.9.5)
       '@typescript-eslint/utils': 5.58.0(eslint@8.38.0)(typescript@4.9.5)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       eslint: 8.38.0
       grapheme-splitter: 1.0.4
       ignore: 5.2.4
@@ -12466,7 +12568,7 @@ snapshots:
       '@typescript-eslint/scope-manager': 5.58.0
       '@typescript-eslint/types': 5.58.0
       '@typescript-eslint/typescript-estree': 5.58.0(typescript@4.9.5)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       eslint: 8.38.0
     optionalDependencies:
       typescript: 4.9.5
@@ -12482,7 +12584,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 5.58.0(typescript@4.9.5)
       '@typescript-eslint/utils': 5.58.0(eslint@8.38.0)(typescript@4.9.5)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       eslint: 8.38.0
       tsutils: 3.21.0(typescript@4.9.5)
     optionalDependencies:
@@ -12496,7 +12598,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 5.58.0
       '@typescript-eslint/visitor-keys': 5.58.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.6.0
@@ -12536,7 +12638,7 @@ snapshots:
       '@codemirror/state': 6.2.1
       '@codemirror/view': 6.14.0
 
-  '@uiw/react-codemirror@4.19.16(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3))(@codemirror/language@6.8.0)(@codemirror/lint@6.3.0)(@codemirror/search@6.5.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.14.0)(codemirror@6.0.1(@lezer/common@1.0.3))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@uiw/react-codemirror@4.19.16(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3))(@codemirror/language@6.8.0)(@codemirror/lint@6.3.0)(@codemirror/search@6.5.0)(@codemirror/state@6.2.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.14.0)(codemirror@6.0.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@codemirror/commands': 6.2.4
@@ -12544,7 +12646,7 @@ snapshots:
       '@codemirror/theme-one-dark': 6.1.2
       '@codemirror/view': 6.14.0
       '@uiw/codemirror-extensions-basic-setup': 4.19.16(@codemirror/autocomplete@6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3))(@codemirror/commands@6.2.4)(@codemirror/language@6.8.0)(@codemirror/lint@6.3.0)(@codemirror/search@6.5.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)
-      codemirror: 6.0.1(@lezer/common@1.0.3)
+      codemirror: 6.0.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -12787,7 +12889,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -13358,17 +13460,15 @@ snapshots:
 
   clsx@2.1.1: {}
 
-  codemirror@6.0.1(@lezer/common@1.0.3):
+  codemirror@6.0.1:
     dependencies:
-      '@codemirror/autocomplete': 6.8.1(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.14.0)(@lezer/common@1.0.3)
-      '@codemirror/commands': 6.2.4
-      '@codemirror/language': 6.8.0
+      '@codemirror/autocomplete': 6.20.0
+      '@codemirror/commands': 6.10.1
+      '@codemirror/language': 6.12.1
       '@codemirror/lint': 6.3.0
-      '@codemirror/search': 6.5.0
+      '@codemirror/search': 6.6.0
       '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.14.0
-    transitivePeerDependencies:
-      - '@lezer/common'
+      '@codemirror/view': 6.39.12
 
   collapse-white-space@2.1.0: {}
 
@@ -13792,15 +13892,19 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  debug@4.3.4(supports-color@5.5.0):
+  debug@4.3.4:
     dependencies:
       ms: 2.1.2
-    optionalDependencies:
-      supports-color: 5.5.0
 
   debug@4.4.0:
     dependencies:
       ms: 2.1.3
+
+  debug@4.4.3(supports-color@5.5.0):
+    dependencies:
+      ms: 2.1.3
+    optionalDependencies:
+      supports-color: 5.5.0
 
   decamelize-keys@1.1.1:
     dependencies:
@@ -13909,7 +14013,7 @@ snapshots:
   detect-port@1.5.1:
     dependencies:
       address: 1.2.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -14146,7 +14250,7 @@ snapshots:
 
   esbuild-register@3.4.2(esbuild@0.18.20):
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
       esbuild: 0.18.20
     transitivePeerDependencies:
       - supports-color
@@ -14329,7 +14433,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.2.0
@@ -14647,7 +14751,7 @@ snapshots:
 
   follow-redirects@1.15.6(debug@4.3.4):
     optionalDependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
 
   for-each@0.3.3:
     dependencies:
@@ -14996,6 +15100,12 @@ snapshots:
 
   groq-js@1.1.9: {}
 
+  groq-js@1.26.0:
+    dependencies:
+      debug: 4.4.3(supports-color@5.5.0)
+    transitivePeerDependencies:
+      - supports-color
+
   groqd-playground@0.0.20(@sanity/icons@2.11.8(react@18.2.0))(@sanity/ui@2.1.4(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)))(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)(sanity@3.15.0(@types/node@18.15.11)(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0))(terser@5.31.0))(styled-components@5.3.9(react-dom@18.2.0(react@18.2.0))(react-is@18.2.0)(react@18.2.0)):
     dependencies:
       '@sanity/icons': 2.11.8(react@18.2.0)
@@ -15277,7 +15387,7 @@ snapshots:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -15309,7 +15419,7 @@ snapshots:
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -16428,7 +16538,7 @@ snapshots:
   micromark@4.0.0:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.1
@@ -18109,7 +18219,7 @@ snapshots:
       framer-motion: 10.18.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       get-it: 8.6.5(debug@3.2.7)
       get-random-values-esm: 1.0.0
-      groq-js: 1.1.9
+      groq-js: 1.26.0
       hashlru: 2.3.0
       history: 5.3.0
       import-fresh: 3.3.0
@@ -18434,7 +18544,7 @@ snapshots:
 
   spdy-transport@3.0.0:
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
       detect-node: 2.1.0
       hpack.js: 2.1.6
       obuf: 1.1.2
@@ -18445,7 +18555,7 @@ snapshots:
 
   spdy@4.0.2:
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@5.5.0)
       handle-thing: 2.0.1
       http-deceiver: 1.2.7
       select-hose: 2.0.0
@@ -18585,6 +18695,8 @@ snapshots:
       webpack: 5.97.1(webpack-cli@5.0.1)
 
   style-mod@4.0.3: {}
+
+  style-mod@4.1.3: {}
 
   style-to-object@0.4.4:
     dependencies:
@@ -18859,7 +18971,7 @@ snapshots:
       bundle-require: 4.0.1(esbuild@0.17.16)
       cac: 6.7.14
       chokidar: 3.5.3
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       esbuild: 0.17.16
       execa: 5.1.1
       globby: 11.1.0
@@ -19146,7 +19258,7 @@ snapshots:
   vite-node@1.6.0(@types/node@18.15.11)(terser@5.31.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.1.1
       vite: 5.1.6(@types/node@18.15.11)(terser@5.31.0)
@@ -19206,7 +19318,7 @@ snapshots:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.2
       chai: 4.4.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       execa: 8.0.1
       local-pkg: 0.5.0
       magic-string: 0.30.8
