@@ -1,9 +1,14 @@
-import { expect, describe, it, expectTypeOf } from "vitest";
-import { createGroqBuilderLite, InferResultItem } from "../index";
+import { describe, expect, expectTypeOf, it } from "vitest";
+import {
+  createGroqBuilderLite,
+  createGroqBuilderWithZod,
+  InferResultItem,
+} from "../index";
 import { SchemaConfig, z } from "../tests/schemas/nextjs-sanity-fe";
 import { mock } from "../tests/mocks/nextjs-sanity-fe-mocks";
 import { executeBuilder } from "../tests/mocks/executeQuery";
 import { TypeMismatchError } from "../types/type-mismatch-error";
+import { SanityContentBlocks } from "./content-blocks";
 
 const q = createGroqBuilderLite<SchemaConfig>({ indent: "" });
 
@@ -73,6 +78,7 @@ describe("with z", () => {
       `);
     });
   });
+
   describe("q.default helper", () => {
     it('should have a type error if z.string().default("") is used', () => {
       // @ts-expect-error --- The parser for the 'id' field expects the wrong input type
@@ -117,6 +123,7 @@ describe("with z", () => {
       }>();
     });
   });
+
   describe("q.slug helper", () => {
     const qVariantSlugs = qVariants.project({
       SLUG: z.slug("slug"),
@@ -213,6 +220,37 @@ describe("with z", () => {
       expectTypeOf<InferResultItem<typeof qWideParser>>().toEqualTypeOf<{
         name: string | null;
       }>();
+    });
+  });
+
+  describe("contentBlocks helper", () => {
+    const qWithZod = createGroqBuilderWithZod<SchemaConfig>({ indent: "" });
+
+    it("should return the content blocks type", () => {
+      const blocks = q.star.filterByType("product").project((sub) => ({
+        description: sub.field(
+          "description[]",
+          qWithZod.contentBlocks().nullable()
+        ),
+      }));
+      expectTypeOf<
+        InferResultItem<typeof blocks>["description"]
+      >().toEqualTypeOf<null | SanityContentBlocks>();
+    });
+
+    it("can be queried conditionally based on type", () => {
+      const blocks = qWithZod.star.filterByType("product").project((sub) => ({
+        description: sub.field("description[]").project((desc) => ({
+          ...desc.conditionalByType({
+            block: {
+              "...": true,
+            },
+          }),
+        })),
+      }));
+      expectTypeOf<
+        InferResultItem<typeof blocks>["description"]
+      >().toMatchTypeOf<null | SanityContentBlocks>();
     });
   });
 });

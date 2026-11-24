@@ -1,8 +1,8 @@
+import * as SanitySchema from "./nextjs-sanity-fe.sanity-typegen";
 import {
   AllSanitySchemaTypes,
   internalGroqTypeReferenceTo,
 } from "./nextjs-sanity-fe.sanity-typegen";
-import * as SanitySchema from "./nextjs-sanity-fe.sanity-typegen";
 import { createGroqBuilderLite, z } from "../../index";
 
 export { SanitySchema, z };
