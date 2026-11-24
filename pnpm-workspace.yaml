@@ -2,3 +2,8 @@ packages:
   - "packages/*"
   - "examples/*"
   - "website"
+allowBuilds:
+  '@sanity/eslint-config-studio': true
+  core-js: true
+  core-js-pure: true
+  esbuild: true

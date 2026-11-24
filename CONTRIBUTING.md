@@ -2,7 +2,25 @@
 
 ## Install
 
-We use [pnpm](https://pnpm.io/) for this project. Install dependencies via:
+An `.nvmrc` is included to set the node version for development. If you have Node Version Manager, do:
+
+```sh
+nvm install
+```
+
+Otherwise, install the version of node described in `.nvmrc`.
+
+We use [pnpm](https://pnpm.io/) for this project. To get the right version of pnpm, we use corepack.
+Do the following:
+
+```sh
+npm i -g corepack
+corepack install
+```
+
+If you already have pnpm installed globally, you will need to uninstall it or remove it from your path.
+
+Then, install dependencies via:
 
 ```sh
 pnpm install
