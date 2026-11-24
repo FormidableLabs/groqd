@@ -2,7 +2,15 @@
 
 ## Install
 
-We use [pnpm](https://pnpm.io/) for this project. Install dependencies via:
+We use [pnpm](https://pnpm.io/) for this project. To get the right version of pnpm, we use corepack.
+Do the following:
+
+```sh
+npm i -g corepack
+corepack install
+```
+
+Then, install dependencies via:
 
 ```sh
 pnpm install
