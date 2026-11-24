@@ -25,14 +25,16 @@
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.52.0",
     "concurrently": "^8.0.1",
+    "corepack": "^0.36.0",
     "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "monaco-editor": "^0.50.0",
     "prettier": "^2.8.4",
-    "typescript": "^4.9.5",
-    "monaco-editor": "^0.50.0"
+    "typescript": "^4.9.5"
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "packageManager": "pnpm@12.23.0+sha512.02da94ffaf133f46074322afe552f90d40b5f71ae259aefbccdacc5085b1d617e98d65e0131f5748b9b67445978ee5055d7d59a473f1eef0d504854fefcd5975"
 }
